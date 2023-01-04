@@ -20,21 +20,25 @@ provider "kubernetes" {
   cluster_ca_certificate = var.kubernetes.cluster_ca_certificate
 }
 
+module "k6-operator" {
+  source = "./k6"
+}
+
 module "dependencies" {
-  source = "../providers/dependencies"
+  source = "./dependencies"
 }
 
 module "tyk" {
-  source = "../providers/tyk"
+  source = "./tyk"
   count  = var.enable_tyk == true ? 1 : 0
 }
 
 module "kong" {
-  source = "../providers/kong"
+  source = "./kong"
   count  = var.enable_kong == true ? 1 : 0
 }
 
 module "gravitee" {
-  source = "../providers/gravitee"
+  source = "./gravitee"
   count  = var.enable_gravitee == true ? 1 : 0
 }

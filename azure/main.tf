@@ -16,8 +16,8 @@ module "azure" {
   nodes                = module.h.nodes
 }
 
-module "tests" {
-  source = "../modules/tests"
+module "deployments" {
+  source = "../modules/deployments"
 
   enable_tyk      = var.enable_tyk
   enable_kong     = var.enable_kong
