@@ -1,0 +1,53 @@
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "this" {
+  name     = "pt-${var.cluster_machine_type}"
+  location = var.cluster_location
+}
+
+resource "azurerm_kubernetes_cluster" "this" {
+  name                = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  kubernetes_version  = "1.22"
+  resource_group_name = azurerm_resource_group.this.name
+  dns_prefix          = replace(azurerm_resource_group.this.name, "_", "-")
+
+  default_node_pool {
+    name       = "this"
+    node_count = 1
+    vm_size    = "Standard_B2s"
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "this" {
+  for_each              = var.nodes
+  name                  = replace(each.value.name, "-", "")
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
+
+  vm_size    = var.cluster_machine_type
+  node_count = each.value.node_count
+
+  node_labels = {
+    "node": each.value.name
+  }
+}
+
+output "kubernetes" {
+  value = {
+    host                   = azurerm_kubernetes_cluster.this.kube_config[0].host
+    username               = azurerm_kubernetes_cluster.this.kube_config[0].username
+    password               = azurerm_kubernetes_cluster.this.kube_config[0].password
+    token                  = null
+    client_key             = base64decode(azurerm_kubernetes_cluster.this.kube_config[0].client_key)
+    client_certificate     = base64decode(azurerm_kubernetes_cluster.this.kube_config[0].client_certificate)
+    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.this.kube_config[0].cluster_ca_certificate)
+  }
+
+  depends_on = [azurerm_kubernetes_cluster.this, azurerm_kubernetes_cluster_node_pool.this]
+}

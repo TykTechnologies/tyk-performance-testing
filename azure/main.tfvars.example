@@ -1,0 +1,2 @@
+azure_cluster_location     = "westus"
+azure_cluster_machine_type = "Standard_F4s_v2"

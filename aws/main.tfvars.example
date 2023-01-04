@@ -1,0 +1,2 @@
+cluster_location     = "us-west-1"
+cluster_machine_type = "c5.xlarge"
