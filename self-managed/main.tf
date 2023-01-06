@@ -1,5 +1,5 @@
 module "tests" {
-  source = "./modules/tests"
+  source = "../modules/deployments"
 
   enable_tyk      = var.enable_tyk
   enable_kong     = var.enable_kong
