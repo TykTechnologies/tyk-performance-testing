@@ -22,5 +22,7 @@ variable "kubernetes" {
     client_key             = string
     client_certificate     = string
     cluster_ca_certificate = string
+    config_path            = string
+    config_context         = string
   })
 }

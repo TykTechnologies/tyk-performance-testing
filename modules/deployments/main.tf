@@ -7,6 +7,8 @@ provider "helm" {
     client_key             = var.kubernetes.client_key
     client_certificate     = var.kubernetes.client_certificate
     cluster_ca_certificate = var.kubernetes.cluster_ca_certificate
+    config_path            = var.kubernetes.config_path
+    config_context         = var.kubernetes.config_context
   }
 }
 
@@ -18,6 +20,8 @@ provider "kubernetes" {
   client_key             = var.kubernetes.client_key
   client_certificate     = var.kubernetes.client_certificate
   cluster_ca_certificate = var.kubernetes.cluster_ca_certificate
+  config_path            = var.kubernetes.config_path
+  config_context         = var.kubernetes.config_context
 }
 
 module "k6-operator" {

@@ -60,6 +60,8 @@ output "kubernetes" {
     client_key             = null
     client_certificate     = null
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    config_path            = null
+    config_context         = null
   }
 
   depends_on = [module.eks, module.eks_node_groups]

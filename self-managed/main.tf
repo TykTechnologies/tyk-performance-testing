@@ -1,4 +1,4 @@
-module "tests" {
+module "deployments" {
   source = "../modules/deployments"
 
   enable_tyk      = var.enable_tyk

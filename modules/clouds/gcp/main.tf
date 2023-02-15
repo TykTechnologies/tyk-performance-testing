@@ -18,7 +18,7 @@ resource "google_container_cluster" "this" {
 
 resource "google_container_node_pool" "this" {
   for_each   = var.nodes
-  name       = "${each.value.name}-node-pool"
+  name       = "${each.value.name}-np"
   cluster    = google_container_cluster.this.name
   version    = "1.22.16-gke.2000"
   location   = google_container_cluster.this.location
@@ -41,6 +41,8 @@ output "kubernetes" {
     client_key             = null
     client_certificate     = null
     cluster_ca_certificate = base64decode(google_container_cluster.this.master_auth[0].cluster_ca_certificate)
+    config_path            = null
+    config_context         = null
   }
 
   depends_on = [google_container_cluster.this, google_container_node_pool.this]
