@@ -40,12 +40,12 @@ resource "helm_release" "pgsql" {
 
   set {
     name  = "primary.nodeSelector.node"
-    value = "kong-resources"
+    value = var.resources-label
   }
 
   set {
     name  = "readReplicas.nodeSelector.node"
-    value = "kong-resources"
+    value = var.resources-label
   }
 }
 

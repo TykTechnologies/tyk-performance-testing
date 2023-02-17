@@ -28,7 +28,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "gateway.nodeSelector.node"
-    value = "tyk"
+    value = var.label
   }
 
   depends_on = [helm_release.tyk-redis]

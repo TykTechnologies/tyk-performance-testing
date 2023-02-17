@@ -14,6 +14,6 @@ resource "helm_release" "cert-manager" {
 
   set {
     name  = "nodeSelector.node"
-    value = "dependencies"
+    value = var.label
   }
 }

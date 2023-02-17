@@ -23,3 +23,24 @@ variable "enable_kong" {
 variable "enable_gravitee" {
   type = bool
 }
+
+variable "labels" {
+  type = object({
+    dependencies       = string
+    tyk                = string
+    tyk-resources      = string
+    kong               = string
+    kong-resources     = string
+    gravitee           = string
+    gravitee-resources = string
+  })
+  default = {
+    dependencies       = "dependencies"
+    tyk                = "tyk"
+    tyk-resources      = "tyk-resources"
+    kong               = "kong"
+    kong-resources     = "kong-resources"
+    gravitee           = "gravitee"
+    gravitee-resources = "gravitee-resources"
+  }
+}

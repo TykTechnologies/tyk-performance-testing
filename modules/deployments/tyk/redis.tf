@@ -19,7 +19,12 @@ resource "helm_release" "tyk-redis" {
   }
 
   set {
+    name  = "volumePermissions.enabled"
+    value = true
+  }
+
+  set {
     name  = "redis.nodeSelector.node"
-    value = "tyk-resources"
+    value = var.resources-label
   }
 }

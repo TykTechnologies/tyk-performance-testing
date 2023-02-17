@@ -19,7 +19,12 @@ resource "helm_release" "kong-redis" {
   }
 
   set {
+    name  = "volumePermissions.enabled"
+    value = true
+  }
+
+  set {
     name  = "redis.nodeSelector.node"
-    value = "kong-resources"
+    value = var.resources-label
   }
 }

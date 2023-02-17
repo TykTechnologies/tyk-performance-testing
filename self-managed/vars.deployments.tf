@@ -13,6 +13,18 @@ variable "enable_gravitee" {
   default = true
 }
 
+variable "node-labels" {
+  type = object({
+    dependencies       = string
+    tyk                = string
+    tyk-resources      = string
+    kong               = string
+    kong-resources     = string
+    gravitee           = string
+    gravitee-resources = string
+  })
+}
+
 variable "kubernetes" {
   type = object({
     host                   = string

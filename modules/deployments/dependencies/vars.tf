@@ -1,0 +1,3 @@
+variable "label" {
+  type = string
+}

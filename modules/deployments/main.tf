@@ -30,19 +30,26 @@ module "k6-operator" {
 
 module "dependencies" {
   source = "./dependencies"
+  label  = var.labels.dependencies
 }
 
 module "tyk" {
-  source = "./tyk"
-  count  = var.enable_tyk == true ? 1 : 0
+  source          = "./tyk"
+  label           = var.labels.tyk
+  resources-label = var.labels.tyk-resources
+  count           = var.enable_tyk == true ? 1 : 0
 }
 
 module "kong" {
-  source = "./kong"
-  count  = var.enable_kong == true ? 1 : 0
+  source          = "./kong"
+  label           = var.labels.kong
+  resources-label = var.labels.kong-resources
+  count           = var.enable_kong == true ? 1 : 0
 }
 
 module "gravitee" {
-  source = "./gravitee"
-  count  = var.enable_gravitee == true ? 1 : 0
+  source          = "./gravitee"
+  label           = var.labels.gravitee
+  resources-label = var.labels.gravitee-resources
+  count           = var.enable_gravitee == true ? 1 : 0
 }

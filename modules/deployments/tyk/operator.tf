@@ -24,7 +24,7 @@ resource "helm_release" "tyk-operator" {
 
   set {
     name  = "nodeSelector.node"
-    value = "tyk-resources"
+    value = var.resources-label
   }
 
   depends_on = [kubernetes_secret.tyk-operator-secret]

@@ -122,7 +122,7 @@ resource "helm_release" "kong" {
 
   set {
     name  = "nodeSelector.node"
-    value = "kong"
+    value = var.label
   }
 
   depends_on = [helm_release.kong-redis, helm_release.pgsql]

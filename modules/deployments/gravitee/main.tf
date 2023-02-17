@@ -55,7 +55,7 @@ resource "helm_release" "gravitee" {
 
   set {
     name  = "gateway.deployment.nodeSelector.node"
-    value = "gravitee"
+    value = var.label
   }
 
   depends_on = [helm_release.pgsql]
