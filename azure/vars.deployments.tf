@@ -22,14 +22,3 @@ variable "enable_gravitee" {
   type    = bool
   default = true
 }
-
-variable "worker_nodes" {
-  type    = map(number)
-  default = {
-    upstream           = 1
-    dependencies       = 1
-    tyk-resources      = 1
-    kong-resources     = 1
-    gravitee-resources = 1
-  }
-}
