@@ -16,6 +16,6 @@ output "nodes" {
     for key, value in local.nodes: key => {
       name       = key
       node_count = tonumber(value)
-    }
+    } if tonumber(value) != 0
   }
 }
