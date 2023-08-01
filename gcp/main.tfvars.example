@@ -1,3 +1,8 @@
 project              = "performance-testing"
 cluster_location     = "us-west1-a"
 cluster_machine_type = "c2-standard-4"
+provider_nodes       = 1
+resource_nodes       = 1
+enable_tyk           = true
+enable_kong          = false
+enable_gravitee      = false

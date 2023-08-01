@@ -1,21 +1,19 @@
 locals {
-  k6 = {
-    k6 = var.provider_nodes
+  nodes = {
+    upstream           = var.provider_nodes
+    k6                 = var.provider_nodes
+    tyk                = var.enable_tyk      ? var.provider_nodes : 0
+    tyk-resources      = var.enable_tyk      ? var.provider_nodes : 0
+    kong               = var.enable_kong     ? var.provider_nodes : 0
+    kong-resources     = var.enable_tyk      ? var.provider_nodes : 0
+    gravitee           = var.enable_gravitee ? var.provider_nodes : 0
+    gravitee-resources = var.enable_tyk      ? var.provider_nodes : 0
   }
-  tyk = var.enable_tyk ? {
-    tyk = var.provider_nodes
-  } : {}
-  kong = var.enable_kong ? {
-    kong = var.provider_nodes
-  } : {}
-  gravitee = var.enable_gravitee ? {
-    gravitee = var.provider_nodes
-  } : {}
 }
 
 output "nodes" {
   value = {
-    for key, value in merge(var.worker_nodes, local.k6, local.tyk, local.kong, local.gravitee): key => {
+    for key, value in local.nodes: key => {
       name       = key
       node_count = tonumber(value)
     }

@@ -15,6 +15,7 @@ variable "enable_gravitee" {
 
 variable "node-labels" {
   type = object({
+    upstream           = string
     dependencies       = string
     tyk                = string
     tyk-resources      = string

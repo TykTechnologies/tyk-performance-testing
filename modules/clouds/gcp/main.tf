@@ -6,7 +6,7 @@ data "google_client_config" "this" {}
 
 resource "google_container_cluster" "this" {
   name               = "pt-${var.cluster_machine_type}"
-  min_master_version = "1.22.16-gke.2000"
+  min_master_version = var.gke_version
   location           = var.cluster_location
 
   # We can't create a cluster with no node pool defined, but we want to only use
@@ -20,7 +20,7 @@ resource "google_container_node_pool" "this" {
   for_each   = var.nodes
   name       = "${each.value.name}-np"
   cluster    = google_container_cluster.this.name
-  version    = "1.22.16-gke.2000"
+  version    = var.gke_version
   location   = google_container_cluster.this.location
   node_count = each.value.node_count
 

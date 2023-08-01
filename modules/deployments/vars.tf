@@ -26,6 +26,7 @@ variable "enable_gravitee" {
 
 variable "labels" {
   type = object({
+    upstream           = string
     dependencies       = string
     tyk                = string
     tyk-resources      = string
@@ -35,6 +36,7 @@ variable "labels" {
     gravitee-resources = string
   })
   default = {
+    upstream           = "upstream"
     dependencies       = "dependencies"
     tyk                = "tyk"
     tyk-resources      = "tyk-resources"

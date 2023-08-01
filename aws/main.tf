@@ -2,10 +2,10 @@ module "h" {
   source = "../modules/helpers"
 
   provider_nodes  = var.provider_nodes
+  resource_nodes  = var.resource_nodes
   enable_tyk      = var.enable_tyk
   enable_kong     = var.enable_kong
   enable_gravitee = var.enable_gravitee
-  worker_nodes    = var.worker_nodes
 }
 
 module "aws" {

@@ -24,6 +24,11 @@ provider "kubernetes" {
   config_context         = var.kubernetes.config_context
 }
 
+module "upstream" {
+  source = "./upstream"
+  label  = var.labels.upstream
+}
+
 module "k6-operator" {
   source = "./k6"
 }

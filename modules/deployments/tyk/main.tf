@@ -8,7 +8,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "gateway.image.tag"
-    value = "v4.3.1"
+    value = "v5.2.0-rc1"
   }
 
   set {

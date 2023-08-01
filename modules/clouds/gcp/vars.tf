@@ -10,6 +10,10 @@ variable "cluster_machine_type" {
   type = string
 }
 
+variable "gke_version" {
+  type = string
+}
+
 variable "nodes" {
   type = map(object({
     name       = string
