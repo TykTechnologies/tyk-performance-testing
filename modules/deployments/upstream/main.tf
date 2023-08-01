@@ -1,13 +1,13 @@
 resource "kubernetes_namespace" "upstream" {
   metadata {
-    name = "upstream"
+    name = var.namespace
   }
 }
 
 resource "kubernetes_deployment" "httpbin" {
   metadata {
     name      = "httpbin"
-    namespace = "upstream"
+    namespace = var.namespace
   }
   spec {
     selector {
@@ -40,7 +40,7 @@ resource "kubernetes_deployment" "httpbin" {
 resource "kubernetes_service_v1" "httpbin" {
   metadata {
     name      = "httpbin"
-    namespace = "upstream"
+    namespace = var.namespace
     labels = {
         app = "httpbin"
       }

@@ -1,6 +1,6 @@
 variable "namespace" {
   type    = string
-  default = "tyk"
+  default = "upstream"
 }
 
 variable "label" {
