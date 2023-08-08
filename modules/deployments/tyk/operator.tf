@@ -6,9 +6,9 @@ resource "kubernetes_secret" "tyk-operator-secret" {
 
   data = {
     TYK_MODE                     = "ce"
-    TYK_URL                      = "P4ssw0rd"
-    TYK_AUTH                     = "P4ssw0rd"
-    TYK_ORG                      = "P4ssw0rd"
+    TYK_URL                      = "http://gateway-svc-tyk-tyk-headless.tyk.svc:443"
+    TYK_AUTH                     = "CHANGEME"
+    TYK_ORG                      = "tyk"
     TYK_TLS_INSECURE_SKIP_VERIFY = false
   }
 

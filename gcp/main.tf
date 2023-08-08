@@ -1,7 +1,16 @@
+terraform {
+  required_providers {
+    kubectl = {
+      source = "gavinbunney/kubectl"
+      version = "1.14.0"
+    }
+  }
+}
+
 module "h" {
   source = "../modules/helpers"
 
-  provider_nodes  = var.provider_nodes
+  service_nodes   = var.service_nodes
   resource_nodes  = var.resource_nodes
   enable_tyk      = var.enable_tyk
   enable_kong     = var.enable_kong
@@ -18,11 +27,60 @@ module "gcp" {
   nodes                = module.h.nodes
 }
 
+provider "helm" {
+  kubernetes {
+    host                   = module.gcp.kubernetes.host
+    username               = module.gcp.kubernetes.username
+    password               = module.gcp.kubernetes.password
+    token                  = module.gcp.kubernetes.token
+    client_key             = module.gcp.kubernetes.client_key
+    client_certificate     = module.gcp.kubernetes.client_certificate
+    cluster_ca_certificate = module.gcp.kubernetes.cluster_ca_certificate
+    config_path            = module.gcp.kubernetes.config_path
+    config_context         = module.gcp.kubernetes.config_context
+  }
+}
+
+provider "kubernetes" {
+  host                   = module.gcp.kubernetes.host
+  username               = module.gcp.kubernetes.username
+  password               = module.gcp.kubernetes.password
+  token                  = module.gcp.kubernetes.token
+  client_key             = module.gcp.kubernetes.client_key
+  client_certificate     = module.gcp.kubernetes.client_certificate
+  cluster_ca_certificate = module.gcp.kubernetes.cluster_ca_certificate
+  config_path            = module.gcp.kubernetes.config_path
+  config_context         = module.gcp.kubernetes.config_context
+}
+
+provider "kubectl" {
+  host                   = module.gcp.kubernetes.host
+  username               = module.gcp.kubernetes.username
+  password               = module.gcp.kubernetes.password
+  token                  = module.gcp.kubernetes.token
+  client_key             = module.gcp.kubernetes.client_key
+  client_certificate     = module.gcp.kubernetes.client_certificate
+  cluster_ca_certificate = module.gcp.kubernetes.cluster_ca_certificate
+  config_path            = module.gcp.kubernetes.config_path
+  config_context         = module.gcp.kubernetes.config_context
+}
+
 module "deployments" {
   source = "../modules/deployments"
 
   enable_tyk      = var.enable_tyk
   enable_kong     = var.enable_kong
   enable_gravitee = var.enable_gravitee
-  kubernetes      = module.gcp.kubernetes
+
+  depends_on = [module.gcp]
+}
+
+module "tests" {
+  source = "../modules/tests"
+
+  namespace    = "k6"
+  service_name = "tyk"
+  service_url  = "gateway-svc-tyk-tyk-headless:443"
+
+  depends_on = [module.deployments]
 }

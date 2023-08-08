@@ -4,57 +4,18 @@ resource "kubernetes_namespace" "upstream" {
   }
 }
 
-resource "kubernetes_deployment" "httpbin" {
-  metadata {
-    name      = "httpbin"
-    namespace = var.namespace
-  }
-  spec {
-    selector {
-      match_labels = {
-        app     = "httpbin"
-        version = "v1"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          app     = "httpbin"
-          version = "v1"
-        }
-      }
-      spec {
-        container {
-          image = "zalbiraw/go-httpbin"
-          name  = "httpbin"
-          port {
-            container_port = 8080
-            protocol       = "TCP"
-          }
-        }
-      }
-    }
-  }
+module "httpbin" {
+  source        = "./httpbin"
+  namespace     = var.namespace
+  node_selector = var.label
+  count         = var.enable_httpbin ? 1 : 0
+  depends_on    = [kubernetes_namespace.upstream]
 }
 
-resource "kubernetes_service_v1" "httpbin" {
-  metadata {
-    name      = "httpbin"
-    namespace = var.namespace
-    labels = {
-        app = "httpbin"
-      }
-    }
-  spec {
-    type     = "ClusterIP"
-    selector = {
-      app = "httpbin"
-    }
-    port {
-      name        = "http"
-      port        = 8000
-      protocol    = "TCP"
-      target_port = 8080
-    }
-  }
+module "timestamp" {
+  source        = "./timestamp"
+  namespace     = var.namespace
+  node_selector = var.label
+  count         = var.enable_timestamp ? 1 : 0
+  depends_on    = [kubernetes_namespace.upstream]
 }

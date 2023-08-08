@@ -1,4 +1,4 @@
-variable "provider_nodes" {
+variable "service_nodes" {
   type = number
 }
 
