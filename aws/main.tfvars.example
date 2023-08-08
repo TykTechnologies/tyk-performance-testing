@@ -1,6 +1,6 @@
 cluster_location     = "us-west-1"
 cluster_machine_type = "c5.xlarge"
-service_nodes       = 1
+service_nodes        = 1
 resource_nodes       = 1
 enable_tyk           = true
 enable_kong          = false
