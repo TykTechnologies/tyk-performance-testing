@@ -22,7 +22,7 @@ resource "kubernetes_deployment" "users-subgraph" {
         container {
           image   = "zalbiraw/go-api-test-service:v3.0"
           name    = "users-subgraph"
-          command = ["./services/subgraph/users/server"]
+          command = ["./services/graphql-subgraphs/users/server"]
           port {
             container_port = 4201
             protocol       = "TCP"

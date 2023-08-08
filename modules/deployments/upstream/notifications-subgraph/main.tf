@@ -22,7 +22,7 @@ resource "kubernetes_deployment" "notifications-subgraph" {
         container {
           image   = "zalbiraw/go-api-test-service:v3.0"
           name    = "notifications-subgraph"
-          command = ["./services/subgraph/notifications/server"]
+          command = ["./services/graphql-subgraphs/notifications/server"]
           port {
             container_port = 4204
             protocol       = "TCP"

@@ -1,18 +1,18 @@
-resource "kubernetes_deployment" "users-subgraph" {
+resource "kubernetes_deployment" "posts-subgraph" {
   metadata {
-    name      = "users-subgraph"
+    name      = "posts-subgraph"
     namespace = var.namespace
   }
   spec {
     selector {
       match_labels = {
-        app = "users-subgraph"
+        app = "posts-subgraph"
       }
     }
     template {
       metadata {
         labels = {
-          app = "users-subgraph"
+          app = "posts-subgraph"
         }
       }
       spec {
@@ -21,15 +21,15 @@ resource "kubernetes_deployment" "users-subgraph" {
         }
         container {
           image   = "zalbiraw/go-api-test-service:v3.0"
-          name    = "users-subgraph"
-          command = ["./services/subgraph/users/server"]
+          name    = "posts-subgraph"
+          command = ["./services/graphql-subgraphs/posts/server"]
           port {
-            container_port = 4201
+            container_port = 4202
             protocol       = "TCP"
           }
           env {
             name  = "PORT"
-            value = 4201
+            value = 4202
           }
         }
       }
@@ -37,26 +37,26 @@ resource "kubernetes_deployment" "users-subgraph" {
   }
 }
 
-resource "kubernetes_service_v1" "users-subgraph" {
+resource "kubernetes_service_v1" "posts-subgraph" {
   metadata {
-    name      = "users-subgraph"
+    name      = "posts-subgraph"
     namespace = var.namespace
     labels = {
-      app = "users-subgraph"
+      app = "posts-subgraph"
     }
   }
   spec {
     type     = "ClusterIP"
     selector = {
-      app = "users-subgraph"
+      app = "posts-subgraph"
     }
     port {
       name        = "http"
-      port        = 4201
+      port        = 4202
       protocol    = "TCP"
-      target_port = 4201
+      target_port = 4202
     }
   }
 
-  depends_on = [kubernetes_deployment.users-subgraph]
+  depends_on = [kubernetes_deployment.posts-subgraph]
 }

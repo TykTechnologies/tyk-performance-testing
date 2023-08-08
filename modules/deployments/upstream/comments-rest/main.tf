@@ -24,12 +24,12 @@ resource "kubernetes_deployment" "comments-rest" {
           name    = "comments-rest"
           command = ["./services/rest/comments/server"]
           port {
-            container_port = 3102
+            container_port = 3103
             protocol       = "TCP"
           }
           env {
             name  = "PORT"
-            value = 3102
+            value = 3103
           }
         }
       }
@@ -52,9 +52,9 @@ resource "kubernetes_service_v1" "comments-rest" {
     }
     port {
       name        = "http"
-      port        = 3102
+      port        = 3103
       protocol    = "TCP"
-      target_port = 3102
+      target_port = 3103
     }
   }
 

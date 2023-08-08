@@ -47,7 +47,7 @@ resource "kubernetes_service_v1" "httpbin" {
     }
     port {
       name        = "http"
-      port        = 8080
+      port        = 8000
       protocol    = "TCP"
       target_port = 8080
     }
