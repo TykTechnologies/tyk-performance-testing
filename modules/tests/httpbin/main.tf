@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     kubectl = {
-      source = "gavinbunney/kubectl"
-      version = "1.14.0"
+      source = "alekc/kubectl"
+      version = ">= 2.0.2"
     }
   }
 }
@@ -50,10 +50,12 @@ metadata:
 spec:
   parallelism: ${var.parallelism}
   separate: false
-  quiet: false
+  quiet: "false"
+  separate: true
   script:
-    name: httpbin-${var.service_name}-configmap
-    file: httpbin.js
+    configMap:
+      name: httpbin-${var.service_name}-configmap
+      file: httpbin.js
 YAML
 
   depends_on = [kubernetes_config_map.httpbin-configmap]
