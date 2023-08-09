@@ -1,27 +1,6 @@
-provider "helm" {
-  kubernetes {
-    host                   = var.kubernetes.host
-    username               = var.kubernetes.username
-    password               = var.kubernetes.password
-    token                  = var.kubernetes.token
-    client_key             = var.kubernetes.client_key
-    client_certificate     = var.kubernetes.client_certificate
-    cluster_ca_certificate = var.kubernetes.cluster_ca_certificate
-    config_path            = var.kubernetes.config_path
-    config_context         = var.kubernetes.config_context
-  }
-}
-
-provider "kubernetes" {
-  host                   = var.kubernetes.host
-  username               = var.kubernetes.username
-  password               = var.kubernetes.password
-  token                  = var.kubernetes.token
-  client_key             = var.kubernetes.client_key
-  client_certificate     = var.kubernetes.client_certificate
-  cluster_ca_certificate = var.kubernetes.cluster_ca_certificate
-  config_path            = var.kubernetes.config_path
-  config_context         = var.kubernetes.config_context
+module "upstream" {
+  source = "./upstream"
+  label  = var.labels.upstream
 }
 
 module "k6-operator" {

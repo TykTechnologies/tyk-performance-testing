@@ -1,4 +1,8 @@
-variable "provider_nodes" {
+variable "service_nodes" {
+  type = number
+}
+
+variable "resource_nodes" {
   type = number
 }
 
@@ -12,8 +16,4 @@ variable "enable_kong" {
 
 variable "enable_gravitee" {
   type = bool
-}
-
-variable "worker_nodes" {
-  type = map(number)
 }

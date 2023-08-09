@@ -7,3 +7,12 @@ module "deployments" {
   labels          = var.node-labels
   kubernetes      = var.kubernetes
 }
+
+
+module "tests" {
+  source = "../modules/tests"
+
+  namespace    = "k6"
+  service_name = "tyk"
+  service_url  = "gateway-svc-tyk-tyk-headless:443"
+}

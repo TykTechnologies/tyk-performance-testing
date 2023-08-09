@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    kubectl = {
+      source = "alekc/kubectl"
+      version = ">= 2.0.2"
+    }
+  }
+}
+
 resource "helm_release" "tyk" {
   name       = "tyk"
   repository = "https://helm.tyk.io/public/helm/charts"
@@ -8,7 +17,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "gateway.image.tag"
-    value = "v4.3.1"
+    value = "v5.2.0-rc1"
   }
 
   set {

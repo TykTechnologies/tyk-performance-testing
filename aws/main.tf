@@ -1,11 +1,58 @@
+terraform {
+  required_providers {
+    kubectl = {
+      source = "alekc/kubectl"
+      version = ">= 2.0.2"
+    }
+  }
+}
+
 module "h" {
   source = "../modules/helpers"
 
-  provider_nodes  = var.provider_nodes
+  service_nodes  = var.service_nodes
+  resource_nodes  = var.resource_nodes
   enable_tyk      = var.enable_tyk
   enable_kong     = var.enable_kong
   enable_gravitee = var.enable_gravitee
-  worker_nodes    = var.worker_nodes
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.aws.kubernetes.host
+    username               = module.aws.kubernetes.username
+    password               = module.aws.kubernetes.password
+    token                  = module.aws.kubernetes.token
+    client_key             = module.aws.kubernetes.client_key
+    client_certificate     = module.aws.kubernetes.client_certificate
+    cluster_ca_certificate = module.aws.kubernetes.cluster_ca_certificate
+    config_path            = module.aws.kubernetes.config_path
+    config_context         = module.aws.kubernetes.config_context
+  }
+}
+
+provider "kubernetes" {
+  host                   = module.aws.kubernetes.host
+  username               = module.aws.kubernetes.username
+  password               = module.aws.kubernetes.password
+  token                  = module.aws.kubernetes.token
+  client_key             = module.aws.kubernetes.client_key
+  client_certificate     = module.aws.kubernetes.client_certificate
+  cluster_ca_certificate = module.aws.kubernetes.cluster_ca_certificate
+  config_path            = module.aws.kubernetes.config_path
+  config_context         = module.aws.kubernetes.config_context
+}
+
+provider "kubectl" {
+  host                   = module.aws.kubernetes.host
+  username               = module.aws.kubernetes.username
+  password               = module.aws.kubernetes.password
+  token                  = module.aws.kubernetes.token
+  client_key             = module.aws.kubernetes.client_key
+  client_certificate     = module.aws.kubernetes.client_certificate
+  cluster_ca_certificate = module.aws.kubernetes.cluster_ca_certificate
+  config_path            = module.aws.kubernetes.config_path
+  config_context         = module.aws.kubernetes.config_context
 }
 
 module "aws" {
@@ -23,4 +70,16 @@ module "deployments" {
   enable_kong     = var.enable_kong
   enable_gravitee = var.enable_gravitee
   kubernetes      = module.aws.kubernetes
+
+  depends_on = [module.aws]
+}
+
+module "tests" {
+  source = "../modules/tests"
+
+  namespace    = "k6"
+  service_name = "tyk"
+  service_url  = "gateway-svc-tyk-tyk-headless:443"
+
+  depends_on = [module.deployments]
 }
