@@ -48,6 +48,14 @@ spec:
   separate: false
   quiet: "false"
   separate: true
+  cleanup: "post"
+  arguments: --out experimental-prometheus-rw
+  runner:
+    env:
+    - name: K6_PROMETHEUS_RW_SERVER_URL
+      value: http://promethus-prometheus-server.dependencies.svc:80/api/v1/write
+    - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
+      value: 1s
   script:
     configMap:
       name: timestamp-${var.service_name}-configmap

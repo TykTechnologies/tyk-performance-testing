@@ -80,7 +80,7 @@ module "tests" {
 
   namespace    = "k6"
   service_name = "tyk"
-  service_url  = "gateway-svc-tyk-tyk-headless:443"
+  service_url  = "gateway-svc-tyk-tyk-headless.tyk.svc:443"
 
   depends_on = [module.deployments]
 }
