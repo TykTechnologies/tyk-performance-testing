@@ -7,7 +7,13 @@ terraform {
   }
 }
 
-resource "kubernetes_config_map" "httpbin-configmap" {
+resource "random_string" "httpbin-keyless-test-suffix" {
+  length  = 10
+  special = false
+  upper   = true
+}
+
+resource "kubernetes_config_map" "httpbin-keyless-configmap" {
   metadata {
     name      = "httpbin-${var.service_name}-configmap"
     namespace = var.namespace
@@ -53,18 +59,20 @@ spec:
   quiet: "false"
   separate: true
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw
+  arguments: --out experimental-prometheus-rw --tag testid=${var.service_name}-httpbin-keyless-${random_string.httpbin-keyless-test-suffix.result}
   runner:
     env:
     - name: K6_PROMETHEUS_RW_SERVER_URL
-      value: http://promethus-prometheus-server.dependencies.svc:80/api/v1/write
+      value: http://prometheus-server.dependencies.svc:80/api/v1/write
     - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
       value: 1s
+    - name: K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM
+      value: "true"
   script:
     configMap:
       name: httpbin-${var.service_name}-configmap
       file: httpbin.js
 YAML
 
-  depends_on = [kubernetes_config_map.httpbin-configmap]
+  depends_on = [kubernetes_config_map.httpbin-keyless-configmap]
 }

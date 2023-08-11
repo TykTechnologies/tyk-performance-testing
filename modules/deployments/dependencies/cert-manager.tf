@@ -4,8 +4,7 @@ resource "helm_release" "cert-manager" {
   chart      = "cert-manager"
   version    = "v1.10.1"
 
-  namespace        = "dependencies"
-  create_namespace = true
+  namespace = "dependencies"
 
   set {
     name  = "installCRDs"
@@ -16,4 +15,6 @@ resource "helm_release" "cert-manager" {
     name  = "nodeSelector.node"
     value = var.label
   }
+
+  depends_on = [kubernetes_namespace.dependencies]
 }
