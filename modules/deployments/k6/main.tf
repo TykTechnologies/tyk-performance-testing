@@ -10,4 +10,9 @@ resource "helm_release" "k6-operator" {
     name  = "authProxy.enabled"
     value = "false"
   }
+
+  set {
+    name  = "nodeSelector.node"
+    value = var.label
+  }
 }

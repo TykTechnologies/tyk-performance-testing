@@ -14,6 +14,7 @@ variable "labels" {
   type = object({
     upstream           = string
     dependencies       = string
+    k6                 = string
     tyk                = string
     tyk-resources      = string
     kong               = string
@@ -24,6 +25,7 @@ variable "labels" {
   default = {
     upstream           = "upstream"
     dependencies       = "dependencies"
+    k6                 = "k6"
     tyk                = "tyk"
     tyk-resources      = "tyk-resources"
     kong               = "kong"

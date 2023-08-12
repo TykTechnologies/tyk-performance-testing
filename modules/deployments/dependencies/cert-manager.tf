@@ -16,5 +16,15 @@ resource "helm_release" "cert-manager" {
     value = var.label
   }
 
+  set {
+    name  = "webhook.nodeSelector.node"
+    value = var.label
+  }
+
+  set {
+    name  = "cainjector.nodeSelector.node"
+    value = var.label
+  }
+
   depends_on = [kubernetes_namespace.dependencies]
 }

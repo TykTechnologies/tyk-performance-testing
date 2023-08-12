@@ -60,7 +60,15 @@ spec:
   separate: true
   cleanup: "post"
   arguments: --out experimental-prometheus-rw --tag testid=${var.service_name}-httpbin-keyless-${random_string.httpbin-keyless-test-suffix.result}
+  initializer:
+    nodeselector:
+      node: k6
+  starter:
+    nodeselector:
+      node: k6
   runner:
+    nodeselector:
+      node: k6
     env:
     - name: K6_PROMETHEUS_RW_SERVER_URL
       value: http://prometheus-server.dependencies.svc:80/api/v1/write

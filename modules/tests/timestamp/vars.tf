@@ -11,5 +11,5 @@ variable "service_url" {
 }
 
 variable "parallelism" {
-  type    = number
+  type = number
 }

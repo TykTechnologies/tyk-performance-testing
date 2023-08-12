@@ -21,5 +21,20 @@ resource "helm_release" "prometheus" {
     value = "native-histograms"
   }
 
+  set {
+    name  = "alertmanager.nodeSelector.node"
+    value = var.label
+  }
+
+  set {
+    name  = "kube-state-metrics.nodeSelector.node"
+    value = var.label
+  }
+
+  set {
+    name  = "prometheus-pushgateway.nodeSelector.node"
+    value = var.label
+  }
+
   depends_on = [kubernetes_namespace.dependencies]
 }

@@ -5,6 +5,7 @@ module "upstream" {
 
 module "k6-operator" {
   source = "./k6"
+  label  = var.labels.k6
 }
 
 module "dependencies" {

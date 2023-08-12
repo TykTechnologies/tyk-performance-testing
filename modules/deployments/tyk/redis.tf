@@ -24,7 +24,12 @@ resource "helm_release" "tyk-redis" {
   }
 
   set {
-    name  = "redis.nodeSelector.node"
+    name  = "master.nodeSelector.node"
+    value = var.resources-label
+  }
+
+  set {
+    name  = "replica.nodeSelector.node"
     value = var.resources-label
   }
 }

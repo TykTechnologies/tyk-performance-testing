@@ -12,5 +12,5 @@ variable "service_url" {
 
 variable "parallelism" {
   type    = number
-  default = 4
+  default = 1
 }
