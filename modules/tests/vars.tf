@@ -12,5 +12,6 @@ variable "service_url" {
 
 variable "parallelism" {
   type    = number
+  # Currently a bug in k6 implementation
   default = 1
 }
