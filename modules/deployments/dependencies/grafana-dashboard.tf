@@ -232,9 +232,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.99, sum by(testid) (rate($metrics{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by(testid) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -331,9 +331,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.99, sum by(testid) (rate($metrics{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by(testid) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1051,7 +1051,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(histogram_sum(rate($metrics{testid=~\"$testid\"}[$__rate_interval]))\n/\nhistogram_count(rate($metrics{testid=~\"$testid\"}[$__rate_interval]))) ",
+          "expr": "(histogram_sum(rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval]))\n/\nhistogram_count(rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval]))) ",
           "hide": false,
           "legendFormat": "Response  Time (avg)  - {{testid}}",
           "range": true,
@@ -1153,7 +1153,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "CPU utilization by node",
+      "title": "CPU utilization per node",
       "type": "timeseries"
     },
     {
@@ -1449,29 +1449,15 @@ resource "kubernetes_config_map" "grafana-dashboard" {
   "templating": {
     "list": [
       {
-        "current": {
-          "selected": false,
-          "text": "Prometheus",
-          "value": "Prometheus"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "multi": false,
-        "name": "DS_PROMETHEUS",
-        "options": [],
-        "query": "prometheus",
-        "queryValue": "",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "type": "datasource"
-      },
-      {
         "allValue": ".*",
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "type": "prometheus",
@@ -1494,59 +1480,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(scenario)",
-        "hide": 0,
-        "includeAll": true,
-        "multi": false,
-        "name": "scenario",
-        "options": [],
-        "query": {
-          "query": "label_values(scenario)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "allValue": "http.*",
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(url)",
-        "hide": 0,
-        "includeAll": true,
-        "multi": false,
-        "name": "url",
-        "options": [],
-        "query": {
-          "query": "label_values(url)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
         "datasource": {
           "type": "prometheus",
           "uid": "PBFA97CFB590B2093"
@@ -1556,34 +1489,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "name": "Filters",
         "skipUrlSync": false,
         "type": "adhoc"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": "k6_http_req_waiting_seconds",
-          "value": "k6_http_req_waiting_seconds"
-        },
-        "description": "Metrics for apdex",
-        "hide": 0,
-        "includeAll": false,
-        "multi": false,
-        "name": "metrics",
-        "options": [
-          {
-            "selected": true,
-            "text": "k6_http_req_waiting_seconds",
-            "value": "k6_http_req_waiting_seconds"
-          },
-          {
-            "selected": false,
-            "text": "k6_http_req_duration_seconds",
-            "value": "k6_http_req_duration_seconds"
-          }
-        ],
-        "query": "k6_http_req_waiting_seconds, k6_http_req_duration_seconds",
-        "queryValue": "",
-        "skipUrlSync": false,
-        "type": "custom"
       }
     ]
   },
@@ -1593,7 +1498,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Official k6 Test Result",
+  "title": "k6 Test Results",
   "uid": "01npcT44k",
   "version": 1,
   "weekStart": ""
