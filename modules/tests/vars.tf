@@ -12,6 +12,7 @@ variable "service_url" {
 
 variable "parallelism" {
   type    = number
-  # Currently a bug in k6 implementation
   default = 1
+  # Currently not possible to set the value of parallelism to more than one
+  # because of implementation of the separate flag limitation.
 }
