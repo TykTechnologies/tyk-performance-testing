@@ -358,6 +358,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "text",
             "mode": "palette-classic"
           },
+          "decimals": 2,
           "mappings": [
             {
               "options": {
@@ -383,7 +384,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqs"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -1377,7 +1378,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "k6_http_reqs_total{testid=~\"$testid\", name=~\"$url\"}",
+          "expr": "k6_http_reqs_total{testid=~\"$testid\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
