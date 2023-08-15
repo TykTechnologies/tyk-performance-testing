@@ -17,7 +17,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "gateway.image.tag"
-    value = "v5.2.0-rc1"
+    value = var.gateway_version
   }
 
   set {
@@ -42,7 +42,8 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "gateway.extraEnvs[0].value"
-    value = var.enable_oTel
+    type  = "string"
+    value = var.oTel.enabled
   }
 
   set {
@@ -62,7 +63,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "gateway.extraEnvs[2].value"
-    value = var.oTel_sampling_ratio
+    value = var.oTel.sampling_ratio
   }
 
   set {

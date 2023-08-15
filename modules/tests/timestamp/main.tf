@@ -6,14 +6,6 @@ terraform {
     }
   }
 }
-
-resource "random_string" "timestamp-keyless-test-suffix" {
-  length  = 10
-  special = false
-  upper   = true
-}
-
-
 resource "kubernetes_config_map" "timestamp-keyless-configmap" {
   metadata {
     name      = "timestamp-${var.service_name}-configmap"
@@ -25,19 +17,19 @@ resource "kubernetes_config_map" "timestamp-keyless-configmap" {
 import http from 'k6/http';
 
 export const options = {
-    discardResponseBodies: true,
-    scenarios: {
-        success: {
-            executor: 'constant-vus',
-            exec: 'get',
-            vus: 50,
-            duration: '15m',
-        }
+  discardResponseBodies: true,
+  scenarios: {
+    success: {
+      executor: 'constant-vus',
+      exec: 'get',
+      vus: 50,
+      duration: '15m',
     }
+  }
 };
 
 export function get() {
-    http.get('http://${var.service_url}/timestamp-keyless/json');
+  http.get('http://${var.service_url}/timestamp-keyless/json');
 }
 EOF
   }
@@ -54,12 +46,31 @@ spec:
   parallelism: ${var.parallelism}
   separate: false
   quiet: "false"
-  separate: true
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.service_name}-timestamp-keyless-${random_string.timestamp-keyless-test-suffix.result}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.service_name}-timestamp-keyless --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
   initializer:
+    metadata:
+      labels:
+        initializer: "k6"
     nodeselector:
       node: k6
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchExpressions:
+            - key: initializer
+              operator: In
+              values:
+              - "k6"
+        - topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchExpressions:
+            - key: runner
+              operator: In
+              values:
+              - "true"
   starter:
     nodeselector:
       node: k6

@@ -1,6 +1,27 @@
-enable_tyk      = true
-enable_kong     = true
-enable_gravitee = true
+tyk = {
+  enabled = true
+  version = "v5"
+}
+
+kong = {
+  enabled = false
+  version = "v5"
+}
+
+gravitee = {
+  enabled = false
+  version = "v5"
+}
+
+oTel = {
+  enabled        = false
+  sampling_ratio = "0.5"
+}
+
+tests = {
+  timestamp = true
+  httpbin   = true
+}
 
 node-labels = {
   upstream           = "upstream"

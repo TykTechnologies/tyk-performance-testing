@@ -11,10 +11,11 @@ module "h" {
   source = "../modules/helpers"
 
   service_nodes  = var.service_nodes
-  resource_nodes  = var.resource_nodes
-  enable_tyk      = var.enable_tyk
-  enable_kong     = var.enable_kong
-  enable_gravitee = var.enable_gravitee
+  resource_nodes = var.resource_nodes
+
+  tyk      = var.tyk
+  kong     = var.kong
+  gravitee = var.gravitee
 }
 
 provider "helm" {
@@ -66,12 +67,11 @@ module "azure" {
 module "deployments" {
   source = "../modules/deployments"
 
-  enable_tyk      = var.enable_tyk
-  enable_kong     = var.enable_kong
-  enable_gravitee = var.enable_gravitee
+  tyk      = var.tyk
+  kong     = var.kong
+  gravitee = var.gravitee
 
-  tyk_enable_oTel         = var.tyk_enable_oTel
-  tyk_oTel_sampling_ratio = var.tyk_oTel_sampling_ratio
+  oTel = var.oTel
 
   depends_on = [module.azure]
 }
@@ -82,6 +82,9 @@ module "tests" {
   namespace    = "k6"
   service_name = "tyk"
   service_url  = "gateway-svc-tyk-tyk-headless.tyk.svc:443"
+
+  tests = var.tests
+  oTel  = var.oTel
 
   depends_on = [module.deployments]
 }

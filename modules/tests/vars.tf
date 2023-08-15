@@ -12,7 +12,19 @@ variable "service_url" {
 
 variable "parallelism" {
   type    = number
-  default = 1
-  # Currently not possible to set the value of parallelism to more than one
-  # because of implementation of the separate flag limitation.
+  default = 4
+}
+
+variable "oTel" {
+  type = object({
+    enabled        = bool
+    sampling_ratio = string
+  })
+}
+
+variable "tests" {
+  type = object({
+    timestamp = bool
+    httpbin   = bool
+  })
 }

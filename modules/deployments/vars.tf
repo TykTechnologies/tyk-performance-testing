@@ -1,28 +1,29 @@
-variable "enable_tyk" {
-  type = bool
+variable "tyk" {
+  type = object({
+    enabled = bool
+    version = string
+  })
 }
 
-variable "tyk_version" {
-  type    = string
-  default = "v5"
+variable "kong" {
+  type = object({
+    enabled = bool
+    version = string
+  })
 }
 
-variable "tyk_enable_oTel" {
-  type    = bool
-  default = false
+variable "gravitee" {
+  type = object({
+    enabled = bool
+    version = string
+  })
 }
 
-variable "tyk_oTel_sampling_ratio" {
-  type    = string
-  default = "0.5"
-}
-
-variable "enable_kong" {
-  type = bool
-}
-
-variable "enable_gravitee" {
-  type = bool
+variable "oTel" {
+  type = object({
+    enabled        = bool
+    sampling_ratio = string
+  })
 }
 
 variable "labels" {

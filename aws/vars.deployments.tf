@@ -8,32 +8,35 @@ variable "resource_nodes" {
   default = 1
 }
 
-variable "tyk_version" {
-  type    = string
-  default = "v5"
+variable "tyk" {
+  type = object({
+    enabled = bool
+    version = string
+  })
+  default = {
+    enabled = true
+    version = "v5"
+  }
 }
 
-variable "tyk_enable_oTel" {
-  type    = bool
-  default = false
+variable "kong" {
+  type = object({
+    enabled = bool
+    version = string
+  })
+  default = {
+    enabled = true
+    version = "v5"
+  }
 }
 
-variable "tyk_oTel_sampling_ratio" {
-  type    = string
-  default = "0.5"
-}
-
-variable "enable_tyk" {
-  type    = bool
-  default = true
-}
-
-variable "enable_kong" {
-  type    = bool
-  default = true
-}
-
-variable "enable_gravitee" {
-  type    = bool
-  default = true
+variable "gravitee" {
+  type = object({
+    enabled = bool
+    version = string
+  })
+  default = {
+    enabled = true
+    version = "v5"
+  }
 }

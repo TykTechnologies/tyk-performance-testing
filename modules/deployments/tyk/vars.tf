@@ -12,16 +12,12 @@ variable "resources-label" {
 }
 
 variable "gateway_version" {
-  type    = string
-  default = "v5"
+  type = string
 }
 
-variable "enable_oTel" {
-  type    = bool
-  default = false
-}
-
-variable "oTel_sampling_ratio" {
-  type    = string
-  default = "0.5"
+variable "oTel" {
+  type = object({
+    enabled        = bool
+    sampling_ratio = string
+  })
 }

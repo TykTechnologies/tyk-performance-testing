@@ -13,3 +13,10 @@ variable "service_url" {
 variable "parallelism" {
   type = number
 }
+
+variable "oTel" {
+  type = object({
+    enabled        = bool
+    sampling_ratio = string
+  })
+}

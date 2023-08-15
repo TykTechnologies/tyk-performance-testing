@@ -3,12 +3,12 @@ locals {
     upstream           = var.service_nodes
     dependencies       = var.resource_nodes
     k6                 = var.service_nodes
-    tyk                = var.enable_tyk      ? var.service_nodes : 0
-    tyk-resources      = var.enable_tyk      ? var.resource_nodes : 0
-    kong               = var.enable_kong     ? var.service_nodes : 0
-    kong-resources     = var.enable_kong     ? var.resource_nodes : 0
-    gravitee           = var.enable_gravitee ? var.service_nodes : 0
-    gravitee-resources = var.enable_gravitee ? var.resource_nodes : 0
+    tyk                = var.tyk.enabled      ? var.service_nodes  : 0
+    tyk-resources      = var.tyk.enabled      ? var.resource_nodes : 0
+    kong               = var.kong.enabled     ? var.service_nodes  : 0
+    kong-resources     = var.kong.enabled     ? var.resource_nodes : 0
+    gravitee           = var.gravitee.enabled ? var.service_nodes  : 0
+    gravitee-resources = var.gravitee.enabled ? var.resource_nodes : 0
   }
 }
 
