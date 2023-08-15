@@ -63,6 +63,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "gateway.extraEnvs[2].value"
+    type  = "string"
     value = var.oTel.sampling_ratio
   }
 
