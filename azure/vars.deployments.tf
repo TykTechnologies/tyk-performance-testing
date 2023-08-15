@@ -13,6 +13,21 @@ variable "enable_tyk" {
   default = true
 }
 
+variable "tyk_version" {
+  type    = string
+  default = "v5"
+}
+
+variable "tyk_enable_oTel" {
+  type    = bool
+  default = false
+}
+
+variable "tyk_oTel_sampling_ratio" {
+  type    = string
+  default = "0.5"
+}
+
 variable "enable_kong" {
   type    = bool
   default = true

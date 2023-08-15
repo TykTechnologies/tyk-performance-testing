@@ -72,6 +72,9 @@ module "deployments" {
   enable_kong     = var.enable_kong
   enable_gravitee = var.enable_gravitee
 
+  tyk_enable_oTel         = var.tyk_enable_oTel
+  tyk_oTel_sampling_ratio = var.tyk_oTel_sampling_ratio
+
   depends_on = [module.gcp]
 }
 

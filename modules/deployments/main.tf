@@ -14,10 +14,16 @@ module "dependencies" {
 }
 
 module "tyk" {
-  source          = "./tyk"
+  source = "./tyk"
+
   label           = var.labels.tyk
   resources-label = var.labels.tyk-resources
-  count           = var.enable_tyk == true ? 1 : 0
+
+ gateway_version     = var.tyk_version
+ enable_oTel         = var.tyk_enable_oTel
+ oTel_sampling_ratio = var.tyk_oTel_sampling_ratio
+
+  count = var.enable_tyk == true ? 1 : 0
 }
 
 module "kong" {

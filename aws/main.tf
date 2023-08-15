@@ -69,7 +69,9 @@ module "deployments" {
   enable_tyk      = var.enable_tyk
   enable_kong     = var.enable_kong
   enable_gravitee = var.enable_gravitee
-  kubernetes      = module.aws.kubernetes
+
+  tyk_enable_oTel         = var.tyk_enable_oTel
+  tyk_oTel_sampling_ratio = var.tyk_oTel_sampling_ratio
 
   depends_on = [module.aws]
 }
@@ -79,7 +81,7 @@ module "tests" {
 
   namespace    = "k6"
   service_name = "tyk"
-  service_url  = "gateway-svc-tyk-tyk-headless:443"
+  service_url  = "gateway-svc-tyk-tyk-headless.tyk.svc:443"
 
   depends_on = [module.deployments]
 }

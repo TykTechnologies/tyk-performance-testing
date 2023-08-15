@@ -36,6 +36,36 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    name  = "gateway.extraEnvs[0].name"
+    value = "TYK_GW_OPENTELEMETRY_ENABLED"
+  }
+
+  set {
+    name  = "gateway.extraEnvs[0].value"
+    value = var.enable_oTel
+  }
+
+  set {
+    name  = "gateway.extraEnvs[1].name"
+    value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
+  }
+
+  set {
+    name  = "gateway.extraEnvs[1].value"
+    value = "TraceIDRatioBased"
+  }
+
+  set {
+    name  = "gateway.extraEnvs[2].name"
+    value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
+  }
+
+  set {
+    name  = "gateway.extraEnvs[2].value"
+    value = var.oTel_sampling_ratio
+  }
+
+  set {
     name  = "gateway.nodeSelector.node"
     value = var.label
   }
