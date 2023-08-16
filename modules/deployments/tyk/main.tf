@@ -68,6 +68,26 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    name  = "gateway.extraEnvs[3].name"
+    value = "TYK_GW_OPENTELEMETRY_EXPORTER"
+  }
+
+  set {
+    name  = "gateway.extraEnvs[3].value"
+    value = "grpc"
+  }
+
+  set {
+    name  = "gateway.extraEnvs[4].name"
+    value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
+  }
+
+  set {
+    name  = "gateway.extraEnvs[4].value"
+    value = "opentelemetry-collector.dependencies.svc:4317"
+  }
+
+  set {
     name  = "gateway.nodeSelector.node"
     value = var.label
   }
