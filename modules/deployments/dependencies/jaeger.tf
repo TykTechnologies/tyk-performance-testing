@@ -4,7 +4,8 @@ resource "helm_release" "jaeger-operator" {
   chart      = "jaeger-operator"
   version    = "v2.46.2"
 
-  namespace = "dependencies"
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "nodeSelector.node"
@@ -20,7 +21,7 @@ apiVersion: jaegertracing.io/v1
 kind: Jaeger
 metadata:
   name: jaeger
-  namespace: dependencies
+  namespace: ${var.namespace}
 spec:
   allInOne:
     affinity:

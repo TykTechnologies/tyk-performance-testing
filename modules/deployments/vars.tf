@@ -1,21 +1,24 @@
 variable "tyk" {
   type = object({
-    enabled = bool
-    version = string
+    enabled   = bool
+    version   = string
+    analytics = bool
   })
 }
 
 variable "kong" {
   type = object({
-    enabled = bool
-    version = string
+    enabled   = bool
+    version   = string
+    analytics = bool
   })
 }
 
 variable "gravitee" {
   type = object({
-    enabled = bool
-    version = string
+    enabled   = bool
+    version   = string
+    analytics = bool
   })
 }
 

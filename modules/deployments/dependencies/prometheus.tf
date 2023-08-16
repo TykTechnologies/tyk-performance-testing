@@ -4,7 +4,8 @@ resource "helm_release" "prometheus" {
   chart      = "prometheus"
   version    = "23.3.0"
 
-  namespace = "dependencies"
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "server.nodeSelector.node"

@@ -4,7 +4,7 @@ apiVersion: tyk.tyk.io/v1alpha1
 kind: ApiDefinition
 metadata:
   name: timestamp-keyless
-  namespace: tyk
+  namespace: ${var.namespace}
 spec:
   name: timestamp-keyless
   use_keyless: true

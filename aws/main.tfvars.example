@@ -4,18 +4,21 @@ service_nodes        = 1
 resource_nodes       = 1
 
 tyk = {
-  enabled = true
-  version = "v5"
+  enabled   = true
+  version   = "v5"
+  analytics = false
 }
 
 kong = {
-  enabled = false
-  version = "v5"
+  enabled   = false
+  version   = "v5"
+  analytics = false
 }
 
 gravitee = {
-  enabled = false
-  version = "v5"
+  enabled   = false
+  version   = "v5"
+  analytics = false
 }
 
 oTel = {

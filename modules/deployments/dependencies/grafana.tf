@@ -4,7 +4,8 @@ resource "helm_release" "grafana" {
   chart      = "grafana"
   version    = "v6.58.8"
 
-  namespace = "dependencies"
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "adminPassword"
@@ -111,6 +112,6 @@ resource "helm_release" "grafana" {
     value = var.label
   }
 
-  depends_on = [kubernetes_namespace.dependencies, kubernetes_config_map.grafana-dashboard]
+  depends_on = [kubernetes_config_map.grafana-dashboard]
 }
 

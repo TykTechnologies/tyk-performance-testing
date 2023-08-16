@@ -4,9 +4,8 @@ resource "helm_release" "tyk-redis" {
   chart      = "redis"
   version    = "17.4.0"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "image.tag"
@@ -32,4 +31,6 @@ resource "helm_release" "tyk-redis" {
     name  = "replica.nodeSelector.node"
     value = var.resources-label
   }
+
+  depends_on = [kubernetes_namespace.tyk]
 }

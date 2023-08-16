@@ -1,7 +1,7 @@
 resource "kubernetes_config_map" "grafana-dashboard" {
   metadata {
     name      = "grafana-dashboards-configmap"
-    namespace = "dependencies"
+    namespace = var.namespace
   }
 
   data = {
@@ -1506,4 +1506,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
 }
 EOF
   }
+
+  depends_on = [kubernetes_namespace.dependencies]
 }

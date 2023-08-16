@@ -16,7 +16,7 @@ module "tests" {
 
   namespace    = "k6"
   service_name = "tyk"
-  service_url  = "gateway-svc-tyk-tyk-headless.tyk.svc:443"
+  service_url  = "gateway-svc-tyk-gateway.tyk.svc:8080"
 
   tests = var.tests
   oTel  = var.oTel

@@ -4,7 +4,8 @@ resource "helm_release" "cert-manager" {
   chart      = "cert-manager"
   version    = "v1.10.1"
 
-  namespace = "dependencies"
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "installCRDs"

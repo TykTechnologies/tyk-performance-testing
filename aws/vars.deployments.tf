@@ -10,33 +10,39 @@ variable "resource_nodes" {
 
 variable "tyk" {
   type = object({
-    enabled = bool
-    version = string
+    enabled   = bool
+    version   = string
+    analytics = bool
   })
   default = {
-    enabled = true
-    version = "v5"
+    enabled   = true
+    version   = "v5"
+    analytics = false
   }
 }
 
 variable "kong" {
   type = object({
-    enabled = bool
-    version = string
+    enabled   = bool
+    version   = string
+    analytics = bool
   })
   default = {
-    enabled = true
-    version = "v5"
+    enabled   = true
+    version   = "v5"
+    analytics = false
   }
 }
 
 variable "gravitee" {
   type = object({
-    enabled = bool
-    version = string
+    enabled   = bool
+    version   = string
+    analytics = bool
   })
   default = {
-    enabled = true
-    version = "v5"
+    enabled   = true
+    version   = "v5"
+    analytics = false
   }
 }

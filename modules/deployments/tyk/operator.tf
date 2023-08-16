@@ -6,7 +6,7 @@ resource "kubernetes_secret" "tyk-operator-secret" {
 
   data = {
     TYK_MODE                     = "ce"
-    TYK_URL                      = "http://gateway-svc-tyk-tyk-headless.tyk.svc:443"
+    TYK_URL                      = "http://gateway-svc-${helm_release.tyk.name}.${helm_release.tyk.namespace}.svc:8080"
     TYK_AUTH                     = "CHANGEME"
     TYK_ORG                      = "tyk"
     TYK_TLS_INSECURE_SKIP_VERIFY = false
@@ -21,6 +21,7 @@ resource "helm_release" "tyk-operator" {
   chart      = "tyk-operator"
 
   namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "nodeSelector.node"

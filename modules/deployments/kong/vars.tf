@@ -15,6 +15,9 @@ variable "gateway_version" {
   type = string
 }
 
+variable "analytics" {
+  type = bool
+}
 
 variable "oTel" {
   type = object({

@@ -4,7 +4,7 @@ apiVersion: tyk.tyk.io/v1alpha1
 kind: ApiDefinition
 metadata:
   name: httpbin-keyless
-  namespace: tyk
+  namespace: ${var.namespace}
 spec:
   name: httpbin-keyless
   use_keyless: true
