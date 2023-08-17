@@ -1,38 +1,51 @@
-resource "helm_release" "jaeger-operator" {
-  name       = "jaeger-operator"
+resource "helm_release" "jaeger" {
+  name       = "jaeger"
   repository = "https://jaegertracing.github.io/helm-charts"
-  chart      = "jaeger-operator"
-  version    = "v2.46.2"
+  chart      = "jaeger"
+  version    = "0.71.11"
 
   namespace = var.namespace
   atomic    = true
 
   set {
-    name  = "nodeSelector.node"
+    name  = "provisionDataStore.cassandra"
+    value = false
+  }
+
+  set {
+    name  = "provisionDataStore.elasticsearch"
+    value = true
+  }
+
+  set {
+    name  = "storage.type"
+    value = "elasticsearch"
+  }
+
+  set {
+    name  = "elasticsearch.nodeSelector.node"
+    value = var.label
+  }
+
+  set {
+    name  = "elasticsearch.antiAffinity"
+    value = "soft"
+  }
+
+  set {
+    name  = "agent.nodeSelector.node"
+    value = var.label
+  }
+
+  set {
+    name  = "collector.nodeSelector.node"
+    value = var.label
+  }
+
+  set {
+    name  = "query.nodeSelector.node"
     value = var.label
   }
 
   depends_on = [helm_release.cert-manager]
-}
-
-resource "kubectl_manifest" "jaeger" {
-  yaml_body = <<YAML
-apiVersion: jaegertracing.io/v1
-kind: Jaeger
-metadata:
-  name: jaeger
-  namespace: ${var.namespace}
-spec:
-  allInOne:
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-          - matchExpressions:
-            - key: node
-              operator: In
-              values:
-              - dependencies
-YAML
-  depends_on = [helm_release.jaeger-operator]
 }
