@@ -52,7 +52,7 @@ spec:
     metadata:
       labels:
         initializer: "k6"
-    nodeselector:
+    nodeSelector:
       node: k6
     affinity:
       podAntiAffinity:
