@@ -78,4 +78,6 @@ resource "helm_release" "opentelemetry-collector" {
   }
 
   depends_on = [kubernetes_namespace.dependencies]
+
+  count = var.oTelEnabled ? 1 : 0
 }

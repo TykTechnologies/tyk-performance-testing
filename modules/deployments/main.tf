@@ -10,7 +10,9 @@ module "k6-operator" {
 
 module "dependencies" {
   source = "./dependencies"
-  label  = var.labels.dependencies
+
+  label       = var.labels.dependencies
+  oTelEnabled = var.oTel.enabled
 }
 
 module "tyk" {

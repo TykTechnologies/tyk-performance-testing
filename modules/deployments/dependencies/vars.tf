@@ -6,3 +6,7 @@ variable "namespace" {
 variable "label" {
   type = string
 }
+
+variable "oTelEnabled" {
+  type = bool
+}
