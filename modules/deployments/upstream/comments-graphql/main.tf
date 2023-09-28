@@ -1,18 +1,18 @@
-resource "kubernetes_deployment" "notifications-graphql" {
+resource "kubernetes_deployment" "comments-graphql" {
   metadata {
-    name      = "notifications-graphql"
+    name      = "comments-graphql"
     namespace = var.namespace
   }
   spec {
     selector {
       match_labels = {
-        app = "notifications-graphql"
+        app = "comments-graphql"
       }
     }
     template {
       metadata {
         labels = {
-          app = "notifications-graphql"
+          app = "comments-graphql"
         }
       }
       spec {
@@ -21,15 +21,15 @@ resource "kubernetes_deployment" "notifications-graphql" {
         }
         container {
           image   = "zalbiraw/go-api-test-service:v3.0"
-          name    = "notifications-graphql"
-          command = ["./services/graphql/notifications/server"]
+          name    = "comments-graphql"
+          command = ["./services/graphql/comments/server"]
           port {
-            container_port = 4104
+            container_port = 4103
             protocol       = "TCP"
           }
           env {
             name  = "PORT"
-            value = 4104
+            value = 4103
           }
         }
       }
@@ -37,26 +37,26 @@ resource "kubernetes_deployment" "notifications-graphql" {
   }
 }
 
-resource "kubernetes_service_v1" "notifications-graphql" {
+resource "kubernetes_service_v1" "comments-graphql" {
   metadata {
-    name      = "notifications-graphql"
+    name      = "comments-graphql"
     namespace = var.namespace
     labels = {
-      app = "notifications-graphql"
+      app = "comments-graphql"
     }
   }
   spec {
     type     = "ClusterIP"
     selector = {
-      app = "notifications-graphql"
+      app = "comments-graphql"
     }
     port {
       name        = "http"
-      port        = 4104
+      port        = 4103
       protocol    = "TCP"
-      target_port = 4104
+      target_port = 4103
     }
   }
 
-  depends_on = [kubernetes_deployment.notifications-graphql]
+  depends_on = [kubernetes_deployment.comments-graphql]
 }
