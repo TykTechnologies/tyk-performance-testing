@@ -1506,6 +1506,4 @@ resource "kubernetes_config_map" "grafana-dashboard" {
 }
 EOF
   }
-
-  depends_on = [kubernetes_namespace.dependencies]
 }

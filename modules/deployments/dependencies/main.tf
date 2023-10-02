@@ -6,9 +6,3 @@ terraform {
     }
   }
 }
-
-resource "kubernetes_namespace" "dependencies" {
-  metadata {
-    name = var.namespace
-  }
-}

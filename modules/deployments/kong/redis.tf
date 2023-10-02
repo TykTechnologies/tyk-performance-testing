@@ -15,7 +15,7 @@ resource "helm_release" "kong-redis" {
 
   set {
     name  = "auth.password"
-    value = "topsecretpassword"
+    value = local.redis-pass
   }
 
   set {
@@ -24,7 +24,22 @@ resource "helm_release" "kong-redis" {
   }
 
   set {
-    name  = "redis.nodeSelector.node"
+    name  = "master.service.ports.redis"
+    value = local.redis-port
+  }
+
+  set {
+    name  = "replica.service.ports.redis"
+    value = local.redis-port
+  }
+
+  set {
+    name  = "master.nodeSelector.node"
+    value = var.resources-label
+  }
+
+  set {
+    name  = "replica.nodeSelector.node"
     value = var.resources-label
   }
 }

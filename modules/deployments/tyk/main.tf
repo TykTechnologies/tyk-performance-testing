@@ -7,10 +7,9 @@ terraform {
   }
 }
 
-resource "kubernetes_namespace" "tyk" {
-  metadata {
-    name = var.namespace
-  }
+locals {
+  redis-pass = "topsecretpassword"
+  redis-port = "6379"
 }
 
 resource "helm_release" "tyk" {
@@ -18,17 +17,18 @@ resource "helm_release" "tyk" {
   repository = "https://helm.tyk.io/public/helm/charts"
   chart      = "tyk-oss"
 
-  namespace = var.namespace
-  atomic    = true
+  namespace        = var.namespace
+  create_namespace = true
+  atomic           = true
 
   set {
     name  = "global.redis.addrs[0]"
-    value = "tyk-redis-master.${var.namespace}.svc:6379"
+    value = "${helm_release.tyk-redis.name}-master.${var.namespace}.svc:${local.redis-port}"
   }
 
   set {
     name  = "global.redis.pass"
-    value = "topsecretpassword"
+    value = local.redis-pass
   }
 
   set {

@@ -4,8 +4,9 @@ resource "helm_release" "grafana" {
   chart      = "grafana"
   version    = "v6.58.8"
 
-  namespace = var.namespace
-  atomic    = true
+  namespace        = var.namespace
+  create_namespace = true
+  atomic           = true
 
   set {
     name  = "adminPassword"

@@ -1,5 +1,5 @@
-resource "helm_release" "pgsql" {
-  name       = "pgsql"
+resource "helm_release" "kong-pgsql" {
+  name       = "kong-pgsql"
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "postgresql"
   version    = "11.9.7"
@@ -10,32 +10,32 @@ resource "helm_release" "pgsql" {
 
   set {
     name  = "auth.database"
-    value = local.database-name
+    value = local.pgsql-name
   }
 
   set {
     name  = "auth.postgresPassword"
-    value = local.database-pass
+    value = local.pgsql-pass
   }
 
   set {
     name  = "auth.username"
-    value = local.database-user
+    value = local.pgsql-user
   }
 
   set {
     name  = "auth.password"
-    value = local.database-pass
+    value = local.pgsql-pass
   }
 
   set {
     name  = "containerPorts.postgresql"
-    value = local.database-port
+    value = local.pgsql-port
   }
 
   set {
     name  = "primary.service.ports.postgresql"
-    value = local.database-port
+    value = local.pgsql-port
   }
 
   set {

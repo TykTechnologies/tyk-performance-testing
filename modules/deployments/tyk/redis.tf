@@ -4,8 +4,9 @@ resource "helm_release" "tyk-redis" {
   chart      = "redis"
   version    = "17.4.0"
 
-  namespace = var.namespace
-  atomic    = true
+  namespace        = var.namespace
+  create_namespace = true
+  atomic           = true
 
   set {
     name  = "image.tag"
@@ -14,12 +15,22 @@ resource "helm_release" "tyk-redis" {
 
   set {
     name  = "auth.password"
-    value = "topsecretpassword"
+    value = local.redis-pass
   }
 
   set {
     name  = "volumePermissions.enabled"
     value = true
+  }
+
+  set {
+    name  = "master.service.ports.redis"
+    value = local.redis-port
+  }
+
+  set {
+    name  = "replica.service.ports.redis"
+    value = local.redis-port
   }
 
   set {
@@ -31,6 +42,4 @@ resource "helm_release" "tyk-redis" {
     name  = "replica.nodeSelector.node"
     value = var.resources-label
   }
-
-  depends_on = [kubernetes_namespace.tyk]
 }

@@ -1,8 +1,10 @@
 locals {
-  database-name = "kong-database"
-  database-user = "kong"
-  database-pass = "topsecretpassword"
-  database-port = "5432"
+  pgsql-name = "kong-database"
+  pgsql-user = "kong"
+  pgsql-pass = "topsecretpassword"
+  pgsql-port = "5432"
+  redis-pass = "topsecretpassword"
+  redis-port = "6379"
 }
 
 resource "helm_release" "kong" {
@@ -10,12 +12,14 @@ resource "helm_release" "kong" {
   repository = "https://charts.konghq.com"
   chart      = "kong"
 
-  namespace = var.namespace
-  atomic    = true
+  namespace        = var.namespace
+  create_namespace = true
+  atomic           = true
 
   #############################################################################
   # Performance
   #############################################################################
+
   set {
     name  = "env.nginx_worker_processes"
     value = "auto"
@@ -34,6 +38,7 @@ resource "helm_release" "kong" {
   #############################################################################
   # Database
   #############################################################################
+
   set {
     name  = "postgresql.enabled"
     value = "false"
@@ -46,35 +51,36 @@ resource "helm_release" "kong" {
 
   set {
     name  = "env.pg_database"
-    value = local.database-name
+    value = local.pgsql-name
   }
 
   set {
     name  = "env.cassandra_contact_points"
-    value = local.database-name
+    value = local.pgsql-name
   }
 
   #############################################################################
   # Postgres Connection
   #############################################################################
+
   set {
     name  = "env.pg_host"
-    value = "pgsql-postgresql.${var.namespace}.svc"
+    value = "${helm_release.kong-pgsql.name}-postgresql.${var.namespace}.svc"
   }
 
   set {
     name  = "env.pg_port"
-    value = local.database-port
+    value = local.pgsql-port
   }
 
   set {
     name  = "env.pg_user"
-    value = local.database-user
+    value = local.pgsql-user
   }
 
   set {
     name  = "env.pg_password"
-    value = local.database-pass
+    value = local.pgsql-pass
   }
 
   set {
@@ -90,6 +96,7 @@ resource "helm_release" "kong" {
   #############################################################################
   # Kong services
   #############################################################################
+
   set {
     name  = "proxy.type"
     value = "ClusterIP"
@@ -125,5 +132,5 @@ resource "helm_release" "kong" {
     value = var.label
   }
 
-  depends_on = [helm_release.kong-redis, helm_release.pgsql]
+  depends_on = [helm_release.kong-redis, helm_release.kong-pgsql]
 }

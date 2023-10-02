@@ -4,8 +4,9 @@ resource "helm_release" "opentelemetry-collector" {
   chart      = "opentelemetry-collector"
   version    = "0.62.0"
 
-  namespace = var.namespace
-  atomic    = true
+  namespace        = var.namespace
+  create_namespace = true
+  atomic           = true
 
   set {
     name  = "nodeSelector.node"
@@ -76,8 +77,6 @@ resource "helm_release" "opentelemetry-collector" {
     name  = "config.service.pipelines.traces.exporters[0]"
     value = "jaeger"
   }
-
-  depends_on = [kubernetes_namespace.dependencies]
 
   count = var.oTelEnabled ? 1 : 0
 }
