@@ -42,7 +42,7 @@ variable "gravitee" {
   })
   default = {
     enabled   = true
-    version   = "v5"
+    version   = "4.1"
     analytics = false
   }
 }

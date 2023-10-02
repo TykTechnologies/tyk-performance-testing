@@ -18,7 +18,7 @@ kong = {
 
 gravitee = {
   enabled   = false
-  version   = "v5"
+  version   = "4.1"
   analytics = false
 }
 

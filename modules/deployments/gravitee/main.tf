@@ -107,6 +107,11 @@ resource "helm_release" "gravitee" {
   #############################################################################
 
   set {
+    name  = "gateway.image.tag"
+    value = var.gateway_version
+  }
+
+  set {
     name  = "gateway.services.sync.kubernetes.enabled"
     value = "true"
   }
