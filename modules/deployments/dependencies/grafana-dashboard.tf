@@ -4,6 +4,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
     namespace = var.namespace
   }
 
+  depends_on = [kubernetes_namespace.dependencies]
+
   data = {
     "dashboards.json" = <<EOF
 {

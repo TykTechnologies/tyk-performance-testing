@@ -4,9 +4,8 @@ resource "helm_release" "jaeger" {
   chart      = "jaeger"
   version    = "0.71.11"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "provisionDataStore.cassandra"

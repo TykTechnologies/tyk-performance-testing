@@ -4,9 +4,8 @@ resource "helm_release" "prometheus" {
   chart      = "prometheus"
   version    = "23.3.0"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "server.nodeSelector.node"
@@ -37,4 +36,6 @@ resource "helm_release" "prometheus" {
     name  = "prometheus-pushgateway.nodeSelector.node"
     value = var.label
   }
+
+  depends_on = [kubernetes_namespace.dependencies]
 }
