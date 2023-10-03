@@ -9,8 +9,8 @@ terraform {
 
 resource "kubernetes_config_map" "httpbin-keyless-configmap" {
   metadata {
-    name      = "httpbin-${var.service_name}-configmap"
-    namespace = var.namespace
+    name      = "httpbin-${var.name}-configmap"
+    namespace = var.name
   }
 
   data = {
@@ -30,7 +30,7 @@ export const options = {
 };
 
 function sendStatus(status) {
-  http.get('http://${var.service_url}/httpbin-keyless/status/' + status);
+  http.get('http://${var.url}/httpbin-keyless/status/' + status);
 }
 
 export function success() {
@@ -46,19 +46,19 @@ apiVersion: k6.io/v1alpha1
 kind: K6
 metadata:
   name: httpbin
-  namespace: ${var.namespace}
+  namespace: var.name
 spec:
   parallelism: ${var.parallelism}
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.service_name}-httpbin-keyless --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-httpbin-keyless --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
   initializer:
     metadata:
       labels:
         initializer: "k6"
     nodeSelector:
-      node: k6
+      node: ${var.name}-tests
     affinity:
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
@@ -78,10 +78,10 @@ spec:
               - "true"
   starter:
     nodeselector:
-      node: k6
+      node: ${var.name}-tests
   runner:
     nodeselector:
-      node: k6
+      node: ${var.name}-tests
     env:
     - name: K6_PROMETHEUS_RW_SERVER_URL
       value: http://prometheus-server.dependencies.svc:80/api/v1/write
@@ -91,7 +91,7 @@ spec:
       value: "true"
   script:
     configMap:
-      name: httpbin-${var.service_name}-configmap
+      name: httpbin-${var.name}-configmap
       file: httpbin.js
 YAML
 

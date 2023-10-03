@@ -33,15 +33,15 @@ module "eks_node_groups" {
   for_each = var.nodes
   source   = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
 
-  name            = each.value.name
+  name            = each.key
   cluster_name    = module.eks.cluster_name
   cluster_version = module.eks.cluster_version
   subnet_ids      = module.vpc.private_subnets
-  desired_size    = each.value.node_count
+  desired_size    = each.value
   instance_types  = [var.cluster_machine_type]
 
   labels = {
-    "node": each.value.name
+    "node": each.key
   }
 }
 

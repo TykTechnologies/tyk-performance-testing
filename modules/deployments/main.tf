@@ -1,18 +1,32 @@
-module "upstream" {
-  source = "./upstream"
-  label  = var.labels.upstream
-}
-
-module "k6-operator" {
-  source = "./k6"
-  label  = var.labels.k6
-}
-
 module "dependencies" {
   source = "./dependencies"
 
   label       = var.labels.dependencies
   oTelEnabled = var.oTel.enabled
+}
+
+module "tyk-upstream" {
+  source    = "./upstream"
+  label     = var.labels.tyk-upstream
+  namespace = var.labels.tyk-upstream
+
+  count = var.tyk.enabled == true ? 1 : 0
+}
+
+module "kong-upstream" {
+  source = "./upstream"
+  label     = var.labels.kong-upstream
+  namespace = var.labels.kong-upstream
+
+  count = var.kong.enabled == true ? 1 : 0
+}
+
+module "gravitee-upstream" {
+  source = "./upstream"
+  label     = var.labels.gravitee-upstream
+  namespace = var.labels.gravitee-upstream
+
+  count = var.gravitee.enabled == true ? 1 : 0
 }
 
 module "tyk" {

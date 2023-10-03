@@ -18,16 +18,16 @@ resource "google_container_cluster" "this" {
 
 resource "google_container_node_pool" "this" {
   for_each   = var.nodes
-  name       = "${each.value.name}-np"
+  name       = "${each.key}-np"
   cluster    = google_container_cluster.this.name
   version    = var.gke_version
   location   = google_container_cluster.this.location
-  node_count = each.value.node_count
+  node_count = each.value
 
   node_config {
     machine_type = var.cluster_machine_type
     labels = {
-      "node": each.value.name
+      "node": each.key
     }
   }
 }

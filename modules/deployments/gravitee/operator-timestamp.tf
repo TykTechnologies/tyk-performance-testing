@@ -17,7 +17,7 @@ spec:
     groups:
     - endpoints:
       - name: "Default"
-        target: "http://timestamp.upstream.svc:3100"
+        target: "http://timestamp.gravitee-upstream.svc:3100"
 YAML
   depends_on = [helm_release.gravitee-operator]
 }

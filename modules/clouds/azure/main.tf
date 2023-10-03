@@ -27,14 +27,14 @@ resource "azurerm_kubernetes_cluster" "this" {
 
 resource "azurerm_kubernetes_cluster_node_pool" "this" {
   for_each              = var.nodes
-  name                  = replace(each.value.name, "-", "")
+  name                  = replace(each.key, "-", "")
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
 
   vm_size    = var.cluster_machine_type
-  node_count = each.value.node_count
+  node_count = each.value
 
   node_labels = {
-    "node": each.value.name
+    "node": each.key
   }
 }
 

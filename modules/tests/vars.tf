@@ -1,13 +1,25 @@
-variable "namespace" {
-  type = string
+variable "tyk" {
+  type = object({
+    enabled   = bool
+    version   = string
+    analytics = bool
+  })
 }
 
-variable "service_name" {
-  type = string
+variable "kong" {
+  type = object({
+    enabled   = bool
+    version   = string
+    analytics = bool
+  })
 }
 
-variable "service_url" {
-  type = string
+variable "gravitee" {
+  type = object({
+    enabled   = bool
+    version   = string
+    analytics = bool
+  })
 }
 
 variable "parallelism" {

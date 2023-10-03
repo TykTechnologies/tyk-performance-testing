@@ -15,8 +15,5 @@ variable "gke_version" {
 }
 
 variable "nodes" {
-  type = map(object({
-    name       = string
-    node_count = number
-  }))
+  type = map(number)
 }

@@ -11,7 +11,7 @@ spec:
   protocol: http
   active: true
   proxy:
-    target_url: http://httpbin.upstream.svc:8000
+    target_url: http://httpbin.tyk-upstream.svc:8000
     listen_path: /httpbin-keyless
     strip_listen_path: true
 YAML

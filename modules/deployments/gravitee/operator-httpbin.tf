@@ -17,7 +17,7 @@ spec:
     groups:
     - endpoints:
       - name: "Default"
-        target: "http://httpbin.upstream.svc:8000"
+        target: "http://httpbin.gravitee-upstream.svc:8000"
 YAML
   depends_on = [helm_release.gravitee-operator]
 }

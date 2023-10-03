@@ -1,17 +1,9 @@
-variable "namespace" {
+variable "name" {
   type = string
 }
 
-variable "service_name" {
+variable "url" {
   type = string
-}
-
-variable "service_url" {
-  type = string
-}
-
-variable "parallelism" {
-  type = number
 }
 
 variable "oTel" {
@@ -19,4 +11,8 @@ variable "oTel" {
     enabled        = bool
     sampling_ratio = string
   })
+}
+
+variable "parallelism" {
+  type = number
 }

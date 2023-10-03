@@ -31,25 +31,18 @@ variable "oTel" {
 
 variable "labels" {
   type = object({
-    upstream           = string
     dependencies       = string
-    k6                 = string
     tyk                = string
+    tyk-upstream       = string
+    tyk-tests          = string
     tyk-resources      = string
     kong               = string
+    kong-upstream      = string
+    kong-tests         = string
     kong-resources     = string
     gravitee           = string
+    gravitee-upstream  = string
+    gravitee-tests     = string
     gravitee-resources = string
   })
-  default = {
-    upstream           = "upstream"
-    dependencies       = "dependencies"
-    k6                 = "k6"
-    tyk                = "tyk"
-    tyk-resources      = "tyk-resources"
-    kong               = "kong"
-    kong-resources     = "kong-resources"
-    gravitee           = "gravitee"
-    gravitee-resources = "gravitee-resources"
-  }
 }

@@ -11,7 +11,7 @@ spec:
   protocol: http
   active: true
   proxy:
-    target_url: http://timestamp.upstream.svc:3100
+    target_url: http://timestamp.tyk-upstream.svc:3100
     listen_path: /timestamp-keyless
     strip_listen_path: true
 YAML

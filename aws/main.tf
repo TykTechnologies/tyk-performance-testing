@@ -70,8 +70,8 @@ module "deployments" {
   tyk      = var.tyk
   kong     = var.kong
   gravitee = var.gravitee
-
-  oTel = var.oTel
+  oTel     = var.oTel
+  labels   = module.h.labels
 
   depends_on = [module.aws]
 }
@@ -79,12 +79,11 @@ module "deployments" {
 module "tests" {
   source = "../modules/tests"
 
-  namespace    = "k6"
-  service_name = "tyk"
-  service_url  = "gateway-svc-tyk-gateway.tyk.svc:8080"
-
-  tests = var.tests
-  oTel  = var.oTel
+  tyk      = var.tyk
+  kong     = var.kong
+  gravitee = var.gravitee
+  oTel     = var.oTel
+  tests    = var.tests
 
   depends_on = [module.deployments]
 }

@@ -1,6 +1,6 @@
 resource "helm_release" "k6-operator" {
   name       = "k6-operator"
-  chart      = "../modules/deployments/k6/k6-operator/charts"
+  chart      = "../modules/deployments/dependencies/k6-operator/charts"
 
   namespace        = var.namespace
   create_namespace = true
