@@ -13,5 +13,11 @@ resource "helm_release" "gravitee-operator" {
 #    value = var.resources-label
 #  }
 
+# Gravitee Operator does not support resource management and has hard coded values :(
+#  set {
+#    name  = "manager.resources"
+#    value = null
+#  }
+
   depends_on = [helm_release.gravitee]
 }

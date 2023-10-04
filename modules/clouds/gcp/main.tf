@@ -5,9 +5,10 @@ provider "google" {
 data "google_client_config" "this" {}
 
 resource "google_container_cluster" "this" {
-  name               = "pt-${var.cluster_machine_type}"
-  min_master_version = var.gke_version
-  location           = var.cluster_location
+  name                = "pt-${var.cluster_machine_type}"
+  min_master_version  = var.gke_version
+  location            = var.cluster_location
+  deletion_protection = false
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default

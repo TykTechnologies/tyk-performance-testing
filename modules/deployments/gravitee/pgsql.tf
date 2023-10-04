@@ -39,6 +39,11 @@ resource "helm_release" "gravitee-pgsql" {
   }
 
   set {
+    name  = "primary.resources"
+    value = "null"
+  }
+
+  set {
     name  = "primary.nodeSelector.node"
     value = var.resources-label
   }

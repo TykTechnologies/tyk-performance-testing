@@ -10,6 +10,8 @@ spec:
   use_keyless: true
   protocol: http
   active: true
+  disable_quota: true
+  disable_rate_limit: true
   proxy:
     target_url: http://timestamp.tyk-upstream.svc:3100
     listen_path: /timestamp-keyless

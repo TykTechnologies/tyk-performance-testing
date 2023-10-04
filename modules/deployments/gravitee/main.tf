@@ -131,5 +131,10 @@ resource "helm_release" "gravitee" {
     value = var.label
   }
 
+  set {
+    name  = "gateway.resources"
+    value = "null"
+  }
+
   depends_on = [helm_release.gravitee-redis, helm_release.gravitee-pgsql]
 }

@@ -12,6 +12,11 @@ resource "helm_release" "k6-operator" {
   }
 
   set {
+    name  = "manager.resources"
+    value = "null"
+  }
+
+  set {
     name  = "nodeSelector.node"
     value = var.label
   }
