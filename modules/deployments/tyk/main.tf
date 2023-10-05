@@ -43,6 +43,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[0].value"
+    type  = "string"
     value = "1600"
   }
 
