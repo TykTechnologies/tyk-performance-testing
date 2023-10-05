@@ -4,6 +4,9 @@ resource "helm_release" "tyk-redis" {
   chart      = "redis"
   version    = "17.4.0"
 
+  # Adjust default value to 10 minutes allow for all Redis containers to come up
+  timeout = 600
+
   namespace        = var.namespace
   create_namespace = true
   atomic           = true
