@@ -11,7 +11,7 @@ module "tyk-upstream" {
   namespace = var.labels.tyk-upstream
 
   enable_timestamp              = var.tests.timestamp
-  enable_httpbin                = var.tests.timestamp
+  enable_httpbin                = var.tests.httpbin
   enable_users_rest             = false
   enable_posts_rest             = false
   enable_comments_rest          = false
@@ -33,7 +33,7 @@ module "kong-upstream" {
   namespace = var.labels.kong-upstream
 
   enable_timestamp              = var.tests.timestamp
-  enable_httpbin                = var.tests.timestamp
+  enable_httpbin                = var.tests.httpbin
   enable_users_rest             = false
   enable_posts_rest             = false
   enable_comments_rest          = false
@@ -55,7 +55,7 @@ module "gravitee-upstream" {
   namespace = var.labels.gravitee-upstream
 
   enable_timestamp              = var.tests.timestamp
-  enable_httpbin                = var.tests.timestamp
+  enable_httpbin                = var.tests.httpbin
   enable_users_rest             = false
   enable_posts_rest             = false
   enable_comments_rest          = false
