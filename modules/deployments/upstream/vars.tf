@@ -8,58 +8,47 @@ variable "label" {
 }
 
 variable "enable_timestamp" {
-  type    = bool
-  default = true
+  type = bool
 }
 
 variable "enable_httpbin" {
-  type    = bool
-  default = true
+  type = bool
 }
 
 variable "enable_users_rest" {
-  type    = bool
-  default = true
+  type = bool
 }
+
 variable "enable_posts_rest" {
-  type    = bool
-  default = true
+  type = bool
 }
+
 variable "enable_comments_rest" {
-  type    = bool
-  default = true
+  type = bool
 }
 
 variable "enable_users_graphql" {
-  type    = bool
-  default = true
+  type = bool
 }
 variable "enable_posts_graphql" {
-  type    = bool
-  default = true
+  type = bool
 }
 variable "enable_comments_graphql" {
-  type    = bool
-  default = true
+  type = bool
 }
 variable "enable_notifications_graphql" {
-  type    = bool
-  default = true
+  type = bool
 }
 
 variable "enable_users_subgraph" {
-  type    = bool
-  default = true
+  type = bool
 }
 variable "enable_posts_subgraph" {
-  type    = bool
-  default = true
+  type = bool
 }
 variable "enable_comments_subgraph" {
-  type    = bool
-  default = true
+  type = bool
 }
 variable "enable_notifications_subgraph" {
-  type    = bool
-  default = true
+  type = bool
 }

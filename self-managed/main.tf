@@ -6,6 +6,7 @@ module "deployments" {
   kong     = var.kong
   gravitee = var.gravitee
   oTel     = var.oTel
+  tests    = var.tests
 }
 
 

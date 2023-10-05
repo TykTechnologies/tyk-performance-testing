@@ -10,6 +10,20 @@ module "tyk-upstream" {
   label     = var.labels.tyk-upstream
   namespace = var.labels.tyk-upstream
 
+  enable_timestamp              = var.tests.timestamp
+  enable_httpbin                = var.tests.timestamp
+  enable_users_rest             = false
+  enable_posts_rest             = false
+  enable_comments_rest          = false
+  enable_users_graphql          = false
+  enable_posts_graphql          = false
+  enable_comments_graphql       = false
+  enable_notifications_graphql  = false
+  enable_users_subgraph         = false
+  enable_posts_subgraph         = false
+  enable_comments_subgraph      = false
+  enable_notifications_subgraph = false
+
   count = var.tyk.enabled == true ? 1 : 0
 }
 
@@ -18,6 +32,20 @@ module "kong-upstream" {
   label     = var.labels.kong-upstream
   namespace = var.labels.kong-upstream
 
+  enable_timestamp              = var.tests.timestamp
+  enable_httpbin                = var.tests.timestamp
+  enable_users_rest             = false
+  enable_posts_rest             = false
+  enable_comments_rest          = false
+  enable_users_graphql          = false
+  enable_posts_graphql          = false
+  enable_comments_graphql       = false
+  enable_notifications_graphql  = false
+  enable_users_subgraph         = false
+  enable_posts_subgraph         = false
+  enable_comments_subgraph      = false
+  enable_notifications_subgraph = false
+
   count = var.kong.enabled == true ? 1 : 0
 }
 
@@ -25,6 +53,20 @@ module "gravitee-upstream" {
   source = "./upstream"
   label     = var.labels.gravitee-upstream
   namespace = var.labels.gravitee-upstream
+
+  enable_timestamp              = var.tests.timestamp
+  enable_httpbin                = var.tests.timestamp
+  enable_users_rest             = false
+  enable_posts_rest             = false
+  enable_comments_rest          = false
+  enable_users_graphql          = false
+  enable_posts_graphql          = false
+  enable_comments_graphql       = false
+  enable_notifications_graphql  = false
+  enable_users_subgraph         = false
+  enable_posts_subgraph         = false
+  enable_comments_subgraph      = false
+  enable_notifications_subgraph = false
 
   count = var.gravitee.enabled == true ? 1 : 0
 }
