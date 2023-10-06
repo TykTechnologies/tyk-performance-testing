@@ -78,8 +78,12 @@ module "tyk" {
   resources-label = var.labels.tyk-resources
 
   gateway_version = var.tyk.version
-  analytics       = var.tyk.analytics
-  oTel            = var.oTel
+
+  analytics    = var.analytics
+  auth         = var.auth
+  oTel         = var.oTel
+  quota        = var.quota
+  rateLimiting = var.rateLimiting
 
   count = var.tyk.enabled == true ? 1 : 0
 }
@@ -90,8 +94,12 @@ module "kong" {
   resources-label = var.labels.kong-resources
 
   gateway_version = var.kong.version
-  analytics       = var.kong.analytics
-  oTel            = var.oTel
+
+  analytics    = var.analytics
+  auth         = var.auth
+  oTel         = var.oTel
+  quota        = var.quota
+  rateLimiting = var.rateLimiting
 
   count = var.kong.enabled == true ? 1 : 0
 }
@@ -102,8 +110,12 @@ module "gravitee" {
   resources-label = var.labels.gravitee-resources
 
   gateway_version = var.gravitee.version
-  analytics       = var.gravitee.analytics
-  oTel            = var.oTel
+
+  analytics    = var.analytics
+  auth         = var.auth
+  oTel         = var.oTel
+  quota        = var.quota
+  rateLimiting = var.rateLimiting
 
   count = var.gravitee.enabled == true ? 1 : 0
 }

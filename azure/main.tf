@@ -70,9 +70,16 @@ module "deployments" {
   tyk      = var.tyk
   kong     = var.kong
   gravitee = var.gravitee
-  oTel     = var.oTel
-  tests    = var.tests
-  labels   = module.h.labels
+
+  analytics    = var.analytics
+  auth         = var.auth
+  oTel         = var.oTel
+  quota        = var.quota
+  rateLimiting = var.rateLimiting
+
+  tests = var.tests
+
+  labels = module.h.labels
 
   depends_on = [module.azure]
 }
@@ -83,7 +90,13 @@ module "tests" {
   tyk      = var.tyk
   kong     = var.kong
   gravitee = var.gravitee
-  oTel  = var.oTel
+
+  analytics    = var.analytics
+  auth         = var.auth
+  oTel         = var.oTel
+  quota        = var.quota
+  rateLimiting = var.rateLimiting
+
   tests = var.tests
 
   depends_on = [module.deployments]

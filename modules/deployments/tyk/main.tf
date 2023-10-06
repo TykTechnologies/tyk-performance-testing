@@ -106,7 +106,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "global.components.pump"
-    value = var.analytics
+    value = var.analytics.enabled
   }
 
   set {

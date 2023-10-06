@@ -1,25 +1,20 @@
-variable "service_nodes" {
-  type = number
-}
-
-variable "resource_nodes" {
-  type = number
-}
-
 variable "tyk" {
   type = object({
     enabled = bool
+    version = string
   })
 }
 
 variable "kong" {
   type = object({
     enabled = bool
+    version = string
   })
 }
 
 variable "gravitee" {
   type = object({
     enabled = bool
+    version = string
   })
 }

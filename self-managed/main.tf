@@ -1,12 +1,19 @@
 module "deployments" {
   source = "../modules/deployments"
 
-  labels   = var.node-labels
   tyk      = var.tyk
   kong     = var.kong
   gravitee = var.gravitee
-  oTel     = var.oTel
-  tests    = var.tests
+
+  analytics    = var.analytics
+  auth         = var.auth
+  oTel         = var.oTel
+  quota        = var.quota
+  rateLimiting = var.rateLimiting
+
+  tests = var.tests
+
+  labels = var.node-labels
 }
 
 
@@ -16,6 +23,12 @@ module "tests" {
   tyk      = var.tyk
   kong     = var.kong
   gravitee = var.gravitee
-  oTel     = var.oTel
-  tests    = var.tests
+
+  analytics    = var.analytics
+  auth         = var.auth
+  oTel         = var.oTel
+  quota        = var.quota
+  rateLimiting = var.rateLimiting
+
+  tests = var.tests
 }

@@ -1,12 +1,8 @@
 variable "tyk" {
   type = object({
-    enabled   = bool
-    version   = string
+    enabled = bool
+    version = string
   })
-  default = {
-    enabled = true
-    version = "v5"
-  }
 }
 
 variable "kong" {
@@ -14,10 +10,6 @@ variable "kong" {
     enabled = bool
     version = string
   })
-  default = {
-    enabled = true
-    version = "v5"
-  }
 }
 
 variable "gravitee" {
@@ -25,8 +17,4 @@ variable "gravitee" {
     enabled = bool
     version = string
   })
-  default = {
-    enabled = true
-    version = "4.1"
-  }
 }

@@ -30,6 +30,18 @@ resource "helm_release" "tyk-operator" {
   }
 
   set {
+    name  = "podAnnotations.analtyics"
+    type  = "string"
+    value = var.analytics.enabled
+  }
+
+  set {
+    name  = "podAnnotations.auth"
+    type  = "string"
+    value = var.auth.enabled
+  }
+
+  set {
     name  = "podAnnotations.otelEnabled"
     type  = "string"
     value = var.oTel.enabled
@@ -42,9 +54,15 @@ resource "helm_release" "tyk-operator" {
   }
 
   set {
-    name  = "podAnnotations.analtyics"
+    name  = "podAnnotations.quota"
     type  = "string"
-    value = var.analytics
+    value = var.quota.enabled
+  }
+
+  set {
+    name  = "podAnnotations.rateLimiting"
+    type  = "string"
+    value = var.rateLimiting.enabled
   }
 
   depends_on = [kubernetes_secret.tyk-operator-secret]
