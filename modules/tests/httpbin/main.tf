@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-resource "kubernetes_config_map" "httpbin-keyless-configmap" {
+resource "kubernetes_config_map" "httpbin-configmap" {
   metadata {
     name      = "httpbin-${var.name}-configmap"
     namespace = var.name
@@ -30,7 +30,7 @@ export const options = {
 };
 
 function sendStatus(status) {
-  http.get('http://${var.url}/httpbin-keyless/status/' + status);
+  http.get('http://${var.url}/httpbin/status/' + status);
 }
 
 export function success() {
@@ -40,7 +40,7 @@ EOF
   }
 }
 
-resource "kubectl_manifest" "httpbin-keyless" {
+resource "kubectl_manifest" "httpbin" {
   yaml_body = <<YAML
 apiVersion: k6.io/v1alpha1
 kind: K6
@@ -52,7 +52,7 @@ spec:
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-httpbin-keyless --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-httpbin --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
   initializer:
     metadata:
       labels:
@@ -95,5 +95,5 @@ spec:
       file: httpbin.js
 YAML
 
-  depends_on = [kubernetes_config_map.httpbin-keyless-configmap]
+  depends_on = [kubernetes_config_map.httpbin-configmap]
 }

@@ -10,7 +10,7 @@ module "tyk-timestamp" {
   quota        = var.quota
   rateLimiting = var.rateLimiting
 
-  parallelism = var.parallelism
+  parallelism = var.tests.parallelism
 
   count = var.tests.timestamp == true && var.tyk.enabled == true ? 1 : 0
 }
@@ -27,7 +27,7 @@ module "kong-timestamp" {
   quota        = var.quota
   rateLimiting = var.rateLimiting
 
-  parallelism = var.parallelism
+  parallelism = var.tests.parallelism
 
   count = var.tests.timestamp == true && var.kong.enabled == true ? 1 : 0
 }
@@ -44,7 +44,7 @@ module "gravitee-timestamp" {
   quota        = var.quota
   rateLimiting = var.rateLimiting
 
-  parallelism = var.parallelism
+  parallelism = var.tests.parallelism
 
   count = var.tests.timestamp == true && var.gravitee.enabled == true ? 1 : 0
 }

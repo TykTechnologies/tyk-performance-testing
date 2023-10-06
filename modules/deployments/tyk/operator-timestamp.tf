@@ -1,12 +1,12 @@
-resource "kubectl_manifest" "timestamp-keyless" {
+resource "kubectl_manifest" "timestamp" {
   yaml_body = <<YAML
 apiVersion: tyk.tyk.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: timestamp-keyless
+  name: timestamp
   namespace: ${var.namespace}
 spec:
-  name: timestamp-keyless
+  name: timestamp
   use_keyless: true
   protocol: http
   active: true
@@ -14,7 +14,7 @@ spec:
   disable_rate_limit: true
   proxy:
     target_url: http://timestamp.tyk-upstream.svc:3100
-    listen_path: /timestamp-keyless
+    listen_path: /timestamp
     strip_listen_path: true
 YAML
 

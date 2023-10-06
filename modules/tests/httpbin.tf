@@ -10,7 +10,7 @@ module "tyk-httpbin" {
   quota        = var.quota
   rateLimiting = var.rateLimiting
 
-  parallelism = var.parallelism
+  parallelism = var.tests.parallelism
 
   count = var.tests.httpbin == true && var.tyk.enabled == true ? 1 : 0
 }
@@ -27,7 +27,7 @@ module "kong-httpbin" {
   quota        = var.quota
   rateLimiting = var.rateLimiting
 
-  parallelism = var.parallelism
+  parallelism = var.tests.parallelism
 
   count = var.tests.httpbin == true && var.kong.enabled == true ? 1 : 0
 }
@@ -44,7 +44,7 @@ module "gravitee-httpbin" {
   quota        = var.quota
   rateLimiting = var.rateLimiting
 
-  parallelism = var.parallelism
+  parallelism = var.tests.parallelism
 
   count = var.tests.httpbin == true && var.gravitee.enabled == true ? 1 : 0
 }

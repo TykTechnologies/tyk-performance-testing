@@ -1,19 +1,19 @@
-resource "kubectl_manifest" "httpbin-keyless" {
+resource "kubectl_manifest" "httpbin" {
   yaml_body = <<YAML
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: httpbin-keyless
+  name: httpbin
   namespace: ${var.namespace}
 spec:
-  name: httpbin-keyless
+  name: httpbin
   plans:
     - name: "KEY_LESS"
       description: "FREE"
       security: "KEY_LESS"
   proxy:
     virtual_hosts:
-    - path: /httpbin-keyless
+    - path: /httpbin
     groups:
     - endpoints:
       - name: "Default"

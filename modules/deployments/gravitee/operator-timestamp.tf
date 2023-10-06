@@ -1,19 +1,19 @@
-resource "kubectl_manifest" "timestamp-keyless" {
+resource "kubectl_manifest" "timestamp" {
   yaml_body = <<YAML
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: timestamp-keyless
+  name: timestamp
   namespace: ${var.namespace}
 spec:
-  name: timestamp-keyless
+  name: timestamp
   plans:
     - name: "KEY_LESS"
       description: "FREE"
       security: "KEY_LESS"
   proxy:
     virtual_hosts:
-    - path: /timestamp-keyless
+    - path: /timestamp
     groups:
     - endpoints:
       - name: "Default"

@@ -6,7 +6,7 @@ terraform {
     }
   }
 }
-resource "kubernetes_config_map" "timestamp-keyless-configmap" {
+resource "kubernetes_config_map" "timestamp-configmap" {
   metadata {
     name      = "timestamp-${var.name}-configmap"
     namespace = var.name
@@ -29,13 +29,13 @@ export const options = {
 };
 
 export function get() {
-  http.get('http://${var.url}/timestamp-keyless/json');
+  http.get('http://${var.url}/timestamp/json');
 }
 EOF
   }
 }
 
-resource "kubectl_manifest" "timestamp-keyless" {
+resource "kubectl_manifest" "timestamp" {
   yaml_body = <<YAML
 apiVersion: k6.io/v1alpha1
 kind: K6
@@ -47,7 +47,7 @@ spec:
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-timestamp-keyless --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-timestamp --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
   initializer:
     metadata:
       labels:
@@ -90,5 +90,5 @@ spec:
       file: timestamp.js
 YAML
 
-  depends_on = [kubernetes_config_map.timestamp-keyless-configmap]
+  depends_on = [kubernetes_config_map.timestamp-configmap]
 }
