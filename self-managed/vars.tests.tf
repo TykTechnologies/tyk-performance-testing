@@ -1,10 +1,12 @@
 variable "tests" {
   type = object({
-    timestamp = bool
-    httpbin   = bool
+    parallelism = number
+    timestamp   = bool
+    httpbin     = bool
   })
   default = {
-    timestamp = true
-    httpbin   = true
+    parallelism = 4
+    timestamp   = true
+    httpbin     = true
   }
 }

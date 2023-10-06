@@ -1,6 +1,7 @@
 variable "tests" {
   type = object({
-    timestamp = bool
-    httpbin   = bool
+    parallelism = number
+    timestamp   = bool
+    httpbin     = bool
   })
 }
