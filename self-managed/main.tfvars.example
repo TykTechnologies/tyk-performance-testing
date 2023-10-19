@@ -6,7 +6,7 @@ tyk = {
 
 kong = {
   enabled   = false
-  version   = "v5"
+  version   = "v5.2.1"
   analytics = false
 }
 
@@ -22,8 +22,9 @@ oTel = {
 }
 
 tests = {
-  timestamp = true
-  httpbin   = true
+  parallelism = 4
+  timestamp   = true
+  httpbin     = true
 }
 
 node-labels = {

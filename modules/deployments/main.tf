@@ -86,6 +86,7 @@ module "tyk" {
   rateLimiting = var.rateLimiting
 
   count = var.tyk.enabled == true ? 1 : 0
+  depends_on = [module.dependencies]
 }
 
 module "kong" {
@@ -102,6 +103,7 @@ module "kong" {
   rateLimiting = var.rateLimiting
 
   count = var.kong.enabled == true ? 1 : 0
+  depends_on = [module.dependencies]
 }
 
 module "gravitee" {
@@ -118,4 +120,5 @@ module "gravitee" {
   rateLimiting = var.rateLimiting
 
   count = var.gravitee.enabled == true ? 1 : 0
+  depends_on = [module.dependencies]
 }

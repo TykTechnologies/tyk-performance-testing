@@ -4,7 +4,7 @@ variable "project" {
 
 variable "cluster_location" {
   type    = string
-  default = "us-west1"
+  default = "us-west1-a"
 }
 
 variable "cluster_machine_type" {
@@ -14,5 +14,5 @@ variable "cluster_machine_type" {
 
 variable "gke_version" {
   type    = string
-  default = "1.27.3-gke.1700"
+  default = "1.27.4-gke.900"
 }
