@@ -1212,7 +1212,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
