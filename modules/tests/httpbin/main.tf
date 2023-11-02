@@ -77,10 +77,10 @@ spec:
               values:
               - "true"
   starter:
-    nodeselector:
+    nodeSelector:
       node: ${var.name}-tests
   runner:
-    nodeselector:
+    nodeSelector:
       node: ${var.name}-tests
     env:
     - name: K6_PROMETHEUS_RW_SERVER_URL

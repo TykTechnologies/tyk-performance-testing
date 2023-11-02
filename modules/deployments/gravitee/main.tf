@@ -127,13 +127,23 @@ resource "helm_release" "gravitee" {
   }
 
   set {
-    name  = "gateway.deployment.nodeSelector.node"
-    value = var.label
+    name  = "gateway.type"
+    value = var.deployment_type
+  }
+
+  set {
+    name  = "gateway.replicaCount"
+    value = var.replica_count
   }
 
   set {
     name  = "gateway.resources"
-    value = "null"
+    value = var.resources
+  }
+
+  set {
+    name  = "gateway.deployment.nodeSelector.node"
+    value = var.label
   }
 
   depends_on = [helm_release.gravitee-redis, helm_release.gravitee-pgsql]

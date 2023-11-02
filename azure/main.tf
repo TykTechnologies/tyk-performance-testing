@@ -71,6 +71,12 @@ module "deployments" {
   kong     = var.kong
   gravitee = var.gravitee
 
+  deployment_type = var.deployment_type
+  replica_count   = var.replica_count
+  resources       = var.resources
+  go_gc           = var.go_gc
+  go_max_procs    = var.go_max_procs
+
   analytics    = var.analytics
   auth         = var.auth
   oTel         = var.oTel

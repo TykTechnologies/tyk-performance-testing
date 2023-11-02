@@ -30,6 +30,11 @@ resource "google_container_node_pool" "this" {
     labels = {
       "node": each.key
     }
+#    taint = [{
+#      key    = "node"
+#      value  = each.key
+#      effect = "NO_SCHEDULE"
+#    }]
   }
 }
 

@@ -30,6 +30,18 @@ resource "helm_release" "tyk-operator" {
   }
 
   set {
+    name  = "podAnnotations.GOGC"
+    type  = "string"
+    value = var.go_gc
+  }
+
+  set {
+    name  = "podAnnotations.GOMAXPROCS"
+    type  = "string"
+    value = var.go_max_procs
+  }
+
+  set {
     name  = "podAnnotations.analtyics"
     type  = "string"
     value = var.analytics.enabled

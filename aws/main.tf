@@ -67,6 +67,12 @@ module "aws" {
 module "deployments" {
   source = "../modules/deployments"
 
+  deployment_type = var.deployment_type
+  replica_count   = var.replica_count
+  resources       = var.resources
+  go_gc           = var.go_gc
+  go_max_procs    = var.go_max_procs
+
   tyk      = var.tyk
   kong     = var.kong
   gravitee = var.gravitee

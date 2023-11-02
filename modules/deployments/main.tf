@@ -79,6 +79,12 @@ module "tyk" {
 
   gateway_version = var.tyk.version
 
+  deployment_type = var.deployment_type
+  replica_count   = var.replica_count
+  resources       = var.resources
+  go_gc           = var.go_gc
+  go_max_procs    = var.go_max_procs
+
   analytics    = var.analytics
   auth         = var.auth
   oTel         = var.oTel
@@ -96,6 +102,10 @@ module "kong" {
 
   gateway_version = var.kong.version
 
+  deployment_type = var.deployment_type
+  replica_count   = var.replica_count
+  resources       = var.resources
+
   analytics    = var.analytics
   auth         = var.auth
   oTel         = var.oTel
@@ -112,6 +122,10 @@ module "gravitee" {
   resources-label = var.labels.gravitee-resources
 
   gateway_version = var.gravitee.version
+
+  deployment_type = var.deployment_type
+  replica_count   = var.replica_count
+  resources       = var.resources
 
   analytics    = var.analytics
   auth         = var.auth
