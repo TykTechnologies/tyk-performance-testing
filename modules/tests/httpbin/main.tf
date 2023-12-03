@@ -46,7 +46,7 @@ apiVersion: k6.io/v1alpha1
 kind: K6
 metadata:
   name: httpbin
-  namespace: var.name
+  namespace: ${var.name}
 spec:
   parallelism: ${var.parallelism}
   separate: false

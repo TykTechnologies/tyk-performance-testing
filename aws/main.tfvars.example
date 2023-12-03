@@ -4,26 +4,77 @@ service_nodes        = 1
 resource_nodes       = 1
 
 tyk = {
-  enabled   = true
-  version   = "v5.2.1"
-  analytics = false
+  enabled         = true
+  version         = "v5.2.2"
+  deployment_type = "Deployment"
+  replica_count   = 1
+  go_gc           = 1600
+  go_max_procs    = 8
+  resources       = {
+    requests = {
+      cpu    = null
+      memory = null
+    }
+    limits = {
+      cpu    = null
+      memory = null
+    }
+  }
 }
 
 kong = {
-  enabled   = false
-  version   = "v5"
-  analytics = false
+  enabled         = true
+  version         = "v5"
+  deployment_type = "Deployment"
+  replica_count   = 1
+  resources       = {
+    requests = {
+      cpu    = null
+      memory = null
+    }
+    limits = {
+      cpu    = null
+      memory = null
+    }
+  }
 }
 
 gravitee = {
-  enabled   = false
-  version   = "4.1"
-  analytics = false
+  enabled         = true
+  version         = "4.1"
+  deployment_type = "Deployment"
+  replica_count   = 1
+  resources       = {
+    requests = {
+      cpu    = null
+      memory = null
+    }
+    limits = {
+      cpu    = null
+      memory = null
+    }
+  }
+}
+
+analytics = {
+  enabled = false
+}
+
+auth = {
+  enabled = false
 }
 
 oTel = {
   enabled        = false
   sampling_ratio = "0.5"
+}
+
+quota = {
+  enabled = false
+}
+
+rateLimiting = {
+  enabled = false
 }
 
 tests = {

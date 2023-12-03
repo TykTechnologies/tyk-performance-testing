@@ -38,7 +38,32 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.kind"
-    value = "DaemonSet"
+    value = var.deployment_type
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.replicaCount"
+    value = var.replica_count
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.resources.requests.cpu"
+    value = var.resources.requests.cpu
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.resources.requests.memory"
+    value = var.resources.requests.memory
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.resources.limits.cpu"
+    value = var.resources.limits.cpu
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.resources.limits.memory"
+    value = var.resources.limits.memory
   }
 
   set {

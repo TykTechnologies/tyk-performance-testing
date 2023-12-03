@@ -10,7 +10,7 @@ resource "azurerm_resource_group" "this" {
 resource "azurerm_kubernetes_cluster" "this" {
   name                = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
-  kubernetes_version  = "1.22"
+  kubernetes_version  = var.aks_version
   resource_group_name = azurerm_resource_group.this.name
   dns_prefix          = replace(azurerm_resource_group.this.name, "_", "-")
 
@@ -27,7 +27,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
 resource "azurerm_kubernetes_cluster_node_pool" "this" {
   for_each              = var.nodes
-  name                  = replace(each.key, "-", "")
+  name                  = substr(replace(each.key, "-", ""), 0, 12)
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
 
   vm_size    = var.cluster_machine_type
