@@ -10,8 +10,8 @@ terraform {
 module "h" {
   source = "../modules/helpers"
 
-  service_nodes  = var.service_nodes
-  resource_nodes = var.resource_nodes
+  services_nodes_count = var.services_nodes_count
+  resource_nodes_count = var.resource_nodes_count
 
   tyk      = var.tyk
   kong     = var.kong

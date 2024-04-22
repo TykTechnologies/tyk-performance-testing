@@ -1,7 +1,7 @@
 cluster_location     = "us-west-1"
 cluster_machine_type = "c5.xlarge"
-service_nodes        = 1
-resource_nodes       = 1
+services_nodes_count = 1
+resource_nodes_count = 1
 
 tyk = {
   enabled         = true

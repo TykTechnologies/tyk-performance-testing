@@ -1,8 +1,8 @@
 cluster_location     = "westus"
 cluster_machine_type = "Standard_F4s_v2"
 aks_version          = "1.27"
-service_nodes        = 1
-resource_nodes       = 1
+services_nodes_count = 1
+resource_nodes_count = 1
 
 tyk = {
   enabled         = true
