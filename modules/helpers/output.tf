@@ -24,6 +24,6 @@ output "nodes" {
 
 output "labels" {
   value = tomap({
-    for key, value in local.nodes: key => key
+    for key, _ in local.nodes: key => key
   })
 }
