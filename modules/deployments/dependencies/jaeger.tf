@@ -49,5 +49,5 @@ resource "helm_release" "jaeger" {
 
   depends_on = [helm_release.cert-manager]
 
-  count = var.oTelEnabled ? 1 : 0
+  count = var.open_telemetry.enabled ? 1 : 0
 }

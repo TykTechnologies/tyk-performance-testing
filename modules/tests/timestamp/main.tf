@@ -47,7 +47,7 @@ spec:
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-timestamp --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-timestamp --tag oTelEnabled=${var.open_telemetry.enabled} --tag oTelSamplingRatio=${var.open_telemetry.sampling_ratio}
   initializer:
     metadata:
       labels:

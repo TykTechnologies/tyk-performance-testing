@@ -96,7 +96,7 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[2].value"
     type  = "string"
-    value = var.oTel.enabled
+    value = var.open_telemetry.enabled
   }
 
   set {
@@ -117,7 +117,7 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[4].value"
     type  = "string"
-    value = var.oTel.sampling_ratio
+    value = var.open_telemetry.sampling_ratio
   }
 
   set {

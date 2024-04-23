@@ -1,18 +1,18 @@
 locals {
   nodes = {
     dependencies       = var.resource_nodes_count
-    tyk                = var.tyk.enabled      ? var.services_nodes_count : 0
-    tyk-upstream       = var.tyk.enabled      ? var.services_nodes_count : 0
-    tyk-tests          = var.tyk.enabled      ? var.services_nodes_count : 0
-    tyk-resources      = var.tyk.enabled      ? var.resource_nodes_count : 0
-    kong               = var.kong.enabled     ? var.services_nodes_count : 0
-    kong-upstream      = var.kong.enabled     ? var.services_nodes_count : 0
-    kong-tests         = var.kong.enabled     ? var.services_nodes_count : 0
-    kong-resources     = var.kong.enabled     ? var.resource_nodes_count : 0
-    gravitee           = var.gravitee.enabled ? var.services_nodes_count : 0
-    gravitee-upstream  = var.gravitee.enabled ? var.services_nodes_count : 0
-    gravitee-tests     = var.gravitee.enabled ? var.services_nodes_count : 0
-    gravitee-resources = var.gravitee.enabled ? var.resource_nodes_count : 0
+    tyk                = var.tyk_enabled      ? var.services_nodes_count : 0
+    tyk-upstream       = var.tyk_enabled      ? var.services_nodes_count : 0
+    tyk-tests          = var.tyk_enabled      ? var.services_nodes_count : 0
+    tyk-resources      = var.tyk_enabled      ? var.resource_nodes_count : 0
+    kong               = var.kong_enabled     ? var.services_nodes_count : 0
+    kong-upstream      = var.kong_enabled     ? var.services_nodes_count : 0
+    kong-tests         = var.kong_enabled     ? var.services_nodes_count : 0
+    kong-resources     = var.kong_enabled     ? var.resource_nodes_count : 0
+    gravitee           = var.gravitee_enabled ? var.services_nodes_count : 0
+    gravitee-upstream  = var.gravitee_enabled ? var.services_nodes_count : 0
+    gravitee-tests     = var.gravitee_enabled ? var.services_nodes_count : 0
+    gravitee-resources = var.gravitee_enabled ? var.resource_nodes_count : 0
   }
 }
 

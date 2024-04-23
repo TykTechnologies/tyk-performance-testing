@@ -4,11 +4,11 @@ module "tyk-httpbin" {
   name = "tyk"
   url  = "gateway-svc-tyk-gateway.tyk.svc:8080"
 
-  analytics    = var.analytics
-  auth         = var.auth
-  oTel         = var.oTel
-  quota        = var.quota
-  rateLimiting = var.rateLimiting
+  analytics      = var.analytics
+  auth           = var.auth
+  quota          = var.quota
+  rate_limit     = var.rate_limit
+  open_telemetry = var.open_telemetry
 
   parallelism = var.tests.parallelism
 
@@ -21,11 +21,11 @@ module "kong-httpbin" {
   name = "kong"
   url  = ""
 
-  analytics    = var.analytics
-  auth         = var.auth
-  oTel         = var.oTel
-  quota        = var.quota
-  rateLimiting = var.rateLimiting
+  analytics      = var.analytics
+  auth           = var.auth
+  quota          = var.quota
+  rate_limit     = var.rate_limit
+  open_telemetry = var.open_telemetry
 
   parallelism = var.tests.parallelism
 
@@ -38,11 +38,11 @@ module "gravitee-httpbin" {
   name = "gravitee"
   url  = "gravitee-apim-gateway.gravitee.svc:82"
 
-  analytics    = var.analytics
-  auth         = var.auth
-  oTel         = var.oTel
-  quota        = var.quota
-  rateLimiting = var.rateLimiting
+  analytics      = var.analytics
+  auth           = var.auth
+  quota          = var.quota
+  rate_limit     = var.rate_limit
+  open_telemetry = var.open_telemetry
 
   parallelism = var.tests.parallelism
 

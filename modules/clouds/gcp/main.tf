@@ -38,17 +38,19 @@ resource "google_container_node_pool" "this" {
   }
 }
 
-output "kubernetes" {
-  value = {
-    host                   = "https://${google_container_cluster.this.endpoint}"
-    username               = null
-    password               = null
-    token                  = data.google_client_config.this.access_token
-    client_key             = null
-    client_certificate     = null
-    cluster_ca_certificate = base64decode(google_container_cluster.this.master_auth[0].cluster_ca_certificate)
-    config_path            = null
-    config_context         = null
+resource "null_resource" "kube_config" {
+  provisioner "local-exec" {
+    command = <<EOT
+      export KUBECONFIG=../.kube/config
+
+      [[ $(kubectl config get-contexts gke | wc -l) -eq 2 ]] && kubectl config delete-context gke
+
+      gcloud container clusters get-credentials ${google_container_cluster.this.name} \
+        --region ${google_container_cluster.this.location} \
+        --project ${google_container_cluster.this.project}
+
+      kubectl config rename-context $(kubectl config current-context) gke
+    EOT
   }
 
   depends_on = [google_container_cluster.this, google_container_node_pool.this]

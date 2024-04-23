@@ -10,7 +10,7 @@ spec:
   protocol: http
   active: true
   disable_quota: ${! var.quota.enabled}
-  disable_rate_limit: ${! var.rateLimiting.enabled}
+  disable_rate_limit: ${! var.rate_limit.enabled}
   proxy:
     target_url: http://httpbin.tyk-upstream.svc:8000
     listen_path: /httpbin

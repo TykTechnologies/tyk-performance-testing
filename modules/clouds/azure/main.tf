@@ -38,17 +38,18 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   }
 }
 
-output "kubernetes" {
-  value = {
-    host                   = azurerm_kubernetes_cluster.this.kube_config[0].host
-    username               = azurerm_kubernetes_cluster.this.kube_config[0].username
-    password               = azurerm_kubernetes_cluster.this.kube_config[0].password
-    token                  = null
-    client_key             = base64decode(azurerm_kubernetes_cluster.this.kube_config[0].client_key)
-    client_certificate     = base64decode(azurerm_kubernetes_cluster.this.kube_config[0].client_certificate)
-    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.this.kube_config[0].cluster_ca_certificate)
-    config_path            = null
-    config_context         = null
+resource "null_resource" "kube_config" {
+  provisioner "local-exec" {
+    command = <<EOT
+      export KUBECONFIG=../.kube/config
+
+      [[ $(kubectl config get-contexts aks | wc -l) -eq 2 ]] && kubectl config delete-context aks
+
+      az aks get-credentials --resource-group ${azurerm_resource_group.this.name} \
+        --name ${azurerm_kubernetes_cluster.this.name}
+
+      kubectl config rename-context $(kubectl config current-context) aks
+    EOT
   }
 
   depends_on = [azurerm_kubernetes_cluster.this, azurerm_kubernetes_cluster_node_pool.this]

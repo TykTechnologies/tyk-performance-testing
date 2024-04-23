@@ -56,13 +56,13 @@ resource "helm_release" "tyk-operator" {
   set {
     name  = "podAnnotations.otelEnabled"
     type  = "string"
-    value = var.oTel.enabled
+    value = var.open_telemetry.enabled
   }
 
   set {
     name  = "podAnnotations.otelSamplingRatio"
     type  = "string"
-    value = var.oTel.sampling_ratio
+    value = var.open_telemetry.sampling_ratio
   }
 
   set {
@@ -74,7 +74,7 @@ resource "helm_release" "tyk-operator" {
   set {
     name  = "podAnnotations.rateLimiting"
     type  = "string"
-    value = var.rateLimiting.enabled
+    value = var.rate_limit.enabled
   }
 
   depends_on = [kubernetes_secret.tyk-operator-secret]

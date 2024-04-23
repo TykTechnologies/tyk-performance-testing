@@ -51,17 +51,17 @@ data "aws_eks_cluster_auth" "this" {
   depends_on = [module.eks, module.eks_node_groups]
 }
 
-output "kubernetes" {
-  value = {
-    host                   = module.eks.cluster_endpoint
-    username               = null
-    password               = null
-    token                  = data.aws_eks_cluster_auth.this.token
-    client_key             = null
-    client_certificate     = null
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-    config_path            = null
-    config_context         = null
+resource "null_resource" "kube_config" {
+  provisioner "local-exec" {
+    command = <<EOT
+      export KUBECONFIG=../.kube/config
+
+      [[ $(kubectl config get-contexts eks | wc -l) -eq 2 ]] && kubectl config delete-context eks
+
+      aws eks --region ${var.cluster_location} update-kubeconfig --name ${module.eks.cluster_name}
+
+      kubectl config rename-context $(kubectl config current-context) eks
+    EOT
   }
 
   depends_on = [module.eks, module.eks_node_groups]
