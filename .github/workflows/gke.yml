@@ -2,16 +2,6 @@ name: GKE
 on:
   workflow_dispatch:
     inputs:
-      cluster_location:
-        description: 'Location of GKE cluster'
-        required: false
-        type: string
-        default: 'us-west1-a'
-      cluster_machine_type:
-        description: 'Node type of GCP compute'
-        required: false
-        type: string
-        default: 'c2-standard-4'
       analytics_enabled:
         description: 'Enabled Analytics gathering'
         required: false
@@ -47,24 +37,6 @@ on:
         required: true
         type: string
         default: 'v5.3.0'
-      tyk_deployment_type:
-        description: 'Tyk Gateway Deployment Type'
-        required: false
-        type: choice
-        default: 'Deployment'
-        options:
-          - 'Deployment'
-          - 'DaemonSet'
-      tyk_go_gc:
-        description: 'Go Garbage Collection Interval'
-        required: false
-        type: number
-        default: 1600
-      tyk_go_max_procs:
-        description: 'Go Max Processors'
-        required: false
-        type: number
-        default: 8
       tests_timestamp_enabled:
         description: 'Enabled Timestamp Test'
         required: false
@@ -105,8 +77,8 @@ jobs:
           terraform init
           terraform apply \
             --var="project=${{ secrets.GCP_PROJECT }}" \
-            --var="cluster_location=${{ inputs.cluster_location }}" \
-            --var="cluster_machine_type=${{ inputs.cluster_machine_type }}" \
+            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve
 
       - name: Deploy testing resources
@@ -123,9 +95,6 @@ jobs:
             --var="open_telemetry_enabled=${{ inputs.open_telemetry_enabled }}" \
             --var="open_telemetry_sampling_ratio=${{ inputs.open_telemetry_sampling_ratio }}" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
-            --var="tyk_deployment_type=${{ inputs.tyk_deployment_type }}" \
-            --var="tyk_go_gc=${{ inputs.tyk_go_gc }}" \
-            --var="tyk_go_max_procs=${{ inputs.tyk_go_max_procs }}" \
             --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
