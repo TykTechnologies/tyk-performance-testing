@@ -52,7 +52,7 @@ spec:
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-httpbin --tag oTelEnabled=${var.open_telemetry.enabled} --tag oTelSamplingRatio=${var.open_telemetry.sampling_ratio}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-httpbin
   initializer:
     metadata:
       labels:

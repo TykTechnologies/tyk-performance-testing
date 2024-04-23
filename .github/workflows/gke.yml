@@ -1,0 +1,141 @@
+name: GKE
+on:
+  workflow_dispatch:
+    inputs:
+      cluster_location:
+        description: 'Location of GKE cluster'
+        required: false
+        type: string
+        default: 'us-west1-a'
+      cluster_machine_type:
+        description: 'Node type of GCP compute'
+        required: false
+        type: string
+        default: 'c2-standard-4'
+      analytics_enabled:
+        description: 'Enabled Analytics gathering'
+        required: false
+        default: false
+        type: boolean
+      auth_enabled:
+        description: 'Enabled Authentication'
+        required: false
+        default: false
+        type: boolean
+      quota_enabled:
+        description: 'Enabled Quota'
+        required: false
+        default: false
+        type: boolean
+      rate_limit_enabled:
+        description: 'Enabled Rate Limiting'
+        required: false
+        default: false
+        type: boolean
+      open_telemetry_enabled:
+        description: 'Enabled Open Telemetry'
+        required: false
+        default: false
+        type: boolean
+      open_telemetry_sampling_ratio:
+        description: 'Open Telemetry Sampling Ratio'
+        required: false
+        type: string
+        default: '0.5'
+      tyk_version:
+        description: 'Tyk Gateway version'
+        required: true
+        type: string
+        default: 'v5.3.0'
+      tyk_deployment_type:
+        description: 'Tyk Gateway Deployment Type'
+        required: false
+        type: choice
+        default: 'Deployment'
+        options:
+          - 'Deployment'
+          - 'DaemonSet'
+      tyk_go_gc:
+        description: 'Go Garbage Collection Interval'
+        required: false
+        type: number
+        default: 1600
+      tyk_go_max_procs:
+        description: 'Go Max Processors'
+        required: false
+        type: number
+        default: 8
+      tests_timestamp_enabled:
+        description: 'Enabled Timestamp Test'
+        required: false
+        default: true
+        type: boolean
+      tests_httpbin_enabled:
+        description: 'Enabled Httpbin Test'
+        required: false
+        default: false
+        type: boolean
+jobs:
+  httpbin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate into gcloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Install gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2.1.0
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Copy deployments vars example into main.tfvars
+        run: cp ./deployments/main.tfvars.example ./deployments/main.tfvars
+
+      - name: Copy tests vars example into main.tfvars
+        run: cp ./tests/main.tfvars.example ./tests/main.tfvars
+
+      - name: Stand up GKE cluster
+        run: |
+          cd gke
+          terraform init
+          terraform apply \
+            --var="project=${{ secrets.GCP_PROJECT }}" \
+            --var="cluster_location=${{ inputs.cluster_location }}" \
+            --var="cluster_machine_type=${{ inputs.cluster_machine_type }}" \
+            --auto-approve
+
+      - name: Deploy testing resources
+        run: |
+          cd deployments
+          terraform init
+          terraform apply \
+            --var="kubernetes_config_path='../.kube/config'" \
+            --var="kubernetes_config_context=gke" \
+            --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
+            --var="auth_enabled=${{ inputs.auth_enabled }}" \
+            --var="quota_enabled=${{ inputs.quota_enabled }}" \
+            --var="rate_limit_enabled=${{ inputs.rate_limit_enabled }}" \
+            --var="open_telemetry_enabled=${{ inputs.open_telemetry_enabled }}" \
+            --var="open_telemetry_sampling_ratio=${{ inputs.open_telemetry_sampling_ratio }}" \
+            --var="tyk_version=${{ inputs.tyk_version }}" \
+            --var="tyk_deployment_type=${{ inputs.tyk_deployment_type }}" \
+            --var="tyk_go_gc=${{ inputs.tyk_go_gc }}" \
+            --var="tyk_go_max_procs=${{ inputs.tyk_go_max_procs }}" \
+            --var="grafana_service_type=LoadBalancer" \
+            --auto-approve
+
+      - name: Run Tests
+        run: |
+          cd deployments
+          terraform init
+          terraform apply \
+            --var="kubernetes_config_path='../.kube/config'" \
+            --var="kubernetes_config_context=gke" \
+            --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
+            --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
+            --auto-approve

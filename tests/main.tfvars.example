@@ -1,16 +1,5 @@
-kubernetes = {
-  config = {
-    path    = "../.kube/config"
-    context = "gke"
-  }
-}
-
-analytics_enabled             = false
-auth_enabled                  = false
-quota_enabled                 = false
-rate_limit_enabled            = false
-open_telemetry_enabled        = false
-open_telemetry_sampling_ratio = "0.5"
+kubernetes_config_path    = "../.kube/config"
+kubernetes_config_context = "gke"
 
 tyk_enabled      = true
 kong_enabled     = false
