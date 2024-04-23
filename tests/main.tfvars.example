@@ -1,5 +1,4 @@
-kubernetes_config_path    = "../.kube/config"
-kubernetes_config_context = "gke"
+kubernetes_config_context = "performance-testing-gke"
 
 tyk_enabled      = true
 kong_enabled     = false

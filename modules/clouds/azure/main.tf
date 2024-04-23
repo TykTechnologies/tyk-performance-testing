@@ -41,14 +41,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
 resource "null_resource" "kube_config" {
   provisioner "local-exec" {
     command = <<EOT
-      export KUBECONFIG=../.kube/config
+      [[ $(kubectl config get-contexts performance-testing-aks | wc -l) -eq 2 ]] && kubectl config delete-context performance-testing-aks
 
-      [[ $(kubectl config get-contexts aks | wc -l) -eq 2 ]] && kubectl config delete-context aks
-
-      az aks get-credentials --resource-group ${azurerm_resource_group.this.name} \
+      az aks get-credentials \
+        --resource-group ${azurerm_resource_group.this.name} \
         --name ${azurerm_kubernetes_cluster.this.name}
 
-      kubectl config rename-context $(kubectl config current-context) aks
+      kubectl config rename-context $(kubectl config current-context) performance-testing-aks
     EOT
   }
 

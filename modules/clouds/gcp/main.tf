@@ -41,15 +41,13 @@ resource "google_container_node_pool" "this" {
 resource "null_resource" "kube_config" {
   provisioner "local-exec" {
     command = <<EOT
-      export KUBECONFIG=../.kube/config
-
-      [[ $(kubectl config get-contexts gke | wc -l) -eq 2 ]] && kubectl config delete-context gke
+      [[ $(kubectl config get-contexts performance-testing-gke | wc -l) -eq 2 ]] && kubectl config delete-context performance-testing-gke
 
       gcloud container clusters get-credentials ${google_container_cluster.this.name} \
         --region ${google_container_cluster.this.location} \
         --project ${google_container_cluster.this.project}
 
-      kubectl config rename-context $(kubectl config current-context) gke
+      kubectl config rename-context $(kubectl config current-context) performance-testing-gke
     EOT
   }
 

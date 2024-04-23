@@ -80,8 +80,7 @@ jobs:
           cd deployments
           terraform init
           terraform apply \
-            --var="kubernetes_config_path='../.kube/config'" \
-            --var="kubernetes_config_context=gke" \
+            --var="kubernetes_config_context=performance-testing-gke" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \
             --var="quota_enabled=${{ inputs.quota_enabled }}" \
@@ -97,8 +96,17 @@ jobs:
           cd deployments
           terraform init
           terraform apply \
-            --var="kubernetes_config_path='../.kube/config'" \
-            --var="kubernetes_config_context=gke" \
+            --var="kubernetes_config_context=performance-testing-gke" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
             --auto-approve
+
+      - name: Access to Grafana Dashboard
+        run: |
+          echo "###################################################################
+          echo "#
+          echo "# http://$(kubectl get svc -n dependencies grafana -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
+          echo "# Username: Admin"
+          echo "# Password: topsecretpassword"
+          echo "#
+          echo "###################################################################

@@ -1,5 +1,4 @@
-kubernetes_config_path    = "../.kube/config"
-kubernetes_config_context = "gke"
+kubernetes_config_context = "performance-testing-gke"
 
 analytics_enabled             = false
 auth_enabled                  = false
