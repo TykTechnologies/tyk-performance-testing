@@ -7,7 +7,16 @@ variable "replica_count" {
 }
 
 variable "resources" {
-  type = any
+  type = object({
+    requests = object({
+      cpu    = string
+      memory = string
+    })
+    limits = object({
+      cpu    = string
+      memory = string
+    })
+  })
 }
 
 variable "go_gc" {

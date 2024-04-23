@@ -1,0 +1,9 @@
+services_nodes_count = 1
+resource_nodes_count = 1
+
+cluster_location     = "us-west-1"
+cluster_machine_type = "c5.xlarge"
+
+tyk_enabled      = true
+kong_enabled     = false
+gravitee_enabled = false

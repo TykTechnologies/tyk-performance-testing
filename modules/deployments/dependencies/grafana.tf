@@ -2,7 +2,7 @@ resource "helm_release" "grafana" {
   name       = "grafana"
   repository = "https://grafana.github.io/helm-charts"
   chart      = "grafana"
-  version    = "v6.58.8"
+  version    = "v7.3.9"
 
   namespace = var.namespace
   atomic    = true
@@ -10,6 +10,11 @@ resource "helm_release" "grafana" {
   set {
     name  = "adminPassword"
     value = "topsecretpassword"
+  }
+
+  set {
+    name  = "service.type"
+    value = var.grafana.service.type
   }
 
   set {

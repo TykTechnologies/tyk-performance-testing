@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     kubectl = {
-      source = "alekc/kubectl"
-      version = ">= 2.0.2"
+      source  = "alekc/kubectl"
+      version = ">= 2.0.4"
     }
   }
 }
@@ -38,7 +38,32 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.kind"
-    value = "DaemonSet"
+    value = var.deployment_type
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.replicaCount"
+    value = var.replica_count
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.resources.requests.cpu"
+    value = var.resources.requests.cpu
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.resources.requests.memory"
+    value = var.resources.requests.memory
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.resources.limits.cpu"
+    value = var.resources.limits.cpu
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.resources.limits.memory"
+    value = var.resources.limits.memory
   }
 
   set {
@@ -71,7 +96,7 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[2].value"
     type  = "string"
-    value = var.oTel.enabled
+    value = var.open_telemetry.enabled
   }
 
   set {
@@ -92,7 +117,7 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[4].value"
     type  = "string"
-    value = var.oTel.sampling_ratio
+    value = var.open_telemetry.sampling_ratio
   }
 
   set {

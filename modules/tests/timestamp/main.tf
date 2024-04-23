@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     kubectl = {
-      source = "alekc/kubectl"
-      version = ">= 2.0.2"
+      source  = "alekc/kubectl"
+      version = ">= 2.0.4"
     }
   }
 }
@@ -47,7 +47,7 @@ spec:
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-timestamp --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-timestamp
   initializer:
     metadata:
       labels:

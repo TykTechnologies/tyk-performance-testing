@@ -10,7 +10,7 @@ resource "azurerm_resource_group" "this" {
 resource "azurerm_kubernetes_cluster" "this" {
   name                = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
-  kubernetes_version  = "1.22"
+  kubernetes_version  = var.aks_version
   resource_group_name = azurerm_resource_group.this.name
   dns_prefix          = replace(azurerm_resource_group.this.name, "_", "-")
 
@@ -27,7 +27,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
 resource "azurerm_kubernetes_cluster_node_pool" "this" {
   for_each              = var.nodes
-  name                  = replace(each.key, "-", "")
+  name                  = substr(replace(each.key, "-", ""), 0, 12)
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
 
   vm_size    = var.cluster_machine_type
@@ -38,17 +38,18 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   }
 }
 
-output "kubernetes" {
-  value = {
-    host                   = azurerm_kubernetes_cluster.this.kube_config[0].host
-    username               = azurerm_kubernetes_cluster.this.kube_config[0].username
-    password               = azurerm_kubernetes_cluster.this.kube_config[0].password
-    token                  = null
-    client_key             = base64decode(azurerm_kubernetes_cluster.this.kube_config[0].client_key)
-    client_certificate     = base64decode(azurerm_kubernetes_cluster.this.kube_config[0].client_certificate)
-    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.this.kube_config[0].cluster_ca_certificate)
-    config_path            = null
-    config_context         = null
+resource "null_resource" "kube_config" {
+  provisioner "local-exec" {
+    command = <<EOT
+      export KUBECONFIG=../.kube/config
+
+      [[ $(kubectl config get-contexts aks | wc -l) -eq 2 ]] && kubectl config delete-context aks
+
+      az aks get-credentials --resource-group ${azurerm_resource_group.this.name} \
+        --name ${azurerm_kubernetes_cluster.this.name}
+
+      kubectl config rename-context $(kubectl config current-context) aks
+    EOT
   }
 
   depends_on = [azurerm_kubernetes_cluster.this, azurerm_kubernetes_cluster_node_pool.this]

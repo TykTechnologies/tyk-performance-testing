@@ -1,18 +1,18 @@
 locals {
   nodes = {
-    dependencies       = var.resource_nodes
-    tyk                = var.tyk.enabled      ? var.service_nodes  : 0
-    tyk-upstream       = var.tyk.enabled      ? var.service_nodes  : 0
-    tyk-tests          = var.tyk.enabled      ? var.service_nodes  : 0
-    tyk-resources      = var.tyk.enabled      ? var.resource_nodes : 0
-    kong               = var.kong.enabled     ? var.service_nodes  : 0
-    kong-upstream      = var.kong.enabled     ? var.service_nodes  : 0
-    kong-tests         = var.kong.enabled     ? var.service_nodes  : 0
-    kong-resources     = var.kong.enabled     ? var.resource_nodes : 0
-    gravitee           = var.gravitee.enabled ? var.service_nodes  : 0
-    gravitee-upstream  = var.gravitee.enabled ? var.service_nodes  : 0
-    gravitee-tests     = var.gravitee.enabled ? var.service_nodes  : 0
-    gravitee-resources = var.gravitee.enabled ? var.resource_nodes : 0
+    dependencies       = var.resource_nodes_count
+    tyk                = var.tyk_enabled      ? var.services_nodes_count : 0
+    tyk-upstream       = var.tyk_enabled      ? var.services_nodes_count : 0
+    tyk-tests          = var.tyk_enabled      ? var.services_nodes_count : 0
+    tyk-resources      = var.tyk_enabled      ? var.resource_nodes_count : 0
+    kong               = var.kong_enabled     ? var.services_nodes_count : 0
+    kong-upstream      = var.kong_enabled     ? var.services_nodes_count : 0
+    kong-tests         = var.kong_enabled     ? var.services_nodes_count : 0
+    kong-resources     = var.kong_enabled     ? var.resource_nodes_count : 0
+    gravitee           = var.gravitee_enabled ? var.services_nodes_count : 0
+    gravitee-upstream  = var.gravitee_enabled ? var.services_nodes_count : 0
+    gravitee-tests     = var.gravitee_enabled ? var.services_nodes_count : 0
+    gravitee-resources = var.gravitee_enabled ? var.resource_nodes_count : 0
   }
 }
 
@@ -24,6 +24,6 @@ output "nodes" {
 
 output "labels" {
   value = tomap({
-    for key, value in local.nodes: key => key
+    for key, _ in local.nodes: key => key
   })
 }

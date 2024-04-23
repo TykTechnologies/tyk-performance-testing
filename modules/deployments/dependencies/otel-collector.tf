@@ -77,6 +77,6 @@ resource "helm_release" "opentelemetry-collector" {
     value = "jaeger"
   }
 
-  count      = var.oTelEnabled ? 1 : 0
+  count      = var.open_telemetry.enabled ? 1 : 0
   depends_on = [kubernetes_namespace.dependencies]
 }

@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     kubectl = {
-      source = "alekc/kubectl"
-      version = ">= 2.0.2"
+      source  = "alekc/kubectl"
+      version = ">= 2.0.4"
     }
   }
 }
@@ -46,13 +46,13 @@ apiVersion: k6.io/v1alpha1
 kind: K6
 metadata:
   name: httpbin
-  namespace: var.name
+  namespace: ${var.name}
 spec:
   parallelism: ${var.parallelism}
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-httpbin --tag oTelEnabled=${var.oTel.enabled} --tag oTelSamplingRatio=${var.oTel.sampling_ratio}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-httpbin
   initializer:
     metadata:
       labels:

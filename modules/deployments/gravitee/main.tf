@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     kubectl = {
-      source = "alekc/kubectl"
-      version = ">= 2.0.2"
+      source  = "alekc/kubectl"
+      version = ">= 2.0.4"
     }
   }
 }
@@ -137,8 +137,23 @@ resource "helm_release" "gravitee" {
   }
 
   set {
-    name  = "gateway.resources"
-    value = var.resources
+    name  = "gateway.resources.requests.cpu"
+    value = var.resources.requests.cpu
+  }
+
+  set {
+    name  = "gateway.resources.requests.memory"
+    value = var.resources.requests.memory
+  }
+
+  set {
+    name  = "gateway.resources.limits.cpu"
+    value = var.resources.limits.cpu
+  }
+
+  set {
+    name  = "gateway.resources.limits.memory"
+    value = var.resources.limits.memory
   }
 
   set {

@@ -35,6 +35,36 @@ resource "helm_release" "kong" {
     value = "auto"
   }
 
+  set {
+    name  = "deployment.daemonset"
+    value = var.deployment_type == "DaemonSet" ? true : false
+  }
+
+  set {
+    name  = "replicaCount"
+    value = var.replica_count
+  }
+
+  set {
+    name  = "resources.requests.cpu"
+    value = var.resources.requests.cpu
+  }
+
+  set {
+    name  = "resources.requests.memory"
+    value = var.resources.requests.memory
+  }
+
+  set {
+    name  = "resources.limits.cpu"
+    value = var.resources.limits.cpu
+  }
+
+  set {
+    name  = "resources.limits.memory"
+    value = var.resources.limits.memory
+  }
+
   #############################################################################
   # Database
   #############################################################################

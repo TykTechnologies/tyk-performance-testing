@@ -7,6 +7,22 @@ variable "label" {
   type = string
 }
 
-variable "oTelEnabled" {
-  type = bool
+variable "grafana" {
+  type = object({
+    service = object({
+      type = string
+    })
+  })
+
+  default = {
+    service = {
+      type = "ClusterIP"
+    }
+  }
+}
+
+variable "open_telemetry" {
+  type = object({
+    enabled = bool
+  })
 }

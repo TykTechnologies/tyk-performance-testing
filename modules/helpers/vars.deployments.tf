@@ -1,20 +1,11 @@
-variable "tyk" {
-  type = object({
-    enabled = bool
-    version = string
-  })
+variable "tyk_enabled" {
+  type = bool
 }
 
-variable "kong" {
-  type = object({
-    enabled = bool
-    version = string
-  })
+variable "kong_enabled" {
+  type = bool
 }
 
-variable "gravitee" {
-  type = object({
-    enabled = bool
-    version = string
-  })
+variable "gravitee_enabled" {
+  type = bool
 }

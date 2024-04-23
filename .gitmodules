@@ -1,4 +1,0 @@
-[submodule "modules/deployments/k6/k6-operator"]
-	path = modules/deployments/k6/k6-operator
-	url = https://github.com/knmsk/k6-operator.git
-	branch = feat/helm-chart
