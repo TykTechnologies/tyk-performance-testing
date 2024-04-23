@@ -51,6 +51,9 @@ jobs:
   httpbin:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Authenticate into gcloud
         uses: google-github-actions/auth@v2
         with:
@@ -61,15 +64,6 @@ jobs:
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
-
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Copy deployments vars example into main.tfvars
-        run: cp ./deployments/main.tfvars.example ./deployments/main.tfvars
-
-      - name: Copy tests vars example into main.tfvars
-        run: cp ./tests/main.tfvars.example ./tests/main.tfvars
 
       - name: Stand up GKE cluster
         run: |
