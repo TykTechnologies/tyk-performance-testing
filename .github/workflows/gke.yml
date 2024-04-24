@@ -84,6 +84,14 @@ jobs:
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve
 
+      - name: Connect to GKE cluster
+        run: |
+          gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --region "${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --project "${{ secrets.GCP_PROJECT }}"
+          
+          kubectl config rename-context $(kubectl config current-context) performance-testing-gke
+
       - name: Deploy testing resources
         run: |
           cd deployments
