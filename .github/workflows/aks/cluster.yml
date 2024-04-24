@@ -1,0 +1,43 @@
+name: EKS Cluster
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action'
+        required: false
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
+
+jobs:
+  cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Create Terraform Cloud descriptor
+        run: cp ./eks/terraform.cloud.tf.example ./eks/terraform.cloud.tf
+
+      - name: Stand up EKS cluster
+        run: |
+          cd eks
+          terraform init
+          terraform ${{ inputs.action }} \
+            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve

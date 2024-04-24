@@ -1,0 +1,102 @@
+name: EKS Deployments
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action'
+        required: false
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
+      analytics_enabled:
+        description: 'Enabled Analytics gathering'
+        required: false
+        default: false
+        type: boolean
+      auth_enabled:
+        description: 'Enabled Authentication'
+        required: false
+        default: false
+        type: boolean
+      quota_enabled:
+        description: 'Enabled Quota'
+        required: false
+        default: false
+        type: boolean
+      rate_limit_enabled:
+        description: 'Enabled Rate Limiting'
+        required: false
+        default: false
+        type: boolean
+      open_telemetry_enabled:
+        description: 'Enabled Open Telemetry'
+        required: false
+        default: false
+        type: boolean
+      open_telemetry_sampling_ratio:
+        description: 'Open Telemetry Sampling Ratio'
+        required: false
+        type: string
+        default: '0.5'
+      tyk_version:
+        description: 'Tyk Gateway version'
+        required: true
+        type: string
+        default: 'v5.3.0'
+
+jobs:
+  deployments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Connect to EKS cluster
+        run: |
+          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing-eks
+
+      - name: Create Terraform Cloud descriptor
+        run: cp .github/eks/deployments ./deployments/terraform.cloud.tf
+
+      - name: Run Terraform action on deployments
+        run: |
+          cd deployments
+          terraform init
+          terraform ${{ inputs.action }} \
+            --var="kubernetes_config_context=performance-testing-eks" \
+            --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
+            --var="auth_enabled=${{ inputs.auth_enabled }}" \
+            --var="quota_enabled=${{ inputs.quota_enabled }}" \
+            --var="rate_limit_enabled=${{ inputs.rate_limit_enabled }}" \
+            --var="open_telemetry_enabled=${{ inputs.open_telemetry_enabled }}" \
+            --var="open_telemetry_sampling_ratio=${{ inputs.open_telemetry_sampling_ratio }}" \
+            --var="tyk_version=${{ inputs.tyk_version }}" \
+            --var="grafana_service_type=LoadBalancer" \
+            --auto-approve
+
+      - name: Access to Grafana Dashboard
+        if: ${{ inputs.action == 'apply' }}
+        run: |
+          echo "###################################################################
+          echo "#
+          echo "# http://$(kubectl get svc -n dependencies grafana -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
+          echo "# Username: Admin"
+          echo "# Password: topsecretpassword"
+          echo "#
+          echo "###################################################################
