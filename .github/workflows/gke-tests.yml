@@ -38,6 +38,8 @@ jobs:
           gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --region "${{ vars.GCP_CLUSTER_LOCATION }}" \
             --project "${{ secrets.GCP_PROJECT }}"
+          
+          kubectl config rename-context $(kubectl config current-context) performance-testing-gke
 
       - name: Run Tests
         run: |

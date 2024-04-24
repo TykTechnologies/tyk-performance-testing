@@ -40,7 +40,7 @@ on:
       tests_timestamp_enabled:
         description: 'Enabled Timestamp Test'
         required: false
-        default: true
+        default: false
         type: boolean
       tests_httpbin_enabled:
         description: 'Enabled Httpbin Test'
@@ -73,6 +73,8 @@ jobs:
           gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --region "${{ vars.GCP_CLUSTER_LOCATION }}" \
             --project "${{ secrets.GCP_PROJECT }}"
+          
+          kubectl config rename-context $(kubectl config current-context) performance-testing-gke
 
       - name: Deploy testing resources
         run: |
