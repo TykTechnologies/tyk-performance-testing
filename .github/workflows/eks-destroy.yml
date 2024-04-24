@@ -82,8 +82,8 @@ jobs:
       - name: Run Tests
         run: |
           cd tests
-          terraform destroy
-          terraform apply \
+          terraform init
+          terraform destroy \
             --var="kubernetes_config_context=performance-testing-eks" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
@@ -92,8 +92,8 @@ jobs:
       - name: Deploy testing resources
         run: |
           cd deployments
-          terraform destroy
-          terraform apply \
+          terraform init
+          terraform destroy \
             --var="kubernetes_config_context=performance-testing-eks" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \
@@ -108,8 +108,8 @@ jobs:
       - name: Stand up EKS cluster
         run: |
           cd eks
-          terraform destroy
-          terraform apply \
+          terraform init
+          terraform destroy \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve
