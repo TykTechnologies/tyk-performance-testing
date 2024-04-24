@@ -1,4 +1,4 @@
-name: EKS Tests
+name: AKS Tests
 on:
   workflow_dispatch:
     inputs:
