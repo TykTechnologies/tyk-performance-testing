@@ -6,39 +6,34 @@ terraform {
     }
   }
 }
-resource "kubernetes_config_map" "timestamp-configmap" {
-  metadata {
-    name      = "timestamp-${var.name}-configmap"
-    namespace = var.name
-  }
 
-  lifecycle {
-    ignore_changes = [
-      metadata
-    ]
-  }
+resource "kubectl_manifest" "timestamp-configmap" {
+  yaml_body = <<YAML
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "timestamp-${var.name}-configmap"
+  namespace: ${var.name}
+data:
+  httpbin.js: |
+    import http from 'k6/http';
 
-  data = {
-    "timestamp.js" = <<EOF
-import http from 'k6/http';
+    export const options = {
+      discardResponseBodies: true,
+      scenarios: {
+        success: {
+          executor: 'constant-vus',
+          exec: 'get',
+          vus: 50,
+          duration: '15m',
+        }
+      }
+    };
 
-export const options = {
-  discardResponseBodies: true,
-  scenarios: {
-    success: {
-      executor: 'constant-vus',
-      exec: 'get',
-      vus: 50,
-      duration: '15m',
+    export function get() {
+      http.get('http://${var.url}/timestamp/json');
     }
-  }
-};
-
-export function get() {
-  http.get('http://${var.url}/timestamp/json');
-}
-EOF
-  }
+YAML
 }
 
 resource "kubectl_manifest" "timestamp" {
@@ -96,5 +91,5 @@ spec:
       file: timestamp.js
 YAML
 
-  depends_on = [kubernetes_config_map.timestamp-configmap]
+  depends_on = [kubectl_manifest.timestamp-configmap]
 }
