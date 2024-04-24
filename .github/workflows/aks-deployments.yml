@@ -1,4 +1,4 @@
-name: EKS Deployments
+name: AKS Deployments
 on:
   workflow_dispatch:
     inputs:
@@ -53,33 +53,35 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure AKS credentials
+        uses: azure/login@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Connect to EKS cluster
+      - name: Connect to AKS cluster
         run: |
-          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
-
-          kubectl config rename-context $(kubectl config current-context) performance-testing-eks
+          az aks get-credentials \
+            --resource-group "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --name "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}"
+          
+          kubectl config rename-context $(kubectl config current-context) performance-testing-aks
 
       - name: Create Terraform Cloud descriptor
-        run: cp .github/eks/deployments ./deployments/terraform.cloud.tf
+        run: cp .github/aks/deployments ./deployments/terraform.cloud.tf
 
       - name: Run Terraform action on deployments
         run: |
           cd deployments
           terraform init
           terraform ${{ inputs.action }} \
-            --var="kubernetes_config_context=performance-testing-eks" \
+            --var="kubernetes_config_context=performance-testing-aks" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \
             --var="quota_enabled=${{ inputs.quota_enabled }}" \

@@ -55,7 +55,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AKS credentials
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -73,7 +73,7 @@ jobs:
           cp .github/aks/deployments.tf ./deployments/terraform.cloud.tf
           cp .github/aks/tests.tf ./tests/terraform.cloud.tf
 
-      - name: Stand up EKS cluster
+      - name: Stand up AKS cluster
         run: |
           cd aks
           terraform init
@@ -84,11 +84,11 @@ jobs:
 
       - name: Connect to AKS cluster
         run: |
-          aws aks get-credentials \
+          az aks get-credentials \
             --resource-group "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
             --name "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}"
 
-          kubectl config rename-context $(kubectl config current-context) performance-testing-eks
+          kubectl config rename-context $(kubectl config current-context) performance-testing-aks
 
       - name: Deploy testing resources
         run: |
