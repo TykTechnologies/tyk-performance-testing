@@ -18,10 +18,11 @@ module "vpc" {
 }
 
 module "eks" {
-  source = "terraform-aws-modules/eks/aws"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "20.8.2"
 
   cluster_name    = "pt-${var.cluster_location}"
-  cluster_version = "1.22"
+  cluster_version = "1.29"
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -32,6 +33,7 @@ module "eks" {
 module "eks_node_groups" {
   for_each = var.nodes
   source   = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
+  version  = "20.8.2"
 
   name            = each.key
   cluster_name    = module.eks.cluster_name
@@ -43,12 +45,6 @@ module "eks_node_groups" {
   labels = {
     "node": each.key
   }
-}
-
-data "aws_eks_cluster_auth" "this" {
-  name = module.eks.cluster_name
-
-  depends_on = [module.eks, module.eks_node_groups]
 }
 
 resource "null_resource" "kube_config" {
