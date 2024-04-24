@@ -1,6 +1,6 @@
 variable "gravitee_enabled" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "gravitee_version" {

@@ -1,6 +1,6 @@
 variable "kong_enabled" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "kong_version" {
