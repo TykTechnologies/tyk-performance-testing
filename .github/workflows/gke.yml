@@ -48,7 +48,7 @@ on:
         default: false
         type: boolean
 jobs:
-  httpbin:
+  performance_test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -61,6 +61,9 @@ jobs:
 
       - name: Install gcloud CLI
         uses: google-github-actions/setup-gcloud@v2.1.0
+
+      - name: Install gcloud k8s auto component
+        run: gcloud components install gke-gcloud-auth-plugin
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
