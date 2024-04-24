@@ -2,6 +2,14 @@ name: EKS Performance Test
 on:
   workflow_dispatch:
     inputs:
+      action:
+        description: 'Action'
+        required: false
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
       analytics_enabled:
         description: 'Enabled Analytics gathering'
         required: false
@@ -77,7 +85,7 @@ jobs:
         run: |
           cd eks
           terraform init
-          terraform apply \
+          terraform ${{ inputs.action }} \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve
@@ -92,7 +100,7 @@ jobs:
         run: |
           cd deployments
           terraform init
-          terraform apply \
+          terraform ${{ inputs.action }} \
             --var="kubernetes_config_context=performance-testing-eks" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \
@@ -108,7 +116,7 @@ jobs:
         run: |
           cd tests
           terraform init
-          terraform apply \
+          terraform ${{ inputs.action }} \
             --var="kubernetes_config_context=performance-testing-eks" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \

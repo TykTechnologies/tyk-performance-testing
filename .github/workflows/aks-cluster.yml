@@ -35,7 +35,7 @@ jobs:
         run: |
           cd aks
           terraform init
-          terraform apply \
+          terraform ${{ inputs.action }} \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve
