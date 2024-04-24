@@ -17,4 +17,5 @@ jobs:
         run: |
           gcloud container clusters delete "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --region "${{ vars.GCP_CLUSTER_LOCATION }}" \
-            --project "${{ secrets.GCP_PROJECT }}"
+            --project "${{ secrets.GCP_PROJECT }}" \
+            --quiet
