@@ -74,7 +74,7 @@ jobs:
           kubectl config rename-context $(kubectl config current-context) performance-testing-aks
 
       - name: Create Terraform Cloud descriptor
-        run: cp .github/aks/deployments ./deployments/terraform.cloud.tf
+        run: cp .github/aks/deployments.tf ./deployments/terraform.cloud.tf
 
       - name: Run Terraform action on deployments
         run: |
