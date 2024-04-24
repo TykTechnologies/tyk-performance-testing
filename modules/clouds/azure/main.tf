@@ -37,19 +37,3 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
     "node": each.key
   }
 }
-
-resource "null_resource" "kube_config" {
-  provisioner "local-exec" {
-    command = <<EOT
-      [[ $(kubectl config get-contexts performance-testing-aks | wc -l) -eq 2 ]] && kubectl config delete-context performance-testing-aks
-
-      az aks get-credentials \
-        --resource-group ${azurerm_resource_group.this.name} \
-        --name ${azurerm_kubernetes_cluster.this.name}
-
-      kubectl config rename-context $(kubectl config current-context) performance-testing-aks
-    EOT
-  }
-
-  depends_on = [azurerm_kubernetes_cluster.this, azurerm_kubernetes_cluster_node_pool.this]
-}

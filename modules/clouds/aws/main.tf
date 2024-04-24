@@ -46,17 +46,3 @@ module "eks_node_groups" {
     "node": each.key
   }
 }
-
-resource "null_resource" "kube_config" {
-  provisioner "local-exec" {
-    command = <<EOT
-      [[ $(kubectl config get-contexts performance-testing-eks | wc -l) -eq 2 ]] && kubectl config delete-context performance-testing-eks
-
-      aws eks --region ${var.cluster_location} update-kubeconfig --name ${module.eks.cluster_name}
-
-      kubectl config rename-context $(kubectl config current-context) performance-testing-eks
-    EOT
-  }
-
-  depends_on = [module.eks, module.eks_node_groups]
-}
