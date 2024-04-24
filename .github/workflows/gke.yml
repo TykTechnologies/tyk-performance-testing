@@ -71,8 +71,11 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Create Terraform Cloud descriptor
-        run: cp ./gke/terraform.cloud.tf.example ./gke/terraform.cloud.tf
+      - name: Create Terraform Cloud descriptors
+        run: |
+          cp ./gke/terraform.cloud.tf.example ./gke/terraform.cloud.tf
+          cp .github/gke/deployments.tf ./deployments/terraform.cloud.tf
+          cp .github/gke/tests.tf ./tests/terraform.cloud.tf
 
       - name: Stand up GKE cluster
         run: |
