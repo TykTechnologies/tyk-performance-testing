@@ -5,10 +5,10 @@ variable "tyk_enabled" {
 
 variable "kong_enabled" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "gravitee_enabled" {
   type    = bool
-  default = true
+  default = false
 }
