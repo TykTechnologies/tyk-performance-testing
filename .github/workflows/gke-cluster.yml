@@ -8,7 +8,7 @@ on:
         default: 240
         type: number
 jobs:
-  performance_test:
+  cluster:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

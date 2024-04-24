@@ -48,7 +48,7 @@ on:
         default: false
         type: boolean
 jobs:
-  performance_test:
+  deployments:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
