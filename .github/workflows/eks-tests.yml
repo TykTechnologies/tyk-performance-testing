@@ -1,4 +1,4 @@
-name: EKS Performance Test
+name: EKS Tests
 on:
   workflow_dispatch:
     inputs:

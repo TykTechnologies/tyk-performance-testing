@@ -1,4 +1,4 @@
-name: EKS Performance Test
+name: EKS Deployments
 on:
   workflow_dispatch:
     inputs:
