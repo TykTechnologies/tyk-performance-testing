@@ -1,15 +1,7 @@
-name: GKE Performance Test
+name: EKS Performance Test
 on:
   workflow_dispatch:
     inputs:
-      action:
-        description: 'Action'
-        required: false
-        default: 'apply'
-        type: choice
-        options:
-          - apply
-          - destroy
       analytics_enabled:
         description: 'Enabled Analytics gathering'
         required: false
@@ -63,16 +55,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Authenticate into gcloud
-        uses: google-github-actions/auth@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-
-      - name: Install gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2.1.0
-
-      - name: Install gcloud k8s auth component
-        run: gcloud components install gke-gcloud-auth-plugin
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
@@ -81,34 +69,32 @@ jobs:
 
       - name: Create Terraform Cloud descriptors
         run: |
-          cp ./gke/terraform.cloud.tf.example ./gke/terraform.cloud.tf
-          cp .github/gke/deployments.tf ./deployments/terraform.cloud.tf
-          cp .github/gke/tests.tf ./tests/terraform.cloud.tf
+          cp ./eks/terraform.cloud.tf.example ./eks/terraform.cloud.tf
+          cp .github/eks/deployments.tf ./deployments/terraform.cloud.tf
+          cp .github/eks/tests.tf ./tests/terraform.cloud.tf
 
-      - name: Stand up GKE cluster
+      - name: Connect to EKS cluster
         run: |
-          cd gke
-          terraform init
+          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing-eks
+
+      - name: Run Tests
+        run: |
+          cd tests
+          terraform destroy
           terraform apply \
-            --var="project=${{ secrets.GCP_PROJECT }}" \
-            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --var="kubernetes_config_context=performance-testing-eks" \
+            --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
+            --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
             --auto-approve
-
-      - name: Connect to GKE cluster
-        run: |
-          gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
-            --region "${{ vars.GCP_CLUSTER_LOCATION }}" \
-            --project "${{ secrets.GCP_PROJECT }}"
-          
-          kubectl config rename-context $(kubectl config current-context) performance-testing-gke
 
       - name: Deploy testing resources
         run: |
           cd deployments
-          terraform init
+          terraform destroy
           terraform apply \
-            --var="kubernetes_config_context=performance-testing-gke" \
+            --var="kubernetes_config_context=performance-testing-eks" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \
             --var="quota_enabled=${{ inputs.quota_enabled }}" \
@@ -119,22 +105,11 @@ jobs:
             --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
-      - name: Run Tests
+      - name: Stand up EKS cluster
         run: |
-          cd tests
-          terraform init
+          cd eks
+          terraform destroy
           terraform apply \
-            --var="kubernetes_config_context=performance-testing-gke" \
-            --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
-            --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
+            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve
-
-      - name: Access to Grafana Dashboard
-        run: |
-          echo "###################################################################
-          echo "#
-          echo "# http://$(kubectl get svc -n dependencies grafana -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
-          echo "# Username: Admin"
-          echo "# Password: topsecretpassword"
-          echo "#
-          echo "###################################################################

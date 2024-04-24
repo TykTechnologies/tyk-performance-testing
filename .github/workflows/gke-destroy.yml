@@ -85,16 +85,6 @@ jobs:
           cp .github/gke/deployments.tf ./deployments/terraform.cloud.tf
           cp .github/gke/tests.tf ./tests/terraform.cloud.tf
 
-      - name: Stand up GKE cluster
-        run: |
-          cd gke
-          terraform init
-          terraform apply \
-            --var="project=${{ secrets.GCP_PROJECT }}" \
-            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
-            --auto-approve
-
       - name: Connect to GKE cluster
         run: |
           gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
@@ -103,10 +93,20 @@ jobs:
           
           kubectl config rename-context $(kubectl config current-context) performance-testing-gke
 
+      - name: Run Tests
+        run: |
+          cd tests
+          terraform destroy
+          terraform apply \
+            --var="kubernetes_config_context=performance-testing-gke" \
+            --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
+            --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
+            --auto-approve
+
       - name: Deploy testing resources
         run: |
           cd deployments
-          terraform init
+          terraform destroy
           terraform apply \
             --var="kubernetes_config_context=performance-testing-gke" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
@@ -119,22 +119,12 @@ jobs:
             --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
-      - name: Run Tests
+      - name: Stand up GKE cluster
         run: |
-          cd tests
-          terraform init
+          cd gke
+          terraform destroy
           terraform apply \
-            --var="kubernetes_config_context=performance-testing-gke" \
-            --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
-            --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
+            --var="project=${{ secrets.GCP_PROJECT }}" \
+            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve
-
-      - name: Access to Grafana Dashboard
-        run: |
-          echo "###################################################################
-          echo "#
-          echo "# http://$(kubectl get svc -n dependencies grafana -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
-          echo "# Username: Admin"
-          echo "# Password: topsecretpassword"
-          echo "#
-          echo "###################################################################
