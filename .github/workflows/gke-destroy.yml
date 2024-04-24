@@ -1,4 +1,4 @@
-name: GKE Performance Test
+name: Destroy GKE Setup
 on:
   workflow_dispatch:
     inputs:

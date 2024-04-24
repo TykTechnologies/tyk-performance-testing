@@ -1,4 +1,4 @@
-name: EKS Performance Test
+name: Destroy EKS Setup
 on:
   workflow_dispatch:
     inputs:

@@ -1,4 +1,4 @@
-name: AKS Performance Test
+name: Destroy AKS Setup
 on:
   workflow_dispatch:
     inputs:
