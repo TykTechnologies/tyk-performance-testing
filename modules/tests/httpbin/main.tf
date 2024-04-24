@@ -7,37 +7,37 @@ terraform {
   }
 }
 
-resource "kubectl_manifest" "httpbin-configmap" {
-  yaml_body = <<YAML
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: "httpbin-${var.name}-configmap"
-  namespace: ${var.name}
-data:
-  httpbin.js: |
-    import http from 'k6/http';
+resource "kubernetes_config_map" "httpbin-configmap" {
+  metadata {
+    name      = "httpbin-${var.name}-configmap"
+    namespace = var.name
+  }
 
-    export const options = {
-      discardResponseBodies: true,
-      scenarios: {
-        success: {
-          executor: 'constant-vus',
-          exec: 'success',
-          vus: 50,
-          duration: '15m',
-        }
-      }
-    };
+  data = {
+    "httpbin.js" = <<EOF
+import http from 'k6/http';
 
-    function sendStatus(status) {
-      http.get('http://${var.url}/httpbin/status/' + status);
+export const options = {
+  discardResponseBodies: true,
+  scenarios: {
+    success: {
+      executor: 'constant-vus',
+      exec: 'success',
+      vus: 50,
+      duration: '15m',
     }
+  }
+};
 
-    export function success() {
-      sendStatus(200);
-    }
-YAML
+function sendStatus(status) {
+  http.get('http://${var.url}/httpbin/status/' + status);
+}
+
+export function success() {
+    sendStatus(200);
+}
+EOF
+  }
 }
 
 resource "kubectl_manifest" "httpbin" {
@@ -95,5 +95,5 @@ spec:
       file: httpbin.js
 YAML
 
-  depends_on = [kubectl_manifest.httpbin-configmap]
+  depends_on = [kubernetes_config_map.httpbin-configmap]
 }
