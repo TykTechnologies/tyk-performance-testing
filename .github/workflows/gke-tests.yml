@@ -43,7 +43,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          cd deployments
+          cd tests
           terraform init
           terraform apply \
             --var="kubernetes_config_context=performance-testing-gke" \
