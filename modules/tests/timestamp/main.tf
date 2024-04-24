@@ -12,6 +12,12 @@ resource "kubernetes_config_map" "timestamp-configmap" {
     namespace = var.name
   }
 
+  lifecycle {
+    ignore_changes = [
+      metadata
+    ]
+  }
+
   data = {
     "timestamp.js" = <<EOF
 import http from 'k6/http';

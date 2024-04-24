@@ -13,6 +13,12 @@ resource "kubernetes_config_map" "httpbin-configmap" {
     namespace = var.name
   }
 
+  lifecycle {
+    ignore_changes = [
+      metadata
+    ]
+  }
+
   data = {
     "httpbin.js" = <<EOF
 import http from 'k6/http';
