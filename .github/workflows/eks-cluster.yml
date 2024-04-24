@@ -2,11 +2,18 @@ name: EKS Cluster
 on:
   workflow_dispatch:
     inputs:
-      cluster_ttl:
-        description: 'Cluster Time to Live (minutes)'
+      action:
+        description: 'Action'
         required: false
-        default: 240
-        type: number
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
+
+env:
+  TF_CLI_CONFIG_FILE: ${{ secrets.TF_CLI_CONFIG_FILE }}
+
 jobs:
   cluster:
     runs-on: ubuntu-latest
@@ -24,22 +31,14 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Create Terraform Cloud descriptor
+        run: cp ./eks/terraform.cloud.tf.example ./eks/terraform.cloud.tf
+
       - name: Stand up EKS cluster
         run: |
           cd eks
           terraform init
-          terraform apply \
-            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
-            --auto-approve
-
-      - name: Results Time to Live Sleep
-        run: sleep ${{ inputs.cluster_ttl }}m
-
-      - name: Tear Down cluster
-        run: |
-          cd eks
-          terraform destroy \
+          terraform ${{ inputs.action }} \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve

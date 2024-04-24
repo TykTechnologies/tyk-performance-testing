@@ -2,6 +2,14 @@ name: EKS Tests
 on:
   workflow_dispatch:
     inputs:
+      action:
+        description: 'Action'
+        required: false
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
       tests_timestamp_enabled:
         description: 'Enabled Timestamp Test'
         required: false
@@ -12,6 +20,10 @@ on:
         required: false
         default: false
         type: boolean
+
+env:
+  TF_CLI_CONFIG_FILE: ${{ secrets.TF_CLI_CONFIG_FILE }}
+
 jobs:
   performance_test:
     runs-on: ubuntu-latest
@@ -35,17 +47,18 @@ jobs:
 
           kubectl config rename-context $(kubectl config current-context) performance-testing-eks
 
-      - name: Run Tests
+      - name: Run Terraform action on tests
         run: |
           cd tests
           terraform init
-          terraform apply \
+          terraform ${{ inputs.action }} \
             --var="kubernetes_config_context=performance-testing-eks" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
             --auto-approve
 
       - name: Access to Grafana Dashboard
+        if: ${{ inputs.action == 'apply' }}
         run: |
           echo "###################################################################
           echo "#

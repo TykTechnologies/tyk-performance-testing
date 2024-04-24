@@ -47,11 +47,10 @@ on:
         required: false
         default: false
         type: boolean
-      cluster_ttl:
-        description: 'Cluster Time to Live (minutes)'
-        required: false
-        default: 240
-        type: number
+
+env:
+  TF_CLI_CONFIG_FILE: ${{ secrets.TF_CLI_CONFIG_FILE }}
+
 jobs:
   performance_test:
     runs-on: ubuntu-latest
@@ -72,6 +71,9 @@ jobs:
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
+
+      - name: Create Terraform Cloud descriptor
+        run: cp ./gke/terraform.cloud.tf.example ./gke/terraform.cloud.tf
 
       - name: Stand up GKE cluster
         run: |
@@ -118,15 +120,3 @@ jobs:
           echo "# Password: topsecretpassword"
           echo "#
           echo "###################################################################
-
-      - name: Results Time to Live Sleep
-        run: sleep ${{ inputs.cluster_ttl }}m
-
-      - name: Tear Down cluster
-        run: |
-          cd gke
-          terraform destroy \
-            --var="project=${{ secrets.GCP_PROJECT }}" \
-            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
-            --auto-approve

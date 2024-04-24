@@ -2,6 +2,14 @@ name: GKE Deployments
 on:
   workflow_dispatch:
     inputs:
+      action:
+        description: 'Action'
+        required: false
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
       analytics_enabled:
         description: 'Enabled Analytics gathering'
         required: false
@@ -37,16 +45,10 @@ on:
         required: true
         type: string
         default: 'v5.3.0'
-      tests_timestamp_enabled:
-        description: 'Enabled Timestamp Test'
-        required: false
-        default: false
-        type: boolean
-      tests_httpbin_enabled:
-        description: 'Enabled Httpbin Test'
-        required: false
-        default: false
-        type: boolean
+
+env:
+  TF_CLI_CONFIG_FILE: ${{ secrets.TF_CLI_CONFIG_FILE }}
+
 jobs:
   deployments:
     runs-on: ubuntu-latest
@@ -76,11 +78,11 @@ jobs:
           
           kubectl config rename-context $(kubectl config current-context) performance-testing-gke
 
-      - name: Deploy testing resources
+      - name: Run Terraform action on deployments
         run: |
           cd deployments
           terraform init
-          terraform apply \
+          terraform ${{ inputs.action }} \
             --var="kubernetes_config_context=performance-testing-gke" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \
@@ -92,17 +94,8 @@ jobs:
             --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
-      - name: Run Tests
-        run: |
-          cd tests
-          terraform init
-          terraform apply \
-            --var="kubernetes_config_context=performance-testing-gke" \
-            --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
-            --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
-            --auto-approve
-
       - name: Access to Grafana Dashboard
+        if: ${{ inputs.action == 'apply' }}
         run: |
           echo "###################################################################
           echo "#
