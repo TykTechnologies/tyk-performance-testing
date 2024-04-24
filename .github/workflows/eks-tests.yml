@@ -21,9 +21,6 @@ on:
         default: false
         type: boolean
 
-env:
-  TF_CLI_CONFIG_FILE: ${{ secrets.TF_CLI_CONFIG_FILE }}
-
 jobs:
   performance_test:
     runs-on: ubuntu-latest
@@ -40,6 +37,8 @@ jobs:
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Connect to EKS cluster
         run: |

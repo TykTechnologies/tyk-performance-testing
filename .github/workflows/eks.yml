@@ -47,8 +47,6 @@ on:
         required: false
         default: false
         type: boolean
-env:
-  TF_CLI_CONFIG_FILE: ${{ secrets.TF_CLI_CONFIG_FILE }}
 
 jobs:
   performance_test:
@@ -66,6 +64,8 @@ jobs:
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Create Terraform Cloud descriptor
         run: cp ./eks/terraform.cloud.tf.example ./eks/terraform.cloud.tf

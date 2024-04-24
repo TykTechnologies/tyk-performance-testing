@@ -46,9 +46,6 @@ on:
         type: string
         default: 'v5.3.0'
 
-env:
-  TF_CLI_CONFIG_FILE: ${{ secrets.TF_CLI_CONFIG_FILE }}
-
 jobs:
   deployments:
     runs-on: ubuntu-latest
@@ -64,11 +61,13 @@ jobs:
       - name: Install gcloud CLI
         uses: google-github-actions/setup-gcloud@v2.1.0
 
-      - name: Install gcloud k8s auto component
+      - name: Install gcloud k8s auth component
         run: gcloud components install gke-gcloud-auth-plugin
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Connect to GKE cluster
         run: |
