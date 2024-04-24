@@ -64,7 +64,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{env.AWS_CLUSTER_LOCATION}}
+          aws-region: ${{vars.AWS_CLUSTER_LOCATION}}
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
