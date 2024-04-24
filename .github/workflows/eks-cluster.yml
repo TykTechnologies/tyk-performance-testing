@@ -31,7 +31,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Create Terraform Cloud descriptor
-        run: cp .github/eks/terraform.cloud.tf.example ./eks/terraform.cloud.tf
+        run: cp ./eks/terraform.cloud.tf.example ./eks/terraform.cloud.tf
 
       - name: Stand up EKS cluster
         run: |
