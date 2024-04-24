@@ -1,0 +1,60 @@
+name: GKE Deployments
+on:
+  workflow_dispatch:
+    inputs:
+      tests_timestamp_enabled:
+        description: 'Enabled Timestamp Test'
+        required: false
+        default: true
+        type: boolean
+      tests_httpbin_enabled:
+        description: 'Enabled Httpbin Test'
+        required: false
+        default: false
+        type: boolean
+jobs:
+  performance_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate into gcloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Install gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2.1.0
+
+      - name: Install gcloud k8s auto component
+        run: gcloud components install gke-gcloud-auth-plugin
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Connect to GKE cluster
+        run: |
+          gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --region "${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --project "${{ secrets.GCP_PROJECT }}"
+
+      - name: Run Tests
+        run: |
+          cd deployments
+          terraform init
+          terraform apply \
+            --var="kubernetes_config_context=performance-testing-gke" \
+            --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
+            --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
+            --auto-approve
+
+      - name: Access to Grafana Dashboard
+        run: |
+          echo "###################################################################
+          echo "#
+          echo "# http://$(kubectl get svc -n dependencies grafana -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
+          echo "# Username: Admin"
+          echo "# Password: topsecretpassword"
+          echo "#
+          echo "###################################################################
