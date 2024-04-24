@@ -1,4 +1,4 @@
-name: GKE Deployments
+name: GKE Tests
 on:
   workflow_dispatch:
     inputs:
