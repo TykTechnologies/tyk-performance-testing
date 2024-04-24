@@ -11,33 +11,33 @@ on:
           - apply
           - destroy
 
-  jobs:
-    cluster:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout Repository
-          uses: actions/checkout@v4
+jobs:
+  cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-        - name: Configure AKS credentials
-          uses: azure/login@v2
-          with:
-            client-id: ${{ secrets.AZURE_CLIENT_ID }}
-            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-            subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Configure AKS credentials
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-        - name: Install Terraform
-          uses: hashicorp/setup-terraform@v3
-          with:
-            cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-        - name: Create Terraform Cloud descriptor
-          run: cp ./aks/terraform.cloud.tf.example ./aks/terraform.cloud.tf
+      - name: Create Terraform Cloud descriptor
+        run: cp ./aks/terraform.cloud.tf.example ./aks/terraform.cloud.tf
 
-        - name: Stand up AKS cluster
-          run: |
-            cd aks
-            terraform init
-            terraform apply \
-              --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
-              --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
-              --auto-approve
+      - name: Stand up AKS cluster
+        run: |
+          cd aks
+          terraform init
+          terraform apply \
+            --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
