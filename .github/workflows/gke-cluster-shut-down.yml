@@ -13,9 +13,6 @@ jobs:
       - name: Install gcloud CLI
         uses: google-github-actions/setup-gcloud@v2.1.0
 
-      - name: Install gcloud k8s auto component
-        run: gcloud components install gke-gcloud-auth-plugin
-
       - name: Shut Down GKE Cluster
         run:
           gcloud container clusters delete "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
