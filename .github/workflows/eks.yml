@@ -64,7 +64,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{vars.AWS_CLUSTER_LOCATION}}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
@@ -115,7 +115,7 @@ jobs:
           echo "###################################################################
 
       - name: Results Time to Live Sleep
-        run: sleep ${{inputs.cluster_ttl}}m
+        run: sleep ${{ inputs.cluster_ttl }}m
 
       - name: Tear Down cluster
         run: |

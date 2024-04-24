@@ -39,7 +39,7 @@ jobs:
             --auto-approve
 
       - name: Results Time to Live Sleep
-        run: sleep ${{inputs.cluster_ttl}}m
+        run: sleep ${{ inputs.cluster_ttl }}m
 
       - name: Tear Down cluster
         run: |

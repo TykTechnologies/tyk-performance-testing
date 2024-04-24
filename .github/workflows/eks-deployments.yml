@@ -1,4 +1,4 @@
-name: GKE Performance Test
+name: EKS Performance Test
 on:
   workflow_dispatch:
     inputs:
@@ -40,55 +40,42 @@ on:
       tests_timestamp_enabled:
         description: 'Enabled Timestamp Test'
         required: false
-        default: true
+        default: false
         type: boolean
       tests_httpbin_enabled:
         description: 'Enabled Httpbin Test'
         required: false
         default: false
         type: boolean
-      cluster_ttl:
-        description: 'Cluster Time to Live (minutes)'
-        required: false
-        default: 240
-        type: number
 jobs:
-  performance_test:
+  deployments:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Authenticate into gcloud
-        uses: google-github-actions/auth@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-
-      - name: Install gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2.1.0
-
-      - name: Install gcloud k8s auto component
-        run: gcloud components install gke-gcloud-auth-plugin
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Stand up GKE cluster
+      - name: Connect to EKS cluster
         run: |
-          cd gke
-          terraform init
-          terraform apply \
-            --var="project=${{ secrets.GCP_PROJECT }}" \
-            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
-            --auto-approve
+          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing-eks
 
       - name: Deploy testing resources
         run: |
           cd deployments
           terraform init
           terraform apply \
-            --var="kubernetes_config_context=performance-testing-gke" \
+            --var="kubernetes_config_context=performance-testing-eks" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \
             --var="quota_enabled=${{ inputs.quota_enabled }}" \
@@ -104,7 +91,7 @@ jobs:
           cd tests
           terraform init
           terraform apply \
-            --var="kubernetes_config_context=performance-testing-gke" \
+            --var="kubernetes_config_context=performance-testing-eks" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
             --auto-approve
@@ -118,15 +105,3 @@ jobs:
           echo "# Password: topsecretpassword"
           echo "#
           echo "###################################################################
-
-      - name: Results Time to Live Sleep
-        run: sleep ${{ inputs.cluster_ttl }}m
-
-      - name: Tear Down cluster
-        run: |
-          cd gke
-          terraform destroy \
-            --var="project=${{ secrets.GCP_PROJECT }}" \
-            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
-            --auto-approve
