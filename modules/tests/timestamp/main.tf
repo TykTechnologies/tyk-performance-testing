@@ -15,7 +15,7 @@ metadata:
   name: "timestamp-${var.name}-configmap"
   namespace: ${var.name}
 data:
-  httpbin.js: |
+  timestamp.js: |
     import http from 'k6/http';
 
     export const options = {
