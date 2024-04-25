@@ -9,8 +9,7 @@ variable "tyk_version" {
 }
 
 variable "tyk_license" {
-  type     = string
-  required = true
+  type = string
 }
 
 variable "tyk_deployment_type" {

@@ -1,25 +1,20 @@
 variable "namespace" {
-  type     = string
-  default  = "tyk"
-  required = true
+  type    = string
+  default = "tyk"
 }
 
 variable "license" {
-  type     = string
-  required = true
+  type = string
 }
 
 variable "label" {
-  type     = string
-  required = true
+  type = string
 }
 
 variable "resources-label" {
-  type     = string
-  required = true
+  type = string
 }
 
 variable "gateway_version" {
-  type     = string
-  required = true
+  type = string
 }
