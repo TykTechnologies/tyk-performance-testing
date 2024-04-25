@@ -9,3 +9,7 @@ variable "url" {
 variable "parallelism" {
   type = number
 }
+
+variable "duration" {
+  type = number
+}

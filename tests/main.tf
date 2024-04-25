@@ -17,5 +17,6 @@ module "tests" {
     parallelism = var.tests_parallelism
     timestamp   = var.tests_timestamp_enabled
     httpbin     = var.tests_httpbin_enabled
+    duration    = var.tests_duration
   }
 }

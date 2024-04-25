@@ -12,3 +12,8 @@ variable "tests_httpbin_enabled" {
   type    = bool
   default = false
 }
+
+variable "tests_duration" {
+  type    = number
+  default = 15
+}

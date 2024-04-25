@@ -93,7 +93,7 @@ jobs:
           
           kubectl config rename-context $(kubectl config current-context) performance-testing-gke
 
-      - name: Run Tests
+      - name: Destroy Tests
         run: |
           cd tests
           terraform init
@@ -103,7 +103,7 @@ jobs:
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
             --auto-approve
 
-      - name: Deploy testing resources
+      - name: Destroy testing resources
         run: |
           cd deployments
           terraform init
@@ -119,7 +119,7 @@ jobs:
             --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
-      - name: Stand up GKE cluster
+      - name: Destroy GKE cluster
         run: |
           cd gke
           terraform init

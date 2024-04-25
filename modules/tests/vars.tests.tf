@@ -3,5 +3,6 @@ variable "tests" {
     parallelism = number
     timestamp   = bool
     httpbin     = bool
+    duration    = number
   })
 }

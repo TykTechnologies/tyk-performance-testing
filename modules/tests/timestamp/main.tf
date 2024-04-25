@@ -24,7 +24,7 @@ export const options = {
       executor: 'constant-vus',
       exec: 'get',
       vus: 50,
-      duration: '15m',
+      duration: '${var.duration}m',
     }
   }
 };
