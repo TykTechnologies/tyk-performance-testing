@@ -47,7 +47,7 @@ jobs:
 
       - name: Connect to EKS cluster
         run: |
-          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
+          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_MACHINE_TYPE }}"
 
           kubectl config rename-context $(kubectl config current-context) performance-testing-eks
 
