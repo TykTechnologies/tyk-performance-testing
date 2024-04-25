@@ -5,6 +5,8 @@ module "tyk-timestamp" {
   url  = "gateway-svc-tyk-gateway.tyk.svc:8080"
 
   parallelism = var.tests.parallelism
+  duration    = var.tests.duration
+  vus         = var.tests.virtual_users
 
   count = var.tests.timestamp == true && var.tyk.enabled == true ? 1 : 0
 }
@@ -16,6 +18,8 @@ module "kong-timestamp" {
   url  = ""
 
   parallelism = var.tests.parallelism
+  duration    = var.tests.duration
+  vus         = var.tests.virtual_users
 
   count = var.tests.timestamp == true && var.kong.enabled == true ? 1 : 0
 }
@@ -27,6 +31,8 @@ module "gravitee-timestamp" {
   url  = "gravitee-apim-gateway.gravitee.svc:82"
 
   parallelism = var.tests.parallelism
+  duration    = var.tests.duration
+  vus         = var.tests.virtual_users
 
   count = var.tests.timestamp == true && var.gravitee.enabled == true ? 1 : 0
 }

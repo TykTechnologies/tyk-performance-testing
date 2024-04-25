@@ -13,3 +13,7 @@ variable "parallelism" {
 variable "duration" {
   type = number
 }
+
+variable "vus" {
+  type = number
+}

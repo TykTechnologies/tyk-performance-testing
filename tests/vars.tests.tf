@@ -17,3 +17,8 @@ variable "tests_duration" {
   type    = number
   default = 15
 }
+
+variable "tests_virtual_users" {
+  type    = number
+  default = 15
+}

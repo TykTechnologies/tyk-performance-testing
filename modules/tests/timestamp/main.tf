@@ -23,7 +23,7 @@ export const options = {
     success: {
       executor: 'constant-vus',
       exec: 'get',
-      vus: 50,
+      vus: ${var.vus},
       duration: '${var.duration}m',
     }
   }

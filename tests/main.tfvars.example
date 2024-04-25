@@ -8,3 +8,4 @@ tests_parallelism       = 4
 tests_timestamp_enabled = true
 tests_httpbin_enabled   = false
 tests_duration          = 15
+tests_virtual_users     = 50
