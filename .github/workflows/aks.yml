@@ -47,11 +47,6 @@ on:
         required: false
         default: false
         type: boolean
-      tests_duration:
-        description: 'Duration of Tests in Minutes'
-        required: false
-        default: 15
-        type: number
 
 jobs:
   performance_test:
@@ -117,7 +112,6 @@ jobs:
             --var="kubernetes_config_context=performance-testing-aks" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
-            --var="tests_duration=${{ inputs.tests_duration }}" \
             --auto-approve
 
       - name: Access to Grafana Dashboard
