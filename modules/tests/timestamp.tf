@@ -2,7 +2,7 @@ module "tyk-timestamp" {
   source = "./timestamp"
 
   name = "tyk"
-  url  = "gateway-svc-tyk-gateway.tyk.svc:8080"
+  url  = "gateway-svc-tyk-tyk-gateway.tyk.svc:8080"
 
   parallelism = var.tests.parallelism
   duration    = var.tests.duration
