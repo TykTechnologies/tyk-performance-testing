@@ -2,6 +2,7 @@ variable "tyk" {
   type = object({
     enabled         = bool
     version         = string
+    license         = string
     go_gc           = number
     go_max_procs    = number
     deployment_type = string

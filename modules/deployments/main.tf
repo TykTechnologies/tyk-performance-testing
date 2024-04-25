@@ -37,6 +37,7 @@ module "tyk" {
   resources-label = var.labels.tyk-resources
 
   gateway_version = var.tyk.version
+  license         = var.tyk.license
 
   deployment_type = var.tyk.deployment_type
   replica_count   = var.tyk.replica_count

@@ -27,6 +27,7 @@ module "deployments" {
   tyk = {
     enabled         = var.tyk_enabled
     version         = var.tyk_version
+    license         = var.tyk_license
     deployment_type = var.tyk_deployment_type
     replica_count   = var.tyk_replica_count
     go_gc           = var.tyk_go_gc

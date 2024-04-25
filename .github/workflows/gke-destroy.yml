@@ -116,6 +116,7 @@ jobs:
             --var="open_telemetry_enabled=${{ inputs.open_telemetry_enabled }}" \
             --var="open_telemetry_sampling_ratio=${{ inputs.open_telemetry_sampling_ratio }}" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 

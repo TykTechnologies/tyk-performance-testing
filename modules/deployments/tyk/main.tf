@@ -8,18 +8,57 @@ terraform {
 }
 
 locals {
+  pgsql-name = "tyk-database"
+  pgsql-user = "tyk"
+  pgsql-pass = "topsecretpassword"
+  pgsql-port = "5432"
   redis-pass = "topsecretpassword"
   redis-port = "6379"
 }
 
 resource "helm_release" "tyk" {
-  name       = "tyk-gateway"
+  name       = "tyk"
   repository = "https://helm.tyk.io/public/helm/charts"
-  chart      = "tyk-oss"
+  chart      = "tyk-stack"
 
   namespace        = var.namespace
   create_namespace = true
   atomic           = true
+
+  set {
+    name  = "global.storageType"
+    value = "postgres"
+  }
+
+  set {
+    name  = "global.license.dashboard"
+    value = var.license
+  }
+
+  set {
+    name  = "global.postgres.host"
+    value = "${helm_release.tyk-pgsql.name}-postgresql"
+  }
+
+  set {
+    name  = "global.postgres.port"
+    value = local.pgsql-port
+  }
+
+  set {
+    name  = "global.postgres.database"
+    value = local.pgsql-name
+  }
+
+  set {
+    name  = "global.postgres.password"
+    value = local.pgsql-pass
+  }
+
+  set {
+    name  = "global.postgres.sslmode"
+    value = "disable"
+  }
 
   set {
     name  = "global.redis.addrs[0]"
@@ -155,5 +194,5 @@ resource "helm_release" "tyk" {
     value = var.resources-label
   }
 
-  depends_on = [helm_release.tyk-redis]
+  depends_on = [helm_release.tyk-redis, helm_release.tyk-pgsql]
 }

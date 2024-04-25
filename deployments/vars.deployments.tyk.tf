@@ -8,6 +8,11 @@ variable "tyk_version" {
   default = "v5.3.0"
 }
 
+variable "tyk_license" {
+  type     = string
+  required = true
+}
+
 variable "tyk_deployment_type" {
   type    = string
   default = "Deployment"
