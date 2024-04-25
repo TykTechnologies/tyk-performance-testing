@@ -1,4 +1,4 @@
-name: Destroy EKS Setup
+name: EKS Destroy
 on:
   workflow_dispatch:
     inputs:

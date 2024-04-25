@@ -1,4 +1,4 @@
-name: Destroy AKS Setup
+name: AKS Destroy
 on:
   workflow_dispatch:
     inputs:

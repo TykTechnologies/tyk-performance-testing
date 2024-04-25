@@ -1,4 +1,4 @@
-name: Destroy GKE Setup
+name: GKE Destroy
 on:
   workflow_dispatch:
     inputs:
