@@ -40,8 +40,9 @@ module "gravitee-timestamp" {
 module "test-results-snapshot-timestamp" {
   source = "./snapshot"
 
-  name     = "httpbin"
+  name     = "timestamp"
   duration = var.tests.duration
 
+  count      = var.tests.timestamp == true
   depends_on = [module.tyk-timestamp, module.kong-timestamp, module.gravitee-timestamp]
 }
