@@ -11,6 +11,10 @@ on:
           - Azure
           - AWS
           - GCP
+
+env:
+  provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
+
 jobs:
   destroy:
     runs-on: ubuntu-latest
@@ -50,17 +54,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-      - name: Set up provider variable based on cloud input
-        run: |
-          if [ "${{ inputs.cloud }}" = "Azure" ]; then
-            value="aks"
-          elif [ "${{ inputs.cloud }}" = "AWS" ]; then
-            value="eks"
-          elif [ "${{ inputs.cloud }}" = "GCP" ]; then
-            value="gke"
-          fi
-          echo "provider=$value" >> $GITHUB_ENV
 
       - name: Create Terraform Cloud descriptors
         run: |
