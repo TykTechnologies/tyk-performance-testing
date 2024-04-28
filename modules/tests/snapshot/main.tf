@@ -8,7 +8,8 @@ terraform {
 }
 
 locals {
-  delay = var.duration * 60
+  delay   = var.duration * 60
+  timeout = var.duration * 2
 }
 
 resource "kubernetes_job" "snapshot_job" {
@@ -64,5 +65,7 @@ resource "kubernetes_job" "snapshot_job" {
     }
   }
 
-  wait_for_completion = false
+  timeouts {
+    create = "${local.timeout}m"
+  }
 }
