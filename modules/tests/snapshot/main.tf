@@ -39,7 +39,7 @@ resource "kubernetes_job" "snapshot_job" {
 
           env {
             name  = "TEST_DURATION"
-            value = var.duration + 4
+            value = var.duration + 2
           }
         }
 

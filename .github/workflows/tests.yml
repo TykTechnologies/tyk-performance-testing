@@ -1,7 +1,16 @@
-name: GKE Tests
+name: AKS Tests
 on:
   workflow_dispatch:
     inputs:
+      cloud:
+        description: 'Choose Cloud Provider'
+        required: true
+        type: choice
+        default: Azure
+        options:
+          - Azure
+          - AWS
+          - GCP
       action:
         description: 'Action'
         required: false
@@ -32,21 +41,38 @@ on:
         type: number
 
 jobs:
-  tests:
+  performance_test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Configure AKS credentials
+        if: ${{ inputs.cloud == 'Azure' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure AWS credentials
+        if: ${{ inputs.cloud == 'AWS' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
+
       - name: Authenticate into gcloud
+        if: ${{ inputs.cloud == 'GCP' }}
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Install gcloud CLI
+        if: ${{ inputs.cloud == 'GCP' }}
         uses: google-github-actions/setup-gcloud@v2.1.0
 
       - name: Install gcloud k8s auth component
+        if: ${{ inputs.cloud == 'GCP' }}
         run: gcloud components install gke-gcloud-auth-plugin
 
       - name: Install Terraform
@@ -54,23 +80,40 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+      - name: Connect to AKS cluster
+        if: ${{ inputs.cloud == 'Azure' }}
+        run: |
+          az aks get-credentials \
+            --resource-group "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --name "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}"
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Connect to EKS cluster
+        if: ${{ inputs.cloud == 'AWS' }}
+        run: |
+          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_MACHINE_TYPE }}"
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing
+
       - name: Connect to GKE cluster
+        if: ${{ inputs.cloud == 'GCP' }}
         run: |
           gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --region "${{ vars.GCP_CLUSTER_LOCATION }}" \
             --project "${{ secrets.GCP_PROJECT }}"
-          
-          kubectl config rename-context $(kubectl config current-context) performance-testing-gke
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing
 
       - name: Create Terraform Cloud descriptor
-        run: cp .github/gke/tests.tf ./tests/terraform.cloud.tf
+        run: cp .github/aks/tests.tf ./tests/terraform.cloud.tf
 
       - name: Run Terraform action on tests
         run: |
           cd tests
           terraform init
           terraform ${{ inputs.action }} \
-            --var="kubernetes_config_context=performance-testing-gke" \
+            --var="kubernetes_config_context=performance-testing" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
             --var="tests_duration=${{ inputs.tests_duration }}" \
@@ -83,7 +126,18 @@ jobs:
           echo "###################################################################
           echo "#
           echo "# http://$(kubectl get svc -n dependencies grafana -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
-          echo "# Username: Admin"
+          echo "# Username: admin"
           echo "# Password: topsecretpassword"
           echo "#
           echo "###################################################################
+            --auto-approve
+
+      - name: Grafana timestamp test snapshot
+        if: ${{ inputs.tests_timestamp_enabled == true }}
+        run: |
+          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=job-name=snapshot-job-timestamp -o jsonpath='{.items[-1].metadata.name}') --tail=1
+
+      - name: Grafana httpbin test snapshot
+        if: ${{ inputs.tests_httpbin_enabled == true }}
+        run: |
+          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=job-name=snapshot-job-httpbin -o jsonpath='{.items[-1].metadata.name}') --tail=1
