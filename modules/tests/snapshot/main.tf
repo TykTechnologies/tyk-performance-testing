@@ -8,7 +8,7 @@ terraform {
 }
 
 locals {
-  delay   = var.duration * 60
+  delay   = (var.duration + 2) * 60
   timeout = var.duration * 2
 }
 
