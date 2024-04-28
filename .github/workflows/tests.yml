@@ -1,4 +1,4 @@
-name: AKS Tests
+name: Tests
 on:
   workflow_dispatch:
     inputs:
@@ -41,7 +41,7 @@ on:
         type: number
 
 jobs:
-  performance_test:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
