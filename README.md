@@ -114,50 +114,20 @@ tests_duration          = 15
 ### GitHub Actions
 If you have access, you will be able to run the above setup through GitHub actions. The states of all the Terraform objects are stored in Terraform Cloud. 
 
-##### AKS Performance Test
+##### Performance Test
 Run the entire stack.
 
-##### AKS Cluster
-Create AKS cluster.
+##### Cluster
+Create cluster.
 
-##### AKS Deployments
+##### Deployments
 Run deployments terraform module on an existing AKS cluster.
 
-##### AKS Tests
+##### Tests
 Run tests terraform module on an existing AKS cluster.
 
-##### AKS Destroy
-Destroy AKS setup and clear Terraform state.
-
-##### EKS Performance Test
-Run the entire stack.
-
-##### EKS Cluster
-Create EKS cluster.
-
-##### EKS Deployments
-Run deployments terraform module on an existing EKS cluster.
-
-##### EKS Tests
-Run tests terraform module on an existing EKS cluster.
-
-##### EKS Destroy
-Destroy EKS setup and clear Terraform state.
-
-##### GKE Performance Test
-Run the entire stack.
-
-##### GKE Cluster
-Create GKE cluster.
-
-##### GKE Deployments
-Run deployments terraform module on an existing GKE cluster.
-
-##### GKE Tests
-Run tests terraform module on an existing GKE cluster.
-
-##### GKE Destroy
-Destroy GKE setup and clear Terraform state.
+##### Destroy
+Destroy setup and clear Terraform state.
 
 ### State
 Tyk supports most of the config, aside from horizontal scaling.
