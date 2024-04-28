@@ -198,6 +198,8 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
               WebDriverWait(driver, 10).until(expected_conditions.presence_of_element_located((by, identifier)))
           return driver.find_element(by, identifier)
 
+      TEST_DURATION = int(os.environ.get('TEST_DURATION')) + 1 // Add 1 minute as a buffer
+
       options = webdriver.FirefoxOptions()
       options.add_argument("--headless")
       driver = webdriver.Remote(
@@ -226,6 +228,11 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
       # Select k6 dashboard
       safe_get_element(By.XPATH, "//*[text()='k6 Test Results']").click()
       logging.info("Navigated to k6 Test Results Dashboard.")
+
+      # Adjust timeframe
+      safe_get_element(By.XPATH, "//div[contains(., 'Last 30 minutes')]").click()
+      safe_get_element(By.XPATH, "//input[@value='now-30m']").clear().send_keys(f'now-{TEST_DURATION}m')
+      safe_get_element(By.XPATH, "//button[contains(., 'Apply time range')]").click()
 
       # Click on Share button
       safe_get_element(By.XPATH, "//button[contains(., 'Share')]").click()
