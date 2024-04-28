@@ -1,3 +1,10 @@
+locals {
+  grafana = {
+    username = "admin"
+    password = "topsecretpassword"
+  }
+}
+
 resource "helm_release" "grafana" {
   name       = "grafana"
   repository = "https://grafana.github.io/helm-charts"
@@ -9,7 +16,7 @@ resource "helm_release" "grafana" {
 
   set {
     name  = "adminPassword"
-    value = "topsecretpassword"
+    value = local.grafana.password
   }
 
   set {
