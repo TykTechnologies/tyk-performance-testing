@@ -63,4 +63,6 @@ resource "kubernetes_job" "snapshot_job" {
       }
     }
   }
+
+  wait_for_completion = false
 }
