@@ -198,7 +198,7 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
               WebDriverWait(driver, 10).until(expected_conditions.presence_of_element_located((by, identifier)))
           return driver.find_element(by, identifier)
 
-      TEST_DURATION = int(os.environ.get('TEST_DURATION')) + 1 # Add 1 minute as a buffer
+      TEST_DURATION = os.environ.get('TEST_DURATION')
 
       options = webdriver.FirefoxOptions()
       options.add_argument("--headless")
