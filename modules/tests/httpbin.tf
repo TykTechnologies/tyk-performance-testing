@@ -43,6 +43,6 @@ module "test-results-snapshot-httpbin" {
   name     = "httpbin"
   duration = var.tests.duration
 
-  count      = var.tests.httpbin == true
+  count      = var.tests.httpbin == true ? 1 : 0
   depends_on = [module.tyk-httpbin, module.kong-httpbin, module.gravitee-httpbin]
 }

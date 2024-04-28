@@ -43,6 +43,6 @@ module "test-results-snapshot-timestamp" {
   name     = "timestamp"
   duration = var.tests.duration
 
-  count      = var.tests.timestamp == true
+  count      = var.tests.timestamp == true ? 1 : 0
   depends_on = [module.tyk-timestamp, module.kong-timestamp, module.gravitee-timestamp]
 }
