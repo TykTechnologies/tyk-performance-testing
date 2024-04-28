@@ -230,8 +230,10 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
       logging.info("Navigated to k6 Test Results Dashboard.")
 
       # Adjust timeframe
-      safe_get_element(By.XPATH, "//div[contains(., 'Last 30 minutes')]").click()
-      safe_get_element(By.XPATH, "//input[@value='now-30m']").clear().send_keys(f'now-{TEST_DURATION}m')
+      safe_get_element(By.XPATH, "//button[contains(., 'Last 30 minutes')]").click()
+      from_timeframe = safe_get_element(By.XPATH, "//input[@value='now-30m']")
+      from_timeframe.clear()
+      from_timeframe.send_keys(f'now-{TEST_DURATION}m')
       safe_get_element(By.XPATH, "//button[contains(., 'Apply time range')]").click()
 
       # Click on Share button

@@ -37,3 +37,11 @@ module "gravitee-httpbin" {
   count = var.tests.httpbin == true && var.gravitee.enabled == true ? 1 : 0
 }
 
+module "test-results-snapshot-httpbin" {
+  source = "./snapshot"
+
+  name     = "httpbin"
+  duration = var.tests.duration
+
+  depends_on = [module.tyk-httpbin, module.kong-httpbin, module.gravitee-httpbin]
+}

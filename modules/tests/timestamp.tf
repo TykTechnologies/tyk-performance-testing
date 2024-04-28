@@ -37,3 +37,11 @@ module "gravitee-timestamp" {
   count = var.tests.timestamp == true && var.gravitee.enabled == true ? 1 : 0
 }
 
+module "test-results-snapshot-timestamp" {
+  source = "./snapshot"
+
+  name     = "httpbin"
+  duration = var.tests.duration
+
+  depends_on = [module.tyk-timestamp, module.kong-timestamp, module.gravitee-timestamp]
+}
