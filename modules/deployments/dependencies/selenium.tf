@@ -7,7 +7,8 @@ locals {
 
 resource "kubernetes_deployment" "selenium_hub" {
   metadata {
-    name = local.selenium.name
+    name      = local.selenium.name
+    namespace = var.label
     labels = {
       app = local.selenium.name
     }
@@ -66,7 +67,8 @@ resource "kubernetes_deployment" "selenium_hub" {
 
 resource "kubernetes_deployment" "selenium_node_firefox" {
   metadata {
-    name = "selenium-node-firefox"
+    name      = "selenium-node-firefox"
+    namespace = var.label
     labels = {
       app = "selenium-node-firefox"
     }
@@ -128,7 +130,8 @@ resource "kubernetes_deployment" "selenium_node_firefox" {
 
 resource "kubernetes_service" "selenium_hub" {
   metadata {
-    name = local.selenium.name
+    name      = local.selenium.name
+    namespace = var.label
     labels = {
       app = local.selenium.name
     }
@@ -167,7 +170,7 @@ resource "kubernetes_service" "selenium_hub" {
 
 resource "kubernetes_config_map" "snapshot-script-configmap" {
   metadata {
-    name = "snapshot-script-configmap"
+    name      = "snapshot-script-configmap"
     namespace = var.namespace
   }
 
