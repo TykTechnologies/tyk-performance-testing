@@ -51,11 +51,22 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+      - name: Set up provider variable based on cloud input
+        run: |
+          if [ "${{ inputs.cloud }}" = "Azure" ]; then
+            value="aks"
+          elif [ "${{ inputs.cloud }}" = "AWS" ]; then
+            value="eks"
+          elif [ "${{ inputs.cloud }}" = "GCP" ]; then
+            value="gke"
+          fi
+          echo "provider=$value" >> $GITHUB_ENV
+
       - name: Create Terraform Cloud descriptors
         run: |
-          cp ./${{ inputs.cloud }}/terraform.cloud.tf.example ./${{ inputs.cloud }}/terraform.cloud.tf
-          cp .github/aks/deployments.tf ./deployments/terraform.cloud.tf
-          cp .github/aks/tests.tf ./tests/terraform.cloud.tf
+          cp ./${{ provider }}/terraform.cloud.tf.example ./${{ provider }}/terraform.cloud.tf
+          cp .github/${{ provider }}/deployments.tf ./deployments/terraform.cloud.tf
+          cp .github/${{ provider }}/tests.tf ./tests/terraform.cloud.tf
 
       - name: Connect to AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
