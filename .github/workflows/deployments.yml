@@ -53,7 +53,18 @@ on:
         description: 'Tyk Gateway version'
         required: true
         type: string
-        default: 'v5.3.0'
+        default: 'v5.3.1'
+      custom_deployment_descriptor:
+        description: 'Custom Deployment Descriptor'
+        required: true
+        type: string
+        default: 'deployments/main.tfvars.example'
+
+env:
+  provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
+
+concurrency:
+  group: ${{ env.provider }}
 
 jobs:
   deployments:
@@ -121,13 +132,17 @@ jobs:
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
       - name: Create Terraform Cloud descriptor
-        run: cp .github/aks/deployments.tf ./deployments/terraform.cloud.tf
+        run: cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
+
+      - name: Copy Terraform descriptor
+        run: cp ${{ inputs.custom_deployment_descriptor }} deployments/main.tfvars
 
       - name: Run Terraform action on deployments
         run: |
           cd deployments
           terraform init
           terraform ${{ inputs.action }} \
+            --var-file=deployments/main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \

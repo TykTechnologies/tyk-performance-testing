@@ -19,9 +19,17 @@ on:
         options:
           - apply
           - destroy
+      custom_cluster_descriptor:
+        description: 'Custom Cluster Descriptor'
+        required: true
+        type: string
+        default: 'aks/main.tfvars.example'
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
+
+concurrency:
+  group: ${{ env.provider }}
 
 jobs:
   cluster:
@@ -64,7 +72,10 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Create Terraform Cloud descriptors
-        run: cp ./${{ env.provider }}/terraform.cloud.tf.example ./${{ env.provider }}/terraform.cloud.tf
+        run: cp ${{ env.provider }}/terraform.cloud.tf.example ${{ env.provider }}/terraform.cloud.tf
+
+      - name: Copy Terraform descriptor
+        run: cp ${{ inputs.custom_cluster_descriptor }} ${{ env.provider }}/main.tfvars
 
       - name: AKS cluster ${{ inputs.action }}
         if: ${{ inputs.cloud == 'Azure' }}
@@ -72,6 +83,7 @@ jobs:
           cd aks
           terraform init
           terraform ${{ inputs.action }} \
+            --var-file=${{ env.provider }}/main.tfvars \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve
@@ -82,6 +94,7 @@ jobs:
           cd eks
           terraform init
           terraform ${{ inputs.action }} \
+            --var-file=${{ env.provider }}/main.tfvars \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
 
@@ -91,6 +104,7 @@ jobs:
           cd gke
           terraform init
           terraform ${{ inputs.action }} \
+            --var-file=${{ env.provider }}/main.tfvars \
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \

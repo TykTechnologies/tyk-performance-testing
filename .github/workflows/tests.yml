@@ -39,6 +39,17 @@ on:
         required: false
         default: 50
         type: number
+      custom_tests_descriptor:
+        description: 'Custom Tests Descriptor'
+        required: true
+        type: string
+        default: 'tests/main.tfvars.example'
+
+env:
+  provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
+
+concurrency:
+  group: ${{ env.provider }}
 
 jobs:
   tests:
@@ -106,13 +117,17 @@ jobs:
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
       - name: Create Terraform Cloud descriptor
-        run: cp .github/aks/tests.tf ./tests/terraform.cloud.tf
+        run: cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
+
+      - name: Copy Terraform descriptor
+        run: cp ${{ inputs.custom_tests_descriptor }} tests/main.tfvars
 
       - name: Run Terraform action on tests
         run: |
           cd tests
           terraform init
           terraform ${{ inputs.action }} \
+            --var-file=tests/main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
@@ -130,7 +145,6 @@ jobs:
           echo "# Password: topsecretpassword"
           echo "#
           echo "###################################################################
-            --auto-approve
 
       - name: Grafana timestamp test snapshot
         if: ${{ inputs.tests_timestamp_enabled == true }}

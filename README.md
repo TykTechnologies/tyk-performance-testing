@@ -55,7 +55,7 @@ Note: dependencies are required, while the rest are required based on where the 
 #### Deployments
 Once you connect to a k8s cluster. You can run the deployment modules to set up the testing environments. Here is an example for the options available:
 ```
-kubernetes_config_context = "performance-testing-gke"
+kubernetes_config_context = "performance-testing"
 
 analytics_enabled             = false
 auth_enabled                  = false
@@ -65,7 +65,7 @@ open_telemetry_enabled        = false
 open_telemetry_sampling_ratio = "0.5"
 
 tyk_enabled                   = true
-tyk_version                   = "v5.3.0"
+tyk_version                   = "v5.3.1"
 tyk_deployment_type           = "Deployment"
 tyk_replica_count             = 1
 tyk_go_gc                     = 1600
@@ -99,7 +99,7 @@ grafana_service_type = "ClusterIP"
 #### Tests
 Once the environment is set up you can run the test's module. Here is an example of the options available:
 ```
-kubernetes_config_context = "performance-testing-gke"
+kubernetes_config_context = "performance-testing"
 
 tyk_enabled      = true
 kong_enabled     = false

@@ -5,7 +5,7 @@ variable "tyk_enabled" {
 
 variable "tyk_version" {
   type    = string
-  default = "v5.3.0"
+  default = "v5.3.1"
 }
 
 variable "tyk_license" {

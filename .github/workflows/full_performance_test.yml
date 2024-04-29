@@ -15,7 +15,7 @@ on:
         description: 'Tyk Gateway version'
         required: true
         type: string
-        default: 'v5.3.0'
+        default: 'v5.3.1'
       tests_timestamp_enabled:
         description: 'Enabled Timestamp Test'
         required: false
@@ -29,6 +29,9 @@ on:
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
+
+concurrency:
+  group: ${{ env.provider }}
 
 jobs:
   performance_test:

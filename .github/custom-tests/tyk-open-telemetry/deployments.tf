@@ -4,14 +4,13 @@ analytics_enabled             = false
 auth_enabled                  = false
 quota_enabled                 = false
 rate_limit_enabled            = false
-open_telemetry_enabled        = false
+open_telemetry_enabled        = true
 open_telemetry_sampling_ratio = "0.5"
 
 tyk_enabled                   = true
 tyk_version                   = "v5.3.1"
-tyk_license                   =
 tyk_deployment_type           = "Deployment"
-tyk_replica_count             = 1
+tyk_replica_count             = 4
 tyk_go_gc                     = 1600
 tyk_go_max_procs              = 8
 tyk_resources_requests_cpu    = "0"
