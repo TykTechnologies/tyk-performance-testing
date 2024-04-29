@@ -75,9 +75,9 @@ jobs:
 
       - name: Create Terraform Cloud descriptors
         run: |
-          cp ./${{ env.provider }}/terraform.cloud.tf.example ./${{ env.provider }}/terraform.cloud.tf
-          cp .github/${{ env.provider }}/deployments.tf ./deployments/terraform.cloud.tf
-          cp .github/${{ env.provider }}/tests.tf ./tests/terraform.cloud.tf
+          cp ${{ env.provider }}/terraform.cloud.tf.example ${{ env.provider }}/terraform.cloud.tf
+          cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
+          cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
 
       - name: Stand up AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
