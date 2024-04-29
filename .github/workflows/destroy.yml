@@ -13,7 +13,7 @@ on:
           - GCP
 
 env:
-  provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke')
+  provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
 
 concurrency:
   group: ${{ inputs.cloud }}
