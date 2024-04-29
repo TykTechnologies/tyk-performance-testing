@@ -237,8 +237,8 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
       safe_get_element(By.XPATH, "//button[contains(., 'Apply time range')]").click()
 
       # Scroll to the bottom to load entire dashboard
-      scroll_body = safe_get_element(By.CLASS_NAME, "scrollbar-view")
-      driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", scroll_body)
+      scroll = safe_get_element(By.XPATH, "//h6[contains(., 'Tests in this Time Range')]")
+      driver.execute_script("arguments[0].scrollIntoView();", scroll)
 
       # Click on Share button
       safe_get_element(By.XPATH, "//button[contains(., 'Share')]").click()
