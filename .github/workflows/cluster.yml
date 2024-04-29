@@ -29,7 +29,7 @@ env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
 
 concurrency:
-  group: ${{ env.provider }}
+  group: ${{ inputs.cloud }}
 
 jobs:
   cluster:
