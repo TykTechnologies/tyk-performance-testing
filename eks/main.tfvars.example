@@ -1,5 +1,6 @@
-services_nodes_count = 1
-resource_nodes_count = 1
+services_nodes_count     = 1
+resource_nodes_count     = 1
+dependencies_nodes_count = 1
 
 cluster_location     = "us-west-1"
 cluster_machine_type = "c5.xlarge"

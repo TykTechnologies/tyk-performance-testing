@@ -1,5 +1,6 @@
-services_nodes_count = 1
-resource_nodes_count = 1
+services_nodes_count     = 1
+resource_nodes_count     = 1
+dependencies_nodes_count = 1
 
 project              = "performance-testing"
 cluster_location     = "us-west1-a"

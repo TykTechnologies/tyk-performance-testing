@@ -17,3 +17,13 @@ variable "resource_nodes_count" {
     error_message = "Variable resource_nodes_count should be 1 or higher"
   }
 }
+
+variable "dependencies_nodes_count" {
+  type    = number
+  default = 1
+
+  validation {
+    condition = var.dependencies_nodes_count > 0
+    error_message = "Variable resource_nodes_count should be 1 or higher"
+  }
+}

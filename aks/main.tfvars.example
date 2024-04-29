@@ -1,5 +1,6 @@
-services_nodes_count = 1
-resource_nodes_count = 1
+services_nodes_count     = 1
+resource_nodes_count     = 1
+dependencies_nodes_count = 1
 
 cluster_location     = "westus"
 cluster_machine_type = "Standard_F4s_v2"

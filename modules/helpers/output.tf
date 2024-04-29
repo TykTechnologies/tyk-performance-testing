@@ -1,6 +1,6 @@
 locals {
   nodes = {
-    dependencies       = var.resource_nodes_count
+    dependencies       = var.dependencies_nodes_count
     tyk                = var.tyk_enabled      ? var.services_nodes_count : 0
     tyk-upstream       = var.tyk_enabled      ? var.services_nodes_count : 0
     tyk-tests          = var.tyk_enabled      ? var.services_nodes_count : 0
