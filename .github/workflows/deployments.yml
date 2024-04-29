@@ -142,7 +142,7 @@ jobs:
           cd deployments
           terraform init
           terraform ${{ inputs.action }} \
-            --var-file=deployments/main.tfvars \
+            --var-file=./deployments/main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \

@@ -127,7 +127,7 @@ jobs:
           cd tests
           terraform init
           terraform ${{ inputs.action }} \
-            --var-file=tests/main.tfvars \
+            --var-file=./tests/main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
