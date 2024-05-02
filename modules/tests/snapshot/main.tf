@@ -8,14 +8,18 @@ terraform {
 }
 
 locals {
-  delay   = (var.duration + 2) * 60
-  timeout = var.duration * 2
+  delay     = (var.duration + 2) * 60
+  timeout   = var.duration * 2
+  timestamp = formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())
 }
 
 resource "kubernetes_job" "snapshot_job" {
   metadata {
     name      = "snapshot-job-${var.name}"
     namespace = "dependencies"
+    labels    = {
+      timestamp = local.timestamp
+    }
   }
 
   spec {
