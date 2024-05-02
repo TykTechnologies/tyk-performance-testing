@@ -1,4 +1,4 @@
-name: Cluster
+name: Clusters Actions
 on:
   workflow_dispatch:
     inputs:
@@ -33,6 +33,7 @@ concurrency:
 
 jobs:
   cluster:
+    name: "${{ inputs.action }} ${{ inputs.cloud }} cluster"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

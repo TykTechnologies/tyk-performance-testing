@@ -1,4 +1,4 @@
-name: Tests
+name: Tests Action
 on:
   workflow_dispatch:
     inputs:
@@ -53,6 +53,7 @@ concurrency:
 
 jobs:
   tests:
+    name: "${{ inputs.action }} ${{ inputs.cloud }} tests"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

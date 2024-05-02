@@ -1,4 +1,4 @@
-name: Deployments
+name: Deployments Actions
 on:
   workflow_dispatch:
     inputs:
@@ -68,6 +68,7 @@ concurrency:
 
 jobs:
   deployments:
+    name: "${{ inputs.action }} ${{ inputs.cloud }} deployments"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

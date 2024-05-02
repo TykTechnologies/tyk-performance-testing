@@ -20,6 +20,7 @@ concurrency:
 
 jobs:
   destroy:
+    name: "destroy ${{ inputs.cloud }} environment"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
