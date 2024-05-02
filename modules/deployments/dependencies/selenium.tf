@@ -177,6 +177,7 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
   data = {
     "snapshot.py" = <<-EOF
       import os
+      import time
       import logging
       from selenium import webdriver
       from selenium.webdriver.common.by import By
