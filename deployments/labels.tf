@@ -1,5 +1,5 @@
 module "h" {
-  source = "../modules/helpers"
+  source = "./modules"
 
   tyk_enabled      = var.tyk_enabled
   kong_enabled     = var.kong_enabled
