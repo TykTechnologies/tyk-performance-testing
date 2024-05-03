@@ -1,5 +1,5 @@
 module "dependencies" {
-  source = "./dependencies"
+  source = "dependencies"
 
   label          = var.labels.dependencies
   grafana        = var.dependencies.grafana
@@ -7,7 +7,7 @@ module "dependencies" {
 }
 
 module "tyk-upstream" {
-  source    = "./upstream"
+  source    = "upstream"
   label     = var.labels.tyk-upstream
   namespace = var.labels.tyk-upstream
 
@@ -15,7 +15,7 @@ module "tyk-upstream" {
 }
 
 module "kong-upstream" {
-  source = "./upstream"
+  source = "upstream"
   label     = var.labels.kong-upstream
   namespace = var.labels.kong-upstream
 
@@ -23,7 +23,7 @@ module "kong-upstream" {
 }
 
 module "gravitee-upstream" {
-  source = "./upstream"
+  source = "upstream"
   label     = var.labels.gravitee-upstream
   namespace = var.labels.gravitee-upstream
 
@@ -31,7 +31,7 @@ module "gravitee-upstream" {
 }
 
 module "tyk" {
-  source = "./tyk"
+  source = "tyk"
 
   label           = var.labels.tyk
   resources-label = var.labels.tyk-resources
@@ -56,7 +56,7 @@ module "tyk" {
 }
 
 module "kong" {
-  source          = "./kong"
+  source          = "kong"
   label           = var.labels.kong
   resources-label = var.labels.kong-resources
 
@@ -77,7 +77,7 @@ module "kong" {
 }
 
 module "gravitee" {
-  source          = "./gravitee"
+  source          = "gravitee"
   label           = var.labels.gravitee
   resources-label = var.labels.gravitee-resources
 

@@ -1,5 +1,5 @@
 module "deployments" {
-  source = "../modules/deployments"
+  source = "./modules"
 
   labels = local.labels
 

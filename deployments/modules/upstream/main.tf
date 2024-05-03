@@ -5,91 +5,91 @@ resource "kubernetes_namespace" "upstream" {
 }
 
 module "timestamp" {
-  source        = "./timestamp"
+  source        = "timestamp"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "httpbin" {
-  source        = "./httpbin"
+  source        = "httpbin"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "users-rest" {
-  source        = "./users-rest"
+  source        = "users-rest"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "posts-rest" {
-  source        = "./posts-rest"
+  source        = "posts-rest"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "comments-rest" {
-  source        = "./comments-rest"
+  source        = "comments-rest"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "users-graphql" {
-  source        = "./users-graphql"
+  source        = "users-graphql"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "posts-graphql" {
-  source        = "./posts-graphql"
+  source        = "posts-graphql"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "comments-graphql" {
-  source        = "./comments-graphql"
+  source        = "comments-graphql"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "notifications-graphql" {
-  source        = "./notifications-graphql"
+  source        = "notifications-graphql"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "users-subgraph" {
-  source        = "./users-subgraph"
+  source        = "users-subgraph"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "posts-subgraph" {
-  source        = "./posts-subgraph"
+  source        = "posts-subgraph"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "comments-subgraph" {
-  source        = "./comments-subgraph"
+  source        = "comments-subgraph"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]
 }
 
 module "notifications-subgraph" {
-  source        = "./notifications-subgraph"
+  source        = "notifications-subgraph"
   namespace     = var.namespace
   node_selector = var.label
   depends_on    = [kubernetes_namespace.upstream]

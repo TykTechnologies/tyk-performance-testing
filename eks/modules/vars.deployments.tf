@@ -1,0 +1,11 @@
+variable "tyk_enabled" {
+  type = bool
+}
+
+variable "kong_enabled" {
+  type = bool
+}
+
+variable "gravitee_enabled" {
+  type = bool
+}
