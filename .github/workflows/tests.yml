@@ -96,6 +96,7 @@ jobs:
       - name: Connect to AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
         run: |
+          export KUBECONFIG=./tests/config
           az aks get-credentials \
             --resource-group "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
             --name "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}"
@@ -105,6 +106,7 @@ jobs:
       - name: Connect to EKS cluster
         if: ${{ inputs.cloud == 'AWS' }}
         run: |
+          export KUBECONFIG=./tests/config
           aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_MACHINE_TYPE }}"
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
@@ -112,6 +114,7 @@ jobs:
       - name: Connect to GKE cluster
         if: ${{ inputs.cloud == 'GCP' }}
         run: |
+          export KUBECONFIG=./tests/config
           gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --region "${{ vars.GCP_CLUSTER_LOCATION }}" \
             --project "${{ secrets.GCP_PROJECT }}"
@@ -130,6 +133,7 @@ jobs:
           terraform init
           terraform ${{ inputs.action }} \
             --var-file=main.tfvars \
+            --var="kubernetes_config_path=./config" \
             --var="kubernetes_config_context=performance-testing" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \

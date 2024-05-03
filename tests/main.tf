@@ -1,5 +1,5 @@
 module "tests" {
-  source = "../modules/tests"
+  source = "./modules"
 
   tyk = {
     enabled = var.tyk_enabled
