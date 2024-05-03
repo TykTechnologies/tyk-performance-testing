@@ -3,7 +3,7 @@ resource_nodes_count     = 1
 dependencies_nodes_count = 1
 
 cluster_location     = "us-west-1"
-cluster_machine_type = "c5.xlarge"
+cluster_machine_type = "c7i.xlarge"
 
 tyk_enabled      = true
 kong_enabled     = false

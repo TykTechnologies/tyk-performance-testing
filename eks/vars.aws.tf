@@ -5,5 +5,5 @@ variable "cluster_location" {
 
 variable "cluster_machine_type" {
   type    = string
-  default = "c5.xlarge"
+  default = "c7i.xlarge"
 }
