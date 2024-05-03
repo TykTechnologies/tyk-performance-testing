@@ -120,7 +120,7 @@ jobs:
       - name: Connect to EKS cluster
         if: ${{ inputs.cloud == 'AWS' }}
         run: |
-          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_MACHINE_TYPE }}"
+          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-$(echo "${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" | sed 's/\./-/g')"
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
