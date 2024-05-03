@@ -148,6 +148,7 @@ jobs:
           cd deployments
           terraform init
           terraform apply \
+            --var="kubernetes_config_path=./config" \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
@@ -159,6 +160,7 @@ jobs:
           cd tests
           terraform init
           terraform apply \
+            --var="kubernetes_config_path=./config" \
             --var="kubernetes_config_context=performance-testing" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
