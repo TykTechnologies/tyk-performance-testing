@@ -99,6 +99,7 @@ jobs:
             --var-file=main.tfvars \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
 
       - name: GKE cluster ${{ inputs.action }}
         if: ${{ inputs.cloud == 'GCP' }}
