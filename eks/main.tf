@@ -70,9 +70,9 @@ module "ebs_csi_controller_role" {
 }
 
 resource "aws_eks_addon" "this" {
-  cluster_name             = module.eks.cluster_name
-  addon_name               = "aws-ebs-csi-driver"
-  resolve_conflicts   	   = "OVERWRITE"
-  service_account_role_arn = module.ebs_csi_controller_role.iam_role_arn
-  depends_on               = [module.eks, module.eks_node_groups]
+  cluster_name                = module.eks.cluster_name
+  addon_name                  = "aws-ebs-csi-driver"
+  resolve_conflicts_on_create = "OVERWRITE"
+  service_account_role_arn    = module.ebs_csi_controller_role.iam_role_arn
+  depends_on                  = [module.eks, module.eks_node_groups]
 }
