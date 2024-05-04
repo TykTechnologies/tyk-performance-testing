@@ -20,7 +20,7 @@ az aks get-credentials \
 
 ###### EKS
 ```
-aws eks --region "us-west-1" update-kubeconfig --name "pt-c7i.xlarge"
+aws eks --region "us-west-1" update-kubeconfig --name "pt-c7i-xlarge"
 ```
 
 ###### GKE

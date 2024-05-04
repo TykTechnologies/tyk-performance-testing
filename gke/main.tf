@@ -10,12 +10,42 @@ module "h" {
   gravitee_enabled = var.gravitee_enabled
 }
 
-module "gcp" {
-  source = "../modules/clouds/gcp"
+provider "google" {
+  project = var.project
+}
 
-  project              = var.project
-  cluster_location     = var.cluster_location
-  cluster_machine_type = var.cluster_machine_type
-  gke_version          = var.gke_version
-  nodes                = module.h.nodes
+data "google_client_config" "this" {}
+
+resource "google_container_cluster" "this" {
+  name                = "pt-${var.cluster_machine_type}"
+  min_master_version  = var.gke_version
+  location            = var.cluster_location
+  deletion_protection = false
+
+  # We can't create a cluster with no node pool defined, but we want to only use
+  # separately managed node pools. So we create the smallest possible default
+  # node pool and immediately delete it.
+  remove_default_node_pool = true
+  initial_node_count       = 1
+}
+
+resource "google_container_node_pool" "this" {
+  for_each   = module.h.nodes
+  name       = "${each.key}-np"
+  cluster    = google_container_cluster.this.name
+  version    = var.gke_version
+  location   = google_container_cluster.this.location
+  node_count = each.value
+
+  node_config {
+    machine_type = var.cluster_machine_type
+    labels = {
+      "node": each.key
+    }
+    #    taint = [{
+    #      key    = "node"
+    #      value  = each.key
+    #      effect = "NO_SCHEDULE"
+    #    }]
+  }
 }

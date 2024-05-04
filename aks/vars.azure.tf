@@ -10,5 +10,5 @@ variable "cluster_machine_type" {
 
 variable "aks_version" {
   type    = string
-  default = "1.27"
+  default = "1.29"
 }

@@ -4,7 +4,7 @@ dependencies_nodes_count = 2
 
 cluster_location     = "westus"
 cluster_machine_type = "Standard_F8s_v2"
-aks_version          = "1.27"
+aks_version          = "1.29"
 
 tyk_enabled      = true
 kong_enabled     = false
