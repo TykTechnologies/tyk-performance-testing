@@ -3,7 +3,7 @@ resource_nodes_count     = 1
 dependencies_nodes_count = 1
 
 cluster_location     = "us-west-1"
-cluster_machine_type = "c7i.xlarge"
+cluster_machine_type = "c5.xlarge"
 eks_version          = "1.29"
 
 tyk_enabled      = true
