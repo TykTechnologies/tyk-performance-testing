@@ -66,6 +66,7 @@ open_telemetry_sampling_ratio = "0.5"
 
 tyk_enabled                   = true
 tyk_version                   = "v5.3.1"
+tyk_license                   = ""
 tyk_deployment_type           = "Deployment"
 tyk_replica_count             = 1
 tyk_go_gc                     = 1600
@@ -109,27 +110,23 @@ tests_parallelism       = 4
 tests_timestamp_enabled = true
 tests_httpbin_enabled   = false
 tests_duration          = 15
+tests_virtual_users     = 50
 ```
 
 ### GitHub Actions
 If you have access, you will be able to run the above setup through GitHub actions. The states of all the Terraform objects are stored in Terraform Cloud. 
 
-##### Performance Test
+##### Full Performance Test
 Run the entire stack.
 
-##### Cluster
+##### Clusters Actions
 Create cluster.
 
-##### Deployments
+##### Deployments Actions
 Run deployments terraform module on an existing AKS cluster.
 
-##### Tests
+##### Tests Action
 Run tests terraform module on an existing AKS cluster.
 
-##### Destroy
-Destroy setup and clear Terraform state.
-
-### State
-Tyk supports most of the config, aside from horizontal scaling.
-Gravitee supports most of the config but is not tested.
-Kong is not yet supported. 
+##### Destroy PT Resources
+Destroy setup and clear Terraform state. 
