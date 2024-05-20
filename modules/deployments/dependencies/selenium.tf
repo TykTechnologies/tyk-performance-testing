@@ -31,6 +31,10 @@ resource "kubernetes_deployment" "selenium_hub" {
       }
 
       spec {
+        node_selector = {
+          node: var.label
+        }
+
         container {
           name  = local.selenium.name
           image = "selenium/hub"
@@ -91,6 +95,10 @@ resource "kubernetes_deployment" "selenium_node_firefox" {
       }
 
       spec {
+        node_selector = {
+          node: var.label
+        }
+
         volume {
           name = "dshm"
           empty_dir {
