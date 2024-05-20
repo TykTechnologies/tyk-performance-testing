@@ -14,5 +14,5 @@ variable "cluster_machine_type" {
 
 variable "gke_version" {
   type    = string
-  default = "1.29.1-gke.1589018"
+  default = "1.29.1-gke.1589020"
 }
