@@ -11,4 +11,6 @@ resource "helm_release" "tyk-operator" {
     name  = "nodeSelector.node"
     value = var.resources-label
   }
+
+  depends_on = [helm_release.tyk]
 }
