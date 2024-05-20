@@ -27,7 +27,7 @@ aws eks --region "us-west-1" update-kubeconfig --name "pt-c5-xlarge"
 ```
 gcloud container clusters get-credentials "pt-c2-standard-4" \
    --region "us-west1-a" \
-   --project "performance-testing"
+   --project "team-ce-zaid"
 ```
 
 ##### Self-managed cluster requirements
@@ -86,7 +86,7 @@ kong_resources_limits_cpu      = "0"
 kong_resources_limits_memory   = "0"
 
 gravitee_enabled                   = false
-gravitee_version                   = "4.1"
+gravitee_version                   = "4.3.4"
 gravitee_deployment_type           = "Deployment"
 gravitee_replica_count             = 1
 gravitee_resources_requests_cpu    = "0"

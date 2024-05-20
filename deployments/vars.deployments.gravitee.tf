@@ -5,7 +5,7 @@ variable "gravitee_enabled" {
 
 variable "gravitee_version" {
   type    = string
-  default = "4.1"
+  default = "4.3.4"
 }
 
 variable "gravitee_deployment_type" {
