@@ -23,7 +23,6 @@ variable "kong_external_traffic_policy" {
   default = "local"
 }
 
-
 variable "kong_resources_requests_cpu" {
   type    = string
   default = "0"
