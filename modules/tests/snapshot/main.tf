@@ -15,11 +15,8 @@ locals {
 
 resource "kubernetes_job" "snapshot_job" {
   metadata {
-    name      = "snapshot-job-${var.name}"
+    name      = "snapshot-job-${var.name}-${local.timestamp}"
     namespace = "dependencies"
-    labels    = {
-      timestamp = local.timestamp
-    }
   }
 
   spec {

@@ -1,12 +1,13 @@
 variable "tyk" {
   type = object({
-    enabled         = bool
-    version         = string
-    license         = string
-    go_gc           = number
-    go_max_procs    = number
-    deployment_type = string
-    replica_count   = number
+    enabled                = bool
+    version                = string
+    license                = string
+    go_gc                  = number
+    go_max_procs           = number
+    deployment_type        = string
+    replica_count          = number
+    external_traffic_policy = string
     resources       = object({
       requests = object({
         cpu    = string
@@ -22,10 +23,11 @@ variable "tyk" {
 
 variable "kong" {
   type = object({
-    enabled         = bool
-    version         = string
-    deployment_type = string
-    replica_count   = number
+    enabled                 = bool
+    version                 = string
+    deployment_type         = string
+    replica_count           = number
+    external_traffic_policy = string
     resources       = object({
       requests = object({
         cpu    = string
@@ -41,10 +43,11 @@ variable "kong" {
 
 variable "gravitee" {
   type = object({
-    enabled         = bool
-    version         = string
-    deployment_type = string
-    replica_count   = number
+    enabled                 = bool
+    version                 = string
+    deployment_type         = string
+    replica_count           = number
+    external_traffic_policy = string
     resources       = object({
       requests = object({
         cpu    = string

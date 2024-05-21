@@ -6,6 +6,10 @@ variable "replica_count" {
   type = string
 }
 
+variable "external_traffic_policy" {
+  type = string
+}
+
 variable "resources" {
   type = object({
     requests = object({

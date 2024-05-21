@@ -18,6 +18,12 @@ variable "kong_replica_count" {
   default = 1
 }
 
+variable "kong_external_traffic_policy" {
+  type    = string
+  default = "local"
+}
+
+
 variable "kong_resources_requests_cpu" {
   type    = string
   default = "0"

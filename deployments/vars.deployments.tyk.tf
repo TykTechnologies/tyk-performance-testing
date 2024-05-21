@@ -22,6 +22,11 @@ variable "tyk_replica_count" {
   default = 1
 }
 
+variable "tyk_external_traffic_policy" {
+  type    = string
+  default = "local"
+}
+
 variable "tyk_go_gc" {
   type    = number
   default = 1600

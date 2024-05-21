@@ -137,6 +137,11 @@ resource "helm_release" "gravitee" {
   }
 
   set {
+    name  = "gateway.service.externalTrafficPolicy"
+    value = var.external_traffic_policy
+  }
+
+  set {
     name  = "gateway.resources.requests.cpu"
     value = var.resources.requests.cpu
   }

@@ -91,6 +91,11 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    name  = "tyk-gateway.gateway.service.externalTrafficPolicy"
+    value = var.external_traffic_policy
+  }
+
+  set {
     name  = "tyk-gateway.gateway.resources.requests.cpu"
     value = var.resources.requests.cpu
   }

@@ -25,13 +25,14 @@ module "deployments" {
   }
 
   tyk = {
-    enabled         = var.tyk_enabled
-    version         = var.tyk_version
-    license         = var.tyk_license
-    deployment_type = var.tyk_deployment_type
-    replica_count   = var.tyk_replica_count
-    go_gc           = var.tyk_go_gc
-    go_max_procs    = var.tyk_go_max_procs
+    enabled                 = var.tyk_enabled
+    version                 = var.tyk_version
+    license                 = var.tyk_license
+    deployment_type         = var.tyk_deployment_type
+    replica_count           = var.tyk_replica_count
+    external_traffic_policy = var.tyk_external_traffic_policy
+    go_gc                   = var.tyk_go_gc
+    go_max_procs            = var.tyk_go_max_procs
     resources = {
       requests = {
         cpu    = var.tyk_resources_requests_cpu
@@ -45,10 +46,11 @@ module "deployments" {
   }
 
   kong = {
-    enabled         = var.kong_enabled
-    version         = var.kong_version
-    deployment_type = var.kong_deployment_type
-    replica_count   = var.kong_replica_count
+    enabled                 = var.kong_enabled
+    version                 = var.kong_version
+    deployment_type         = var.kong_deployment_type
+    replica_count           = var.kong_replica_count
+    external_traffic_policy = var.kong_external_traffic_policy
     resources = {
       requests = {
         cpu    = var.kong_resources_requests_cpu
@@ -62,10 +64,11 @@ module "deployments" {
   }
 
   gravitee = {
-    enabled         = var.gravitee_enabled
-    version         = var.gravitee_version
-    deployment_type = var.gravitee_deployment_type
-    replica_count   = var.gravitee_replica_count
+    enabled                 = var.gravitee_enabled
+    version                 = var.gravitee_version
+    deployment_type         = var.gravitee_deployment_type
+    replica_count           = var.gravitee_replica_count
+    external_traffic_policy = var.gravitee_external_traffic_policy
     resources = {
       requests = {
         cpu    = var.gravitee_resources_requests_cpu

@@ -18,6 +18,12 @@ variable "gravitee_replica_count" {
   default = 1
 }
 
+variable "gravitee_external_traffic_policy" {
+  type    = string
+  default = "local"
+}
+
+
 variable "gravitee_resources_requests_cpu" {
   type    = string
   default = "0"
