@@ -8,6 +8,12 @@ module "h" {
   services_nodes_count      = var.services_nodes_count
   resource_nodes_count      = var.resource_nodes_count
   dependencies_nodes_count  = var.dependencies_nodes_count
+  cluster_machine_type      = var.cluster_machine_type
+  service_machine_type      = var.service_machine_type
+  upstream_machine_type     = var.upstream_machine_type
+  tests_machine_type        = var.tests_machine_type
+  resources_machine_type    = var.resources_machine_type
+  dependencies_machine_type = var.dependencies_machine_type
 
   tyk_enabled      = var.tyk_enabled
   kong_enabled     = var.kong_enabled
@@ -15,7 +21,7 @@ module "h" {
 }
 
 resource "azurerm_resource_group" "this" {
-  name     = "pt-${var.cluster_machine_type}"
+  name     = "pt-${var.cluster_location}"
   location = var.cluster_location
 }
 
@@ -42,7 +48,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   name                  = substr(replace(each.key, "-", ""), 0, 12)
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
 
-  vm_size    = var.cluster_machine_type
+  vm_size    = module.h.machines[each.key]
   node_count = each.value
 
   node_labels = {

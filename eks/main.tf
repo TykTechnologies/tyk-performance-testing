@@ -10,6 +10,12 @@ module "h" {
   services_nodes_count      = var.services_nodes_count
   resource_nodes_count      = var.resource_nodes_count
   dependencies_nodes_count  = var.dependencies_nodes_count
+  cluster_machine_type      = var.cluster_machine_type
+  service_machine_type      = var.service_machine_type
+  upstream_machine_type     = var.upstream_machine_type
+  tests_machine_type        = var.tests_machine_type
+  resources_machine_type    = var.resources_machine_type
+  dependencies_machine_type = var.dependencies_machine_type
 
   tyk_enabled      = var.tyk_enabled
   kong_enabled     = var.kong_enabled
@@ -33,7 +39,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.8.2"
 
-  cluster_name    = "pt-${replace(var.cluster_machine_type, ".", "-")}"
+  cluster_name    = "pt-${replace(var.cluster_location, ".", "-")}"
   cluster_version = var.eks_version
 
   vpc_id     = module.vpc.vpc_id
@@ -53,7 +59,7 @@ module "eks_node_groups" {
   cluster_version = module.eks.cluster_version
   subnet_ids      = module.vpc.private_subnets
   desired_size    = each.value
-  instance_types  = [var.cluster_machine_type]
+  instance_types  = [module.h.machines[each.key]]
 
   labels = {
     "node": each.key
