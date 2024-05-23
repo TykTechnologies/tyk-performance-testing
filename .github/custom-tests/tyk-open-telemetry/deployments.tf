@@ -3,7 +3,11 @@ kubernetes_config_context = "performance-testing"
 analytics_enabled             = false
 auth_enabled                  = false
 quota_enabled                 = false
+quota_rate                    = 999999
+quota_per                     = 1
 rate_limit_enabled            = false
+rate_limit_rate               = 999999
+rate_limit_per                = 1
 open_telemetry_enabled        = true
 open_telemetry_sampling_ratio = "0.5"
 

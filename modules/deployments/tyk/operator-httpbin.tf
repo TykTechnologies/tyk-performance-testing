@@ -15,8 +15,8 @@ spec:
     target_url: http://httpbin.tyk-upstream.svc:8000
     listen_path: /httpbin
     strip_listen_path: true
-  use_keyless: ${! var.auth.enabled}
-  use_standard_auth: ${var.auth.enabled}
+  use_keyless: ${! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled)}
+  use_standard_auth: ${var.auth.enabled || var.rate_limit.enabled || var.quota.enabled}
   auth_configs:
     authToken:
       auth_header_name: Authorization
@@ -36,13 +36,19 @@ spec:
   name: httpbin-policy
   state: active
   active: true
+  quota_max: ${var.quota.enabled ? var.quota.rate : -1}
+  quota_renewal_rate: ${var.quota.enabled ? var.quota.per : -1}
+  rate: ${var.rate_limit.enabled ? var.rate_limit.rate : -1}
+  per: ${var.rate_limit.enabled ? var.rate_limit.per : -1}
+  throttle_interval: -1
+  throttle_retry_limit: -1
   access_rights_array:
-    - name: httpbin
-      namespace: ${var.namespace}
-      versions:
-        - Default
+  - name: httpbin
+    namespace: ${var.namespace}
+    versions:
+    - Default
 YAML
 
   depends_on = [kubectl_manifest.httpbin]
-  count      = var.auth.enabled ? 1 : 0
+  count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }

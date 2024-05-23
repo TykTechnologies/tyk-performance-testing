@@ -7,12 +7,16 @@ variable "analytics" {
 variable "quota" {
   type = object({
     enabled = bool
+    rate    = number
+    per     = number
   })
 }
 
 variable "rate_limit" {
   type = object({
     enabled = bool
+    rate    = number
+    per     = number
   })
 }
 

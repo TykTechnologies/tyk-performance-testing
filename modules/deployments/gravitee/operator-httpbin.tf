@@ -1,3 +1,28 @@
+resource "kubectl_manifest" "httpbin-keyless" {
+  yaml_body = <<YAML
+apiVersion: gravitee.io/v1alpha1
+kind: ApiDefinition
+metadata:
+  name: httpbin
+  namespace: ${var.namespace}
+spec:
+  name: httpbin
+  plans:
+  - name: "KEY_LESS"
+    description: "KEY_LESS"
+    security: "KEY_LESS"
+  proxy:
+    virtual_hosts:
+    - path: /httpbin
+    groups:
+    - endpoints:
+      - name: "Default"
+        target: "http://httpbin.gravitee-upstream.svc:8000"
+YAML
+  depends_on = [helm_release.gravitee-operator]
+  count      = ! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
+}
+
 resource "kubectl_manifest" "httpbin" {
   yaml_body = <<YAML
 apiVersion: gravitee.io/v1alpha1
@@ -8,9 +33,31 @@ metadata:
 spec:
   name: httpbin
   plans:
-    - name: "KEY_LESS"
-      description: "FREE"
-      security: "KEY_LESS"
+  - name: "API_KEY"
+    description: "API_KEY"
+    security: "API_KEY"
+    flows:
+    - name: "traffic"
+      path-operator:
+        path: "/"
+        operator: "STARTS_WITH"
+      pre:
+      - name: "rate-limit"
+        enabled: ${var.rate_limit.enabled}
+        policy: "rate-limit"
+        configuration:
+          rate:
+            periodTime: ${var.rate_limit.per}
+            limit: ${var.rate_limit.rate}
+            periodTimeUnit: "SECONDS"
+      - name: "quota"
+        enabled: ${var.quota.enabled}
+        policy: "quota"
+        configuration:
+          quota:
+            periodTime: ${var.quota.per}
+            limit: ${var.quota.rate}
+            periodTimeUnit: "SECONDS"
   proxy:
     virtual_hosts:
     - path: /httpbin
@@ -18,6 +65,8 @@ spec:
     - endpoints:
       - name: "Default"
         target: "http://httpbin.gravitee-upstream.svc:8000"
+
 YAML
   depends_on = [helm_release.gravitee-operator]
+  count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }

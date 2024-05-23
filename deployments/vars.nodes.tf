@@ -15,5 +15,6 @@ variable "node_labels" {
     gravitee-resources = string
   })
 
-  default = null
+  default     = null
+  description = "Mapping for node labels to determine the values for node selectors for each deployment."
 }

@@ -13,10 +13,14 @@ module "deployments" {
 
   quota = {
     enabled = var.quota_enabled
+    rate    = var.quota_rate
+    per     = var.quota_per
   }
 
   rate_limit = {
     enabled = var.rate_limit_enabled
+    rate    = var.rate_limit_rate
+    per     = var.rate_limit_per
   }
 
   open_telemetry = {
