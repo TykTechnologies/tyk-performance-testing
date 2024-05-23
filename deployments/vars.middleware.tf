@@ -24,7 +24,7 @@ variable "quota_rate" {
 
 variable "quota_per" {
   type        = number
-  default     = 1
+  default     = 3600
   description = "Quota management reset interval in seconds."
 }
 
