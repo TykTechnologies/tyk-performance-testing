@@ -137,6 +137,41 @@ resource "helm_release" "gravitee" {
   }
 
   set {
+    name  = "gateway.services.metrics.enabled"
+    value = var.analytics.enabled
+  }
+
+  set {
+    name  = "gateway.services.metrics.labels[0]"
+    value = "local"
+  }
+
+  set {
+    name  = "gateway.services.metrics.labels[1]"
+    value = "remote"
+  }
+
+  set {
+    name  = "gateway.services.metrics.labels[2]"
+    value = "http_method"
+  }
+
+  set {
+    name  = "gateway.services.metrics.labels[3]"
+    value = "http_code"
+  }
+
+  set {
+    name  = "gateway.services.metrics.labels[4]"
+    value = "http_path"
+  }
+
+  set {
+    name  = "gateway.services.metrics.labels[5]"
+    value = "http_route"
+  }
+
+  set {
     name  = "gateway.service.externalTrafficPolicy"
     value = var.external_traffic_policy
   }

@@ -26,6 +26,16 @@ resource "helm_release" "tyk" {
   atomic           = true
 
   set {
+    name  = "global.adminUser.email"
+    value = "default@example.com"
+  }
+
+  set {
+    name  = "global.adminUser.password"
+    value = "topsecretpassword"
+  }
+
+  set {
     name  = "global.storageType"
     value = "postgres"
   }
@@ -197,6 +207,11 @@ resource "helm_release" "tyk" {
   set {
     name  = "global.components.pump"
     value = var.analytics.enabled
+  }
+
+  set {
+    name  = "tyk-pump.pump.backend[0]"
+    value = "prometheus"
   }
 
   set {
