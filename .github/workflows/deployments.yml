@@ -112,23 +112,23 @@ jobs:
         if: ${{ inputs.cloud == 'Azure' }}
         run: |
           az aks get-credentials \
-            --resource-group "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
-            --name "pt-${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}"
+            --resource-group "pt-${{ vars.AZURE_CLUSTER_LOCATION }}" \
+            --name "pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
       - name: Connect to EKS cluster
         if: ${{ inputs.cloud == 'AWS' }}
         run: |
-          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-$(echo "${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" | sed 's/\./-/g')"
+          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
       - name: Connect to GKE cluster
         if: ${{ inputs.cloud == 'GCP' }}
         run: |
-          gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
-            --region "${{ vars.GCP_CLUSTER_LOCATION }}" \
+          gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --zone "${{ vars.GCP_CLUSTER_LOCATION }}" \
             --project "${{ secrets.GCP_PROJECT }}"
           
           kubectl config rename-context $(kubectl config current-context) performance-testing
