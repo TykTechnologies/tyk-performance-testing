@@ -14,20 +14,20 @@ Once the clusters are created, you will need to add the connection config to you
 ###### AKS
 ```
 az aks get-credentials \
-   --resource-group "pt-Standard_F4s_v2" \
-   --name "pt-Standard_F4s_v2"
+   --resource-group "pt-westus" \
+   --name "pt-westus"
 ```
 
 ###### EKS
 ```
-aws eks --region "us-west-1" update-kubeconfig --name "pt-c5-xlarge"
+aws eks --region "us-west-1" update-kubeconfig --name "pt-us-west-1"
 ```
 
 ###### GKE
 ```
-gcloud container clusters get-credentials "pt-c2-standard-4" \
-   --region "us-west1-a" \
-   --project "team-ce-zaid"
+gcloud container clusters get-credentials pt-us-west1-a \
+   --zone us-west1-a \
+   --project ce-team-zaid
 ```
 
 ##### Self-managed cluster requirements
@@ -60,7 +60,11 @@ kubernetes_config_context = "performance-testing"
 analytics_enabled             = false
 auth_enabled                  = false
 quota_enabled                 = false
+quota_rate                    = 999999
+quota_per                     = 3600
 rate_limit_enabled            = false
+rate_limit_rate               = 999999
+rate_limit_per                = 1
 open_telemetry_enabled        = false
 open_telemetry_sampling_ratio = "0.5"
 
@@ -109,27 +113,12 @@ tyk_enabled      = true
 kong_enabled     = false
 gravitee_enabled = false
 
-tests_parallelism       = 4
 tests_timestamp_enabled = true
 tests_httpbin_enabled   = false
-tests_duration          = 15
-tests_virtual_users     = 50
+
+tests_config_executor      = "constant-arrival-rate"
+tests_config_duration      = 15
+tests_config_rate          = 20000
+tests_config_virtual_users = 50
+tests_config_parallelism   = 4
 ```
-
-### GitHub Actions
-If you have access, you will be able to run the above setup through GitHub actions. The states of all the Terraform objects are stored in Terraform Cloud. 
-
-##### Full Performance Test
-Run the entire stack.
-
-##### Clusters Actions
-Create cluster.
-
-##### Deployments Actions
-Run deployments terraform module on an existing AKS cluster.
-
-##### Tests Action
-Run tests terraform module on an existing AKS cluster.
-
-##### Destroy PT Resources
-Destroy setup and clear Terraform state. 
