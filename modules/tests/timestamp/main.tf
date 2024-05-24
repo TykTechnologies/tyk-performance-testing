@@ -17,19 +17,41 @@ resource "kubernetes_config_map" "timestamp-configmap" {
     "timestamp.js" = <<EOF
 import http from 'k6/http';
 
-export const options = {
-  discardResponseBodies: true,
-  scenarios: {
-    success: {
-      executor: 'constant-vus',
-      exec: 'get',
-      vus: ${var.vus},
-      duration: '${var.duration}m',
-    }
-  }
+const scenarios = {
+  "constant-vus": {
+    executor: 'constant-vus',
+    vus: ${var.config.virtual_users},
+    duration: '${var.config.duration}m',
+  },
+  "constant-arrival-rate": {
+    executor: 'constant-arrival-rate',
+    duration: '${var.config.duration}m',
+    rate: ${var.config.rate},
+    timeUnit: '1s',
+    preAllocatedVUs: ${var.config.virtual_users}
+  },
+  "ramping-arrival-rate": {
+    executor: 'ramping-arrival-rate',
+    startRate: 1000,
+    timeUnit: '1s',
+    preAllocatedVUs: ${var.config.virtual_users},
+    stages: [
+      { target: (${var.config.rate} * 0.2), duration: '15s' },
+      { target: (${var.config.rate} * 0.4), duration: '15s' },
+      { target: (${var.config.rate} * 0.6), duration: '15s' },
+      { target: (${var.config.rate} * 0.8), duration: '15s' },
+      { target: ${var.config.rate}, duration: (${var.config.duration} - 1) + "m" },
+    ]
+  },
 };
 
-export function get() {
+const { SCENARIO } = __ENV;
+export const options = {
+  discardResponseBodies: true,
+  scenarios: { [SCENARIO]: scenarios[SCENARIO] },
+};
+
+export default function () {
   http.get('http://${var.url}/timestamp/json');
 }
 EOF
@@ -44,11 +66,11 @@ metadata:
   name: timestamp
   namespace: ${var.name}
 spec:
-  parallelism: ${var.parallelism}
+  parallelism: ${var.config.parallelism}
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-timestamp
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-timestamp --env SCENARIO=${var.config.executor}
   initializer:
     metadata:
       labels:

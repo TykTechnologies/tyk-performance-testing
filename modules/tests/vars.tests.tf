@@ -1,9 +1,13 @@
 variable "tests" {
   type = object({
-    parallelism   = number
     timestamp     = bool
     httpbin       = bool
-    duration      = number
-    virtual_users = number
+    config = object({
+      executor      = string
+      duration      = number
+      rate          = number
+      virtual_users = number
+      parallelism   = number
+    })
   })
 }

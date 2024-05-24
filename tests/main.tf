@@ -14,10 +14,14 @@ module "tests" {
   }
 
   tests = {
-    parallelism   = var.tests_parallelism
-    timestamp     = var.tests_timestamp_enabled
-    httpbin       = var.tests_httpbin_enabled
-    duration      = var.tests_duration
-    virtual_users = var.tests_virtual_users
+    timestamp = var.tests_timestamp_enabled
+    httpbin   = var.tests_httpbin_enabled
+    config = {
+      executor      = var.tests_config_executor
+      duration      = var.tests_config_duration
+      rate          = var.tests_config_rate
+      virtual_users = var.tests_config_virtual_users
+      parallelism   = var.tests_config_parallelism
+    }
   }
 }

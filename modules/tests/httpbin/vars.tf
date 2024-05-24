@@ -6,14 +6,12 @@ variable "url" {
   type = string
 }
 
-variable "parallelism" {
-  type = number
-}
-
-variable "duration" {
-  type = number
-}
-
-variable "vus" {
-  type = number
+variable "config" {
+  type = object({
+    executor      = string
+    duration      = number
+    rate          = number
+    virtual_users = number
+    parallelism   = number
+  })
 }
