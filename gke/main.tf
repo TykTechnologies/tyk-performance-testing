@@ -33,6 +33,12 @@ resource "google_container_cluster" "this" {
   # node pool and immediately delete it.
   remove_default_node_pool = true
   initial_node_count       = 1
+
+  monitoring_config {
+    managed_prometheus {
+      enabled = false
+    }
+  }
 }
 
 resource "google_container_node_pool" "this" {
