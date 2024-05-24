@@ -22,4 +22,6 @@ resource "helm_release" "gravitee-nginx" {
     name  = "controller.resources.requests.memory"
     value = "0"
   }
+
+  depends_on = [helm_release.gravitee]
 }
