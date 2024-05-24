@@ -31,12 +31,67 @@ resource "helm_release" "gravitee" {
 
   set {
     name  = "api.enabled"
-    value = "false"
+    value = "true"
+  }
+
+  set {
+    name  = "api.ingress.management.scheme"
+    value = "http"
+  }
+
+  set {
+    name  = "api.resources.limits.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "api.resources.limits.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "api.resources.requests.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "api.resources.requests.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "api.deployment.nodeSelector.node"
+    value = var.resources-label
   }
 
   set {
     name  = "ui.enabled"
-    value = "false"
+    value = "true"
+  }
+
+  set {
+    name  = "ui.resources.limits.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "ui.resources.limits.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "ui.resources.requests.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "ui.resources.requests.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "ui.deployment.nodeSelector.node"
+    value = var.resources-label
   }
 
   set {
@@ -71,6 +126,111 @@ resource "helm_release" "gravitee" {
   set {
     name  = "jdbc.password"
     value = local.pgsql-pass
+  }
+
+  set {
+    name  = "elasticsearch.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "elasticsearch.master.resources.limits.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.master.resources.limits.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.master.resources.requests.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.master.resources.requests.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.master.nodeSelector.node"
+    value = var.resources-label
+  }
+
+  set {
+    name  = "elasticsearch.coordinating.resources.limits.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.coordinating.resources.limits.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.coordinating.resources.requests.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.coordinating.resources.requests.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.coordinating.nodeSelector.node"
+    value = var.resources-label
+  }
+
+  set {
+    name  = "elasticsearch.ingest.resources.limits.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.ingest.resources.limits.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.ingest.resources.requests.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.ingest.resources.requests.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.ingest.nodeSelector.node"
+    value = var.resources-label
+  }
+
+  set {
+    name  = "elasticsearch.data.resources.limits.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.data.resources.limits.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.data.resources.requests.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.data.resources.requests.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "elasticsearch.data.nodeSelector.node"
+    value = var.resources-label
   }
 
   #############################################################################
