@@ -205,6 +205,11 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    name  = "tyk-dashboard.dashboard.nodeSelector.node"
+    value = var.resources-label
+  }
+
+  set {
     name  = "global.components.pump"
     value = var.analytics.enabled
   }
