@@ -36,10 +36,10 @@ const scenarios = {
     timeUnit: '1s',
     preAllocatedVUs: ${var.config.virtual_users},
     stages: [
-      { target: (${var.config.rate} * 0.2), duration: '15s' },
-      { target: (${var.config.rate} * 0.4), duration: '15s' },
+      { target: (${var.config.rate} * 0.3), duration: '15s' },
       { target: (${var.config.rate} * 0.6), duration: '15s' },
-      { target: (${var.config.rate} * 0.8), duration: '15s' },
+      { target: (${var.config.rate} * 0.9), duration: '15s' },
+      { target: ${var.config.rate}, duration: '15s' },
       { target: ${var.config.rate}, duration: (${var.config.duration} - 1) + "m" },
     ]
   },
