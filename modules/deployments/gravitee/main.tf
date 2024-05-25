@@ -376,5 +376,5 @@ resource "helm_release" "gravitee" {
     value = var.label
   }
 
-  depends_on = [helm_release.gravitee-redis, helm_release.gravitee-pgsql]
+  depends_on = [helm_release.gravitee-redis, helm_release.gravitee-pgsql, helm_release.gravitee-nginx]
 }

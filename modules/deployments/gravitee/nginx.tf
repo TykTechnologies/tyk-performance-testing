@@ -9,6 +9,11 @@ resource "helm_release" "gravitee-nginx" {
   atomic           = true
 
   set {
+    name  = "controller.allowSnippetAnnotations"
+    value = true
+  }
+
+  set {
     name  = "controller.nodeSelector.node"
     value = var.resources-label
   }
@@ -22,6 +27,4 @@ resource "helm_release" "gravitee-nginx" {
     name  = "controller.resources.requests.memory"
     value = "0"
   }
-
-  depends_on = [helm_release.gravitee]
 }
