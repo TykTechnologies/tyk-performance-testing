@@ -159,6 +159,11 @@ resource "helm_release" "gravitee" {
   }
 
   set {
+    name  = "elasticsearch.coordinating.replicaCount"
+    value = 1
+  }
+
+  set {
     name  = "elasticsearch.coordinating.resources.limits.cpu"
     value = "0"
   }
@@ -184,6 +189,11 @@ resource "helm_release" "gravitee" {
   }
 
   set {
+    name  = "elasticsearch.ingest.replicaCount"
+    value = 1
+  }
+
+  set {
     name  = "elasticsearch.ingest.resources.limits.cpu"
     value = "0"
   }
@@ -206,6 +216,11 @@ resource "helm_release" "gravitee" {
   set {
     name  = "elasticsearch.ingest.nodeSelector.node"
     value = var.resources-label
+  }
+
+  set {
+    name  = "elasticsearch.data.replicaCount"
+    value = 1
   }
 
   set {

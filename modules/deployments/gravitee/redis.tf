@@ -32,13 +32,18 @@ resource "helm_release" "gravitee-redis" {
   }
 
   set {
+    name  = "master.nodeSelector.node"
+    value = var.resources-label
+  }
+
+  set {
     name  = "replica.service.ports.redis"
     value = local.redis-port
   }
 
   set {
-    name  = "master.nodeSelector.node"
-    value = var.resources-label
+    name  = "replica.replicaCount"
+    value = 1
   }
 
   set {
