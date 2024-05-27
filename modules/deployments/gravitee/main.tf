@@ -297,11 +297,6 @@ resource "helm_release" "gravitee" {
   }
 
   set {
-    name  = "gateway.reporters.elasticsearch.enabled"
-    value = "false"
-  }
-
-  set {
     name  = "gateway.type"
     value = var.deployment_type
   }

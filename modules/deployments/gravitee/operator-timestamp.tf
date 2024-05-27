@@ -3,10 +3,15 @@ resource "kubectl_manifest" "timestamp-keyless" {
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: timestamp
-  namespace: ${var.namespace}
+  name: "timestamp"
+  namespace: "${var.namespace}"
 spec:
-  name: timestamp
+  name: "timestamp"
+  contextRef:
+    name: "gravitee-context"
+    namespace: "${var.namespace}"
+  version: "1.0"
+  description: "timestamp-keyless"
   plans:
   - name: "KEY_LESS"
     description: "KEY_LESS"
@@ -19,7 +24,7 @@ spec:
       - name: "Default"
         target: "http://timestamp.gravitee-upstream.svc:3100"
 YAML
-  depends_on = [helm_release.gravitee-operator]
+  depends_on = [kubectl_manifest.gravitee-context]
   count      = ! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }
 
@@ -28,10 +33,15 @@ resource "kubectl_manifest" "timestamp" {
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: timestamp
-  namespace: ${var.namespace}
+  name: "timestamp"
+  namespace: "${var.namespace}"
 spec:
-  name: timestamp
+  name: "timestamp"
+  contextRef:
+    name: "gravitee-context"
+    namespace: "${var.namespace}"
+  version: "1.0"
+  description: "timestamp"
   plans:
   - name: "KEY_LESS"
     description: "KEY_LESS"
@@ -60,12 +70,12 @@ spec:
             periodTimeUnit: "SECONDS"
   proxy:
     virtual_hosts:
-    - path: /timestamp
+    - path: "/timestamp"
     groups:
     - endpoints:
       - name: "Default"
         target: "http://timestamp.gravitee-upstream.svc:3100"
 YAML
-  depends_on = [helm_release.gravitee-operator]
+  depends_on = [kubectl_manifest.gravitee-context]
   count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }

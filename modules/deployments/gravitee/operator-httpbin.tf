@@ -3,23 +3,28 @@ resource "kubectl_manifest" "httpbin-keyless" {
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: httpbin
-  namespace: ${var.namespace}
+  name: "httpbin"
+  namespace: "${var.namespace}"
 spec:
-  name: httpbin
+  name: "httpbin"
+  contextRef:
+    name: "gravitee-context"
+    namespace: "${var.namespace}"
+  version: "1.0"
+  description: "httpbin-keyless"
   plans:
   - name: "KEY_LESS"
     description: "KEY_LESS"
     security: "KEY_LESS"
   proxy:
     virtual_hosts:
-    - path: /httpbin
+    - path: "/httpbin"
     groups:
     - endpoints:
       - name: "Default"
         target: "http://httpbin.gravitee-upstream.svc:8000"
 YAML
-  depends_on = [helm_release.gravitee-operator]
+  depends_on = [kubectl_manifest.gravitee-context]
   count      = ! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }
 
@@ -28,10 +33,15 @@ resource "kubectl_manifest" "httpbin" {
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: httpbin
-  namespace: ${var.namespace}
+  name: "httpbin"
+  namespace: "${var.namespace}"
 spec:
-  name: httpbin
+  name: "httpbin"
+  contextRef:
+    name: "gravitee-context"
+    namespace: "${var.namespace}"
+  version: "1.0"
+  description: "httpbin"
   plans:
   - name: "API_KEY"
     description: "API_KEY"
@@ -60,13 +70,13 @@ spec:
             periodTimeUnit: "SECONDS"
   proxy:
     virtual_hosts:
-    - path: /httpbin
+    - path: "/httpbin"
     groups:
     - endpoints:
       - name: "Default"
         target: "http://httpbin.gravitee-upstream.svc:8000"
 
 YAML
-  depends_on = [helm_release.gravitee-operator]
+  depends_on = [kubectl_manifest.gravitee-context]
   count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }
