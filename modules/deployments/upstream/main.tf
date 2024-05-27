@@ -18,6 +18,13 @@ module "httpbin" {
   depends_on    = [kubernetes_namespace.upstream]
 }
 
+module "fortio-server" {
+  source        = "./fortio-server"
+  namespace     = var.namespace
+  node_selector = var.label
+  depends_on    = [kubernetes_namespace.upstream]
+}
+
 module "users-rest" {
   source        = "./users-rest"
   namespace     = var.namespace
