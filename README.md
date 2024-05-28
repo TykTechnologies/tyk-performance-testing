@@ -92,7 +92,7 @@ kong_resources_limits_cpu      = "0"
 kong_resources_limits_memory   = "0"
 
 gravitee_enabled                   = false
-gravitee_version                   = "4.3.4"
+gravitee_version                   = "4.3.5"
 gravitee_deployment_type           = "Deployment"
 gravitee_replica_count             = 1
 gravitee_external_traffic_policy   = "local"

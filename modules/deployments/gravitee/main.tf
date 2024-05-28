@@ -20,6 +20,7 @@ resource "helm_release" "gravitee" {
   name       = "gravitee"
   repository = "https://helm.gravitee.io"
   chart      = "apim"
+  version    = var.gateway_version
 
   namespace        = var.namespace
   create_namespace = true
