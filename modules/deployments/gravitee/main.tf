@@ -357,6 +357,16 @@ resource "helm_release" "gravitee" {
   }
 
   set {
+    name  = "gateway.env[0].name"
+    value = "JAVA_OPTS"
+  }
+
+  set {
+    name  = "gateway.env[0].value"
+    value = "-Xms256m -Xmx256m -XX:MaxMetaspaceSize=128m -XX:CompressedClassSpaceSize=48m -XX:ReservedCodeCacheSize=32m -XX:+UseStringDeduplication -XX:MaxTenuringThreshold=1 -XX:+ParallelRefProcEnabled -XX:InitiatingHeapOccupancyPercent=25 -Xss256k"
+  }
+
+  set {
     name  = "gateway.resources.requests.cpu"
     value = var.resources.requests.cpu
   }

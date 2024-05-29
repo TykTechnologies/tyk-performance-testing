@@ -138,7 +138,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
           "expr": "sum by(testid) (rate(k6_http_reqs_total{testid=~\"$testid\"}[$__rate_interval]))",
           "format": "time_series",
@@ -240,7 +240,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.99, sum by(testid) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "avg by (testid) (k6_http_req_duration_p99)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -340,7 +340,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.95, sum by(testid) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "avg by (testid) (k6_http_req_duration_p95)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -440,7 +440,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.90, sum by(testid) (rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval])))",
+          "expr": "avg by (testid) (k6_http_req_duration_p90)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -969,19 +969,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "Failed Requests Rate  - {{testid}}",
           "range": true,
           "refId": "D"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "(histogram_sum(rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval]))\n/\nhistogram_count(rate(k6_http_req_duration_seconds{testid=~\"$testid\"}[$__rate_interval]))) ",
-          "hide": false,
-          "legendFormat": "Response  Time (avg)  - {{testid}}",
-          "range": true,
-          "refId": "C"
         }
       ],
       "title": "Requests per Second",
@@ -2048,12 +2035,141 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Cores",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 80
+      },
+      "id": 151,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "count(kube_pod_status_phase{namespace=\"tyk\",pod=~\".*gateway-tyk-tyk-gateway.*\",phase=\"Running\"})",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "Tyk",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "count(kube_pod_status_phase{namespace=\"gravitee\",pod=~\".*gravitee-apim-gateway.*\",phase=\"Running\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Gravitee",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "count(kube_pod_status_phase{namespace=\"gravitee\",pod=~\".*kong-gateway.*\",phase=\"Running\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Kong",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Gateway HPA",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 80
+        "y": 93
       },
       "id": 135,
       "panels": [],
@@ -2125,7 +2241,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 0,
-        "y": 81
+        "y": 94
       },
       "id": 138,
       "options": {
@@ -2253,7 +2369,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 12,
-        "y": 81
+        "y": 94
       },
       "id": 144,
       "options": {
@@ -2382,7 +2498,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 0,
-        "y": 94
+        "y": 107
       },
       "id": 131,
       "options": {
@@ -2510,7 +2626,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 12,
-        "y": 94
+        "y": 107
       },
       "id": 139,
       "options": {
@@ -2580,7 +2696,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 107
+        "y": 120
       },
       "id": 140,
       "panels": [],
@@ -2652,7 +2768,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 0,
-        "y": 108
+        "y": 121
       },
       "id": 133,
       "options": {
@@ -2754,7 +2870,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 12,
-        "y": 108
+        "y": 121
       },
       "id": 134,
       "options": {
@@ -2798,7 +2914,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 121
+        "y": 134
       },
       "id": 142,
       "panels": [],
@@ -2870,7 +2986,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 0,
-        "y": 122
+        "y": 135
       },
       "id": 143,
       "options": {
@@ -2998,7 +3114,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 12,
-        "y": 122
+        "y": 135
       },
       "id": 132,
       "options": {
@@ -3127,7 +3243,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 0,
-        "y": 135
+        "y": 148
       },
       "id": 145,
       "options": {
@@ -3255,7 +3371,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 12,
-        "y": 135
+        "y": 148
       },
       "id": 146,
       "options": {
@@ -3325,7 +3441,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 148
+        "y": 161
       },
       "id": 141,
       "panels": [],
@@ -3397,7 +3513,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 0,
-        "y": 149
+        "y": 162
       },
       "id": 147,
       "options": {
@@ -3525,7 +3641,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 12,
-        "y": 149
+        "y": 162
       },
       "id": 150,
       "options": {
@@ -3654,7 +3770,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 0,
-        "y": 162
+        "y": 175
       },
       "id": 148,
       "options": {
@@ -3782,7 +3898,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 13,
         "w": 12,
         "x": 12,
-        "y": 162
+        "y": 175
       },
       "id": 149,
       "options": {

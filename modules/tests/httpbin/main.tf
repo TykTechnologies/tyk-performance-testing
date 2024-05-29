@@ -23,25 +23,36 @@ const scenarios = {
     vus: ${var.config.virtual_users},
     duration: '${var.config.duration}m',
   },
+  "ramping-vus": {
+    executor: 'ramping-vus',
+    stages: [...Array(${var.config.ramping_steps})].map((_, i) =>
+      ({
+        target: ${var.config.virtual_users} * ((i + 1) / ${var.config.ramping_steps}),
+        duration: (${var.config.duration} * (1 / ${var.config.ramping_steps})) + "m",
+      })
+    ),
+  },
   "constant-arrival-rate": {
     executor: 'constant-arrival-rate',
     duration: '${var.config.duration}m',
     rate: ${var.config.rate},
     timeUnit: '1s',
-    preAllocatedVUs: ${var.config.virtual_users}
+    preAllocatedVUs: ${var.config.virtual_users},
   },
   "ramping-arrival-rate": {
     executor: 'ramping-arrival-rate',
     startRate: 1000,
     timeUnit: '1s',
     preAllocatedVUs: ${var.config.virtual_users},
-    stages: [
-      { target: (${var.config.rate} * 0.3), duration: '15s' },
-      { target: (${var.config.rate} * 0.6), duration: '15s' },
-      { target: (${var.config.rate} * 0.9), duration: '15s' },
-      { target: ${var.config.rate}, duration: '15s' },
-      { target: ${var.config.rate}, duration: (${var.config.duration} - 1) + "m" },
-    ]
+    stages: [ ...([...Array(${var.config.ramping_steps})].map((_, i) =>
+      ({
+        target: ${var.config.rate} * ((i + 1) / ${var.config.ramping_steps}),
+        duration: '6s',
+      })
+    )), {
+      target: ${var.config.rate},
+      duration: (${var.config.duration} - ${var.config.ramping_steps} * 0.1) + "m",
+    }],
   },
 };
 
@@ -105,8 +116,8 @@ spec:
       value: http://prometheus-server.dependencies.svc:80/api/v1/write
     - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
       value: 1s
-    - name: K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM
-      value: "true"
+    - name: K6_PROMETHEUS_RW_TREND_STATS
+      value: p(90),p(95),p(99)
   script:
     configMap:
       name: httpbin-${var.name}-configmap
