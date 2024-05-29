@@ -312,6 +312,11 @@ resource "helm_release" "gravitee" {
   }
 
   set {
+    name  = "gateway.reporters.elasticsearch.enabled"
+    value = "false"
+  }
+
+  set {
     name  = "gateway.services.metrics.labels[0]"
     value = "local"
   }

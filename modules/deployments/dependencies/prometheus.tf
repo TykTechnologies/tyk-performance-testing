@@ -37,5 +37,10 @@ resource "helm_release" "prometheus" {
     value = var.label
   }
 
+  set {
+    name  = "kube-state-metrics.extraArgs[0]"
+    value = "--metric-labels-allowlist=nodes=[*]"
+  }
+
   depends_on = [kubernetes_namespace.dependencies]
 }
