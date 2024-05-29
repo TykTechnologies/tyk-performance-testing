@@ -28,61 +28,45 @@ module "deployments" {
     sampling_ratio = var.open_telemetry_sampling_ratio
   }
 
-  tyk = {
-    enabled                 = var.tyk_enabled
-    version                 = var.tyk_version
-    license                 = var.tyk_license
-    deployment_type         = var.tyk_deployment_type
-    replica_count           = var.tyk_replica_count
-    external_traffic_policy = var.tyk_external_traffic_policy
-    go_gc                   = var.tyk_go_gc
-    go_max_procs            = var.tyk_go_max_procs
-    resources = {
-      requests = {
-        cpu    = var.tyk_resources_requests_cpu
-        memory = var.tyk_resources_requests_memory
-      }
-      limits = {
-        cpu    = var.tyk_resources_limits_cpu
-        memory = var.tyk_resources_limits_memory
-      }
+  hpa = {
+    enabled                 = var.hpa_enabled
+    max_replica_count       = var.hpa_max_replica_count
+    avg_cpu_util_percentage = var.hpa_avg_cpu_util_percentage
+  }
+
+  replica_count           = var.replica_count
+  external_traffic_policy = var.external_traffic_policy
+
+  resources = {
+    requests = {
+      cpu    = var.resources_requests_cpu
+      memory = var.resources_requests_memory
     }
+    limits = {
+      cpu    = var.resources_limits_cpu
+      memory = var.resources_limits_memory
+    }
+  }
+
+  tyk = {
+    enabled         = var.tyk_enabled
+    version         = var.tyk_version
+    license         = var.tyk_license
+    deployment_type = var.tyk_deployment_type
+    go_gc           = var.tyk_go_gc
+    go_max_procs    = var.tyk_go_max_procs
   }
 
   kong = {
-    enabled                 = var.kong_enabled
-    version                 = var.kong_version
-    deployment_type         = var.kong_deployment_type
-    replica_count           = var.kong_replica_count
-    external_traffic_policy = var.kong_external_traffic_policy
-    resources = {
-      requests = {
-        cpu    = var.kong_resources_requests_cpu
-        memory = var.kong_resources_requests_memory
-      }
-      limits = {
-        cpu    = var.kong_resources_limits_cpu
-        memory = var.kong_resources_limits_memory
-      }
-    }
+    enabled         = var.kong_enabled
+    version         = var.kong_version
+    deployment_type = var.kong_deployment_type
   }
 
   gravitee = {
-    enabled                 = var.gravitee_enabled
-    version                 = var.gravitee_version
-    deployment_type         = var.gravitee_deployment_type
-    replica_count           = var.gravitee_replica_count
-    external_traffic_policy = var.gravitee_external_traffic_policy
-    resources = {
-      requests = {
-        cpu    = var.gravitee_resources_requests_cpu
-        memory = var.gravitee_resources_requests_memory
-      }
-      limits = {
-        cpu    = var.gravitee_resources_limits_cpu
-        memory = var.gravitee_resources_limits_memory
-      }
-    }
+    enabled         = var.gravitee_enabled
+    version         = var.gravitee_version
+    deployment_type = var.gravitee_deployment_type
   }
 
   dependencies = {

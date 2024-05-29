@@ -3329,7 +3329,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "id": 141,
       "panels": [],
-      "title": "Test Utilization",
+      "title": "Tests Utilization",
       "type": "row"
     },
     {
