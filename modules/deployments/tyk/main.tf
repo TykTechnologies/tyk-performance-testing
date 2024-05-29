@@ -149,53 +149,63 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[2].name"
-    value = "TYK_GW_OPENTELEMETRY_ENABLED"
+    value = "GOMEMLIMIT"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[2].value"
+    value = "${var.resources.limits.memory}B"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[3].name"
+    value = "TYK_GW_OPENTELEMETRY_ENABLED"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[3].value"
     type  = "string"
     value = var.open_telemetry.enabled
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[3].name"
+    name  = "tyk-gateway.gateway.extraEnvs[4].name"
     value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[3].value"
+    name  = "tyk-gateway.gateway.extraEnvs[4].value"
     value = "TraceIDRatioBased"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[4].name"
+    name  = "tyk-gateway.gateway.extraEnvs[5].name"
     value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[4].value"
+    name  = "tyk-gateway.gateway.extraEnvs[5].value"
     type  = "string"
     value = var.open_telemetry.sampling_ratio
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[5].name"
+    name  = "tyk-gateway.gateway.extraEnvs[6].name"
     value = "TYK_GW_OPENTELEMETRY_EXPORTER"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[5].value"
+    name  = "tyk-gateway.gateway.extraEnvs[6].value"
     value = "grpc"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[6].name"
+    name  = "tyk-gateway.gateway.extraEnvs[7].name"
     value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[6].value"
+    name  = "tyk-gateway.gateway.extraEnvs[7].value"
     value = "opentelemetry-collector.dependencies.svc:4317"
   }
 
