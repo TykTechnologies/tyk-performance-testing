@@ -2578,7 +2578,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
