@@ -154,7 +154,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[2].value"
-    value = "${var.resources.limits.memory}B"
+    value = var.resources.limits.memory != "0" ? "${var.resources.limits.memory}B" : ""
   }
 
   set {
