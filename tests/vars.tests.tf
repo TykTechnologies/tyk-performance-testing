@@ -13,7 +13,7 @@ variable "tests_config_executor" {
   default = "constant-arrival-rate"
 }
 
-variable "tests_ramping_steps" {
+variable "tests_config_ramping_steps" {
   type    = number
   default = 10
 }

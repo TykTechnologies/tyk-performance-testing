@@ -18,7 +18,7 @@ module "tests" {
     httpbin   = var.tests_httpbin_enabled
     config = {
       executor      = var.tests_config_executor
-      ramping_steps = var.tests_ramping_steps
+      ramping_steps = var.tests_config_ramping_steps
       duration      = var.tests_config_duration
       rate          = var.tests_config_rate
       virtual_users = var.tests_config_virtual_users
