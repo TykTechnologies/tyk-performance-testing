@@ -313,7 +313,7 @@ resource "helm_release" "gravitee" {
 
   set {
     name  = "api.analytics.type"
-    value = "none"
+    value = var.analytics.database.enabled ? "elasticsearch" : "none"
   }
 
   set {
