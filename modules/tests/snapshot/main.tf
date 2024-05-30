@@ -8,7 +8,8 @@ terraform {
 }
 
 locals {
-  delay     = (var.duration + 2) * 60
+  buffer    = 4
+  delay     = (var.duration + local.buffer) * 60
   timeout   = var.duration * 2
   timestamp = formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())
 }
@@ -40,7 +41,7 @@ resource "kubernetes_job" "snapshot_job" {
 
           env {
             name  = "TEST_DURATION"
-            value = var.duration + 2
+            value = var.duration + (local.buffer * 2)
           }
         }
 
