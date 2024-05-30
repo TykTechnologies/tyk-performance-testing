@@ -26,16 +26,40 @@ resource "helm_release" "gravitee" {
   atomic           = true
 
   #############################################################################
-  # Turn components not being used
+  # Gravitee Components
   #############################################################################
+  set {
+    name  = "gateway.resources.requests.cpu"
+    value = var.resources.requests.cpu
+  }
 
   set {
-    name  = "api.enabled"
-    value = "true"
+    name  = "gateway.resources.requests.memory"
+    value = var.resources.requests.memory
+  }
+
+  set {
+    name  = "gateway.resources.limits.cpu"
+    value = var.resources.limits.cpu
+  }
+
+  set {
+    name  = "gateway.resources.limits.memory"
+    value = var.resources.limits.memory
+  }
+
+  set {
+    name  = "gateway.deployment.nodeSelector.node"
+    value = var.label
   }
 
   set {
     name  = "api.ingress.management.scheme"
+    value = "http"
+  }
+
+  set {
+    name  = "api.ingress.portal.scheme"
     value = "http"
   }
 
@@ -65,11 +89,6 @@ resource "helm_release" "gravitee" {
   }
 
   set {
-    name  = "ui.enabled"
-    value = "true"
-  }
-
-  set {
     name  = "ui.resources.limits.cpu"
     value = "0"
   }
@@ -95,8 +114,33 @@ resource "helm_release" "gravitee" {
   }
 
   set {
-    name  = "portal.enabled"
-    value = "false"
+    name  = "portal.ingress.hosts[0]"
+    value = "portal.example.com"
+  }
+
+  set {
+    name  = "portal.resources.limits.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "portal.resources.limits.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "portal.resources.requests.cpu"
+    value = "0"
+  }
+
+  set {
+    name  = "portal.resources.requests.memory"
+    value = "0"
+  }
+
+  set {
+    name  = "portal.deployment.nodeSelector.node"
+    value = var.resources-label
   }
 
   #############################################################################
@@ -364,31 +408,6 @@ resource "helm_release" "gravitee" {
   set {
     name  = "gateway.env[0].value"
     value = "-Xms256m -Xmx256m -XX:MaxMetaspaceSize=128m -XX:CompressedClassSpaceSize=48m -XX:ReservedCodeCacheSize=32m -XX:+UseStringDeduplication -XX:MaxTenuringThreshold=1 -XX:+ParallelRefProcEnabled -XX:InitiatingHeapOccupancyPercent=25 -Xss256k"
-  }
-
-  set {
-    name  = "gateway.resources.requests.cpu"
-    value = var.resources.requests.cpu
-  }
-
-  set {
-    name  = "gateway.resources.requests.memory"
-    value = var.resources.requests.memory
-  }
-
-  set {
-    name  = "gateway.resources.limits.cpu"
-    value = var.resources.limits.cpu
-  }
-
-  set {
-    name  = "gateway.resources.limits.memory"
-    value = var.resources.limits.memory
-  }
-
-  set {
-    name  = "gateway.deployment.nodeSelector.node"
-    value = var.label
   }
 
   depends_on = [helm_release.gravitee-redis, helm_release.gravitee-pgsql, helm_release.gravitee-nginx]

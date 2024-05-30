@@ -43,9 +43,9 @@ spec:
   version: "1.0"
   description: "timestamp"
   plans:
-  - name: "KEY_LESS"
-    description: "KEY_LESS"
-    security: "KEY_LESS"
+  - name: "API_KEY"
+    description: "API_KEY"
+    security: "API_KEY"
     flows:
     - name: "traffic"
       path-operator:
