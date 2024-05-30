@@ -1,6 +1,11 @@
 variable "analytics" {
   type = object({
-    enabled = bool
+    database = object({
+      enabled = bool
+    })
+    prometheus = object({
+      enabled = bool
+    })
   })
 }
 

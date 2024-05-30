@@ -1,6 +1,7 @@
 kubernetes_config_context = "performance-testing"
 
-analytics_enabled             = false
+analytics_database_enabled    = false
+analytics_prometheus_enabled  = false
 auth_enabled                  = false
 quota_enabled                 = false
 quota_rate                    = 999999

@@ -4,7 +4,12 @@ module "deployments" {
   labels = local.labels
 
   analytics = {
-    enabled = var.analytics_enabled
+    database = {
+      enabled = var.analytics_database_enabled
+    }
+    prometheus = {
+      enabled = var.analytics_prometheus_enabled
+    }
   }
 
   auth = {

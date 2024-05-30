@@ -19,8 +19,13 @@ on:
         options:
           - apply
           - destroy
-      analytics_enabled:
-        description: 'Enabled Analytics gathering'
+      analytics_database_enabled:
+        description: 'Enabled Database Analytics gathering'
+        required: false
+        default: false
+        type: boolean
+      analytics_prometheus_enabled:
+        description: 'Enabled Prometheus Analytics gathering'
         required: false
         default: false
         type: boolean
@@ -39,16 +44,6 @@ on:
         required: false
         default: false
         type: boolean
-      open_telemetry_enabled:
-        description: 'Enabled Open Telemetry'
-        required: false
-        default: false
-        type: boolean
-      open_telemetry_sampling_ratio:
-        description: 'Open Telemetry Sampling Ratio'
-        required: false
-        type: string
-        default: '0.5'
       tyk_version:
         description: 'Tyk Gateway version'
         required: true
@@ -146,12 +141,11 @@ jobs:
           terraform ${{ inputs.action }} \
             --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
-            --var="analytics_enabled=${{ inputs.analytics_enabled }}" \
+            --var="analytics_database_enabled=${{ inputs.analytics_database_enabled }}" \
+            --var="analytics_prometheus_enabled=${{ inputs.analytics_prometheus_enabled }}" \
             --var="auth_enabled=${{ inputs.auth_enabled }}" \
             --var="quota_enabled=${{ inputs.quota_enabled }}" \
             --var="rate_limit_enabled=${{ inputs.rate_limit_enabled }}" \
-            --var="open_telemetry_enabled=${{ inputs.open_telemetry_enabled }}" \
-            --var="open_telemetry_sampling_ratio=${{ inputs.open_telemetry_sampling_ratio }}" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="grafana_service_type=LoadBalancer" \

@@ -1,8 +1,8 @@
 resource "helm_release" "tyk-redis" {
   name       = "tyk-redis"
   repository = "https://charts.bitnami.com/bitnami"
-  chart      = "redis"
-  version    = "17.4.0"
+  chart      = "redis-cluster"
+  version    = "10.2.0"
 
   # Adjust default value to 10 minutes allow for all Redis containers to come up
   timeout = 600
@@ -12,12 +12,7 @@ resource "helm_release" "tyk-redis" {
   atomic           = true
 
   set {
-    name  = "image.tag"
-    value = "6.2.7"
-  }
-
-  set {
-    name  = "auth.password"
+    name  = "password"
     value = local.redis-pass
   }
 
@@ -27,27 +22,17 @@ resource "helm_release" "tyk-redis" {
   }
 
   set {
-    name  = "master.service.ports.redis"
+    name  = "service.ports.redis"
     value = local.redis-port
   }
 
   set {
-    name  = "master.nodeSelector.node"
+    name  = "redis.nodeSelector.node"
     value = var.resources-label
   }
 
   set {
-    name  = "replica.service.ports.redis"
-    value = local.redis-port
-  }
-
-  set {
-    name  = "replica.replicaCount"
-    value = 1
-  }
-
-  set {
-    name  = "replica.nodeSelector.node"
-    value = var.resources-label
+    name  = "redis.resourcesPreset"
+    value = "none"
   }
 }

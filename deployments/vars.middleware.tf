@@ -1,7 +1,13 @@
-variable "analytics_enabled" {
+variable "analytics_database_enabled" {
   type        = bool
   default     = false
-  description = "Enables metrics collection on gateway services."
+  description = "Enables metrics collection on gateway services and stores them in gateways default database."
+}
+
+variable "analytics_prometheus_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables metrics collection on gateway services and aggregates them on an endpoint for prometheus to scrape."
 }
 
 variable "auth_enabled" {

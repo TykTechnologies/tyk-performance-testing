@@ -72,12 +72,17 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "global.redis.addrs[0]"
-    value = "${helm_release.tyk-redis.name}-master.${var.namespace}.svc:${local.redis-port}"
+    value = "${helm_release.tyk-redis.name}-redis-cluster.${var.namespace}.svc:${local.redis-port}"
   }
 
   set {
     name  = "global.redis.pass"
     value = local.redis-pass
+  }
+
+  set {
+    name  = "global.redis.enableCluster"
+    value = true
   }
 
   set {
@@ -159,53 +164,107 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[3].name"
-    value = "TYK_GW_OPENTELEMETRY_ENABLED"
+    value = "TYK_GW_MAXIDLECONNSPERHOST"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[3].value"
     type  = "string"
-    value = var.open_telemetry.enabled
+    value = "1000"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[4].name"
-    value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
+    value = "TYK_GW_MAXIDLECONNSPERHOST"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[4].value"
-    value = "TraceIDRatioBased"
+    type  = "string"
+    value = "10000"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[5].name"
-    value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
+    value = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[5].value"
     type  = "string"
-    value = var.open_telemetry.sampling_ratio
+    value = "true"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[6].name"
-    value = "TYK_GW_OPENTELEMETRY_EXPORTER"
+    value = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[6].value"
-    value = "grpc"
+    value = "protobuf"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[7].name"
-    value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
+    value = "TYK_GW_STORAGE_MAXACTIVE"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[7].value"
+    type  = "string"
+    value = "10000"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[8].name"
+    value = "TYK_GW_OPENTELEMETRY_ENABLED"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[8].value"
+    type  = "string"
+    value = var.open_telemetry.enabled
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[9].name"
+    value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[9].value"
+    value = "TraceIDRatioBased"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[10].name"
+    value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[10].value"
+    type  = "string"
+    value = var.open_telemetry.sampling_ratio
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[11].name"
+    value = "TYK_GW_OPENTELEMETRY_EXPORTER"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[11].value"
+    value = "grpc"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[12].name"
+    value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[12].value"
     value = "opentelemetry-collector.dependencies.svc:4317"
   }
 
@@ -221,17 +280,44 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "global.components.pump"
-    value = var.analytics.enabled
+    value = var.analytics.database.enabled || var.analytics.prometheus.enabled
   }
 
   set {
     name  = "tyk-pump.pump.backend[0]"
-    value = "prometheus"
+    value = var.analytics.database.enabled ? "postgres" : ""
+  }
+
+  set {
+    name  = "tyk-pump.pump.backend[1]"
+    value = var.analytics.prometheus.enabled ? "prometheus" : ""
   }
 
   set {
     name  = "tyk-pump.pump.nodeSelector.node"
     value = var.resources-label
+  }
+
+  set {
+    name  = "tyk-pump.pump.extraEnvs[0].name"
+    value = "TYK_PMP_ANALYTICSSTORAGECONFIG_MAXIDLE"
+  }
+
+  set {
+    name  = "tyk-pump.pump.extraEnvs[0].value"
+    type  = "string"
+    value = "1000"
+  }
+
+  set {
+    name  = "tyk-pump.pump.extraEnvs[1].name"
+    value = "TYK_PMP_ANALYTICSSTORAGECONFIG_MAXACTIVE"
+  }
+
+  set {
+    name  = "tyk-pump.pump.extraEnvs[1].value"
+    type  = "string"
+    value = "10000"
   }
 
   depends_on = [helm_release.tyk-redis, helm_release.tyk-pgsql]

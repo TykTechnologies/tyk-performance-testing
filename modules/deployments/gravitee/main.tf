@@ -308,7 +308,7 @@ resource "helm_release" "gravitee" {
 
   set {
     name  = "gateway.services.metrics.enabled"
-    value = var.analytics.enabled
+    value = var.analytics.prometheus.enabled
   }
 
   set {
@@ -318,7 +318,7 @@ resource "helm_release" "gravitee" {
 
   set {
     name  = "gateway.reporters.elasticsearch.enabled"
-    value = "false"
+    value = var.analytics.database.enabled
   }
 
   set {
