@@ -59,7 +59,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "#8438fa",
+            "mode": "shades"
           },
           "decimals": 2,
           "mappings": [
@@ -102,7 +103,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "allValues"
+            "uniqueValues"
           ],
           "fields": "",
           "values": false
@@ -142,7 +143,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
           },
           "mappings": [],
           "thresholds": {
@@ -173,14 +175,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "max"
+            "uniqueValues"
           ],
           "fields": "",
           "values": false
         },
         "showPercentChange": false,
         "text": {},
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "10.4.1",
@@ -192,9 +194,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (scenario) (k6_test_config_duration)",
+          "expr": "avg (k6_test_config_duration)",
           "instant": false,
-          "legendFormat": "{{scenario}}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
@@ -210,9 +212,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
           },
-          "decimals": 2,
           "mappings": [
             {
               "options": {
@@ -253,14 +255,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "max"
+            "uniqueValues"
           ],
           "fields": "",
           "values": false
         },
         "showPercentChange": false,
         "text": {},
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "10.4.1",
@@ -272,9 +274,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (scenario) (k6_test_config_rate)",
+          "expr": "avg (k6_test_config_rate)",
           "instant": false,
-          "legendFormat": "{{scenario}}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
@@ -290,8 +292,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
           },
+          "fieldMinMax": false,
           "mappings": [
             {
               "options": {
@@ -332,14 +336,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "max"
+            "uniqueValues"
           ],
           "fields": "",
           "values": false
         },
         "showPercentChange": false,
         "text": {},
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "10.4.1",
@@ -351,9 +355,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (scenario) (k6_test_config_virtual_users)",
+          "expr": "avg (k6_test_config_virtual_users)",
           "instant": false,
-          "legendFormat": "{{scenario}}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
@@ -3814,7 +3818,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3941,7 +3946,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4069,7 +4075,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4196,7 +4203,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
