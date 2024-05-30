@@ -16,6 +16,11 @@ resource "kubernetes_config_map" "timestamp-configmap" {
   data = {
     "timestamp.js" = <<EOF
 import http from 'k6/http';
+import { Gauge } from 'k6/metrics';
+
+const duration      = new Gauge('test_config_duration');
+const rate          = new Gauge('test_config_rate');
+const virtual_users = new Gauge('test_config_virtual_users');
 
 const scenarios = {
   "constant-vus": {
@@ -63,6 +68,10 @@ export const options = {
 };
 
 export default function () {
+  duration.add("${var.config.duration}");
+  rate.add("${var.config.rate}");
+  virtual_users.add("${var.config.virtual_users}");
+
   http.get('http://${var.url}/timestamp/json');
 }
 EOF
