@@ -9,6 +9,11 @@ variable "tests" {
       rate          = number
       virtual_users = number
       parallelism   = number
+
+      auth = object({
+        enabled   = bool
+        key_count = number
+      })
     })
   })
 }

@@ -35,7 +35,7 @@ resource "helm_release" "gravitee" {
   #############################################################################
   set {
     name  = "gateway.apiKey.header"
-    value = "Authentication"
+    value = "Authorization"
   }
 
   set {

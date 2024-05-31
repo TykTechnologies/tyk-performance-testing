@@ -15,20 +15,32 @@ resource "kubernetes_config_map" "timestamp-configmap" {
 
   data = {
     "timestamp.js" = <<EOF
-import { getScenarios, get } from "/helpers/tests.js";
+import http from 'k6/http';
+import { getScenarios, addTestInfoMetrics } from "/helpers/tests.js";
+import { generateKeys } from "/helpers/auth.js";
 
 const { SCENARIO } = __ENV;
 export const options = {
   discardResponseBodies: true,
-  scenarios: { [SCENARIO]: getScenarios(${var.config.ramping_steps}, ${var.config.duration}, ${var.config.rate}, ${var.config.virtual_users})[SCENARIO] },
+  scenarios: { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
 };
 
-export default function () {
-  get({
-    duration: ${var.config.duration},
-    rate: ${var.config.rate},
-    virtual_users: ${var.config.virtual_users},
-  }, 'http://${var.url}/timestamp/json');
+export function setup() {
+  addTestInfoMetrics(${jsonencode(var.config)});
+  if (${var.config.auth.enabled}) {
+    return generateKeys("timestamp", ${var.config.auth.key_count})
+  }
+  return {};
+}
+
+export default function (keys) {
+  let headers = {};
+  if (${var.config.auth.enabled}) {
+    const i = Math.floor(Math.random() * keys.length);
+    headers = { "Authorization": keys[i] }
+  }
+
+  http.get('http://${var.url}/timestamp/json', { headers });
 }
 EOF
   }
@@ -55,10 +67,16 @@ spec:
     - name: tests
       configMap:
         name: tests-configmap
+    - name: auth
+      configMap:
+        name: auth-configmap
     volumeMounts:
     - name: tests
       mountPath: /helpers/tests.js
       subPath: tests.js
+    - name: auth
+      mountPath: /helpers/auth.js
+      subPath: auth.js
     nodeSelector:
       node: ${var.name}-tests
     affinity:
@@ -86,10 +104,16 @@ spec:
     - name: tests
       configMap:
         name: tests-configmap
+    - name: auth
+      configMap:
+        name: auth-configmap
     volumeMounts:
     - name: tests
       mountPath: /helpers/tests.js
       subPath: tests.js
+    - name: auth
+      mountPath: /helpers/auth.js
+      subPath: auth.js
     nodeSelector:
       node: ${var.name}-tests
     env:

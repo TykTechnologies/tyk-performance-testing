@@ -7,9 +7,11 @@ gravitee_enabled = false
 tests_timestamp_enabled = true
 tests_httpbin_enabled   = false
 
-tests_config_executor      = "constant-arrival-rate"
-tests_config_ramping_steps = 10
-tests_config_duration      = 15
-tests_config_rate          = 20000
-tests_config_virtual_users = 50
-tests_config_parallelism   = 4
+tests_config_executor       = "constant-arrival-rate"
+tests_config_auth_enabled   = false
+tests_config_auth_key_count = 100
+tests_config_ramping_steps  = 10
+tests_config_duration       = 15
+tests_config_rate           = 20000
+tests_config_virtual_users  = 50
+tests_config_parallelism    = 4

@@ -23,6 +23,11 @@ module "tests" {
       rate          = var.tests_config_rate
       virtual_users = var.tests_config_virtual_users
       parallelism   = var.tests_config_parallelism
+
+      auth = {
+        enabled   = var.tests_config_auth_enabled
+        key_count = var.tests_config_auth_key_count
+      }
     }
   }
 }

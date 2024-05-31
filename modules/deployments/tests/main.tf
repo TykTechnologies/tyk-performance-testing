@@ -9,11 +9,11 @@ resource "kubernetes_config_map" "tests-configmap" {
 import http from 'k6/http';
 import { Gauge } from 'k6/metrics';
 
-const duration      = new Gauge('test_config_duration');
-const rate          = new Gauge('test_config_rate');
-const virtual_users = new Gauge('test_config_virtual_users');
+const durationGauge     = new Gauge('test_config_duration');
+const rateGauge         = new Gauge('test_config_rate');
+const virtualUsersGauge = new Gauge('test_config_virtual_users');
 
-const getScenarios = (ramping_steps, duration, rate, virtual_users) => ({
+const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
   "constant-vus": {
     executor: 'constant-vus',
     vus: virtual_users,
@@ -52,21 +52,13 @@ const getScenarios = (ramping_steps, duration, rate, virtual_users) => ({
   },
 });
 
-const get = (config, url) => {
-  duration.add(config.duration);
-  rate.add(config.rate);
-  virtual_users.add(config.virtual_users);
-  http.get(url);
+const addTestInfoMetrics = ({ duration, rate, virtual_users }) => {
+  durationGauge.add(duration);
+  rateGauge.add(rate);
+  virtualUsersGauge.add(virtual_users);
 };
 
-const post = (config, url, body) => {
-  duration.add(config.duration);
-  rate.add(config.rate);
-  virtual_users.add(config.virtual_users);
-  http.post(url, body);
-};
-
-export { getScenarios, get, post };
+export { getScenarios, addTestInfoMetrics };
 
 EOF
   }

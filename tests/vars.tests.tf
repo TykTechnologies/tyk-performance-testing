@@ -13,6 +13,16 @@ variable "tests_config_executor" {
   default = "constant-arrival-rate"
 }
 
+variable "tests_config_auth_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "tests_config_auth_key_count" {
+  type    = number
+  default = 100
+}
+
 variable "tests_config_ramping_steps" {
   type    = number
   default = 10

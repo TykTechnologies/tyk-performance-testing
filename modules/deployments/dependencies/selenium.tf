@@ -67,6 +67,8 @@ resource "kubernetes_deployment" "selenium_hub" {
       }
     }
   }
+
+  depends_on = [kubernetes_namespace.dependencies]
 }
 
 resource "kubernetes_deployment" "selenium_node_firefox" {
