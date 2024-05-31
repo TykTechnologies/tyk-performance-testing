@@ -1,7 +1,11 @@
 module "tests" {
-  source    = "../tests"
-  namespace = var.namespace
-  auth      = var.auth
+  source         = "../tests"
+  namespace      = var.namespace
+  analytics      = var.analytics
+  auth           = var.auth
+  quota          = var.quota
+  rate_limit     = var.rate_limit
+  open_telemetry = var.open_telemetry
 
   depends_on = [kubernetes_config_map.auth-configmap]
 }
@@ -11,6 +15,8 @@ data "kubernetes_secret" "tyk-operator-conf" {
     name      = "tyk-operator-conf"
     namespace = var.namespace
   }
+
+  depends_on = [helm_release.tyk]
 }
 
 resource "kubernetes_config_map" "auth-configmap" {
@@ -19,7 +25,7 @@ resource "kubernetes_config_map" "auth-configmap" {
     namespace = var.namespace
   }
 
-  depends_on = [helm_release.tyk, data.kubernetes_secret.tyk-operator-conf]
+  depends_on = [data.kubernetes_secret.tyk-operator-conf]
   data = {
     "auth.js" = <<EOF
 import http from 'k6/http';

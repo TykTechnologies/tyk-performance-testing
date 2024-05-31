@@ -26,7 +26,7 @@ export const options = {
 };
 
 export function setup() {
-  addTestInfoMetrics(${jsonencode(var.config)});
+  addTestInfoMetrics(${jsonencode(var.config)}, ${var.config.auth.key_count});
   if (${var.config.auth.enabled}) {
     return generateKeys("timestamp", ${var.config.auth.key_count})
   }
