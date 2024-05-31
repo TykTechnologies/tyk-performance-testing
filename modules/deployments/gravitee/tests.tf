@@ -1,6 +1,7 @@
 module "tests" {
   source    = "../tests"
   namespace = var.namespace
+  auth      = var.auth
 
   depends_on = [kubernetes_config_map.auth-configmap]
 }

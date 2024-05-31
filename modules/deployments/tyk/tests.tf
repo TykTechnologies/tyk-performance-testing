@@ -1,8 +1,16 @@
 module "tests" {
   source    = "../tests"
   namespace = var.namespace
+  auth      = var.auth
 
   depends_on = [kubernetes_config_map.auth-configmap]
+}
+
+data "kubernetes_secret" "tyk-operator-conf" {
+  metadata {
+    name      = "tyk-operator-conf"
+    namespace = var.namespace
+  }
 }
 
 resource "kubernetes_config_map" "auth-configmap" {
@@ -11,12 +19,51 @@ resource "kubernetes_config_map" "auth-configmap" {
     namespace = var.namespace
   }
 
+  depends_on = [helm_release.tyk, data.kubernetes_secret.tyk-operator-conf]
   data = {
     "auth.js" = <<EOF
-const generateKeys = (apiName, keyCount) => {
-  const baseURL = "http://dashboard-svc-tyk-tyk-dashboard:3000/";
+import http from 'k6/http';
+import { check, fail } from 'k6';
+import { b64encode } from 'k6/encoding';
 
-  return {};
+const base64UrlEncode = (str) => {
+  return b64encode(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+const params = {
+  responseType: 'text',
+  headers: {
+    'Authorization': "${data.kubernetes_secret.tyk-operator-conf.data["TYK_AUTH"]}",
+    'Content-Type': 'application/json',
+  },
+};
+
+const createKeys = (baseURL, policyId, keyCount) => {
+  const keys = [];
+  const payload = JSON.stringify({
+    "allowance": -1,
+    "rate": -1,
+    "per": -1,
+    "throttle_interval": -1,
+    "quota_max": -1,
+    "apply_policies": [ policyId ]
+  });
+
+  for (let i = 0; i < keyCount; i++) {
+    const res = http.post(baseURL + '/api/keys', payload, params);
+    check(res, {
+      ['key creation call status is 200']: (r) => r.status === 200,
+    }) || fail('Failed to create key');
+    keys.push(res.json().key_id);
+  }
+  return keys;
+};
+
+const generateKeys = (apiName, keyCount) => {
+  const baseURL = "http://dashboard-svc-tyk-tyk-dashboard:3000";
+  const policyId = base64UrlEncode("${var.namespace}/" + apiName + "-policy");
+
+  return createKeys(baseURL, policyId, keyCount);
 };
 
 export { generateKeys };
