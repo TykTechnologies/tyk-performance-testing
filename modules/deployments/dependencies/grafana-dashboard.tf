@@ -35,6 +35,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
   "fiscalYearStartMonth": 0,
   "gnetId": 18030,
   "graphTooltip": 1,
+  "id": 1,
   "links": [],
   "liveNow": true,
   "panels": [
@@ -145,8 +146,18 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "fieldMinMax": false,
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "match": "null+nan",
+                "result": {
+                  "index": 0,
+                  "text": "0"
+                }
+              },
+              "type": "special"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -166,7 +177,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "x": 6,
         "y": 1
       },
-      "id": 159,
+      "id": 156,
       "interval": "1s",
       "options": {
         "colorMode": "background",
@@ -246,7 +257,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "x": 12,
         "y": 1
       },
-      "id": 156,
+      "id": 160,
       "interval": "1s",
       "options": {
         "colorMode": "background",

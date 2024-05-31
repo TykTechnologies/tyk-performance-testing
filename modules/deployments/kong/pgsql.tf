@@ -4,9 +4,8 @@ resource "helm_release" "kong-pgsql" {
   chart      = "postgresql"
   version    = "11.9.7"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "auth.database"
@@ -52,5 +51,7 @@ resource "helm_release" "kong-pgsql" {
     name  = "readReplicas.nodeSelector.node"
     value = var.resources-label
   }
+
+  depends_on = [kubernetes_namespace.kong]
 }
 

@@ -4,9 +4,8 @@ resource "helm_release" "tyk-pgsql" {
   chart      = "postgresql"
   version    = "11.9.7"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "auth.database"
@@ -44,6 +43,11 @@ resource "helm_release" "tyk-pgsql" {
   }
 
   set {
+    name  = "primary.persistence.size"
+    value = "20Gi"
+  }
+
+  set {
     name  = "primary.nodeSelector.node"
     value = var.resources-label
   }
@@ -52,4 +56,6 @@ resource "helm_release" "tyk-pgsql" {
     name  = "readReplicas.nodeSelector.node"
     value = var.resources-label
   }
+
+  depends_on = [kubernetes_namespace.tyk]
 }

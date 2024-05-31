@@ -7,9 +7,8 @@ resource "helm_release" "gravitee-redis" {
   # Adjust default value to 10 minutes allow for all Redis containers to come up
   timeout = 600
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "image.tag"
@@ -50,4 +49,6 @@ resource "helm_release" "gravitee-redis" {
     name  = "replica.nodeSelector.node"
     value = var.resources-label
   }
+
+  depends_on = [kubernetes_namespace.gravitee]
 }

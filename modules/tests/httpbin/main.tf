@@ -15,51 +15,7 @@ resource "kubernetes_config_map" "httpbin-configmap" {
 
   data = {
     "httpbin.js" = <<EOF
-import http from 'k6/http';
-import { Gauge } from 'k6/metrics';
-
-const duration      = new Gauge('test_config_duration');
-const rate          = new Gauge('test_config_rate');
-const virtual_users = new Gauge('test_config_virtual_users');
-
-const scenarios = {
-  "constant-vus": {
-    executor: 'constant-vus',
-    vus: ${var.config.virtual_users},
-    duration: '${var.config.duration}m',
-  },
-  "ramping-vus": {
-    executor: 'ramping-vus',
-    stages: [...Array(${var.config.ramping_steps})].map((_, i) =>
-      ({
-        target: ${var.config.virtual_users} * ((i + 1) / ${var.config.ramping_steps}),
-        duration: (${var.config.duration} * (1 / ${var.config.ramping_steps})) + "m",
-      })
-    ),
-  },
-  "constant-arrival-rate": {
-    executor: 'constant-arrival-rate',
-    duration: '${var.config.duration}m',
-    rate: ${var.config.rate},
-    timeUnit: '1s',
-    preAllocatedVUs: ${var.config.virtual_users},
-  },
-  "ramping-arrival-rate": {
-    executor: 'ramping-arrival-rate',
-    startRate: 1000,
-    timeUnit: '1s',
-    preAllocatedVUs: ${var.config.virtual_users},
-    stages: [ ...([...Array(${var.config.ramping_steps})].map((_, i) =>
-      ({
-        target: ${var.config.rate} * ((i + 1) / ${var.config.ramping_steps}),
-        duration: '6s',
-      })
-    )), {
-      target: ${var.config.rate},
-      duration: (${var.config.duration} - ${var.config.ramping_steps} * 0.1) + "m",
-    }],
-  },
-};
+import { getScenarios, get } from "/helpers/tests.js";
 
 const { SCENARIO } = __ENV;
 export const options = {
@@ -68,11 +24,11 @@ export const options = {
 };
 
 export default function () {
-  duration.add("${var.config.duration}");
-  rate.add("${var.config.rate}");
-  virtual_users.add("${var.config.virtual_users}");
-
-  http.get('http://${var.url}/httpbin/status/' + status);
+  get({
+    duration: ${var.config.duration},
+    rate: ${var.config.rate},
+    virtual_users: ${var.config.virtual_users},
+  }, 'http://${var.url}/httpbin/status/200');
 }
 EOF
   }
@@ -95,6 +51,14 @@ spec:
     metadata:
       labels:
         initializer: "k6"
+    volumes:
+    - name: tests
+      configMap:
+        name: tests-configmap
+    volumeMounts:
+    - name: tests
+      mountPath: /helpers/tests.js
+      subPath: tests.js
     nodeSelector:
       node: ${var.name}-tests
     affinity:
@@ -115,6 +79,14 @@ spec:
               values:
               - "true"
   starter:
+    volumes:
+    - name: tests
+      configMap:
+        name: tests-configmap
+    volumeMounts:
+    - name: tests
+      mountPath: /helpers/tests.js
+      subPath: tests.js
     nodeSelector:
       node: ${var.name}-tests
   runner:

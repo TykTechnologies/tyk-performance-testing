@@ -16,18 +16,28 @@ locals {
   redis-port = "6379"
 }
 
+resource "kubernetes_namespace" "gravitee" {
+  metadata {
+    name = var.namespace
+  }
+}
+
 resource "helm_release" "gravitee" {
   name       = "gravitee"
   repository = "https://helm.gravitee.io"
   chart      = "apim"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   #############################################################################
   # Gravitee Components
   #############################################################################
+  set {
+    name  = "gateway.apiKey.header"
+    value = "Authentication"
+  }
+
   set {
     name  = "gateway.resources.requests.cpu"
     value = var.resources.requests.cpu

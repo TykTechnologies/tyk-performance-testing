@@ -3,9 +3,8 @@ resource "helm_release" "gravitee-operator" {
   repository = "https://helm.gravitee.io"
   chart      = "gko"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   # Gravitee Operator does not support nodeSelectors
   #  set {

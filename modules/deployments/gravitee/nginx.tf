@@ -4,9 +4,8 @@ resource "helm_release" "gravitee-nginx" {
   chart      = "ingress-nginx"
   version    = "4.10.1"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "controller.allowSnippetAnnotations"
@@ -27,4 +26,6 @@ resource "helm_release" "gravitee-nginx" {
     name  = "controller.resources.requests.memory"
     value = "0"
   }
+
+  depends_on = [kubernetes_namespace.gravitee]
 }

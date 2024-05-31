@@ -16,14 +16,19 @@ locals {
   redis-port = "6379"
 }
 
+resource "kubernetes_namespace" "tyk" {
+  metadata {
+    name = var.namespace
+  }
+}
+
 resource "helm_release" "tyk" {
   name       = "tyk"
   repository = "https://helm.tyk.io/public/helm/charts"
   chart      = "tyk-stack"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "global.adminUser.email"

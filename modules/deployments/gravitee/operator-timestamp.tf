@@ -42,28 +42,31 @@ spec:
     namespace: "${var.namespace}"
   version: "1.0"
   description: "timestamp"
+  visibility: "PUBLIC"
+  lifecycle_state: "PUBLISHED"
   plans:
   - name: "API_KEY"
     description: "API_KEY"
     security: "API_KEY"
     flows:
-    - name: "traffic"
-      path-operator:
+    - path-operator:
         path: "/"
         operator: "STARTS_WITH"
       pre:
-      - name: "rate-limit"
+      - name: "Rate limit"
         enabled: ${var.rate_limit.enabled}
         policy: "rate-limit"
         configuration:
+          addHeaders: false
           rate:
             periodTime: ${var.rate_limit.per}
             limit: ${var.rate_limit.rate}
             periodTimeUnit: "SECONDS"
-      - name: "quota"
+      - name: "Quota"
         enabled: ${var.quota.enabled}
         policy: "quota"
         configuration:
+          addHeaders: true
           quota:
             periodTime: ${var.quota.per}
             limit: ${var.quota.rate}

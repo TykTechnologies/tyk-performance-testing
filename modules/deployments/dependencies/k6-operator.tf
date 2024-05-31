@@ -4,9 +4,8 @@ resource "helm_release" "k6-operator" {
   chart      = "k6-operator"
   version    = "1.2.0"
 
-  namespace        = var.namespace
-  create_namespace = true
-  atomic           = true
+  namespace = var.namespace
+  atomic    = true
 
   set {
     name  = "namespace.create"
@@ -27,4 +26,6 @@ resource "helm_release" "k6-operator" {
     name  = "nodeSelector.node"
     value = var.label
   }
+
+  depends_on = [kubernetes_namespace.dependencies]
 }
