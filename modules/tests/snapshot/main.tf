@@ -10,7 +10,7 @@ terraform {
 locals {
   buffer    = 4
   delay     = (var.duration + local.buffer) * 60
-  timeout   = var.duration * 2
+  timeout   = (var.duration + local.buffer) * 2
   timestamp = formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())
 }
 
