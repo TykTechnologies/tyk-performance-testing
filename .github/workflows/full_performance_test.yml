@@ -177,3 +177,50 @@ jobs:
         if: ${{ inputs.tests_httpbin_enabled == true }}
         run: |
           kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=job-name=snapshot-job-httpbin -o jsonpath='{.items[-1].metadata.name}') --tail=1
+
+      - name: Destroy Tests
+        run: |
+          cd tests
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Destroy testing resources
+        run: |
+          cd deployments
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="grafana_service_type=LoadBalancer" \
+            --auto-approve
+
+      - name: Destroy AKS cluster
+        if: ${{ inputs.cloud == 'Azure' }}
+        run: |
+          cd aks
+          terraform init
+          terraform destroy \
+            --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
+
+      - name: Destroy EKS cluster
+        if: ${{ inputs.cloud == 'AWS' }}
+        run: |
+          cd eks
+          terraform init
+          terraform destroy \
+            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
+
+      - name: Destroy GKE cluster
+        if: ${{ inputs.cloud == 'GCP' }}
+        run: |
+          cd gke
+          terraform init
+          terraform destroy \
+            --var="project=${{ secrets.GCP_PROJECT }}" \
+            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
