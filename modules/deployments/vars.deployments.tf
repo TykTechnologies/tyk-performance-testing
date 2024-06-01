@@ -22,6 +22,7 @@ variable "gravitee" {
     enabled         = bool
     version         = string
     deployment_type = string
+    nginx_enabled   = bool
   })
 }
 

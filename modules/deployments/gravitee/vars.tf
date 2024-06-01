@@ -14,3 +14,7 @@ variable "resources-label" {
 variable "gateway_version" {
   type = string
 }
+
+variable "nginx_enabled" {
+  type = bool
+}

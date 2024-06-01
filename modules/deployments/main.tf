@@ -86,6 +86,7 @@ module "gravitee" {
   resources-label = var.labels.gravitee-resources
 
   gateway_version = var.gravitee.version
+  nginx_enabled   = var.gravitee.nginx_enabled
 
   deployment_type         = var.gravitee.deployment_type
   hpa                     = var.hpa

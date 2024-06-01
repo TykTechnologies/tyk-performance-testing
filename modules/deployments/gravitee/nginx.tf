@@ -27,5 +27,6 @@ resource "helm_release" "gravitee-nginx" {
     value = "0"
   }
 
+  count      = var.nginx_enabled ? 1 : 0
   depends_on = [kubernetes_namespace.gravitee]
 }

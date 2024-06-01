@@ -72,6 +72,7 @@ module "deployments" {
     enabled         = var.gravitee_enabled
     version         = var.gravitee_version
     deployment_type = var.gravitee_deployment_type
+    nginx_enabled   = var.gravitee_nginx_enabled
   }
 
   dependencies = {

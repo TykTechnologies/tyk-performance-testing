@@ -15,3 +15,9 @@ variable "gravitee_deployment_type" {
   default     = "Deployment"
   description = "Gravitee Gateway deployment type."
 }
+
+variable "gravitee_nginx_enabled" {
+  type        = bool
+  default     = false
+  description = "Gravitee Nginx controller for exposing UI and Portal."
+}

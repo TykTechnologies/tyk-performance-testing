@@ -36,5 +36,6 @@ kong_deployment_type = "Deployment"
 gravitee_enabled         = false
 gravitee_version         = "4.3.5"
 gravitee_deployment_type = "Deployment"
+gravitee_nginx_enabled   = false
 
 grafana_service_type = "ClusterIP"
