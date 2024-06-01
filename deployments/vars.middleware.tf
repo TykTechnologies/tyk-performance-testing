@@ -13,7 +13,7 @@ variable "analytics_prometheus_enabled" {
 variable "auth_enabled" {
   type        = bool
   default     = false
-  description = "Enables authentication on gateway APIs."
+  description = "Enables authorization on gateway APIs."
 }
 
 variable "quota_enabled" {
@@ -35,8 +35,9 @@ variable "quota_per" {
 }
 
 variable "rate_limit_enabled" {
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
+  description = "Enables rate limiting on gateway APIs."
 }
 
 variable "rate_limit_rate" {

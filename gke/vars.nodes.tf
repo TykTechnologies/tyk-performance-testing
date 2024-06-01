@@ -35,31 +35,37 @@ variable "dependencies_machine_type" {
 }
 
 variable "services_nodes_count" {
-  type    = number
-  default = 1
+  type        = number
+  default     = 1
+  description = "Number of nodes for each of the gateway services."
 }
 
 variable "resource_nodes_count" {
-  type    = number
-  default = 1
+  type        = number
+  default     = 1
+  description = "Number of nodes for each of the gateway resources."
 }
 
 variable "dependencies_nodes_count" {
-  type    = number
-  default = 1
+  type        = number
+  default     = 1
+  description = "Number of nodes for the test dependencies."
 }
 
 variable "tyk_enabled" {
-  type    = bool
-  default = true
+  type        = bool
+  default     = true
+  description = "Enable Tyk services."
 }
 
 variable "kong_enabled" {
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
+  description = "Enable Kong services."
 }
 
 variable "gravitee_enabled" {
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
+  description = "Enable Gravitee services."
 }
