@@ -168,15 +168,10 @@ jobs:
           echo "#
           echo "###################################################################
 
-      - name: Grafana timestamp test snapshot
-        if: ${{ inputs.tests_timestamp_enabled == true }}
+      - name: Test Grafana Snapshot
+        if: ${{ inputs.tests_timestamp_enabled == true || inputs.tests_httpbin_enabled == true }}
         run: |
-          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=job-name=snapshot-job-timestamp -o jsonpath='{.items[-1].metadata.name}') --tail=1
-
-      - name: Grafana httpbin test snapshot
-        if: ${{ inputs.tests_httpbin_enabled == true }}
-        run: |
-          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=job-name=snapshot-job-httpbin -o jsonpath='{.items[-1].metadata.name}') --tail=1
+          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
 
       - name: Destroy Tests
         run: |
