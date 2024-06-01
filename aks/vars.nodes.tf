@@ -6,26 +6,31 @@ variable "cluster_machine_type" {
 
 variable "service_machine_type" {
   type        = string
+  default     = ""
   description = "Machine type for services, overrides cluster_machine_type."
 }
 
 variable "upstream_machine_type" {
   type        = string
+  default     = ""
   description = "Machine type for upstreams, overrides cluster_machine_type."
 }
 
 variable "tests_machine_type" {
   type        = string
+  default     = ""
   description = "Machine type for tests, overrides cluster_machine_type."
 }
 
 variable "resources_machine_type" {
   type        = string
+  default     = ""
   description = "Machine type for resources, overrides cluster_machine_type."
 }
 
 variable "dependencies_machine_type" {
   type        = string
+  default     = ""
   description = "Machine type for dependencies, overrides cluster_machine_type."
 }
 
