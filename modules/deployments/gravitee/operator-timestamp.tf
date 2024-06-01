@@ -68,9 +68,9 @@ spec:
         configuration:
           addHeaders: true
           quota:
-            periodTime: ${var.quota.per}
+            periodTime: ${floor(var.quota.per / 3600)}
             limit: ${var.quota.rate}
-            periodTimeUnit: "SECONDS"
+            periodTimeUnit: "HOURS"
   proxy:
     virtual_hosts:
     - path: "/timestamp"

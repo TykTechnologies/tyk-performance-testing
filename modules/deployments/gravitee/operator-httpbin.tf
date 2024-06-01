@@ -59,7 +59,7 @@ spec:
         configuration:
           addHeaders: false
           rate:
-            periodTime: ${var.rate_limit.per}
+            periodTime: ${floor(var.quota.per / 3600)}
             limit: ${var.rate_limit.rate}
             periodTimeUnit: "SECONDS"
       - name: "Quota"
@@ -70,7 +70,7 @@ spec:
           quota:
             periodTime: ${var.quota.per}
             limit: ${var.quota.rate}
-            periodTimeUnit: "SECONDS"
+            periodTimeUnit: "HOURS"
   proxy:
     virtual_hosts:
     - path: "/httpbin"

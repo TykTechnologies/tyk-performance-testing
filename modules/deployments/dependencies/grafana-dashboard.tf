@@ -91,7 +91,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
+        "h": 5,
         "w": 6,
         "x": 0,
         "y": 1
@@ -142,6 +142,91 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "shades"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null+nan",
+                "result": {
+                  "index": 0,
+                  "text": "0"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8438fa",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 6,
+        "y": 1
+      },
+      "id": 161,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "uniqueValues"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by(method) (k6_http_reqs_total{group!=\"::setup\"})",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "K6 HTTP Request Type(s)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -174,9 +259,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
+        "h": 5,
+        "w": 3,
+        "x": 9,
         "y": 1
       },
       "id": 156,
@@ -254,8 +339,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
+        "h": 5,
+        "w": 3,
         "x": 12,
         "y": 1
       },
@@ -335,9 +420,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
+        "h": 5,
+        "w": 3,
+        "x": 15,
         "y": 1
       },
       "id": 157,
@@ -417,108 +502,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 7
-      },
-      "id": 161,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(method) (k6_http_reqs_total{group!=\"::setup\"})",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "K6 HTTP Request Type(s)",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 13
-      },
-      "id": 162,
-      "panels": [],
-      "title": "Deployments Information",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "shades"
-          },
-          "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 14
+        "h": 5,
+        "w": 2,
+        "x": 18,
+        "y": 1
       },
       "id": 163,
       "interval": "1s",
@@ -600,265 +587,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 14
-      },
-      "id": 166,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_auth{})",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Auth",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "shades"
-          },
-          "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 12,
-        "y": 14
-      },
-      "id": 168,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_quota{})",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Quota",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "shades"
-          },
-          "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 14
-      },
-      "id": 172,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_rate_limit{})",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Rate",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "shades"
-          },
-          "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 0,
-        "y": 20
+        "h": 5,
+        "w": 2,
+        "x": 20,
+        "y": 1
       },
       "id": 164,
       "interval": "1s",
@@ -940,10 +672,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 3,
-        "y": 20
+        "h": 5,
+        "w": 2,
+        "x": 22,
+        "y": 1
       },
       "id": 165,
       "interval": "1s",
@@ -991,6 +723,91 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "shades"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null+nan",
+                "result": {
+                  "index": 0,
+                  "text": "0"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8438fa",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 0,
+        "y": 6
+      },
+      "id": 166,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "uniqueValues"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by(isEnabled) (k6_deployment_config_auth{})",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Auth",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1023,10 +840,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
-        "y": 20
+        "h": 5,
+        "w": 3,
+        "x": 3,
+        "y": 6
       },
       "id": 167,
       "interval": "1s",
@@ -1063,7 +880,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "AuthToken Count",
+      "title": "Auth Token Count",
       "type": "stat"
     },
     {
@@ -1105,10 +922,95 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 12,
-        "y": 20
+        "h": 5,
+        "w": 2,
+        "x": 6,
+        "y": 6
+      },
+      "id": 168,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "uniqueValues"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by(isEnabled) (k6_deployment_config_quota{})",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Quota",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "shades"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null+nan",
+                "result": {
+                  "index": 0,
+                  "text": "0"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8438fa",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 2,
+        "x": 8,
+        "y": 6
       },
       "id": 171,
       "interval": "1s",
@@ -1190,10 +1092,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 15,
-        "y": 20
+        "h": 5,
+        "w": 2,
+        "x": 10,
+        "y": 6
       },
       "id": 170,
       "interval": "1s",
@@ -1233,7 +1135,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Per",
+      "title": "Per (secs)",
       "type": "stat"
     },
     {
@@ -1275,10 +1177,95 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 18,
-        "y": 20
+        "h": 5,
+        "w": 2,
+        "x": 12,
+        "y": 6
+      },
+      "id": 172,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "uniqueValues"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by(isEnabled) (k6_deployment_config_rate_limit{})",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Rate Limit",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "shades"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null+nan",
+                "result": {
+                  "index": 0,
+                  "text": "0"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8438fa",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 2,
+        "x": 14,
+        "y": 6
       },
       "id": 173,
       "interval": "1s",
@@ -1360,10 +1347,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 21,
-        "y": 20
+        "h": 5,
+        "w": 2,
+        "x": 16,
+        "y": 6
       },
       "id": 174,
       "interval": "1s",
@@ -1403,7 +1390,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Per",
+      "title": "Per (secs)",
       "type": "stat"
     },
     {
@@ -1445,10 +1432,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 26
+        "h": 5,
+        "w": 3,
+        "x": 18,
+        "y": 6
       },
       "id": 175,
       "interval": "1s",
@@ -1530,10 +1517,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 0,
-        "y": 32
+        "h": 5,
+        "w": 3,
+        "x": 21,
+        "y": 6
       },
       "id": 176,
       "interval": "1s",
@@ -1582,7 +1569,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 11
       },
       "id": 47,
       "panels": [],
@@ -1598,52 +1585,36 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 25
+              },
+              {
+                "color": "green",
+                "value": 75
               }
             ]
           },
           "unit": "reqps"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "  -"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "without testid -"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 7,
         "w": 6,
         "x": 0,
-        "y": 39
+        "y": 12
       },
       "id": 158,
       "interval": "1s",
@@ -1695,56 +1666,36 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": null
               },
               {
+                "color": "green",
+                "value": 25
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 75
               }
             ]
           },
           "unit": "s"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "  -"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "without testid -"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 7,
         "w": 6,
         "x": 6,
-        "y": 39
+        "y": 12
       },
       "id": 122,
       "options": {
@@ -1795,7 +1746,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "decimals": 2,
           "mappings": [
@@ -1811,15 +1762,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             }
           ],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": null
               },
               {
+                "color": "green",
+                "value": 25
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 75
               }
             ]
           },
@@ -1841,10 +1796,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 7,
         "w": 6,
         "x": 12,
-        "y": 39
+        "y": 12
       },
       "id": 52,
       "options": {
@@ -1895,56 +1850,36 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": null
               },
               {
+                "color": "green",
+                "value": 25
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 75
               }
             ]
           },
           "unit": "s"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "  -"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "without testid -"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 7,
         "w": 6,
         "x": 18,
-        "y": 39
+        "y": 12
       },
       "id": 126,
       "options": {
@@ -2049,10 +1984,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 19
       },
       "id": 123,
       "options": {
@@ -2153,10 +2088,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 19
       },
       "id": 125,
       "options": {
@@ -2445,10 +2380,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 61
+        "y": 30
       },
       "id": 14,
       "interval": "5",
@@ -2516,7 +2451,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "decimals": 2,
           "mappings": [
@@ -2532,7 +2467,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             }
           ],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
@@ -2540,7 +2475,11 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 25
+              },
+              {
+                "color": "green",
+                "value": 75
               }
             ]
           },
@@ -2562,10 +2501,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 6,
         "x": 12,
-        "y": 61
+        "y": 30
       },
       "id": 49,
       "options": {
@@ -2614,25 +2553,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "red",
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "dark-blue",
+                "color": "red",
                 "value": null
               },
               {
@@ -2643,26 +2571,13 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "unit": "reqs"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": " -"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "without testid"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 6,
         "x": 18,
-        "y": 61
+        "y": 30
       },
       "id": 71,
       "interval": "1s",
@@ -2789,10 +2704,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 74
+        "y": 41
       },
       "id": 18,
       "interval": "5s",
@@ -2849,23 +2764,13 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "fieldMinMax": false,
+          "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
@@ -2873,32 +2778,23 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 25
+              },
+              {
+                "color": "green",
+                "value": 75
               }
             ]
           },
           "unit": "decbytes"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": " -"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "without testid -"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 6,
         "x": 12,
-        "y": 74
+        "y": 41
       },
       "id": 64,
       "options": {
@@ -2949,23 +2845,12 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
@@ -2973,32 +2858,23 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 25
+              },
+              {
+                "color": "green",
+                "value": 75
               }
             ]
           },
           "unit": "decbytes"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "  -"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "without testid -"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 6,
         "x": 18,
-        "y": 74
+        "y": 41
       },
       "id": 63,
       "options": {
@@ -3046,7 +2922,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 87
+        "y": 52
       },
       "id": 127,
       "panels": [],
@@ -3115,10 +2991,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 88
+        "y": 53
       },
       "id": 136,
       "options": {
@@ -3243,10 +3119,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 88
+        "y": 53
       },
       "id": 137,
       "options": {
@@ -3372,10 +3248,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 101
+        "y": 64
       },
       "id": 128,
       "options": {
@@ -3500,10 +3376,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 101
+        "y": 64
       },
       "id": 130,
       "options": {
@@ -3629,10 +3505,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 114
+        "y": 75
       },
       "id": 151,
       "options": {
@@ -3702,7 +3578,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 127
+        "y": 86
       },
       "id": 135,
       "panels": [],
@@ -3757,7 +3633,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3770,10 +3647,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 128
+        "y": 87
       },
       "id": 138,
       "options": {
@@ -3884,7 +3761,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3897,10 +3775,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 128
+        "y": 87
       },
       "id": 144,
       "options": {
@@ -4012,7 +3890,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4025,10 +3904,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 141
+        "y": 98
       },
       "id": 131,
       "options": {
@@ -4139,7 +4018,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4152,10 +4032,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 141
+        "y": 98
       },
       "id": 139,
       "options": {
@@ -4225,7 +4105,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 154
+        "y": 109
       },
       "id": 140,
       "panels": [],
@@ -4280,7 +4160,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4293,10 +4174,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 155
+        "y": 110
       },
       "id": 133,
       "options": {
@@ -4381,7 +4262,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4394,10 +4276,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 155
+        "y": 110
       },
       "id": 134,
       "options": {
@@ -4441,7 +4323,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 168
+        "y": 121
       },
       "id": 142,
       "panels": [],
@@ -4496,7 +4378,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4509,10 +4392,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 169
+        "y": 122
       },
       "id": 143,
       "options": {
@@ -4623,7 +4506,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4636,10 +4520,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 169
+        "y": 122
       },
       "id": 132,
       "options": {
@@ -4751,7 +4635,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4764,10 +4649,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 182
+        "y": 133
       },
       "id": 145,
       "options": {
@@ -4878,7 +4763,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4891,10 +4777,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 182
+        "y": 133
       },
       "id": 146,
       "options": {
@@ -4964,7 +4850,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 195
+        "y": 144
       },
       "id": 141,
       "panels": [],
@@ -5019,7 +4905,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5032,10 +4919,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 196
+        "y": 145
       },
       "id": 147,
       "options": {
@@ -5146,7 +5033,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5159,10 +5047,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 196
+        "y": 145
       },
       "id": 150,
       "options": {
@@ -5274,7 +5162,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5287,10 +5176,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 0,
-        "y": 209
+        "y": 156
       },
       "id": 148,
       "options": {
@@ -5401,7 +5290,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5414,10 +5304,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 11,
         "w": 12,
         "x": 12,
-        "y": 209
+        "y": 156
       },
       "id": 149,
       "options": {
@@ -5482,7 +5372,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "type": "timeseries"
     }
   ],
-  "refresh": "5m",
+  "refresh": "auto",
   "revision": 1,
   "schemaVersion": 39,
   "tags": [
