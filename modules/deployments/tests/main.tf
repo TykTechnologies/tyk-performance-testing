@@ -58,29 +58,32 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
   },
 });
 
-const addTestInfoMetrics = ({ analytics, auth, quota, rate_limit, duration, rate, virtual_users }, key_count) => {
+const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
   analyticsGauge.add(1, {
-    enabled: analytics.database.enabled || analytics.prometheus.enabled ? "Enabled" : "Disabled",
-    database: analytics.database.enabled ? "Enabled" : "Disabled",
-    prometheus: analytics.prometheus.enabled ? "Enabled" : "Disabled",
+    isEnabled: ${var.analytics.database.enabled} || ${var.analytics.prometheus.enabled} ? "Enabled" : "Disabled",
+    database: ${var.analytics.database.enabled} ? "Enabled" : "Disabled",
+    prometheus: ${var.analytics.prometheus.enabled} ? "Enabled" : "Disabled",
   });
 
   authGauge.add(key_count, {
-    enabled: auth.enabled ? "Enabled" : "Disabled",
+    isEnabled: ${var.auth.enabled} ? "Enabled" : "Disabled",
   });
 
-  quotaGauge.add(quota.rate, {
-    enabled: quota.enabled ? "Enabled" : "Disabled",
-    per: quota.per,
+  quotaGauge.add(1, {
+    isEnabled: ${var.quota.enabled} ? "Enabled" : "Disabled",
+    rate: ${var.quota.rate},
+    per: ${var.quota.per},
   });
 
-  rateLimitGauge.add(rate_limit.rate, {
-    enabled: rate_limit.enabled ? "Enabled" : "Disabled",
-    per: rate_limit.per,
+  rateLimitGauge.add(1, {
+    isEnabled: ${var.rate_limit.enabled} ? "Enabled" : "Disabled",
+    rate: ${var.rate_limit.rate},
+    per: ${var.rate_limit.per},
   });
 
-  openTelemetryGauge.add(open_telemetry.sampling_ratio, {
-    enabled: open_telemetry.enabled ? "Enabled" : "Disabled",
+  openTelemetryGauge.add(${var.open_telemetry.sampling_ratio}, {
+    isEnabled: ${var.open_telemetry.enabled} ? "Enabled" : "Disabled",
+    sampling_ratio: ${var.open_telemetry.sampling_ratio},
   });
 
   durationGauge.add(duration);
