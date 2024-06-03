@@ -62,7 +62,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -147,7 +147,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -473,7 +473,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -558,7 +558,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -643,7 +643,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -728,7 +728,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -893,7 +893,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -978,7 +978,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -1063,7 +1063,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -1148,7 +1148,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -1233,7 +1233,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -1318,7 +1318,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -1403,7 +1403,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
@@ -1488,7 +1488,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
-            "mode": "shades"
+            "mode": "fixed"
           },
           "decimals": 2,
           "mappings": [
