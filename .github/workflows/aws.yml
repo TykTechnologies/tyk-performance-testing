@@ -31,14 +31,18 @@ jobs:
       - name: Create Terraform Cloud descriptors
         run: |
           cp eks/terraform.cloud.tf.example eks/terraform.cloud.tf
+          cp eks/main.tfvars.example eks/main.tfvars
           cp .github/eks/deployments.tf deployments/terraform.cloud.tf
+          cp deployments/main.tfvars.example deployments/main.tfvars
           cp .github/eks/tests.tf tests/terraform.cloud.tf
+          cp tests/main.tfvars.example tests/main.tfvars
 
       - name: Stand up EKS cluster
         run: |
           cd eks
           terraform init
           terraform apply \
+            --var-file=main.tfvars \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve
@@ -54,6 +58,7 @@ jobs:
           cd deployments
           terraform init
           terraform apply \
+            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --auto-approve
@@ -63,6 +68,7 @@ jobs:
           cd tests
           terraform init
           terraform apply \
+            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
 
@@ -74,6 +80,7 @@ jobs:
         run: |
           cd tests
           terraform destroy \
+            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
 
@@ -81,6 +88,7 @@ jobs:
         run: |
           cd deployments
           terraform destroy \
+            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="grafana_service_type=LoadBalancer" \
@@ -90,6 +98,7 @@ jobs:
         run: |
           cd eks
           terraform destroy \
+            --var-file=main.tfvars \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --auto-approve

@@ -35,14 +35,18 @@ jobs:
       - name: Create Terraform Cloud descriptors
         run: |
           cp gke/terraform.cloud.tf.example gke/terraform.cloud.tf
+          cp gke/main.tfvars.example gke/main.tfvars
           cp .github/gke/deployments.tf deployments/terraform.cloud.tf
+          cp deployments/main.tfvars.example deployments/main.tfvars
           cp .github/gke/tests.tf tests/terraform.cloud.tf
+          cp tests/main.tfvars.example tests/main.tfvars
 
       - name: Stand up GKE cluster
         run: |
           cd gke
           terraform init
           terraform apply \
+            --var-file=main.tfvars \
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
@@ -61,6 +65,7 @@ jobs:
           cd deployments
           terraform init
           terraform apply \
+            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --auto-approve
@@ -70,6 +75,7 @@ jobs:
           cd tests
           terraform init
           terraform apply \
+            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
 
@@ -81,6 +87,7 @@ jobs:
         run: |
           cd tests
           terraform destroy \
+            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
 
@@ -88,6 +95,7 @@ jobs:
         run: |
           cd deployments
           terraform destroy \
+            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="grafana_service_type=LoadBalancer" \
@@ -97,6 +105,7 @@ jobs:
         run: |
           cd gke
           terraform destroy \
+            --var-file=main.tfvars \
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
