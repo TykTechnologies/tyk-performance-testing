@@ -91,11 +91,6 @@ resource "helm_release" "tyk" {
   }
 
   set {
-    name  = "tyk-dashboard.dashboard.image.tag"
-    value = var.gateway_version
-  }
-
-  set {
     name  = "tyk-gateway.gateway.image.tag"
     value = var.gateway_version
   }
