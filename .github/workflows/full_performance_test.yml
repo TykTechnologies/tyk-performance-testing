@@ -145,7 +145,6 @@ jobs:
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
-            --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
       - name: Run Tests
@@ -157,16 +156,6 @@ jobs:
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
             --auto-approve
-
-      - name: Access to Grafana Dashboard
-        run: |
-          echo "###################################################################
-          echo "#
-          echo "# http://$(kubectl get svc -n dependencies grafana -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
-          echo "# Username: admin"
-          echo "# Password: topsecretpassword"
-          echo "#
-          echo "###################################################################
 
       - name: Test Grafana Snapshot
         if: ${{ inputs.tests_timestamp_enabled == true || inputs.tests_httpbin_enabled == true }}
@@ -193,7 +182,6 @@ jobs:
         if: ${{ inputs.cloud == 'Azure' }}
         run: |
           cd aks
-          terraform init
           terraform destroy \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
@@ -203,7 +191,6 @@ jobs:
         if: ${{ inputs.cloud == 'AWS' }}
         run: |
           cd eks
-          terraform init
           terraform destroy \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
@@ -213,7 +200,6 @@ jobs:
         if: ${{ inputs.cloud == 'GCP' }}
         run: |
           cd gke
-          terraform init
           terraform destroy \
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \

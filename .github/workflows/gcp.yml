@@ -1,0 +1,103 @@
+name: GCP PR Performance Test
+on:
+  pull_request:
+    types: [ closed ]
+
+concurrency:
+  group: "GCP"
+
+jobs:
+  gcp:
+    name: "GCP PT Test"
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate into gcloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Install gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2.1.0
+
+      - name: Install gcloud k8s auth component
+        run: gcloud components install gke-gcloud-auth-plugin
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_version: "1.8.2"
+
+      - name: Create Terraform Cloud descriptors
+        run: |
+          cp gke/terraform.cloud.tf.example gke/terraform.cloud.tf
+          cp .github/gke/deployments.tf deployments/terraform.cloud.tf
+          cp .github/gke/tests.tf tests/terraform.cloud.tf
+
+      - name: Stand up GKE cluster
+        run: |
+          cd gke
+          terraform init
+          terraform apply \
+            --var="project=${{ secrets.GCP_PROJECT }}" \
+            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
+
+      - name: Connect to GKE cluster
+        run: |
+          gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --zone "${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --project "${{ secrets.GCP_PROJECT }}"
+          
+          kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Deploy testing resources
+        run: |
+          cd deployments
+          terraform init
+          terraform apply \
+            --var="kubernetes_config_context=performance-testing" \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --auto-approve
+
+      - name: Run Tests
+        run: |
+          cd tests
+          terraform init
+          terraform apply \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Test Grafana Snapshot
+        run: |
+          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
+
+      - name: Destroy Tests
+        run: |
+          cd tests
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Destroy testing resources
+        run: |
+          cd deployments
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="grafana_service_type=LoadBalancer" \
+            --auto-approve
+
+      - name: Destroy GKE cluster
+        run: |
+          cd gke
+          terraform destroy \
+            --var="project=${{ secrets.GCP_PROJECT }}" \
+            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
