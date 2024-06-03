@@ -91,7 +91,9 @@ const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
   virtualUsersGauge.add(virtual_users);
 };
 
-export { getScenarios, addTestInfoMetrics };
+const getAuth = () => ${var.auth.enabled};
+
+export { getAuth, getScenarios, addTestInfoMetrics };
 
 EOF
   }

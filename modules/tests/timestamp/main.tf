@@ -16,7 +16,7 @@ resource "kubernetes_config_map" "timestamp-configmap" {
   data = {
     "timestamp.js" = <<EOF
 import http from 'k6/http';
-import { getScenarios, addTestInfoMetrics } from "/helpers/tests.js";
+import { getAuth, getScenarios, addTestInfoMetrics } from "/helpers/tests.js";
 import { generateKeys } from "/helpers/auth.js";
 
 const { SCENARIO } = __ENV;
@@ -27,7 +27,7 @@ export const options = {
 
 export function setup() {
   addTestInfoMetrics(${jsonencode(var.config)}, ${var.config.auth.key_count});
-  if (${var.config.auth.enabled}) {
+  if (getAuth()) {
     return generateKeys("timestamp", ${var.config.auth.key_count})
   }
   return {};
@@ -35,7 +35,7 @@ export function setup() {
 
 export default function (keys) {
   let headers = {};
-  if (${var.config.auth.enabled}) {
+  if (getAuth()) {
     const i = Math.floor(Math.random() * keys.length);
     headers = { "Authorization": keys[i] }
   }

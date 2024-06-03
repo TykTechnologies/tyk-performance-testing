@@ -25,7 +25,6 @@ module "tests" {
       parallelism   = var.tests_config_parallelism
 
       auth = {
-        enabled   = var.tests_config_auth_enabled
         key_count = var.tests_config_auth_key_count
       }
     }

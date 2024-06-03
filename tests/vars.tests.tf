@@ -16,12 +16,6 @@ variable "tests_config_executor" {
   description = "Choose the executor for the test. Options are: 'constant-vus', 'ramping-vus', 'constant-arrival-rate', 'ramping-arrival-rate'."
 }
 
-variable "tests_config_auth_enabled" {
-  type        = bool
-  default     = false
-  description = "Enable Token Authentication."
-}
-
 variable "tests_config_auth_key_count" {
   type        = number
   default     = 100

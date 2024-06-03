@@ -16,7 +16,6 @@ variable "config" {
     parallelism   = number
 
     auth = object({
-      enabled   = bool
       key_count = number
     })
   })
