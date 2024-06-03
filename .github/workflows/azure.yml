@@ -1,0 +1,94 @@
+name: Azure PR Performance Test
+on:
+  pull_request:
+    types: [ closed ]
+
+concurrency:
+  group: "Azure"
+
+jobs:
+  azure:
+    name: "Azure PT Test"
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AKS credentials
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_version: "1.8.2"
+
+      - name: Create Terraform Cloud descriptors
+        run: |
+          cp aks/terraform.cloud.tf.example aks/terraform.cloud.tf
+          cp .github/aks/deployments.tf deployments/terraform.cloud.tf
+          cp .github/aks/tests.tf tests/terraform.cloud.tf
+
+      - name: Stand up AKS cluster
+        run: |
+          cd aks
+          terraform init
+          terraform apply \
+            --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
+
+      - name: Connect to AKS cluster
+        run: |
+          az aks get-credentials \
+            --resource-group "pt-${{ vars.AZURE_CLUSTER_LOCATION }}" \
+            --name "pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Deploy testing resources
+        run: |
+          cd deployments
+          terraform init
+          terraform apply \
+            --var="kubernetes_config_context=performance-testing" \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --auto-approve
+
+      - name: Run Tests
+        run: |
+          cd tests
+          terraform init
+          terraform apply \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Test Grafana Snapshot
+        run: kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
+
+      - name: Destroy Tests
+        run: |
+          cd tests
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Destroy testing resources
+        run: |
+          cd deployments
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="grafana_service_type=LoadBalancer" \
+            --auto-approve
+
+      - name: Destroy AKS cluster
+        run: |
+          cd aks
+          terraform destroy \
+            --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve

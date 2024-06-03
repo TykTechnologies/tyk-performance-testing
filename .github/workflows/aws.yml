@@ -1,0 +1,95 @@
+name: AWS PR Performance Test
+on:
+  pull_request:
+    types: [ closed ]
+
+concurrency:
+  group: "AWS"
+
+jobs:
+  aws:
+    name: "AWS PT Test"
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_version: "1.8.2"
+
+      - name: Create Terraform Cloud descriptors
+        run: |
+          cp eks/terraform.cloud.tf.example eks/terraform.cloud.tf
+          cp .github/eks/deployments.tf deployments/terraform.cloud.tf
+          cp .github/eks/tests.tf tests/terraform.cloud.tf
+
+      - name: Stand up EKS cluster
+        run: |
+          cd eks
+          terraform init
+          terraform apply \
+            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
+
+      - name: Connect to EKS cluster
+        run: |
+          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Deploy testing resources
+        run: |
+          cd deployments
+          terraform init
+          terraform apply \
+            --var="kubernetes_config_context=performance-testing" \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --auto-approve
+
+      - name: Run Tests
+        run: |
+          cd tests
+          terraform init
+          terraform apply \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Test Grafana Snapshot
+        run: |
+          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
+
+      - name: Destroy Tests
+        run: |
+          cd tests
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Destroy testing resources
+        run: |
+          cd deployments
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="grafana_service_type=LoadBalancer" \
+            --auto-approve
+
+      - name: Destroy EKS cluster
+        run: |
+          cd eks
+          terraform destroy \
+            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+            --auto-approve
