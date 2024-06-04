@@ -22,6 +22,7 @@ import { generateKeys } from "/helpers/auth.js";
 const { SCENARIO } = __ENV;
 export const options = {
   discardResponseBodies: true,
+  setupTimeout: '300s',
   scenarios: { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
 };
 
