@@ -298,27 +298,5 @@ resource "helm_release" "tyk" {
     value = var.resources-label
   }
 
-  set {
-    name  = "tyk-pump.pump.extraEnvs[0].name"
-    value = "TYK_PMP_ANALYTICSSTORAGECONFIG_MAXIDLE"
-  }
-
-  set {
-    name  = "tyk-pump.pump.extraEnvs[0].value"
-    type  = "string"
-    value = "1000"
-  }
-
-  set {
-    name  = "tyk-pump.pump.extraEnvs[1].name"
-    value = "TYK_PMP_ANALYTICSSTORAGECONFIG_MAXACTIVE"
-  }
-
-  set {
-    name  = "tyk-pump.pump.extraEnvs[1].value"
-    type  = "string"
-    value = "10000"
-  }
-
   depends_on = [helm_release.tyk-redis, helm_release.tyk-pgsql]
 }
