@@ -1649,12 +1649,12 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "{{testid}}  -",
+          "legendFormat": "{{testid}} -",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "RPS",
+      "title": "Peak RPS",
       "type": "stat"
     },
     {
