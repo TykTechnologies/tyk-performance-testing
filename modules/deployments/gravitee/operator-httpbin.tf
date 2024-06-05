@@ -58,6 +58,7 @@ spec:
         policy: "rate-limit"
         configuration:
           addHeaders: false
+          async: false
           rate:
             periodTime: ${floor(var.quota.per / 3600)}
             limit: ${var.rate_limit.rate}
@@ -67,6 +68,7 @@ spec:
         policy: "quota"
         configuration:
           addHeaders: true
+          async: false
           quota:
             periodTime: ${var.quota.per}
             limit: ${var.quota.rate}
