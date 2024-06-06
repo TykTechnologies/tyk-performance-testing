@@ -1585,7 +1585,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "decimals": 2,
           "mappings": [],
@@ -1595,14 +1595,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 25
-              },
-              {
-                "color": "green",
-                "value": 75
               }
             ]
           },
@@ -1666,7 +1658,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "decimals": 2,
           "mappings": [],
@@ -1676,14 +1668,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "green",
-                "value": 25
-              },
-              {
-                "color": "red",
-                "value": 75
               }
             ]
           },
@@ -1734,7 +1718,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "P99 Response Time",
+      "title": "P99 Duration Time",
       "type": "stat"
     },
     {
@@ -1746,7 +1730,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "decimals": 2,
           "mappings": [
@@ -1767,33 +1751,12 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "green",
-                "value": 25
-              },
-              {
-                "color": "red",
-                "value": 75
               }
             ]
           },
           "unit": "s"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "  -"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "without testid -"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -1838,7 +1801,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "P95 Response Time",
+      "title": "P95 Duration Time",
       "type": "stat"
     },
     {
@@ -1850,7 +1813,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "decimals": 2,
           "mappings": [],
@@ -1860,14 +1823,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "green",
-                "value": 25
-              },
-              {
-                "color": "red",
-                "value": 75
               }
             ]
           },
@@ -1918,7 +1873,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "P90 Response Time",
+      "title": "P90 Waiting Time",
       "type": "stat"
     },
     {
@@ -2451,54 +2406,22 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 25
-              },
-              {
-                "color": "green",
-                "value": 75
               }
             ]
           },
           "unit": "short"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": " -"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "without testid -"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 11,
@@ -2553,7 +2476,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "red",
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "mappings": [],
           "thresholds": {
@@ -2562,10 +2485,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "color": "red",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 0
               }
             ]
           },
@@ -2764,7 +2683,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "decimals": 2,
           "fieldMinMax": false,
@@ -2775,14 +2694,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 25
-              },
-              {
-                "color": "green",
-                "value": 75
               }
             ]
           },
@@ -2845,7 +2756,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "defaults": {
           "color": {
             "fixedColor": "text",
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "decimals": 2,
           "mappings": [],
@@ -2855,14 +2766,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 25
-              },
-              {
-                "color": "green",
-                "value": 75
               }
             ]
           },
@@ -3444,6 +3347,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "type": "timeseries"
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 75
+      },
+      "id": 192,
+      "panels": [],
+      "title": "Horizontal Scaling",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
@@ -3508,7 +3424,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 75
+        "y": 76
       },
       "id": 151,
       "options": {
@@ -3578,7 +3494,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 86
+        "y": 87
       },
       "id": 135,
       "panels": [],
@@ -3650,7 +3566,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 87
+        "y": 88
       },
       "id": 138,
       "options": {
@@ -3778,7 +3694,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 87
+        "y": 88
       },
       "id": 144,
       "options": {
@@ -3907,7 +3823,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 98
+        "y": 99
       },
       "id": 131,
       "options": {
@@ -4035,7 +3951,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 98
+        "y": 99
       },
       "id": 139,
       "options": {
@@ -4105,7 +4021,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 109
+        "y": 110
       },
       "id": 140,
       "panels": [],
@@ -4177,7 +4093,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 110
+        "y": 111
       },
       "id": 133,
       "options": {
@@ -4279,7 +4195,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 110
+        "y": 111
       },
       "id": 134,
       "options": {
@@ -4323,7 +4239,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 121
+        "y": 122
       },
       "id": 142,
       "panels": [],
@@ -4395,7 +4311,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 122
+        "y": 123
       },
       "id": 143,
       "options": {
@@ -4523,7 +4439,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 122
+        "y": 123
       },
       "id": 132,
       "options": {
@@ -4652,7 +4568,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 133
+        "y": 134
       },
       "id": 145,
       "options": {
@@ -4780,7 +4696,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 133
+        "y": 134
       },
       "id": 146,
       "options": {
@@ -4850,7 +4766,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 144
+        "y": 145
       },
       "id": 141,
       "panels": [],
@@ -4922,7 +4838,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 145
+        "y": 146
       },
       "id": 147,
       "options": {
@@ -5050,7 +4966,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 145
+        "y": 146
       },
       "id": 150,
       "options": {
@@ -5179,7 +5095,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 156
+        "y": 157
       },
       "id": 148,
       "options": {
@@ -5307,7 +5223,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 156
+        "y": 157
       },
       "id": 149,
       "options": {
@@ -5372,7 +5288,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "type": "timeseries"
     }
   ],
-  "refresh": "auto",
+  "refresh": "5s",
   "revision": 1,
   "schemaVersion": 39,
   "tags": [
