@@ -49,7 +49,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "id": 152,
       "panels": [],
-      "title": "Test Infromation",
+      "title": "Test Information",
       "type": "row"
     },
     {
@@ -65,18 +65,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -92,7 +81,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 3,
         "x": 0,
         "y": 1
       },
@@ -150,18 +139,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -178,7 +156,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 5,
         "w": 3,
-        "x": 6,
+        "x": 3,
         "y": 1
       },
       "id": 161,
@@ -233,18 +211,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -261,7 +228,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 5,
         "w": 3,
-        "x": 9,
+        "x": 6,
         "y": 1
       },
       "id": 156,
@@ -313,18 +280,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -341,7 +297,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 5,
         "w": 3,
-        "x": 12,
+        "x": 9,
         "y": 1
       },
       "id": 160,
@@ -394,18 +350,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "fieldMinMax": false,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -422,7 +367,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 5,
         "w": 3,
-        "x": 15,
+        "x": 12,
         "y": 1
       },
       "id": 157,
@@ -476,18 +421,84 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "fieldMinMax": false,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8438fa",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 15,
+        "y": 1
+      },
+      "id": 196,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (instance_id) (k6_http_reqs_total{group!=\"::setup\"})",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "K6 Test Pods",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -535,7 +546,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_analytics{})",
+          "expr": "avg by(isEnabled) (k6_deployment_config_analytics)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -561,18 +572,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -620,7 +620,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(database) (k6_deployment_config_analytics{})",
+          "expr": "avg by(database) (k6_deployment_config_analytics)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -646,18 +646,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -705,7 +694,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(prometheus) (k6_deployment_config_analytics{})",
+          "expr": "avg by(prometheus) (k6_deployment_config_analytics)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -731,18 +720,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -790,7 +768,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_auth{})",
+          "expr": "avg by(isEnabled) (k6_deployment_config_auth)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -814,18 +792,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -896,18 +863,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -955,7 +911,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_quota{})",
+          "expr": "avg by(isEnabled) (k6_deployment_config_quota)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -981,18 +937,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1040,7 +985,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(rate) (k6_deployment_config_quota{})",
+          "expr": "avg by(rate) (k6_deployment_config_quota)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1066,18 +1011,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1125,7 +1059,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(per) (k6_deployment_config_quota{})",
+          "expr": "avg by(per) (k6_deployment_config_quota)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1151,18 +1085,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1210,7 +1133,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_rate_limit{})",
+          "expr": "avg by(isEnabled) (k6_deployment_config_rate_limit)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1236,18 +1159,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1295,7 +1207,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(rate) (k6_deployment_config_rate_limit{})",
+          "expr": "avg by(rate) (k6_deployment_config_rate_limit)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1321,18 +1233,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1380,7 +1281,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(per) (k6_deployment_config_rate_limit{})",
+          "expr": "avg by(per) (k6_deployment_config_rate_limit)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1406,18 +1307,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1465,7 +1355,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_open_telemetry{})",
+          "expr": "avg by(isEnabled) (k6_deployment_config_open_telemetry)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1491,18 +1381,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1550,7 +1429,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(sampling_ratio) (k6_deployment_config_open_telemetry{})",
+          "expr": "avg by(sampling_ratio) (k6_deployment_config_open_telemetry)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1636,7 +1515,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(testid) (rate(k6_http_reqs_total{testid=~\"$testid\",group!=\"::setup\"}[$__rate_interval]))",
+          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[$__rate_interval]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1730,7 +1609,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (testid) (k6_http_reqs_total{testid=~\"$testid\", group!=\"::setup\"})",
+          "expr": "sum by (testid) (k6_http_reqs_total{group!=\"::setup\"})",
           "hide": true,
           "instant": false,
           "legendFormat": "__auto",
@@ -1811,7 +1690,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (testid) (k6_http_req_duration_p99{group!=\"::setup\", expected_response=\"true\"})",
+          "expr": "avg by (testid) (k6_http_req_duration_p99{group!=\"::setup\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1836,18 +1715,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "palette-classic"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null+nan",
-                "result": {
-                  "index": 0,
-                  "text": "0"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "percentage",
             "steps": [
@@ -1894,7 +1762,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (testid) (k6_http_req_duration_p95{group!=\"::setup\", expected_response=\"true\"})",
+          "expr": "avg by (testid) (k6_http_req_duration_p95{group!=\"::setup\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1966,7 +1834,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (testid) (k6_http_req_duration_p90{group!=\"::setup\", expected_response=\"true\"})",
+          "expr": "avg by (testid) (k6_http_req_duration_p90{group!=\"::setup\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2034,9 +1902,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(testid) (k6_http_reqs_total{testid=~\"$testid\",group!=\"::setup\", expected_response=\"false\"})",
+          "expr": "sum by(testid) (k6_http_reqs_total{group!=\"::setup\", expected_response=\"false\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2338,7 +2206,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum by(testid) (rate(k6_http_reqs_total{testid=~\"$testid\",group!=\"::setup\"}[$__rate_interval]))",
+          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[$__rate_interval]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2354,7 +2222,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(testid) (sum by(testid) (rate(k6_http_reqs_total{testid=~\"$testid\",group!=\"::setup\", expected_response=\"false\"}[$__rate_interval])))",
+          "expr": "avg by(testid) (sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\", expected_response=\"false\"}[$__rate_interval])))",
           "hide": false,
           "instant": false,
           "legendFormat": "Failed Requests Rate  - {{testid}}",
@@ -2422,7 +2290,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (testid) (k6_http_reqs_total{testid=~\"$testid\", group!=\"::setup\"})",
+          "expr": "sum by (testid) (k6_http_reqs_total{group!=\"::setup\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2530,7 +2398,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum by(testid) (k6_vus{testid=~\"$testid\",group!=\"::setup\"})",
+          "expr": "sum by(testid) (k6_vus{group!=\"::setup\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2599,7 +2467,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(testid) (avg_over_time(k6_vus{testid=~\"$testid\",group!=\"::setup\"}[$__rate_interval]))",
+          "expr": "sum by(testid) (avg_over_time(k6_vus{group!=\"::setup\"}[$__rate_interval]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2864,7 +2732,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -2971,7 +2840,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "percentage",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -3042,7 +2912,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "percentage",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -3157,7 +3028,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3284,7 +3156,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3412,7 +3285,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3539,7 +3413,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3680,7 +3555,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3821,7 +3697,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3948,7 +3825,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4076,7 +3954,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4203,7 +4082,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4344,7 +4224,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4445,7 +4326,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4560,7 +4442,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4687,7 +4570,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4815,7 +4699,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4942,7 +4827,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5083,7 +4969,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5210,7 +5097,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5338,7 +5226,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5465,7 +5354,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5546,7 +5436,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "type": "timeseries"
     }
   ],
-  "refresh": "5s",
+  "refresh": "",
   "revision": 1,
   "schemaVersion": 39,
   "tags": [
@@ -5600,8 +5490,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
     ]
   },
   "time": {
-    "from": "now-30m",
-    "to": "now"
+    "from": "2024-06-06T18:20:30.000Z",
+    "to": "2024-06-06T18:38:30.000Z"
   },
   "timepicker": {},
   "timezone": "",
