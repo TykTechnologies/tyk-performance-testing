@@ -1811,12 +1811,12 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (testid) (k6_http_req_duration_p99)",
+          "expr": "avg by (testid) (k6_http_req_duration_p99{group!=\"::setup\", expected_response=\"true\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "{{testid}}  -",
+          "legendFormat": "{{testid}} -",
           "range": true,
           "refId": "A"
         }
@@ -1894,12 +1894,12 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (testid) (k6_http_req_duration_p95)",
+          "expr": "avg by (testid) (k6_http_req_duration_p95{group!=\"::setup\", expected_response=\"true\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "{{testid}}  -",
+          "legendFormat": "{{testid}} -",
           "range": true,
           "refId": "A"
         }
@@ -1966,12 +1966,12 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (testid) (k6_http_req_duration_p90)",
+          "expr": "avg by (testid) (k6_http_req_duration_p90{group!=\"::setup\", expected_response=\"true\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "{{testid}}  -",
+          "legendFormat": "{{testid}} -",
           "range": true,
           "refId": "A"
         }
@@ -3088,7 +3088,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "{{testid}}  -",
+          "legendFormat": "{{testid}} -",
           "range": true,
           "refId": "A"
         }
