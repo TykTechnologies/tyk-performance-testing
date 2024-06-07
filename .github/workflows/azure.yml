@@ -43,6 +43,8 @@ jobs:
             --var-file=main.tfvars \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
       - name: Connect to AKS cluster
@@ -100,4 +102,6 @@ jobs:
             --var-file=main.tfvars \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
             --auto-approve

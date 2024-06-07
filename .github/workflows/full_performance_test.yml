@@ -89,6 +89,8 @@ jobs:
           terraform apply \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
       - name: Connect to AKS cluster
@@ -108,6 +110,8 @@ jobs:
           terraform apply \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
       - name: Connect to EKS cluster
@@ -126,6 +130,8 @@ jobs:
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
       - name: Connect to GKE cluster
@@ -186,6 +192,8 @@ jobs:
           terraform destroy \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
       - name: Destroy EKS cluster
@@ -195,6 +203,8 @@ jobs:
           terraform destroy \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
       - name: Destroy GKE cluster
@@ -205,4 +215,6 @@ jobs:
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
             --auto-approve
