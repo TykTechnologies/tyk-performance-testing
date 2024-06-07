@@ -65,7 +65,7 @@ quota_rate                    = 999999
 quota_per                     = 3600
 rate_limit_enabled            = false
 rate_limit_rate               = 999999
-rate_limit_per                = 1
+rate_limit_per                = 60
 open_telemetry_enabled        = false
 open_telemetry_sampling_ratio = "0.5"
 
@@ -113,5 +113,5 @@ tests_config_executor      = "constant-arrival-rate"
 tests_config_duration      = 15
 tests_config_rate          = 20000
 tests_config_virtual_users = 50
-tests_config_parallelism   = 4
+tests_config_parallelism   = 1
 ```

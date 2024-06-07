@@ -22,7 +22,7 @@
 | <a name="input_tests_config_auth_key_count"></a> [tests\_config\_auth\_key\_count](#input\_tests\_config\_auth\_key\_count) | Number of Authentication Tokens used for the test per test worker (tests\_config\_parallelism). | `number` | `100` | no |
 | <a name="input_tests_config_duration"></a> [tests\_config\_duration](#input\_tests\_config\_duration) | Test duration in minutes. | `number` | `15` | no |
 | <a name="input_tests_config_executor"></a> [tests\_config\_executor](#input\_tests\_config\_executor) | Choose the executor for the test. Options are: 'constant-vus', 'ramping-vus', 'constant-arrival-rate', 'ramping-arrival-rate'. | `string` | `"constant-arrival-rate"` | no |
-| <a name="input_tests_config_parallelism"></a> [tests\_config\_parallelism](#input\_tests\_config\_parallelism) | Number of workers for the tests. | `number` | `4` | no |
+| <a name="input_tests_config_parallelism"></a> [tests\_config\_parallelism](#input\_tests\_config\_parallelism) | Number of workers for the tests. | `number` | `1` | no |
 | <a name="input_tests_config_ramping_steps"></a> [tests\_config\_ramping\_steps](#input\_tests\_config\_ramping\_steps) | Number of ramping steps for the test, applies for 'ramping-vus' and 'ramping-arrival-rate' executors. | `number` | `10` | no |
 | <a name="input_tests_config_rate"></a> [tests\_config\_rate](#input\_tests\_config\_rate) | Test RPS, applies for 'constant-arrival-rate' and 'ramping-arrival-rate' executors. | `number` | `20000` | no |
 | <a name="input_tests_config_virtual_users"></a> [tests\_config\_virtual\_users](#input\_tests\_config\_virtual\_users) | Number of virtual users to be used for the test. | `number` | `50` | no |

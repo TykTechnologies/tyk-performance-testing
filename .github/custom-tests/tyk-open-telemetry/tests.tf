@@ -11,4 +11,4 @@ tests_config_executor      = "constant-vus"
 tests_config_duration      = 15
 tests_config_rate          = 20000
 tests_config_virtual_users = 50
-tests_config_parallelism   = 4
+tests_config_parallelism   = 1

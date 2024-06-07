@@ -48,7 +48,7 @@ variable "rate_limit_rate" {
 
 variable "rate_limit_per" {
   type        = number
-  default     = 1
+  default     = 60
   description = "Rate Limit reset interval in seconds."
 }
 
