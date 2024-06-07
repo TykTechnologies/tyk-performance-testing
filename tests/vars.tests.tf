@@ -48,6 +48,6 @@ variable "tests_config_virtual_users" {
 
 variable "tests_config_parallelism" {
   type        = number
-  default     = 4
+  default     = 1
   description = "Number of workers for the tests."
 }
