@@ -21,6 +21,11 @@ resource "helm_release" "kong" {
   namespace = var.namespace
   atomic    = true
 
+  set {
+    name  = "image.tag"
+    value = var.gateway_version
+  }
+
   #############################################################################
   # Performance
   #############################################################################
