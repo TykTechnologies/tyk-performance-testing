@@ -116,7 +116,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -229,7 +229,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -359,7 +359,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -378,7 +378,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -486,7 +486,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -505,7 +505,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -614,7 +614,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -633,7 +633,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -744,7 +744,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -763,7 +763,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -878,7 +878,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -897,7 +897,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1010,7 +1010,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1029,7 +1029,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1142,7 +1142,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1161,7 +1161,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1274,7 +1274,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1293,7 +1293,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1404,7 +1404,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1423,7 +1423,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1533,7 +1533,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1552,7 +1552,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1665,7 +1665,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1684,7 +1684,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1797,7 +1797,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1816,7 +1816,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1929,7 +1929,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1948,7 +1948,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2061,7 +2061,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2080,7 +2080,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2193,7 +2193,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2212,7 +2212,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2325,7 +2325,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2344,7 +2344,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2457,7 +2457,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2476,7 +2476,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2893,7 +2893,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2912,7 +2912,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -3153,7 +3153,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -3172,7 +3172,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -3282,7 +3282,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -3301,7 +3301,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -3746,7 +3746,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -3889,7 +3889,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -3908,7 +3908,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4020,7 +4020,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4039,7 +4039,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4177,14 +4177,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4196,14 +4192,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4215,10 +4207,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
               }
             ]
           }
@@ -4339,14 +4327,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4358,14 +4342,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4377,10 +4357,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
               }
             ]
           }
@@ -4496,14 +4472,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4515,14 +4487,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4534,10 +4502,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
               }
             ]
           }
@@ -4640,7 +4604,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4659,7 +4623,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4770,7 +4734,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4789,7 +4753,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4948,7 +4912,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4967,7 +4931,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5134,7 +5098,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5153,7 +5117,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5314,14 +5278,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5333,14 +5293,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5352,10 +5308,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
               }
             ]
           }
@@ -5500,14 +5452,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5519,14 +5467,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5538,10 +5482,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
               }
             ]
           }
@@ -5707,7 +5647,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5726,7 +5666,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5907,7 +5847,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5926,7 +5866,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6093,7 +6033,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6112,7 +6052,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6273,14 +6213,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6292,14 +6228,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6311,10 +6243,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
               }
             ]
           }
@@ -6459,14 +6387,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6478,14 +6402,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6497,10 +6417,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
               }
             ]
           }
@@ -6666,7 +6582,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6685,7 +6601,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6826,7 +6742,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6845,7 +6761,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7000,7 +6916,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7019,7 +6935,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7186,7 +7102,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7205,7 +7121,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7373,7 +7289,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7392,7 +7308,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7444,6 +7360,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"tyk-upstream\",namespace=\"tyk-upstream\"}[5m])) by (pod)",
           "format": "time_series",
           "fullMetaSearch": false,
+          "hide": false,
           "includeNullMetadata": true,
           "instant": false,
           "legendFormat": "__auto",
@@ -7559,7 +7476,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7578,7 +7495,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7759,7 +7676,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7778,7 +7695,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7945,7 +7862,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7964,7 +7881,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -8132,7 +8049,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -8151,7 +8068,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -8318,7 +8235,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-                    {
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -8337,7 +8254,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-{
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"

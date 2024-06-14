@@ -30,6 +30,14 @@ gcloud container clusters get-credentials pt-us-west1-a \
    --project ce-team-zaid
 ```
 
+### Feature matrix
+
+| Gateway  | Database Analytics | Prometheus Analytics | Auth               | Quota                             | Rate Limiting      | Open Telemetry     |
+|----------|--------------------|----------------------|--------------------|-----------------------------------|--------------------|--------------------|
+| Tyk      | :white_check_mark: | :white_check_mark:   | :white_check_mark: | :white_check_mark:                | :white_check_mark: | :white_check_mark: |
+| Kong     | :x:                | :white_check_mark:   | :white_check_mark: | Implemented through Rate Limiting | :white_check_mark: | :white_check_mark: |
+| Gravitee | :white_check_mark: | :white_check_mark:   | :white_check_mark: | Implemented through Rate Limiting | :white_check_mark: | :x:                |
+
 ##### Self-managed cluster requirements
 To run the tests on your own cluster, you will need node labels that can house the different deployments and resources.
 
