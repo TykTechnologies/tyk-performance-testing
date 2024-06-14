@@ -1,7 +1,6 @@
 variable "tests" {
   type = object({
-    timestamp     = bool
-    httpbin       = bool
+    timestamp = bool
     config = object({
       executor      = string
       ramping_steps = number

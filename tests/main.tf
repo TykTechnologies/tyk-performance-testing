@@ -15,7 +15,6 @@ module "tests" {
 
   tests = {
     timestamp = var.tests_timestamp_enabled
-    httpbin   = var.tests_httpbin_enabled
     config = {
       executor      = var.tests_config_executor
       ramping_steps = var.tests_config_ramping_steps
