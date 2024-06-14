@@ -1,5 +1,4 @@
 resource "kubectl_manifest" "timestamp-keyless" {
-  force_new = true
   yaml_body = <<YAML
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
@@ -32,12 +31,11 @@ spec:
       - name: "Default"
         target: "http://timestamp.gravitee-upstream.svc:3100"
 YAML
-  depends_on = [kubectl_manifest.gravitee-context]
+  depends_on = [helm_release.gravitee-operator, kubectl_manifest.gravitee-context]
   count      = ! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }
 
 resource "kubectl_manifest" "timestamp" {
-  force_new = true
   yaml_body = <<YAML
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
@@ -97,6 +95,6 @@ spec:
       - name: "Default"
         target: "http://timestamp.gravitee-upstream.svc:3100"
 YAML
-  depends_on = [kubectl_manifest.gravitee-context]
+  depends_on = [helm_release.gravitee-operator, kubectl_manifest.gravitee-context]
   count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }

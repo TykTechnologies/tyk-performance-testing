@@ -1,5 +1,4 @@
 resource "kubectl_manifest" "timestamp" {
-  force_new = true
   yaml_body = <<YAML
 apiVersion: networking.k8s.io/v1
 kind: Ingress

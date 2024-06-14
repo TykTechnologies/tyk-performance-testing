@@ -1,5 +1,4 @@
 resource "kubectl_manifest" "timestamp" {
-  force_new = true
   yaml_body = <<YAML
 apiVersion: tyk.tyk.io/v1alpha1
 kind: ApiDefinition
@@ -34,7 +33,6 @@ YAML
 }
 
 resource "kubectl_manifest" "timestamp-policy" {
-  force_new = true
   yaml_body = <<YAML
 apiVersion: tyk.tyk.io/v1alpha1
 kind: SecurityPolicy

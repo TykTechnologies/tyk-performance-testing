@@ -35,6 +35,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
   "fiscalYearStartMonth": 0,
   "gnetId": 18030,
   "graphTooltip": 1,
+  "id": 1,
   "links": [],
   "liveNow": true,
   "panels": [
@@ -89,6 +90,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
@@ -104,10 +109,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -119,6 +128,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -209,10 +222,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -224,6 +241,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
@@ -239,6 +260,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -327,10 +352,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -342,10 +371,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -357,6 +390,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -442,10 +479,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -457,10 +498,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -472,6 +517,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -558,10 +607,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -573,10 +626,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -588,6 +645,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -676,10 +737,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -691,10 +756,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -706,6 +775,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -798,10 +871,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -813,10 +890,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -828,6 +909,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -918,10 +1003,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -933,10 +1022,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -948,6 +1041,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -1038,10 +1135,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1053,10 +1154,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1068,6 +1173,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -1158,10 +1267,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1173,10 +1286,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1188,6 +1305,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -1276,10 +1397,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1291,10 +1416,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1306,6 +1435,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -1393,10 +1526,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1408,10 +1545,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1423,6 +1564,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -1513,10 +1658,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1528,10 +1677,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1543,6 +1696,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -1633,10 +1790,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1648,10 +1809,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1663,6 +1828,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -1753,10 +1922,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1768,10 +1941,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1783,6 +1960,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -1873,10 +2054,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -1888,10 +2073,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -1903,6 +2092,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -1993,10 +2186,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2008,10 +2205,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2023,6 +2224,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -2113,10 +2318,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2128,10 +2337,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2143,6 +2356,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -2233,10 +2450,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2248,10 +2469,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2263,6 +2488,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -2365,6 +2594,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
@@ -2380,6 +2613,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
@@ -2395,6 +2632,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -2484,6 +2725,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
@@ -2499,6 +2744,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
@@ -2514,6 +2763,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -2633,10 +2886,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2648,10 +2905,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2663,6 +2924,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -2751,6 +3016,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
@@ -2766,6 +3035,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
@@ -2781,6 +3054,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -2869,10 +3146,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -2884,10 +3165,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -2899,6 +3184,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -2986,10 +3275,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -3001,10 +3294,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -3016,6 +3313,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -3419,6 +3720,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
@@ -3434,10 +3739,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -3449,6 +3758,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -3569,10 +3882,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -3584,10 +3901,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -3599,6 +3920,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -3688,10 +4013,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -3703,10 +4032,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -3718,6 +4051,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -3816,7 +4153,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3839,10 +4177,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -3854,10 +4196,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -3869,6 +4215,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -3965,7 +4315,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -3988,10 +4339,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4003,10 +4358,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4018,6 +4377,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -4109,7 +4472,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4132,10 +4496,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4147,10 +4515,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4162,6 +4534,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -4237,7 +4613,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "percentage",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -4256,10 +4633,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4271,10 +4652,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4286,6 +4671,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -4354,7 +4743,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "percentage",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -4373,10 +4763,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4388,10 +4782,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4403,6 +4801,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -4515,7 +4917,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4538,10 +4941,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4553,10 +4960,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4568,6 +4979,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -4688,7 +5103,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4711,10 +5127,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4726,10 +5146,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4741,6 +5165,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -4862,7 +5290,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4885,10 +5314,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -4900,10 +5333,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -4915,6 +5352,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -5035,7 +5476,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5058,10 +5500,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5073,10 +5519,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5088,6 +5538,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -5222,7 +5676,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5245,10 +5700,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5260,10 +5719,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5275,6 +5738,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -5409,7 +5876,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5432,10 +5900,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5447,10 +5919,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5462,6 +5938,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -5582,7 +6062,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5605,10 +6086,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5620,10 +6105,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5635,6 +6124,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -5756,7 +6249,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5779,10 +6273,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5794,10 +6292,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5809,6 +6311,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -5929,7 +6435,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5952,10 +6459,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -5967,10 +6478,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -5982,6 +6497,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -6116,7 +6635,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6139,10 +6659,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6154,10 +6678,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6169,6 +6697,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -6263,7 +6795,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6286,10 +6819,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6301,10 +6838,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6316,6 +6857,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -6424,7 +6969,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6447,10 +6993,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6462,10 +7012,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6477,6 +7031,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -6597,7 +7155,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6620,10 +7179,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6635,10 +7198,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6650,6 +7217,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -6771,7 +7342,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6794,10 +7366,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6809,10 +7385,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6824,6 +7404,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -6944,7 +7528,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6967,10 +7552,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -6982,10 +7571,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -6997,6 +7590,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -7131,7 +7728,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7154,10 +7752,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7169,10 +7771,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7184,6 +7790,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -7304,7 +7914,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7327,10 +7938,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7342,10 +7957,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7357,6 +7976,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -7478,7 +8101,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7501,10 +8125,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7516,10 +8144,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7531,6 +8163,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
@@ -7651,7 +8287,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7674,10 +8311,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#20edba",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
               }
             ]
           },
-          {
+                    {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*kong.*/"
@@ -7689,10 +8330,14 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#1155cb",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
               }
             ]
           },
-          {
+{
             "matcher": {
               "id": "byRegexp",
               "options": "/.*gravitee.*/"
@@ -7704,6 +8349,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "#fe733f",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
               }
             ]
           }
