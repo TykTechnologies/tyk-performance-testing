@@ -1,10 +1,18 @@
 resource "kubectl_manifest" "timestamp" {
+  force_new = true
   yaml_body = <<YAML
 apiVersion: tyk.tyk.io/v1alpha1
 kind: ApiDefinition
 metadata:
   name: timestamp
   namespace: ${var.namespace}
+  annotations:
+    pt-annotations-auth: "${var.auth.enabled}"
+    pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
+    pt-annotations-quota: "${var.quota.enabled}"
+    pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
+    pt-annotations-analytics-database: "${var.analytics.database.enabled}"
+    pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
   name: timestamp
   protocol: http
@@ -26,12 +34,20 @@ YAML
 }
 
 resource "kubectl_manifest" "timestamp-policy" {
+  force_new = true
   yaml_body = <<YAML
 apiVersion: tyk.tyk.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: timestamp-policy
   namespace: ${var.namespace}
+  annotations:
+    pt-annotations-auth: "${var.auth.enabled}"
+    pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
+    pt-annotations-quota: "${var.quota.enabled}"
+    pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
+    pt-annotations-analytics-database: "${var.analytics.database.enabled}"
+    pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
   name: timestamp-policy
   state: active

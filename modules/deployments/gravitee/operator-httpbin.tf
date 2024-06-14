@@ -1,10 +1,18 @@
 resource "kubectl_manifest" "httpbin-keyless" {
+  force_new = true
   yaml_body = <<YAML
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
   name: "httpbin"
   namespace: "${var.namespace}"
+  annotations:
+    pt-annotations-auth: "${var.auth.enabled}"
+    pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
+    pt-annotations-quota: "${var.quota.enabled}"
+    pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
+    pt-annotations-analytics-database: "${var.analytics.database.enabled}"
+    pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
   name: "httpbin"
   contextRef:
@@ -29,12 +37,20 @@ YAML
 }
 
 resource "kubectl_manifest" "httpbin" {
+  force_new = true
   yaml_body = <<YAML
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
   name: "httpbin"
   namespace: "${var.namespace}"
+  annotations:
+    pt-annotations-auth: "${var.auth.enabled}"
+    pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
+    pt-annotations-quota: "${var.quota.enabled}"
+    pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
+    pt-annotations-analytics-database: "${var.analytics.database.enabled}"
+    pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
   name: "httpbin"
   contextRef:

@@ -12,7 +12,7 @@ module "kong-httpbin" {
   source = "./httpbin"
 
   name   = "kong"
-  url    = ""
+  url    = "kong-gateway-proxy.kong.svc:80"
   config = var.tests.config
 
   count = var.tests.httpbin == true && var.kong.enabled == true ? 1 : 0
