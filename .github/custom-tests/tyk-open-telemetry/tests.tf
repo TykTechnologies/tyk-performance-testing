@@ -5,7 +5,6 @@ kong_enabled     = false
 gravitee_enabled = false
 
 tests_timestamp_enabled = true
-tests_httpbin_enabled   = false
 
 tests_config_executor      = "constant-vus"
 tests_config_duration      = 15

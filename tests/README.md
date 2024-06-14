@@ -26,6 +26,5 @@
 | <a name="input_tests_config_ramping_steps"></a> [tests\_config\_ramping\_steps](#input\_tests\_config\_ramping\_steps) | Number of ramping steps for the test, applies for 'ramping-vus' and 'ramping-arrival-rate' executors. | `number` | `10` | no |
 | <a name="input_tests_config_rate"></a> [tests\_config\_rate](#input\_tests\_config\_rate) | Test RPS, applies for 'constant-arrival-rate' and 'ramping-arrival-rate' executors. | `number` | `20000` | no |
 | <a name="input_tests_config_virtual_users"></a> [tests\_config\_virtual\_users](#input\_tests\_config\_virtual\_users) | Number of virtual users to be used for the test. | `number` | `50` | no |
-| <a name="input_tests_httpbin_enabled"></a> [tests\_httpbin\_enabled](#input\_tests\_httpbin\_enabled) | Turn on httpbin test. This will return a 200 OK. | `bool` | `false` | no |
 | <a name="input_tests_timestamp_enabled"></a> [tests\_timestamp\_enabled](#input\_tests\_timestamp\_enabled) | Turn on timestamp test. This will return a timestamp json object. | `bool` | `true` | no |
 | <a name="input_tyk_enabled"></a> [tyk\_enabled](#input\_tyk\_enabled) | Enable Tyk services. | `bool` | `true` | no |

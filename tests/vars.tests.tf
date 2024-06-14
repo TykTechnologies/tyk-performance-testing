@@ -4,12 +4,6 @@ variable "tests_timestamp_enabled" {
   description = "Turn on timestamp test. This will return a timestamp json object."
 }
 
-variable "tests_httpbin_enabled" {
-  type        = bool
-  default     = false
-  description = "Turn on httpbin test. This will return a 200 OK."
-}
-
 variable "tests_config_executor" {
   type        = string
   default     = "constant-arrival-rate"

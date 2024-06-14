@@ -6,7 +6,7 @@ variable "kong_enabled" {
 
 variable "kong_version" {
   type        = string
-  default     = "v5"
+  default     = "3.6"
   description = "Kong Gateway version."
 }
 

@@ -30,7 +30,7 @@ tyk_go_gc           = 1600
 tyk_go_max_procs    = 8
 
 kong_enabled         = false
-kong_version         = "v5"
+kong_version         = "3.6"
 kong_deployment_type = "Deployment"
 
 gravitee_enabled         = false

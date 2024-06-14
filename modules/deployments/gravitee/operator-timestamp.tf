@@ -5,6 +5,13 @@ kind: ApiDefinition
 metadata:
   name: "timestamp"
   namespace: "${var.namespace}"
+  annotations:
+    pt-annotations-auth: "${var.auth.enabled}"
+    pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
+    pt-annotations-quota: "${var.quota.enabled}"
+    pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
+    pt-annotations-analytics-database: "${var.analytics.database.enabled}"
+    pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
   name: "timestamp"
   contextRef:
@@ -24,7 +31,7 @@ spec:
       - name: "Default"
         target: "http://timestamp.gravitee-upstream.svc:3100"
 YAML
-  depends_on = [kubectl_manifest.gravitee-context]
+  depends_on = [helm_release.gravitee-operator, kubectl_manifest.gravitee-context]
   count      = ! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }
 
@@ -35,6 +42,13 @@ kind: ApiDefinition
 metadata:
   name: "timestamp"
   namespace: "${var.namespace}"
+  annotations:
+    pt-annotations-auth: "${var.auth.enabled}"
+    pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
+    pt-annotations-quota: "${var.quota.enabled}"
+    pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
+    pt-annotations-analytics-database: "${var.analytics.database.enabled}"
+    pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
   name: "timestamp"
   contextRef:
@@ -81,6 +95,6 @@ spec:
       - name: "Default"
         target: "http://timestamp.gravitee-upstream.svc:3100"
 YAML
-  depends_on = [kubectl_manifest.gravitee-context]
+  depends_on = [helm_release.gravitee-operator, kubectl_manifest.gravitee-context]
   count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }

@@ -24,11 +24,6 @@ on:
         required: false
         default: true
         type: boolean
-      tests_httpbin_enabled:
-        description: 'Enabled Httpbin Test'
-        required: false
-        default: false
-        type: boolean
       tests_duration:
         description: 'Duration of Tests in Minutes'
         required: false
@@ -132,7 +127,6 @@ jobs:
             --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
-            --var="tests_httpbin_enabled=${{ inputs.tests_httpbin_enabled }}" \
             --var="tests_duration=${{ inputs.tests_duration }}" \
             --var="tests_virtual_users=${{ inputs.tests_virtual_users }}" \
             --auto-approve
@@ -149,6 +143,6 @@ jobs:
           echo "###################################################################
 
       - name: Test Grafana Snapshot
-        if: ${{ inputs.tests_timestamp_enabled == true || inputs.tests_httpbin_enabled == true }}
+        if: ${{ inputs.tests_timestamp_enabled == true }}
         run: |
           kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1

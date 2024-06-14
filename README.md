@@ -87,7 +87,7 @@ tyk_go_gc           = 1600
 tyk_go_max_procs    = 8
 
 kong_enabled         = false
-kong_version         = "v5"
+kong_version         = "3.6"
 kong_deployment_type = "Deployment"
 
 gravitee_enabled         = false
@@ -107,7 +107,6 @@ kong_enabled     = false
 gravitee_enabled = false
 
 tests_timestamp_enabled = true
-tests_httpbin_enabled   = false
 
 tests_config_executor      = "constant-arrival-rate"
 tests_config_duration      = 15
