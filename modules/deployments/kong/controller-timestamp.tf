@@ -8,7 +8,7 @@ metadata:
   namespace: "${var.namespace}-upstream"
   annotations:
     konghq.com/strip-path: 'true'
-    konghq.com/plugins: ${join(",", local.plugins)}
+    konghq.com/plugins: "${local.plugins}"
     pt-annotations-auth: "${var.auth.enabled}"
     pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
     pt-annotations-quota: "${var.quota.enabled}"

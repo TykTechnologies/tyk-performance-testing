@@ -1,10 +1,12 @@
 locals {
-  plugins = compact([
+  plugin_list = compact([
       var.auth.enabled || var.quota.enabled || var.rate_limit.enabled ? "auth" : "",
       var.rate_limit.enabled ? "rate-limiting" : "",
       var.quota.enabled ? "quota" : "",
       var.analytics.prometheus.enabled ? "prometheus" : "",
   ])
+  p = join(",", local.plugin_list)
+  plugins = length(local.plugin_list) == 0 ? "" : (local.p == null ? "" : local.p)
 }
 
 resource "kubectl_manifest" "rate-limit-plugin" {
