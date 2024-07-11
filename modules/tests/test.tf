@@ -5,7 +5,7 @@ module "tyk-timestamp" {
   url    = "gateway-svc-tyk-tyk-gateway.tyk.svc:8080"
   config = var.tests.config
 
-  count = var.tests.timestamp == true && var.tyk.enabled == true ? 1 : 0
+  count = var.tyk.enabled == true ? 1 : 0
 }
 
 module "kong-timestamp" {
@@ -15,7 +15,7 @@ module "kong-timestamp" {
   url    = "kong-gateway-proxy.kong.svc:80"
   config = var.tests.config
 
-  count = var.tests.timestamp == true && var.kong.enabled == true ? 1 : 0
+  count = var.kong.enabled == true ? 1 : 0
 }
 
 module "gravitee-timestamp" {
@@ -25,7 +25,7 @@ module "gravitee-timestamp" {
   url    = "gravitee-apim-gateway.gravitee.svc:82"
   config = var.tests.config
 
-  count = var.tests.timestamp == true && var.gravitee.enabled == true ? 1 : 0
+  count = var.gravitee.enabled == true ? 1 : 0
 }
 
 module "test-results-snapshot-timestamp" {
