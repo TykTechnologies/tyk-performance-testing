@@ -1,39 +1,38 @@
-module "tyk-timestamp" {
-  source = "./timestamp"
+module "tyk-test" {
+  source = "test"
 
   name   = "tyk"
   url    = "gateway-svc-tyk-tyk-gateway.tyk.svc:8080"
-  config = var.tests.config
+  config = var.tests
 
   count = var.tyk.enabled == true ? 1 : 0
 }
 
-module "kong-timestamp" {
-  source = "./timestamp"
+module "kong-test" {
+  source = "test"
 
   name   = "kong"
   url    = "kong-gateway-proxy.kong.svc:80"
-  config = var.tests.config
+  config = var.tests
 
   count = var.kong.enabled == true ? 1 : 0
 }
 
-module "gravitee-timestamp" {
-  source = "./timestamp"
+module "gravitee-test" {
+  source = "test"
 
   name   = "gravitee"
   url    = "gravitee-apim-gateway.gravitee.svc:82"
-  config = var.tests.config
+  config = var.tests
 
   count = var.gravitee.enabled == true ? 1 : 0
 }
 
-module "test-results-snapshot-timestamp" {
+module "results-snapshot" {
   source = "./snapshot"
 
-  name     = "timestamp"
-  duration = var.tests.config.duration
+  name     = "snapshot"
+  duration = var.tests.duration
 
-  count      = var.tests.timestamp == true ? 1 : 0
-  depends_on = [module.tyk-timestamp, module.kong-timestamp, module.gravitee-timestamp]
+  depends_on = [module.tyk-test, module.kong-test, module.gravitee-test]
 }

@@ -4,8 +4,8 @@ tyk_enabled      = true
 kong_enabled     = false
 gravitee_enabled = false
 
-tests_config_executor      = "constant-vus"
-tests_config_duration      = 15
-tests_config_rate          = 20000
-tests_config_virtual_users = 50
-tests_config_parallelism   = 1
+tests_executor      = "constant-vus"
+tests_duration      = 15
+tests_rate          = 20000
+tests_virtual_users = 50
+tests_parallelism   = 1
