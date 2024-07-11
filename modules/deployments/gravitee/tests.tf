@@ -21,16 +21,16 @@ resource "kubernetes_config_map" "auth-configmap" {
 import http from 'k6/http';
 import { check, fail } from 'k6';
 
-const getAPIId = (baseURL, apiName) => {
+const getAPIId = (baseURL) => {
   const res = http.get(baseURL + '/apis/', { responseType: 'text' });
   check(res, {
     'apis get call status is 200': (r) => r.status === 200,
   }) || fail('Failed to get APIs');
 
-  const api = res.json().data.find((api) => api.name === apiName);
+  const api = res.json().data.find((api) => api.name === "api");
   check(api, {
-    ['api "' + apiName + '" exists']: (a) => a,
-  }) || fail('API "' + apiName + '" not found');
+    ['api "api" exists']: (a) => a,
+  }) || fail('API "api" not found');
 
   return api.id;
 };
@@ -96,9 +96,9 @@ const createSubscriptions = (baseURL, planId, applicationIds) => {
   return keys;
 };
 
-const generateKeys = (apiName, keyCount) => {
+const generateKeys = (keyCount) => {
   const baseURL = "http://${helm_release.gravitee.name}-apim-api:83/portal/environments/DEFAULT";
-  const apiId = getAPIId(baseURL, apiName);
+  const apiId = getAPIId(baseURL);
   const planId = getPlanId(baseURL, apiId);
   const applicationIds = createApplications(baseURL, keyCount);
 

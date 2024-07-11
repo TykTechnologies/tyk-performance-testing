@@ -14,7 +14,7 @@ resource "kubernetes_config_map" "test-configmap" {
   }
 
   data = {
-    "test.js" = <<EOF
+    "script.js" = <<EOF
 import http from 'k6/http';
 import { getAuth, getScenarios, addTestInfoMetrics } from "/helpers/tests.js";
 import { generateKeys } from "/helpers/auth.js";
@@ -30,7 +30,7 @@ export const options = {
 export function setup() {
   addTestInfoMetrics(${jsonencode(var.config)}, ${var.config.auth.key_count});
   if (getAuth()) {
-    return generateKeys("test", ${var.config.auth.key_count})
+    return generateKeys(${var.config.auth.key_count})
   }
   return {};
 }
@@ -128,7 +128,7 @@ spec:
   script:
     configMap:
       name: test-${var.name}-configmap
-      file: test.js
+      file: script.js
 YAML
 
   depends_on = [kubernetes_config_map.test-configmap]
