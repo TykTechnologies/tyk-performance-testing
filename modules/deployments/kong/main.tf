@@ -91,6 +91,11 @@ resource "helm_release" "kong" {
   }
 
   set {
+    name  = "gateway.postgresql.primary.nodeSelector.node"
+    value = var.resources-label
+  }
+
+  set {
     name  = "gateway.env.database"
     value = "postgres"
   }
