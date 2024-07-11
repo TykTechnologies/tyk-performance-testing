@@ -22,7 +22,7 @@
 | <a name="input_gravitee_deployment_type"></a> [gravitee\_deployment\_type](#input\_gravitee\_deployment\_type) | Gravitee Gateway deployment type. | `string` | `"Deployment"`     | no |
 | <a name="input_gravitee_enabled"></a> [gravitee\_enabled](#input\_gravitee\_enabled) | Enable Gravitee services. | `bool` | `false`            | no |
 | <a name="input_gravitee_nginx_enabled"></a> [gravitee\_nginx\_enabled](#input\_gravitee\_nginx\_enabled) | Gravitee Nginx controller for exposing UI and Portal. | `bool` | `false`            | no |
-| <a name="input_gravitee_version"></a> [gravitee\_version](#input\_gravitee\_version) | Gravitee Gateway version. | `string` | `"4.3.5"`          | no |
+| <a name="input_gravitee_version"></a> [gravitee\_version](#input\_gravitee\_version) | Gravitee Gateway version. | `string` | `"4.4"`          | no |
 | <a name="input_hpa_avg_cpu_util_percentage"></a> [hpa\_avg\_cpu\_util\_percentage](#input\_hpa\_avg\_cpu\_util\_percentage) | Gateways Horizontal Pod Autoscaler average CPU utilization percentage for scaling. | `number` | `80`               | no |
 | <a name="input_hpa_enabled"></a> [hpa\_enabled](#input\_hpa\_enabled) | Option to enable gateways Horizontal Pod Autoscaler. | `bool` | `true`             | no |
 | <a name="input_hpa_max_replica_count"></a> [hpa\_max\_replica\_count](#input\_hpa\_max\_replica\_count) | Gateways Horizontal Pod Autoscaler max replica count. | `number` | `4`                | no |
@@ -50,4 +50,4 @@
 | <a name="input_tyk_go_gc"></a> [tyk\_go\_gc](#input\_tyk\_go\_gc) | Target percentage for garbage collection execution in Go. | `number` | `1600`             | no |
 | <a name="input_tyk_go_max_procs"></a> [tyk\_go\_max\_procs](#input\_tyk\_go\_max\_procs) | Limits the number of operating system threads that can execute user-level Go code simultaneously. Matching the value to threads * cpu limit allows for optimal performance. | `number` | `8`                | no |
 | <a name="input_tyk_license"></a> [tyk\_license](#input\_tyk\_license) | Tyk self-managed license. | `string` | n/a                | yes |
-| <a name="input_tyk_version"></a> [tyk\_version](#input\_tyk\_version) | Tyk Gateway version. | `string` | `"v5.3.1"`         | no |
+| <a name="input_tyk_version"></a> [tyk\_version](#input\_tyk\_version) | Tyk Gateway version. | `string` | `"v5.3"`         | no |
