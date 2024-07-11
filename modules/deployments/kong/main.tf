@@ -96,6 +96,19 @@ resource "helm_release" "kong" {
   }
 
   #############################################################################
+  # Kong Open Telemetry
+  #############################################################################
+  set {
+    name  = "gateway.env.tracing_instrumentations"
+    value = var.open_telemetry.enabled ? "all" : "off"
+  }
+
+  set {
+    name  = "gateway.env.tracing_sampling_rate"
+    value = var.open_telemetry.enabled ? var.open_telemetry.sampling_ratio : "0"
+  }
+
+  #############################################################################
   # Kong services
   #############################################################################
 
