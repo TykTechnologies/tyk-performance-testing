@@ -6105,7 +6105,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "/.*tyk.*/"
+              "options": "tyk"
             },
             "properties": [
               {
@@ -6120,7 +6120,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "/.*kong.*/"
+              "options": "kong"
             },
             "properties": [
               {
@@ -6135,7 +6135,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "/.*gravitee.*/"
+              "options": "gravitee"
             },
             "properties": [
               {
@@ -6255,7 +6255,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "/.*tyk.*/"
+              "options": "tyk"
             },
             "properties": [
               {
@@ -6270,7 +6270,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "/.*kong.*/"
+              "options": "kong"
             },
             "properties": [
               {
@@ -6285,7 +6285,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           {
             "matcher": {
               "id": "byRegexp",
-              "options": "/.*gravitee.*/"
+              "options": "gravitee"
             },
             "properties": [
               {
