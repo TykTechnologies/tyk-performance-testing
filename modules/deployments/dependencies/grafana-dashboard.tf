@@ -35,17 +35,1954 @@ resource "kubernetes_config_map" "grafana-dashboard" {
   "fiscalYearStartMonth": 0,
   "gnetId": 18030,
   "graphTooltip": 1,
-  "id": 1,
   "links": [],
   "liveNow": true,
   "panels": [
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 197,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#20edba",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 0,
+            "y": 1
+          },
+          "id": 198,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Tyk Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#20edba",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 4,
+            "y": 1
+          },
+          "id": 214,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Tyk Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#1155cb",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#1155cb",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 8,
+            "y": 1
+          },
+          "id": 200,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Kong Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#1155cb",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 12,
+            "y": 1
+          },
+          "id": 217,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Kong Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#fe733f",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#1155cb",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 16,
+            "y": 1
+          },
+          "id": 220,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Gravitee Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#fe733f",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 20,
+            "y": 1
+          },
+          "id": 203,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Gravitee Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#20edba",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 0,
+            "y": 6
+          },
+          "id": 213,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk-resources\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Tyk Resources Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#20edba",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 4,
+            "y": 6
+          },
+          "id": 215,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk-resources\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Tyk Resources Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#1155cb",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#1155cb",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 8,
+            "y": 6
+          },
+          "id": 208,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-resources\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Kong Resources Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#1155cb",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 12,
+            "y": 6
+          },
+          "id": 218,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-resources\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Kong Resources Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#fe733f",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#1155cb",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 16,
+            "y": 6
+          },
+          "id": 221,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-resources\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Gravitee Resources Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#fe733f",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 20,
+            "y": 6
+          },
+          "id": 225,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-resources\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Gravitee Resources Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#20edba",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 0,
+            "y": 11
+          },
+          "id": 212,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk-tests\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Tyk Tests Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#20edba",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 4,
+            "y": 11
+          },
+          "id": 216,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk-tests\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Tyk Tests Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#1155cb",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#1155cb",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 8,
+            "y": 11
+          },
+          "id": 207,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-tests\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Kong Tests Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#1155cb",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 12,
+            "y": 11
+          },
+          "id": 201,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-tests\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Kong Tests Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#fe733f",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#1155cb",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 16,
+            "y": 11
+          },
+          "id": 222,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-tests\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Gravitee Tests Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#fe733f",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 20,
+            "y": 11
+          },
+          "id": 224,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-tests\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Gravitee Tests Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#20edba",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 0,
+            "y": 16
+          },
+          "id": 204,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk-upstream\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Tyk Upstream Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#20edba",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 4,
+            "y": 16
+          },
+          "id": 199,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk-upstream\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Tyk Upstream Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#1155cb",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#1155cb",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 8,
+            "y": 16
+          },
+          "id": 206,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-upstream\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Kong Upstream Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#1155cb",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 12,
+            "y": 16
+          },
+          "id": 219,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-upstream\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Kong Upstream Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#fe733f",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#1155cb",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 16,
+            "y": 16
+          },
+          "id": 202,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-upstream\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Gravitee Upstream Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#fe733f",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 20,
+            "y": 16
+          },
+          "id": 223,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-upstream\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Gravitee Upstream Machine Count",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#8438fa",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 12,
+            "x": 0,
+            "y": 21
+          },
+          "id": 226,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "name",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"dependencies\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Dependencies Machine",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "fixedColor": "#8438fa",
+                "mode": "fixed"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#8438fa",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 12,
+            "x": 12,
+            "y": 21
+          },
+          "id": 227,
+          "interval": "1s",
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "uniqueValues"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "value",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"dependencies\"})",
+              "format": "time_series",
+              "hide": false,
+              "instant": false,
+              "interval": "",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Dependencies Machine Count",
+          "type": "stat"
+        }
+      ],
+      "title": "Machines Information",
+      "type": "row"
+    },
     {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 152,
       "panels": [],
@@ -141,7 +2078,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 0,
-        "y": 1
+        "y": 2
       },
       "id": 51,
       "interval": "1s",
@@ -273,7 +2210,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 3,
-        "y": 1
+        "y": 2
       },
       "id": 161,
       "interval": "1s",
@@ -403,7 +2340,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 6,
-        "y": 1
+        "y": 2
       },
       "id": 156,
       "interval": "1s",
@@ -530,7 +2467,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 9,
-        "y": 1
+        "y": 2
       },
       "id": 160,
       "interval": "1s",
@@ -658,7 +2595,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 12,
-        "y": 1
+        "y": 2
       },
       "id": 157,
       "interval": "1s",
@@ -788,7 +2725,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 15,
-        "y": 1
+        "y": 2
       },
       "id": 196,
       "interval": "1s",
@@ -922,7 +2859,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 18,
-        "y": 1
+        "y": 2
       },
       "id": 163,
       "interval": "1s",
@@ -1054,7 +2991,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 20,
-        "y": 1
+        "y": 2
       },
       "id": 164,
       "interval": "1s",
@@ -1186,7 +3123,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 22,
-        "y": 1
+        "y": 2
       },
       "id": 165,
       "interval": "1s",
@@ -1318,7 +3255,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 0,
-        "y": 6
+        "y": 7
       },
       "id": 166,
       "interval": "1s",
@@ -1448,7 +3385,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 3,
-        "y": 6
+        "y": 7
       },
       "id": 167,
       "interval": "1s",
@@ -1577,7 +3514,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 6,
-        "y": 6
+        "y": 7
       },
       "id": 168,
       "interval": "1s",
@@ -1709,7 +3646,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 8,
-        "y": 6
+        "y": 7
       },
       "id": 171,
       "interval": "1s",
@@ -1841,7 +3778,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 10,
-        "y": 6
+        "y": 7
       },
       "id": 170,
       "interval": "1s",
@@ -1973,7 +3910,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 12,
-        "y": 6
+        "y": 7
       },
       "id": 172,
       "interval": "1s",
@@ -2105,7 +4042,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 14,
-        "y": 6
+        "y": 7
       },
       "id": 173,
       "interval": "1s",
@@ -2237,7 +4174,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 16,
-        "y": 6
+        "y": 7
       },
       "id": 174,
       "interval": "1s",
@@ -2369,7 +4306,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 18,
-        "y": 6
+        "y": 7
       },
       "id": 175,
       "interval": "1s",
@@ -2501,7 +4438,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 3,
         "x": 21,
-        "y": 6
+        "y": 7
       },
       "id": 176,
       "interval": "1s",
@@ -2550,7 +4487,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 12
       },
       "id": 47,
       "panels": [],
@@ -2645,7 +4582,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 7,
         "w": 4,
         "x": 0,
-        "y": 12
+        "y": 13
       },
       "id": 158,
       "interval": "1s",
@@ -2776,7 +4713,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 7,
         "w": 4,
         "x": 4,
-        "y": 12
+        "y": 13
       },
       "id": 195,
       "options": {
@@ -2937,7 +4874,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 7,
         "w": 4,
         "x": 8,
-        "y": 12
+        "y": 13
       },
       "id": 122,
       "options": {
@@ -3067,7 +5004,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 7,
         "w": 4,
         "x": 12,
-        "y": 12
+        "y": 13
       },
       "id": 52,
       "options": {
@@ -3197,7 +5134,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 7,
         "w": 4,
         "x": 16,
-        "y": 12
+        "y": 13
       },
       "id": 126,
       "options": {
@@ -3326,7 +5263,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 7,
         "w": 4,
         "x": 20,
-        "y": 12
+        "y": 13
       },
       "id": 71,
       "interval": "1s",
@@ -3624,7 +5561,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 9,
         "x": 0,
-        "y": 19
+        "y": 20
       },
       "id": 193,
       "interval": "5",
@@ -3771,7 +5708,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 3,
         "x": 9,
-        "y": 19
+        "y": 20
       },
       "id": 49,
       "options": {
@@ -3933,7 +5870,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 9,
         "x": 12,
-        "y": 19
+        "y": 20
       },
       "id": 14,
       "interval": "5",
@@ -4064,7 +6001,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 3,
         "x": 21,
-        "y": 19
+        "y": 20
       },
       "id": 194,
       "options": {
@@ -4216,7 +6153,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 31
       },
       "id": 123,
       "options": {
@@ -4366,7 +6303,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 31
       },
       "id": 125,
       "options": {
@@ -4511,7 +6448,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 41
+        "y": 42
       },
       "id": 18,
       "interval": "5s",
@@ -4648,7 +6585,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 41
+        "y": 42
       },
       "id": 64,
       "options": {
@@ -4778,7 +6715,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 41
+        "y": 42
       },
       "id": 63,
       "options": {
@@ -4826,7 +6763,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 53
       },
       "id": 127,
       "panels": [],
@@ -4956,7 +6893,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 53
+        "y": 54
       },
       "id": 136,
       "options": {
@@ -5142,7 +7079,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 53
+        "y": 54
       },
       "id": 137,
       "options": {
@@ -5317,7 +7254,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 64
+        "y": 65
       },
       "id": 128,
       "options": {
@@ -5491,7 +7428,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 64
+        "y": 65
       },
       "id": 130,
       "options": {
@@ -5561,7 +7498,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 76
       },
       "id": 192,
       "panels": [],
@@ -5691,7 +7628,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 76
+        "y": 77
       },
       "id": 151,
       "options": {
@@ -5744,7 +7681,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_status_phase{namespace=\"gravitee\",pod=~\".*kong-gateway.*\",phase=\"Running\"})",
+          "expr": "count(kube_pod_status_phase{namespace=\"kong\",pod=~\".*kong-gateway.*\",phase=\"Running\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Kong",
@@ -5761,7 +7698,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 87
+        "y": 88
       },
       "id": 135,
       "panels": [],
@@ -5891,7 +7828,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 88
+        "y": 89
       },
       "id": 138,
       "options": {
@@ -6077,7 +8014,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 88
+        "y": 89
       },
       "id": 144,
       "options": {
@@ -6252,7 +8189,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 99
+        "y": 100
       },
       "id": 131,
       "options": {
@@ -6426,7 +8363,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 99
+        "y": 100
       },
       "id": 139,
       "options": {
@@ -6496,7 +8433,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 110
+        "y": 111
       },
       "id": 140,
       "panels": [],
@@ -6562,71 +8499,13 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "unit": "none"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 111
+        "y": 112
       },
       "id": 133,
       "options": {
@@ -6722,71 +8601,13 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "unit": "bytes"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 111
+        "y": 112
       },
       "id": 134,
       "options": {
@@ -6830,7 +8651,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 122
+        "y": 123
       },
       "id": 142,
       "panels": [],
@@ -6960,7 +8781,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 123
+        "y": 124
       },
       "id": 143,
       "options": {
@@ -7146,7 +8967,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 123
+        "y": 124
       },
       "id": 132,
       "options": {
@@ -7333,7 +9154,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 134
+        "y": 135
       },
       "id": 145,
       "options": {
@@ -7520,7 +9341,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 134
+        "y": 135
       },
       "id": 146,
       "options": {
@@ -7590,7 +9411,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 145
+        "y": 146
       },
       "id": 141,
       "panels": [],
@@ -7720,7 +9541,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 146
+        "y": 147
       },
       "id": 147,
       "options": {
@@ -7906,7 +9727,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 146
+        "y": 147
       },
       "id": 150,
       "options": {
@@ -8093,7 +9914,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 157
+        "y": 158
       },
       "id": 148,
       "options": {
@@ -8279,7 +10100,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 157
+        "y": 158
       },
       "id": 149,
       "options": {
