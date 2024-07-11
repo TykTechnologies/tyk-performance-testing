@@ -88,7 +88,7 @@ resources_limits_cpu        = "0"
 resources_limits_memory     = "0"
 
 tyk_enabled         = true
-tyk_version         = "v5.3.1"
+tyk_version         = "v5.3"
 tyk_license         = ""
 tyk_deployment_type = "Deployment"
 tyk_go_gc           = 1600
@@ -99,7 +99,7 @@ kong_version         = "3.6"
 kong_deployment_type = "Deployment"
 
 gravitee_enabled         = false
-gravitee_version         = "4.3.5"
+gravitee_version         = "4.4"
 gravitee_deployment_type = "Deployment"
 
 grafana_service_type = "ClusterIP"
@@ -114,11 +114,10 @@ tyk_enabled      = true
 kong_enabled     = false
 gravitee_enabled = false
 
-tests_timestamp_enabled = true
-
-tests_config_executor      = "constant-arrival-rate"
-tests_config_duration      = 15
-tests_config_rate          = 20000
-tests_config_virtual_users = 50
-tests_config_parallelism   = 1
+tests_fortio_options = "size=20"
+tests_executor       = "constant-arrival-rate"
+tests_duration       = 15
+tests_rate           = 20000
+tests_virtual_users  = 50
+tests_parallelism    = 1
 ```

@@ -4,6 +4,7 @@ locals {
       var.rate_limit.enabled ? "rate-limiting" : "",
       var.quota.enabled ? "quota" : "",
       var.analytics.prometheus.enabled ? "prometheus" : "",
+      var.open_telemetry.enabled ? "opentelemetry" : "",
   ])
   p = join(",", local.plugin_list)
   plugins = length(local.plugin_list) == 0 ? "" : (local.p == null ? "" : local.p)
@@ -68,6 +69,22 @@ metadata:
 plugin: prometheus
 config:
   per_consumer: true
+YAML
+  depends_on = [helm_release.kong]
+}
+
+resource "kubectl_manifest" "opentelemetry-plugin" {
+  yaml_body = <<YAML
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: opentelemetry
+  namespace: "${var.namespace}-upstream"
+plugin: opentelemetry
+config:
+  endpoint: http://opentelemetry-collector.dependencies.svc:4317/v1/traces
+  resource_attributes:
+    service.name: kong
 YAML
   depends_on = [helm_release.kong]
 }

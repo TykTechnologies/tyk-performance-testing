@@ -1,9 +1,9 @@
-resource "kubectl_manifest" "timestamp-keyless" {
+resource "kubectl_manifest" "api-keyless" {
   yaml_body = <<YAML
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: "timestamp"
+  name: "api"
   namespace: "${var.namespace}"
   annotations:
     pt-annotations-auth: "${var.auth.enabled}"
@@ -13,34 +13,34 @@ metadata:
     pt-annotations-analytics-database: "${var.analytics.database.enabled}"
     pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
-  name: "timestamp"
+  name: "api"
   contextRef:
     name: "gravitee-context"
     namespace: "${var.namespace}"
   version: "1.0"
-  description: "timestamp-keyless"
+  description: "api-keyless"
   plans:
   - name: "KEY_LESS"
     description: "KEY_LESS"
     security: "KEY_LESS"
   proxy:
     virtual_hosts:
-    - path: /timestamp
+    - path: /api
     groups:
     - endpoints:
       - name: "Default"
-        target: "http://timestamp.gravitee-upstream.svc:3100"
+        target: "http://fortio.gravitee-upstream.svc:8080"
 YAML
   depends_on = [helm_release.gravitee-operator, kubectl_manifest.gravitee-context]
   count      = ! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }
 
-resource "kubectl_manifest" "timestamp" {
+resource "kubectl_manifest" "api" {
   yaml_body = <<YAML
 apiVersion: gravitee.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: "timestamp"
+  name: "api"
   namespace: "${var.namespace}"
   annotations:
     pt-annotations-auth: "${var.auth.enabled}"
@@ -50,12 +50,12 @@ metadata:
     pt-annotations-analytics-database: "${var.analytics.database.enabled}"
     pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
-  name: "timestamp"
+  name: "api"
   contextRef:
     name: "gravitee-context"
     namespace: "${var.namespace}"
   version: "1.0"
-  description: "timestamp"
+  description: "api"
   visibility: "PUBLIC"
   lifecycle_state: "PUBLISHED"
   plans:
@@ -89,11 +89,11 @@ spec:
             periodTimeUnit: "HOURS"
   proxy:
     virtual_hosts:
-    - path: "/timestamp"
+    - path: "/api"
     groups:
     - endpoints:
       - name: "Default"
-        target: "http://timestamp.gravitee-upstream.svc:3100"
+        target: "http://fortio.gravitee-upstream.svc:8080"
 YAML
   depends_on = [helm_release.gravitee-operator, kubectl_manifest.gravitee-context]
   count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0

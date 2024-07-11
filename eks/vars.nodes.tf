@@ -40,6 +40,18 @@ variable "services_nodes_count" {
   description = "Number of nodes for each of the gateway services."
 }
 
+variable "upstream_nodes_count" {
+  type        = number
+  default     = 1
+  description = "Number of nodes for each of the upstream services."
+}
+
+variable "tests_nodes_count" {
+  type        = number
+  default     = 1
+  description = "Number of nodes for each of the tests services."
+}
+
 variable "resource_nodes_count" {
   type        = number
   default     = 1

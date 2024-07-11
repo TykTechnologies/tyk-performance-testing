@@ -55,7 +55,7 @@ const createKeys = (baseURL, keyCount) => {
   return keys;
 };
 
-const generateKeys = (apiName, keyCount) => {
+const generateKeys = (keyCount) => {
   const baseURL = "https://${helm_release.kong.name}-gateway-admin:8444";
   createConsumers(baseURL, keyCount);
 

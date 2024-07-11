@@ -1,9 +1,9 @@
-resource "kubectl_manifest" "timestamp" {
+resource "kubectl_manifest" "api" {
   yaml_body = <<YAML
 apiVersion: tyk.tyk.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: timestamp
+  name: api
   namespace: ${var.namespace}
   annotations:
     pt-annotations-auth: "${var.auth.enabled}"
@@ -13,14 +13,14 @@ metadata:
     pt-annotations-analytics-database: "${var.analytics.database.enabled}"
     pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
-  name: timestamp
+  name: api
   protocol: http
   active: true
   disable_quota: ${! var.quota.enabled}
   disable_rate_limit: ${! var.rate_limit.enabled}
   proxy:
-    target_url: http://timestamp.tyk-upstream.svc:3100
-    listen_path: /timestamp
+    target_url: http://fortio.tyk-upstream.svc:8080
+    listen_path: /api
     strip_listen_path: true
   use_keyless: ${! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled)}
   use_standard_auth: ${var.auth.enabled || var.rate_limit.enabled || var.quota.enabled}
@@ -32,12 +32,12 @@ YAML
   depends_on = [helm_release.tyk-operator]
 }
 
-resource "kubectl_manifest" "timestamp-policy" {
+resource "kubectl_manifest" "api-policy" {
   yaml_body = <<YAML
 apiVersion: tyk.tyk.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: timestamp-policy
+  name: api-policy
   namespace: ${var.namespace}
   annotations:
     pt-annotations-auth: "${var.auth.enabled}"
@@ -47,7 +47,7 @@ metadata:
     pt-annotations-analytics-database: "${var.analytics.database.enabled}"
     pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
-  name: timestamp-policy
+  name: api-policy
   state: active
   active: true
   quota_max: ${var.quota.enabled ? var.quota.rate : -1}
@@ -57,12 +57,12 @@ spec:
   throttle_interval: -1
   throttle_retry_limit: -1
   access_rights_array:
-  - name: timestamp
+  - name: api
     namespace: ${var.namespace}
     versions:
     - Default
 YAML
 
-  depends_on = [kubectl_manifest.timestamp]
+  depends_on = [kubectl_manifest.api]
   count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }

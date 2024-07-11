@@ -6,6 +6,8 @@ module "h" {
   source = "../modules/helpers"
 
   services_nodes_count      = var.services_nodes_count
+  upstream_nodes_count      = var.upstream_nodes_count
+  tests_nodes_count         = var.tests_nodes_count
   resource_nodes_count      = var.resource_nodes_count
   dependencies_nodes_count  = var.dependencies_nodes_count
   cluster_machine_type      = var.cluster_machine_type

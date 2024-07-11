@@ -7,14 +7,14 @@ terraform {
   }
 }
 
-resource "kubernetes_config_map" "timestamp-configmap" {
+resource "kubernetes_config_map" "test-configmap" {
   metadata {
-    name      = "timestamp-${var.name}-configmap"
+    name      = "test-${var.name}-configmap"
     namespace = var.name
   }
 
   data = {
-    "timestamp.js" = <<EOF
+    "script.js" = <<EOF
 import http from 'k6/http';
 import { getAuth, getScenarios, addTestInfoMetrics } from "/helpers/tests.js";
 import { generateKeys } from "/helpers/auth.js";
@@ -30,7 +30,7 @@ export const options = {
 export function setup() {
   addTestInfoMetrics(${jsonencode(var.config)}, ${var.config.auth.key_count});
   if (getAuth()) {
-    return generateKeys("timestamp", ${var.config.auth.key_count})
+    return generateKeys(${var.config.auth.key_count})
   }
   return {};
 }
@@ -42,25 +42,25 @@ export default function (keys) {
     headers = { "Authorization": keys[i] }
   }
 
-  http.get('http://${var.url}/timestamp/json', { headers });
+  http.get('http://${var.url}/api/?${var.config.fortio_options}', { headers });
 }
 EOF
   }
 }
 
-resource "kubectl_manifest" "timestamp" {
+resource "kubectl_manifest" "test" {
   yaml_body = <<YAML
 apiVersion: k6.io/v1alpha1
 kind: K6
 metadata:
-  name: timestamp
+  name: test
   namespace: ${var.name}
 spec:
   parallelism: ${var.config.parallelism}
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-timestamp --env SCENARIO=${var.config.executor}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor}
   initializer:
     metadata:
       labels:
@@ -127,9 +127,9 @@ spec:
       value: p(90),p(95),p(99)
   script:
     configMap:
-      name: timestamp-${var.name}-configmap
-      file: timestamp.js
+      name: test-${var.name}-configmap
+      file: script.js
 YAML
 
-  depends_on = [kubernetes_config_map.timestamp-configmap]
+  depends_on = [kubernetes_config_map.test-configmap]
 }

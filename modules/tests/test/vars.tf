@@ -1,4 +1,12 @@
-variable "tests" {
+variable "name" {
+  type = string
+}
+
+variable "url" {
+  type = string
+}
+
+variable "config" {
   type = object({
     fortio_options = string
     executor       = string

@@ -65,9 +65,9 @@ const createKeys = (baseURL, policyId, keyCount) => {
   return keys;
 };
 
-const generateKeys = (apiName, keyCount) => {
+const generateKeys = (keyCount) => {
   const baseURL = "http://dashboard-svc-tyk-tyk-dashboard:3000";
-  const policyId = base64UrlEncode("${var.namespace}/" + apiName + "-policy");
+  const policyId = base64UrlEncode("${var.namespace}/api-policy");
 
   return createKeys(baseURL, policyId, keyCount);
 };

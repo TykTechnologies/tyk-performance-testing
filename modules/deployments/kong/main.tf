@@ -22,7 +22,7 @@ resource "helm_release" "kong" {
   name       = "kong"
   repository = "https://charts.konghq.com"
   chart      = "ingress"
-  version    = "0.13.0"
+  version    = "0.13.1"
 
   namespace = var.namespace
   atomic    = true
@@ -91,8 +91,26 @@ resource "helm_release" "kong" {
   }
 
   set {
+    name  = "gateway.postgresql.primary.nodeSelector.node"
+    value = var.resources-label
+  }
+
+  set {
     name  = "gateway.env.database"
     value = "postgres"
+  }
+
+  #############################################################################
+  # Kong Open Telemetry
+  #############################################################################
+  set {
+    name  = "gateway.env.tracing_instrumentations"
+    value = var.open_telemetry.enabled ? "all" : "off"
+  }
+
+  set {
+    name  = "gateway.env.tracing_sampling_rate"
+    value = var.open_telemetry.enabled ? var.open_telemetry.sampling_ratio : "0"
   }
 
   #############################################################################
@@ -132,6 +150,11 @@ resource "helm_release" "kong" {
   set {
     name  = "gateway.nodeSelector.node"
     value = var.label
+  }
+
+  set {
+    name  = "controller.nodeSelector.node"
+    value = var.resources-label
   }
 
   depends_on = [helm_release.kong-redis, kubectl_manifest.kong_gateway]

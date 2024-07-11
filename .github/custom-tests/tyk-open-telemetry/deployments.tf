@@ -23,7 +23,7 @@ resources_limits_cpu        = "0"
 resources_limits_memory     = "0"
 
 tyk_enabled         = true
-tyk_version         = "v5.3.1"
+tyk_version         = "v5.3"
 tyk_deployment_type = "Deployment"
 tyk_go_gc           = 1600
 tyk_go_max_procs    = 8
@@ -33,7 +33,7 @@ kong_version         = "3.6"
 kong_deployment_type = "Deployment"
 
 gravitee_enabled         = false
-gravitee_version         = "4.3.5"
+gravitee_version         = "4.4"
 gravitee_deployment_type = "Deployment"
 
 grafana_service_type = "ClusterIP"

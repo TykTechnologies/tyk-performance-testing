@@ -15,12 +15,7 @@ on:
         description: 'Tyk Gateway version'
         required: true
         type: string
-        default: 'v5.3.1'
-      tests_timestamp_enabled:
-        description: 'Enabled Timestamp Test'
-        required: false
-        default: true
-        type: boolean
+        default: 'v5.3'
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
@@ -155,11 +150,9 @@ jobs:
           terraform init
           terraform apply \
             --var="kubernetes_config_context=performance-testing" \
-            --var="tests_timestamp_enabled=${{ inputs.tests_timestamp_enabled }}" \
             --auto-approve
 
       - name: Test Grafana Snapshot
-        if: ${{ inputs.tests_timestamp_enabled == true }}
         run: |
           kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
 

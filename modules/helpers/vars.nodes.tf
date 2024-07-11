@@ -8,6 +8,26 @@ variable "services_nodes_count" {
   }
 }
 
+variable "upstream_nodes_count" {
+  type    = number
+  default = 1
+
+  validation {
+    condition = var.upstream_nodes_count > 0
+    error_message = "Variable upstream_nodes_count should be 1 or higher"
+  }
+}
+
+variable "tests_nodes_count" {
+  type    = number
+  default = 1
+
+  validation {
+    condition = var.tests_nodes_count > 0
+    error_message = "Variable tests_nodes_count should be 1 or higher"
+  }
+}
+
 variable "resource_nodes_count" {
   type    = number
   default = 1

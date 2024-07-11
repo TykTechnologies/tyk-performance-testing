@@ -6,7 +6,7 @@ variable "gravitee_enabled" {
 
 variable "gravitee_version" {
   type        = string
-  default     = "4.3.5"
+  default     = "4.4"
   description = "Gravitee Gateway version."
 }
 
