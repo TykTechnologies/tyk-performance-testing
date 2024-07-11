@@ -147,5 +147,10 @@ resource "helm_release" "kong" {
     value = var.label
   }
 
+  set {
+    name  = "controller.nodeSelector.node"
+    value = var.resources-label
+  }
+
   depends_on = [helm_release.kong-redis, kubectl_manifest.kong_gateway]
 }
