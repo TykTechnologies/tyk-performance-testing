@@ -42,7 +42,7 @@ export default function (keys) {
     headers = { "Authorization": keys[i] }
   }
 
-  http.get('http://${var.url}/fortio/json', { headers });
+  http.get('http://${var.url}/api/?${var.config.fortio_options}', { headers });
 }
 EOF
   }
@@ -60,7 +60,7 @@ spec:
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --env SCENARIO=${var.config.executor}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor}
   initializer:
     metadata:
       labels:

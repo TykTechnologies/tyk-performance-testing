@@ -1,3 +1,9 @@
+variable "tests_fortio_options" {
+  type        = string
+  default     = "size=20"
+  description = "Set the parameters for the request to fortio-server. Read more at https://github.com/fortio/fortio?tab=readme-ov-file#server-urls-and-features"
+}
+
 variable "tests_executor" {
   type        = string
   default     = "constant-arrival-rate"

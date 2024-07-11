@@ -1,9 +1,9 @@
-resource "kubectl_manifest" "timestamp" {
+resource "kubectl_manifest" "api" {
   yaml_body = <<YAML
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: timestamp
+  name: api
   namespace: "${var.namespace}-upstream"
   annotations:
     konghq.com/strip-path: 'true'
@@ -19,13 +19,13 @@ spec:
   rules:
   - http:
       paths:
-      - path: /timestamp
+      - path: /api
         pathType: ImplementationSpecific
         backend:
           service:
-            name: timestamp
+            name: fortio
             port:
-              number: 3100
+              number: 8080
 YAML
   depends_on = [helm_release.kong]
 }

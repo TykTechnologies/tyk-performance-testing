@@ -1,5 +1,5 @@
 module "tyk-test" {
-  source = "test"
+  source = "./test"
 
   name   = "tyk"
   url    = "gateway-svc-tyk-tyk-gateway.tyk.svc:8080"
@@ -9,7 +9,7 @@ module "tyk-test" {
 }
 
 module "kong-test" {
-  source = "test"
+  source = "./test"
 
   name   = "kong"
   url    = "kong-gateway-proxy.kong.svc:80"
@@ -19,7 +19,7 @@ module "kong-test" {
 }
 
 module "gravitee-test" {
-  source = "test"
+  source = "./test"
 
   name   = "gravitee"
   url    = "gravitee-apim-gateway.gravitee.svc:82"
