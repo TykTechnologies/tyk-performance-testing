@@ -124,6 +124,11 @@ resource "helm_release" "grafana" {
     value = var.label
   }
 
+  set {
+    name  = "env.JAEGER_AGENT_PORT"
+    value = ""
+  }
+
   depends_on = [kubernetes_config_map.grafana-dashboard]
 }
 
