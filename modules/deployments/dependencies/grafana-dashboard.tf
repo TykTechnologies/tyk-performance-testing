@@ -9980,7 +9980,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "id": 230,
       "panels": [],
-      "title": "Resources",
+      "title": "Service Container Resources Requests & Limits",
       "type": "row"
     },
     {
@@ -10270,7 +10270,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "none"
+          "unit": "core"
         },
         "overrides": [
           {
@@ -10366,7 +10366,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_requests{container=\"kong\",resource=\"cpu\"}",
+          "expr": "kube_pod_container_resource_requests{container=\"proxy\",resource=\"cpu\", namespace=\"kong\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10498,7 +10498,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_limits{container=\"kong\",resource=\"cpu\"}",
+          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"cpu\",namespace=\"kong\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -11158,7 +11158,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_requests{container=\"kong\",resource=\"memory\"}",
+          "expr": "kube_pod_container_resource_requests{container=\"proxy\",resource=\"memory\",namespace=\"kong\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -11290,7 +11290,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_limits{container=\"kong\",resource=\"memory\"}",
+          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"memory\",namespace=\"kong\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
