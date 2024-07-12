@@ -11,6 +11,6 @@ variable "cluster_location" {
 
 variable "gke_version" {
   type        = string
-  default     = "1.29.4-gke.1043002"
+  default     = "1.29.5-gke.1091002"
   description = "GKE cluster version."
 }
