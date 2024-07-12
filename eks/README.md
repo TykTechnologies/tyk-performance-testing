@@ -42,8 +42,8 @@ aws eks --region "us-west-1" update-kubeconfig --name "pt-us-west-1"
 | <a name="input_resources_machine_type"></a> [resources\_machine\_type](#input\_resources\_machine\_type) | Machine type for resources, overrides cluster\_machine\_type. | `string` | `""` | no |
 | <a name="input_service_machine_type"></a> [service\_machine\_type](#input\_service\_machine\_type) | Machine type for services, overrides cluster\_machine\_type. | `string` | `""` | no |
 | <a name="input_services_nodes_count"></a> [services\_nodes\_count](#input\_services\_nodes\_count) | Number of nodes for each of the gateway services. | `number` | `1` | no |
-| <a name="input_upstream_nodes_count"></a> [upstream\_nodes\_count](#input\_upstream\_nodes\_count) | Number of nodes for each of the upstream services. | `number` | `1` | no |
-| <a name="input_tests_nodes_count"></a> [tests\_nodes\_count](#input\_tests\_nodes\_count) | Number of nodes for each of the tests services. | `number` | `1` | no |
 | <a name="input_tests_machine_type"></a> [tests\_machine\_type](#input\_tests\_machine\_type) | Machine type for tests, overrides cluster\_machine\_type. | `string` | `""` | no |
+| <a name="input_tests_nodes_count"></a> [tests\_nodes\_count](#input\_tests\_nodes\_count) | Number of nodes for each of the tests services. | `number` | `1` | no |
 | <a name="input_tyk_enabled"></a> [tyk\_enabled](#input\_tyk\_enabled) | Enable Tyk services. | `bool` | `true` | no |
 | <a name="input_upstream_machine_type"></a> [upstream\_machine\_type](#input\_upstream\_machine\_type) | Machine type for upstreams, overrides cluster\_machine\_type. | `string` | `""` | no |
+| <a name="input_upstream_nodes_count"></a> [upstream\_nodes\_count](#input\_upstream\_nodes\_count) | Number of nodes for each of the upstream services. | `number` | `1` | no |
