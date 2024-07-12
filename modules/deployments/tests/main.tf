@@ -56,6 +56,12 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
       duration: (duration - ramping_steps * 0.1) + "m",
     }],
   },
+  "externally-controlled": {
+    executor: 'externally-controlled',
+    duration: duration + "m",
+    vus: 10,
+    maxVUs: virtual_users,
+  },
 });
 
 const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {

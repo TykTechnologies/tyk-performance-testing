@@ -7,7 +7,7 @@ variable "tests_fortio_options" {
 variable "tests_executor" {
   type        = string
   default     = "constant-arrival-rate"
-  description = "Choose the executor for the test. Options are: 'constant-vus', 'ramping-vus', 'constant-arrival-rate', 'ramping-arrival-rate'."
+  description = "Choose the executor for the test. Options are: 'constant-vus', 'ramping-vus', 'constant-arrival-rate', 'ramping-arrival-rate', 'externally-controlled'."
 }
 
 variable "tests_auth_key_count" {
