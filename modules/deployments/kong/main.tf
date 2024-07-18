@@ -52,6 +52,16 @@ resource "helm_release" "kong" {
   }
 
   set {
+    name  = "gateway.env.upstream_keepalive_max_requests"
+    value = "0"
+  }
+
+  set {
+    name  = "gateway.env.nginx_http_keepalive_requests"
+    value = "0"
+  }
+
+  set {
     name  = "gateway.deployment.daemonset"
     value = var.deployment_type == "DaemonSet" ? true : false
   }
