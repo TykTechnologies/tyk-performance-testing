@@ -121,8 +121,6 @@ spec:
     env:
     - name: K6_PROMETHEUS_RW_SERVER_URL
       value: http://prometheus-server.dependencies.svc:80/api/v1/write
-    - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
-      value: 1s
     - name: K6_PROMETHEUS_RW_TREND_STATS
       value: p(90),p(95),p(99)
   script:
