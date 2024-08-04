@@ -6,7 +6,7 @@ variable "tyk_enabled" {
 
 variable "tyk_version" {
   type        = string
-  default     = "v5.3"
+  default     = "v5.4"
   description = "Tyk Gateway version."
 }
 

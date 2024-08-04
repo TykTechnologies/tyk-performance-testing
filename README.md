@@ -88,7 +88,7 @@ resources_limits_cpu        = "0"
 resources_limits_memory     = "0"
 
 tyk_enabled         = true
-tyk_version         = "v5.3"
+tyk_version         = "v5.4"
 tyk_license         = ""
 tyk_deployment_type = "Deployment"
 tyk_go_gc           = 1600
