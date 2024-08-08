@@ -76,13 +76,11 @@ const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
   });
 
   quotaGauge.add(1, {
-    state: ${var.quota.enabled} ? "${var.quota.rate}" : "Off",
-    per: ${var.quota.per},
+    state: ${var.quota.enabled} ? "${var.quota.rate} / ${var.quota.per}" : "Off",
   });
 
   rateLimitGauge.add(1, {
-    state: ${var.rate_limit.enabled} ? "${var.rate_limit.rate}" : "Off",
-    per: ${var.rate_limit.per},
+    state: ${var.rate_limit.enabled} ? "${var.rate_limit.rate} / ${var.rate_limit.per}" : "Off",
   });
 
   openTelemetryGauge.add(1, {
