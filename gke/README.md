@@ -6,7 +6,7 @@ GKE setup requires the `GOOGLE_APPLICATION_CREDENTIALS` per [google's documentat
 ```
 gcloud container clusters get-credentials pt-us-west1-a \
    --zone us-west1-a \
-   --project ce-team-zaid
+   --project performance-testing
 ```
 
 ## Modules
