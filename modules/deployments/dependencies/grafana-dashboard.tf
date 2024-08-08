@@ -138,7 +138,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
+        "w": 4,
         "x": 0,
         "y": 1
       },
@@ -270,8 +270,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
-        "x": 3,
+        "w": 4,
+        "x": 4,
         "y": 1
       },
       "id": 161,
@@ -400,8 +400,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
-        "x": 6,
+        "w": 4,
+        "x": 8,
         "y": 1
       },
       "id": 156,
@@ -527,8 +527,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
-        "x": 9,
+        "w": 4,
+        "x": 12,
         "y": 1
       },
       "id": 160,
@@ -655,8 +655,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
-        "x": 12,
+        "w": 4,
+        "x": 16,
         "y": 1
       },
       "id": 157,
@@ -785,8 +785,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
-        "x": 15,
+        "w": 4,
+        "x": 20,
         "y": 1
       },
       "id": 196,
@@ -919,9 +919,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 2,
-        "x": 18,
-        "y": 1
+        "w": 4,
+        "x": 0,
+        "y": 6
       },
       "id": 163,
       "interval": "1s",
@@ -951,7 +951,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_analytics)",
+          "expr": "avg by(state) (k6_deployment_config_analytics)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1051,272 +1051,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 2,
-        "x": 20,
-        "y": 1
-      },
-      "id": 164,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(database) (k6_deployment_config_analytics)",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Database",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 2,
-        "x": 22,
-        "y": 1
-      },
-      "id": 165,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(prometheus) (k6_deployment_config_analytics)",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Prometheus",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 3,
-        "x": 0,
+        "w": 4,
+        "x": 4,
         "y": 6
       },
       "id": 166,
@@ -1347,7 +1083,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_auth)",
+          "expr": "avg by(state) (k6_deployment_config_auth)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1445,8 +1181,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
-        "x": 3,
+        "w": 4,
+        "x": 8,
         "y": 6
       },
       "id": 167,
@@ -1575,402 +1311,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 5,
         "w": 2,
-        "x": 6,
-        "y": 6
-      },
-      "id": 168,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_quota)",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Quota",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 2,
-        "x": 8,
-        "y": 6
-      },
-      "id": 171,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(rate) (k6_deployment_config_quota)",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Rate",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 2,
-        "x": 10,
-        "y": 6
-      },
-      "id": 170,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(per) (k6_deployment_config_quota)",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Per (secs)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 2,
         "x": 12,
         "y": 6
       },
@@ -2002,7 +1342,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_rate_limit)",
+          "expr": "avg by(state) (k6_deployment_config_rate_limit)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2104,138 +1444,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 5,
         "w": 2,
         "x": 14,
-        "y": 6
-      },
-      "id": 173,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(rate) (k6_deployment_config_rate_limit)",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Rate",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 2,
-        "x": 16,
         "y": 6
       },
       "id": 174,
@@ -2366,11 +1574,11 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
-        "x": 18,
+        "w": 2,
+        "x": 16,
         "y": 6
       },
-      "id": 175,
+      "id": 168,
       "interval": "1s",
       "options": {
         "colorMode": "background",
@@ -2398,7 +1606,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(isEnabled) (k6_deployment_config_open_telemetry)",
+          "expr": "avg by(state) (k6_deployment_config_quota)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2408,7 +1616,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Open Telemetry",
+      "title": "Quota",
       "type": "stat"
     },
     {
@@ -2498,11 +1706,11 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
-        "x": 21,
+        "w": 2,
+        "x": 18,
         "y": 6
       },
-      "id": 176,
+      "id": 170,
       "interval": "1s",
       "options": {
         "colorMode": "background",
@@ -2530,7 +1738,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(sampling_ratio) (k6_deployment_config_open_telemetry)",
+          "expr": "avg by(per) (k6_deployment_config_quota)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2540,7 +1748,139 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Sampling Ratio",
+      "title": "Per (secs)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8438fa",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#20edba",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*kong.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1155cb",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*gravitee.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "id": 175,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "uniqueValues"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by(state) (k6_deployment_config_open_telemetry)",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Open Telemetry",
       "type": "stat"
     },
     {

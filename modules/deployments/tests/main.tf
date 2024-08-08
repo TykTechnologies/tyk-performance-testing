@@ -7,6 +7,7 @@ resource "kubernetes_config_map" "tests-configmap" {
   data = {
     "tests.js" = <<EOF
 import http from 'k6/http';
+import { check, fail } from 'k6';
 import { Gauge } from 'k6/metrics';
 
 const analyticsGauge     = new Gauge('deployment_config_analytics');
@@ -65,31 +66,27 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
 });
 
 const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
+  const analytics = [ ${var.analytics.database.enabled} ? "Database" : "", ${var.analytics.prometheus.enabled} ? "Prometheus" : "",  ].filter(item => item !== "")
   analyticsGauge.add(1, {
-    isEnabled: ${var.analytics.database.enabled} || ${var.analytics.prometheus.enabled} ? "Enabled" : "Disabled",
-    database: ${var.analytics.database.enabled} ? "Enabled" : "Disabled",
-    prometheus: ${var.analytics.prometheus.enabled} ? "Enabled" : "Disabled",
+    state: analytics.length > 0 ? analytics.join(",") : "Off",
   });
 
   authGauge.add(key_count, {
-    isEnabled: ${var.auth.enabled} ? "Enabled" : "Disabled",
+    state: ${var.auth.enabled} ? "${var.auth.type}" : "Off",
   });
 
   quotaGauge.add(1, {
-    isEnabled: ${var.quota.enabled} ? "Enabled" : "Disabled",
-    rate: ${var.quota.rate},
+    state: ${var.quota.enabled} ? "${var.quota.rate}" : "Off",
     per: ${var.quota.per},
   });
 
   rateLimitGauge.add(1, {
-    isEnabled: ${var.rate_limit.enabled} ? "Enabled" : "Disabled",
-    rate: ${var.rate_limit.rate},
+    state: ${var.rate_limit.enabled} ? "${var.rate_limit.rate}" : "Off",
     per: ${var.rate_limit.per},
   });
 
-  openTelemetryGauge.add(${var.open_telemetry.sampling_ratio}, {
-    isEnabled: ${var.open_telemetry.enabled} ? "Enabled" : "Disabled",
-    sampling_ratio: ${var.open_telemetry.sampling_ratio},
+  openTelemetryGauge.add(1, {
+    state: ${var.open_telemetry.enabled} ? "${var.open_telemetry.sampling_ratio}" : "Off",
   });
 
   durationGauge.add(duration);
@@ -98,8 +95,34 @@ const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
 };
 
 const getAuth = () => ${var.auth.enabled};
+const getAuthType = () => "${var.auth.type}";
 
-export { getAuth, getScenarios, addTestInfoMetrics };
+const generateJWTKeys = (keyCount) => {
+  const keys = [];
+  const params = {
+    responseType: 'text',
+  };
+
+  for (let i = 0; i < keyCount; i++) {
+    let payload = {
+      client_id: 'keycloak-jwt',
+      grant_type: 'password',
+      client_secret: 'wcl7lBoslXBMAHKinMwa1bbEuBQSCUtI',
+      scope: 'openid',
+      username: 'user' + i % 100 + '@test.com',
+      password: 'topsecretpassword',
+    };
+
+    const res = http.post("http://keycloak-service.dependencies.svc:8080/realms/jwt/protocol/openid-connect/token", payload, params);
+    check(res, {
+      ['key creation call status is 200']: (r) => r.status === 200,
+    }) || fail('Failed to create key');
+    keys.push(res.json().access_token);
+  }
+  return keys;
+};
+
+export { getAuth, getAuthType, generateJWTKeys, getScenarios, addTestInfoMetrics };
 
 EOF
   }

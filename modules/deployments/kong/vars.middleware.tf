@@ -12,6 +12,7 @@ variable "analytics" {
 variable "auth" {
   type = object({
     enabled = bool
+    type    = string
   })
 }
 

@@ -4,6 +4,9 @@ module "dependencies" {
   label          = var.labels.dependencies
   grafana        = var.dependencies.grafana
   open_telemetry = var.open_telemetry
+  keycloak       = {
+    enabled = var.auth.enabled && var.auth.type == "JWT" ? true : false
+  }
 }
 
 module "tyk-upstream" {

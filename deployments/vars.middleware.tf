@@ -16,6 +16,12 @@ variable "auth_enabled" {
   description = "Enables authorization on gateway APIs."
 }
 
+variable "auth_type" {
+  type        = string
+  default     = "authToken"
+  description = "Authorization type on gateway APIs. authToken or JWT."
+}
+
 variable "quota_enabled" {
   type        = bool
   default     = false

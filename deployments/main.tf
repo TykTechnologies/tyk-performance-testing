@@ -14,6 +14,7 @@ module "deployments" {
 
   auth = {
     enabled = var.auth_enabled
+    type    = var.auth_type
   }
 
   quota = {
