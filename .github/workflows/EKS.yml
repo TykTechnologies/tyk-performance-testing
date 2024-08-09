@@ -1,14 +1,14 @@
-name: AWS PR Performance Test
+name: EKS Test
 on:
   pull_request:
     types: [ closed ]
 
 concurrency:
-  group: "AWS"
+  group: "EKS"
 
 jobs:
   aws:
-    name: "AWS PT Test"
+    name: "EKS Test"
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:

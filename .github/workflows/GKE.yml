@@ -1,24 +1,30 @@
-name: Azure PR Performance Test
+name: GKE Test
 on:
   pull_request:
     types: [ closed ]
 
 concurrency:
-  group: "Azure"
+  group: "GKE"
 
 jobs:
-  azure:
-    name: "Azure PT Test"
+  gcp:
+    name: "GKE Test"
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Configure AKS credentials
-        uses: azure/login@v2
+      - name: Authenticate into gcloud
+        uses: google-github-actions/auth@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Install gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2.1.0
+
+      - name: Install gcloud k8s auth component
+        run: gcloud components install gke-gcloud-auth-plugin
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3.1.1
@@ -28,31 +34,32 @@ jobs:
 
       - name: Create Terraform Cloud descriptors
         run: |
-          cp aks/terraform.cloud.tf.example aks/terraform.cloud.tf
-          cp aks/main.tfvars.example aks/main.tfvars
-          cp .github/aks/deployments.tf deployments/terraform.cloud.tf
+          cp gke/terraform.cloud.tf.example gke/terraform.cloud.tf
+          cp gke/main.tfvars.example gke/main.tfvars
+          cp .github/gke/deployments.tf deployments/terraform.cloud.tf
           cp deployments/main.tfvars.example deployments/main.tfvars
-          cp .github/aks/tests.tf tests/terraform.cloud.tf
+          cp .github/gke/tests.tf tests/terraform.cloud.tf
           cp tests/main.tfvars.example tests/main.tfvars
 
-      - name: Stand up AKS cluster
+      - name: Stand up GKE cluster
         run: |
-          cd aks
+          cd gke
           terraform init
           terraform apply \
             --var-file=main.tfvars \
-            --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
-            --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
-            --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
+            --var="project=${{ secrets.GCP_PROJECT }}" \
+            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
-      - name: Connect to AKS cluster
+      - name: Connect to GKE cluster
         run: |
-          az aks get-credentials \
-            --resource-group "pt-${{ vars.AZURE_CLUSTER_LOCATION }}" \
-            --name "pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
-
+          gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --zone "${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --project "${{ secrets.GCP_PROJECT }}"
+          
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
       - name: Deploy testing resources
@@ -75,7 +82,8 @@ jobs:
             --auto-approve
 
       - name: Test Grafana Snapshot
-        run: kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
+        run: |
+          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
 
       - name: Destroy Tests
         run: |
@@ -95,13 +103,14 @@ jobs:
             --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
-      - name: Destroy AKS cluster
+      - name: Destroy GKE cluster
         run: |
-          cd aks
+          cd gke
           terraform destroy \
             --var-file=main.tfvars \
-            --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
-            --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
-            --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
+            --var="project=${{ secrets.GCP_PROJECT }}" \
+            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
             --auto-approve

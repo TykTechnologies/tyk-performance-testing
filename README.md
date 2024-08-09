@@ -1,7 +1,7 @@
 # Tyk Performance Testing
-[![EKS](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/aws.yml/badge.svg?query=branch%3Amain)](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/aws.yml?query=branch%3Amain)
-[![GKE](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/gcp.yml/badge.svg?query=branch%3Amain)](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/gcp.yml?query=branch%3Amain)
-[![aks](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/azure.yml/badge.svg?query=branch%3Amain)](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/azure.yml?query=branch%3Amain)
+[![aks](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/AKS.yml/badge.svg?query=branch%3Amain)](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/AKS.yml?query=branch%3Amain)
+[![EKS](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/EKS.yml/badge.svg?query=branch%3Amain)](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/EKS.yml?query=branch%3Amain)
+[![GKE](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/GKE.yml/badge.svg?query=branch%3Amain)](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/GKE.yml?query=branch%3Amain)
 
 This project is still a WIP. Schema might change and suggestions are welcome. 
 
