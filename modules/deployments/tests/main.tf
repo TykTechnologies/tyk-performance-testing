@@ -68,7 +68,7 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
 const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
   const analytics = [ ${var.analytics.database.enabled} ? "Database" : "", ${var.analytics.prometheus.enabled} ? "Prometheus" : "",  ].filter(item => item !== "")
   analyticsGauge.add(1, {
-    state: analytics.length > 0 ? analytics.join(",") : "Off",
+    state: analytics.length > 0 ? analytics.join(", ") : "Off",
   });
 
   authGauge.add(key_count, {
