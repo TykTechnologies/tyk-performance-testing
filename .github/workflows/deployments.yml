@@ -48,7 +48,7 @@ on:
         description: 'Tyk Gateway version'
         required: true
         type: string
-        default: 'v5.3'
+        default: 'v5.4'
       custom_deployment_descriptor:
         description: 'Custom Deployment Descriptor'
         required: true

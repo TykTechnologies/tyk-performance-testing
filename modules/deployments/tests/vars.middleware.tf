@@ -28,6 +28,7 @@ variable "rate_limit" {
 variable "auth" {
   type = object({
     enabled = bool
+    type    = string
   })
 }
 

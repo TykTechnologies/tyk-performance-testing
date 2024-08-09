@@ -26,3 +26,9 @@ variable "open_telemetry" {
     enabled = bool
   })
 }
+
+variable "keycloak" {
+  type = object({
+    enabled = bool
+  })
+}

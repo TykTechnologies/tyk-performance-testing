@@ -16,7 +16,7 @@ resource "kubernetes_config_map" "test-configmap" {
   data = {
     "script.js" = <<EOF
 import http from 'k6/http';
-import { getAuth, getScenarios, addTestInfoMetrics } from "/helpers/tests.js";
+import { getAuth, getAuthType, generateJWTKeys, getScenarios, addTestInfoMetrics } from "/helpers/tests.js";
 import { generateKeys } from "/helpers/auth.js";
 
 const { SCENARIO } = __ENV;
@@ -30,6 +30,9 @@ export const options = {
 export function setup() {
   addTestInfoMetrics(${jsonencode(var.config)}, ${var.config.auth.key_count});
   if (getAuth()) {
+    if ("JWT" === getAuthType()) {
+      return generateJWTKeys(${var.config.auth.key_count})
+    }
     return generateKeys(${var.config.auth.key_count})
   }
   return {};

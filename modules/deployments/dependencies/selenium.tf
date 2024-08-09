@@ -135,7 +135,7 @@ resource "kubernetes_deployment" "selenium_node_firefox" {
     }
   }
 
-  depends_on = [kubernetes_deployment.selenium_hub]
+  depends_on = [kubernetes_namespace.dependencies]
 }
 
 resource "kubernetes_service" "selenium_hub" {
@@ -175,7 +175,7 @@ resource "kubernetes_service" "selenium_hub" {
     }
   }
 
-  depends_on = [kubernetes_deployment.selenium_hub]
+  depends_on = [kubernetes_namespace.dependencies]
 }
 
 resource "kubernetes_config_map" "snapshot-script-configmap" {
@@ -279,5 +279,5 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
     EOF
   }
 
-  depends_on = [helm_release.grafana, kubernetes_deployment.selenium_hub]
+  depends_on = [kubernetes_namespace.dependencies]
 }

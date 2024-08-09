@@ -15,7 +15,7 @@ on:
         description: 'Tyk Gateway version'
         required: true
         type: string
-        default: 'v5.3'
+        default: 'v5.4'
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}

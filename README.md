@@ -32,11 +32,11 @@ gcloud container clusters get-credentials pt-us-west1-a \
 
 ### Feature matrix
 
-| Gateway  | Database Analytics | Prometheus Analytics | Auth               | Quota                             | Rate Limiting      | Open Telemetry     |
-|----------|--------------------|----------------------|--------------------|-----------------------------------|--------------------|--------------------|
-| Tyk      | :white_check_mark: | :white_check_mark:   | :white_check_mark: | :white_check_mark:                | :white_check_mark: | :white_check_mark: |
-| Kong     | :x:                | :white_check_mark:   | :white_check_mark: | Implemented through Rate Limiting | :white_check_mark: | :white_check_mark: |
-| Gravitee | :white_check_mark: | :white_check_mark:   | :white_check_mark: | Implemented through Rate Limiting | :white_check_mark: | :x:                |
+| Gateway  | Database Analytics | Prometheus Analytics | Auth               | JWT                | Quota                             | Rate Limiting      | Open Telemetry     | 
+|----------|--------------------|----------------------|--------------------|--------------------|-----------------------------------|--------------------|--------------------|
+| Tyk      | :white_check_mark: | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark:                | :white_check_mark: | :white_check_mark: |
+| Kong     | :x:                | :white_check_mark:   | :white_check_mark: | :x:                | Implemented through Rate Limiting | :white_check_mark: | :white_check_mark: | 
+| Gravitee | :white_check_mark: | :white_check_mark:   | :white_check_mark: | :x:                | Implemented through Rate Limiting | :white_check_mark: | :x:                |
 
 ##### Self-managed cluster requirements
 To run the tests on your own cluster, you will need node labels that can house the different deployments and resources.
@@ -68,6 +68,7 @@ kubernetes_config_context = "performance-testing"
 analytics_database_enabled    = false
 analytics_prometheus_enabled  = false
 auth_enabled                  = false
+auth_type                     = "authToken"
 quota_enabled                 = false
 quota_rate                    = 999999
 quota_per                     = 3600
@@ -88,7 +89,7 @@ resources_limits_cpu        = "0"
 resources_limits_memory     = "0"
 
 tyk_enabled         = true
-tyk_version         = "v5.3"
+tyk_version         = "v5.4"
 tyk_license         = ""
 tyk_deployment_type = "Deployment"
 tyk_go_gc           = 1600
