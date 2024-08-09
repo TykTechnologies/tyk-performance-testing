@@ -1,4 +1,7 @@
 # Tyk Performance Testing
+[![EKS](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/aws.yml/badge.svg?query=branch%3Amain)](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/aws.yml?query=branch%3Amain)
+[![GKE](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/gcp.yml/badge.svg?query=branch%3Amain)](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/gcp.yml?query=branch%3Amain)
+[![aks](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/azure.yml/badge.svg?query=branch%3Amain)](https://github.com/TykTechnologies/tyk-performance-testing/actions/workflows/azure.yml?query=branch%3Amain)
 
 This project is still a WIP. Schema might change and suggestions are welcome. 
 
@@ -32,7 +35,7 @@ gcloud container clusters get-credentials pt-us-west1-a \
 
 ### Feature matrix
 
-| Gateway  | Database Analytics | Prometheus Analytics | Auth               | JWT                | Quota                             | Rate Limiting      | Open Telemetry     | 
+| Gateway  | Database Analytics | Prometheus Analytics | AuthToken          | JWT                | Quota                             | Rate Limiting      | Open Telemetry     | 
 |----------|--------------------|----------------------|--------------------|--------------------|-----------------------------------|--------------------|--------------------|
 | Tyk      | :white_check_mark: | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark:                | :white_check_mark: | :white_check_mark: |
 | Kong     | :x:                | :white_check_mark:   | :white_check_mark: | :x:                | Implemented through Rate Limiting | :white_check_mark: | :white_check_mark: | 
