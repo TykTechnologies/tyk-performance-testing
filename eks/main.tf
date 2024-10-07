@@ -39,7 +39,6 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.8.2"
 
   cluster_name    = "pt-${var.cluster_location}"
   cluster_version = var.eks_version
@@ -47,21 +46,23 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  cluster_endpoint_public_access = true
+  create_cloudwatch_log_group = false
+
+  cluster_endpoint_public_access           = true
   enable_cluster_creator_admin_permissions = true
 }
 
 module "eks_node_groups" {
   for_each = module.h.nodes
   source   = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
-  version  = "20.8.2"
 
-  name            = each.key
-  cluster_name    = module.eks.cluster_name
-  cluster_version = module.eks.cluster_version
-  subnet_ids      = module.vpc.private_subnets
-  desired_size    = each.value
-  instance_types  = [module.h.machines[each.key]]
+  name                 = each.key
+  cluster_name         = module.eks.cluster_name
+  cluster_version      = module.eks.cluster_version
+  subnet_ids           = module.vpc.private_subnets
+  desired_size         = each.value
+  instance_types       = [module.h.machines[each.key]]
+  cluster_service_cidr = module.eks.cluster_service_cidr
 
   labels = {
     "node": each.key
