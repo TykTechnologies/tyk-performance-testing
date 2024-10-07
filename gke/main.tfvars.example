@@ -1,6 +1,6 @@
 project                   = "performance-testing"
 cluster_location          = "us-west1-a"
-gke_version               = "1.30.2-gke.1587003"
+gke_version               = "1.30.3-gke.1969002"
 cluster_machine_type      = "c2-standard-4"
 service_machine_type      = ""
 upstream_machine_type     = ""
