@@ -1,5 +1,5 @@
 cluster_location          = "us-west-1"
-eks_version               = "1.29"
+eks_version               = ""
 cluster_machine_type      = "c5.xlarge"
 service_machine_type      = ""
 upstream_machine_type     = ""

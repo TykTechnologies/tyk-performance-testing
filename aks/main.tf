@@ -36,7 +36,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   dns_prefix          = replace(azurerm_resource_group.this.name, "_", "-")
 
   default_node_pool {
-    name       = "this"
+    name       = "default"
     node_count = 1
     vm_size    = "Standard_B2s"
   }

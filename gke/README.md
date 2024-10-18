@@ -31,7 +31,7 @@ gcloud container clusters get-credentials pt-us-west1-a \
 | <a name="input_cluster_machine_type"></a> [cluster\_machine\_type](#input\_cluster\_machine\_type) | Default machine type for cluster. | `string` | `"c2-standard-4"` | no |
 | <a name="input_dependencies_machine_type"></a> [dependencies\_machine\_type](#input\_dependencies\_machine\_type) | Machine type for dependencies, overrides cluster\_machine\_type. | `string` | `""` | no |
 | <a name="input_dependencies_nodes_count"></a> [dependencies\_nodes\_count](#input\_dependencies\_nodes\_count) | Number of nodes for the test dependencies. | `number` | `1` | no |
-| <a name="input_gke_version"></a> [gke\_version](#input\_gke\_version) | GKE cluster version. | `string` | `"1.30.3-gke.1969002"` | no |
+| <a name="input_gke_version"></a> [gke\_version](#input\_gke\_version) | GKE cluster version. | `string` | `""` | no |
 | <a name="input_gravitee_enabled"></a> [gravitee\_enabled](#input\_gravitee\_enabled) | Enable Gravitee services. | `bool` | `false` | no |
 | <a name="input_kong_enabled"></a> [kong\_enabled](#input\_kong\_enabled) | Enable Kong services. | `bool` | `false` | no |
 | <a name="input_project"></a> [project](#input\_project) | GCP project. | `string` | n/a | yes |

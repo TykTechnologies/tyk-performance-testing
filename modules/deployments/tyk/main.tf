@@ -51,6 +51,11 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    name  = "global.license.operator"
+    value = var.license
+  }
+
+  set {
     name  = "global.postgres.host"
     value = "${helm_release.tyk-pgsql.name}-postgresql"
   }

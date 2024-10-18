@@ -1,4 +1,4 @@
-name: Full Performance Test
+name: Custom Performance Test
 on:
   workflow_dispatch:
     inputs:
@@ -11,11 +11,21 @@ on:
           - Azure
           - AWS
           - GCP
-      tyk_version:
-        description: 'Tyk Gateway version'
+      custom_cluster_descriptor:
+        description: 'Custom Cluster Descriptor'
         required: true
         type: string
-        default: 'v5.6'
+        default: '.github/custom-tests/comparison/all/cluster.tf'
+      custom_deployments_descriptor:
+        description: 'Custom Deployments Descriptor'
+        required: true
+        type: string
+        default: '.github/custom-tests/comparison/all/deployments.tf'
+      custom_tests_descriptor:
+        description: 'Custom Tests Descriptor'
+        required: true
+        type: string
+        default: '.github/custom-tests/comparison/all/tests.tf'
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
@@ -25,7 +35,7 @@ concurrency:
 
 jobs:
   performance_test:
-    name: "${{ inputs.cloud }} full performance run"
+    name: "${{ inputs.cloud }} custom full performance test run"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -71,7 +81,13 @@ jobs:
           cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
           cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
 
-      - name: Stand up AKS cluster
+      - name: Copy Terraform descriptor
+        run: |
+          cp ${{ inputs.custom_cluster_descriptor }} ${{ env.provider }}/main.tfvars
+          cp ${{ inputs.custom_deployments_descriptor }} deployments/main.tfvars
+          cp ${{ inputs.custom_tests_descriptor }} tests/main.tfvars
+
+      - name: AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
         run: |
           cd aks
@@ -81,6 +97,34 @@ jobs:
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
+            --var-file=main.tfvars \
+            --auto-approve
+
+      - name: EKS cluster
+        if: ${{ inputs.cloud == 'AWS' }}
+        run: |
+          cd eks
+          terraform init
+          terraform apply \
+            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
+            --var-file=main.tfvars \
+            --auto-approve
+
+      - name: GKE cluster
+        if: ${{ inputs.cloud == 'GCP' }}
+        run: |
+          cd gke
+          terraform init
+          terraform apply \
+            --var="project=${{ secrets.GCP_PROJECT }}" \
+            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
+            --var-file=main.tfvars \
             --auto-approve
 
       - name: Connect to AKS cluster
@@ -92,37 +136,12 @@ jobs:
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
-      - name: Stand up EKS cluster
-        if: ${{ inputs.cloud == 'AWS' }}
-        run: |
-          cd eks
-          terraform init
-          terraform apply \
-            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
-            --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
-            --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
-            --auto-approve
-
       - name: Connect to EKS cluster
         if: ${{ inputs.cloud == 'AWS' }}
         run: |
           aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
-
-      - name: Stand up GKE cluster
-        if: ${{ inputs.cloud == 'GCP' }}
-        run: |
-          cd gke
-          terraform init
-          terraform apply \
-            --var="project=${{ secrets.GCP_PROJECT }}" \
-            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
-            --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
-            --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
-            --auto-approve
 
       - name: Connect to GKE cluster
         if: ${{ inputs.cloud == 'GCP' }}
@@ -133,15 +152,14 @@ jobs:
           
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
-      - name: Deploy testing resources
+      - name: Run Terraform action on deployments
         run: |
           cd deployments
           terraform init
           terraform apply \
-            --var="kubernetes_config_context=performance-testing" \
-            --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
-            --var="grafana_service_type=NodePort" \
+            --var-file=main.tfvars \
+            --var="kubernetes_config_context=performance-testing" \
             --auto-approve
 
       - name: Run Tests
@@ -149,6 +167,7 @@ jobs:
           cd tests
           terraform init
           terraform apply \
+            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
 
@@ -168,40 +187,16 @@ jobs:
           cd deployments
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
-            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
-            --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
       - name: Destroy AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
-        run: |
-          cd aks
-          terraform destroy \
-            --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
-            --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
-            --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
-            --auto-approve
+        run: cd aks && terraform destroy --auto-approve
 
       - name: Destroy EKS cluster
         if: ${{ inputs.cloud == 'AWS' }}
-        run: |
-          cd eks
-          terraform destroy \
-            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
-            --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
-            --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
-            --auto-approve
+        run: cd eks && terraform destroy --auto-approve
 
       - name: Destroy GKE cluster
         if: ${{ inputs.cloud == 'GCP' }}
-        run: |
-          cd gke
-          terraform destroy \
-            --var="project=${{ secrets.GCP_PROJECT }}" \
-            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
-            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
-            --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
-            --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
-            --auto-approve
+        run: cd gke && terraform destroy --auto-approve
