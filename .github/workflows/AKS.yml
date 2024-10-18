@@ -4,7 +4,7 @@ on:
     types: [ closed ]
 
 concurrency:
-  group: "AKS"
+  group: "Azure"
 
 jobs:
   azure:
