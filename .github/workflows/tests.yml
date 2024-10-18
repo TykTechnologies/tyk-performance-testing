@@ -119,10 +119,10 @@ jobs:
           cd tests
           terraform init
           terraform ${{ inputs.action }} \
-            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tests_duration=${{ inputs.tests_duration }}" \
             --var="tests_virtual_users=${{ inputs.tests_virtual_users }}" \
+            --var-file=main.tfvars \
             --auto-approve
 
       - name: Access to Grafana Dashboard

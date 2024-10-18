@@ -115,7 +115,6 @@ jobs:
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
-            --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
       - name: Destroy AKS cluster

@@ -4,7 +4,7 @@ on:
     types: [ closed ]
 
 concurrency:
-  group: "AKS"
+  group: "Azure"
 
 jobs:
   azure:
@@ -92,7 +92,6 @@ jobs:
             --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
-            --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
       - name: Destroy AKS cluster

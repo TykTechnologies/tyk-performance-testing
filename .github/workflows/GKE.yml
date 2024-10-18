@@ -4,7 +4,7 @@ on:
     types: [ closed ]
 
 concurrency:
-  group: "GKE"
+  group: "GCP"
 
 jobs:
   gcp:
@@ -100,7 +100,6 @@ jobs:
             --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
-            --var="grafana_service_type=LoadBalancer" \
             --auto-approve
 
       - name: Destroy GKE cluster

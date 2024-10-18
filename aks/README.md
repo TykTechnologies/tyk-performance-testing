@@ -26,8 +26,8 @@ az aks get-credentials \
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_aks_version"></a> [aks\_version](#input\_aks\_version) | AKS cluster version. | `string` | `"1.29"` | no |
+|------|-------------|------|------|:--------:|
+| <a name="input_aks_version"></a> [aks\_version](#input\_aks\_version) | AKS cluster version. | `string` | `"1.30"` | no |
 | <a name="input_cluster_location"></a> [cluster\_location](#input\_cluster\_location) | AKS cluster location. | `string` | `"westus"` | no |
 | <a name="input_cluster_machine_type"></a> [cluster\_machine\_type](#input\_cluster\_machine\_type) | Default machine type for cluster. | `string` | `"Standard_F4s_v2"` | no |
 | <a name="input_dependencies_machine_type"></a> [dependencies\_machine\_type](#input\_dependencies\_machine\_type) | Machine type for dependencies, overrides cluster\_machine\_type. | `string` | `""` | no |

@@ -21,7 +21,7 @@ plugin: rate-limiting
 config:
   second: ${var.rate_limit.per * var.rate_limit.rate}
   policy: redis
-  redis_host: "${helm_release.kong-redis.name}-redis-master"
+  redis_host: "${helm_release.kong-redis.name}-master"
   redis_password: ${local.redis-pass}
 YAML
   depends_on = [helm_release.kong]
@@ -38,7 +38,7 @@ plugin: rate-limiting
 config:
   second: ${var.quota.per * var.quota.rate}
   policy: redis
-  redis_host: "${helm_release.kong-redis.name}-redis-master"
+  redis_host: "${helm_release.kong-redis.name}-master"
   redis_password: ${local.redis-pass}
 YAML
   depends_on = [helm_release.kong]

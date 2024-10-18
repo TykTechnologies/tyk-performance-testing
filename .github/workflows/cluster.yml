@@ -85,11 +85,11 @@ jobs:
           cd aks
           terraform init
           terraform ${{ inputs.action }} \
-            --var-file=main.tfvars \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
+            --var-file=main.tfvars \
             --auto-approve
 
       - name: EKS cluster ${{ inputs.action }}
@@ -98,11 +98,11 @@ jobs:
           cd eks
           terraform init
           terraform ${{ inputs.action }} \
-            --var-file=main.tfvars \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
+            --var-file=main.tfvars \
             --auto-approve
 
       - name: GKE cluster ${{ inputs.action }}
@@ -111,10 +111,10 @@ jobs:
           cd gke
           terraform init
           terraform ${{ inputs.action }} \
-            --var-file=main.tfvars \
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
+            --var-file=main.tfvars \
             --auto-approve

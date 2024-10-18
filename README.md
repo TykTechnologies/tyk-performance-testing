@@ -99,11 +99,11 @@ tyk_go_gc           = 1600
 tyk_go_max_procs    = 8
 
 kong_enabled         = false
-kong_version         = "3.6"
+kong_version         = "3.8"
 kong_deployment_type = "Deployment"
 
 gravitee_enabled         = false
-gravitee_version         = "4.4"
+gravitee_version         = "4.5"
 gravitee_deployment_type = "Deployment"
 
 grafana_service_type = "ClusterIP"
