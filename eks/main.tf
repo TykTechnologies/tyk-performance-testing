@@ -39,6 +39,7 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
 
   cluster_name    = "pt-${var.cluster_location}"
   cluster_version = var.eks_version
@@ -55,14 +56,16 @@ module "eks" {
 module "eks_node_groups" {
   for_each = module.h.nodes
   source   = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
+  version  = "~> 20.0"
 
-  name                 = each.key
-  cluster_name         = module.eks.cluster_name
-  cluster_version      = module.eks.cluster_version
-  subnet_ids           = module.vpc.private_subnets
-  desired_size         = each.value
-  instance_types       = [module.h.machines[each.key]]
-  cluster_service_cidr = module.eks.cluster_service_cidr
+  name            = each.key
+  cluster_name    = module.eks.cluster_name
+  cluster_version = module.eks.cluster_version
+
+  subnet_ids                        = module.vpc.private_subnets
+  cluster_primary_security_group_id = module.eks.cluster_primary_security_group_id
+  vpc_security_group_ids            = [module.eks.node_security_group_id]
+  cluster_service_cidr              = module.eks.cluster_service_cidr
 
   labels = {
     "node": each.key
@@ -83,5 +86,5 @@ resource "aws_eks_addon" "this" {
   addon_name                  = "aws-ebs-csi-driver"
   resolve_conflicts_on_create = "OVERWRITE"
   service_account_role_arn    = module.ebs_csi_controller_role.iam_role_arn
-  depends_on                  = [module.eks, module.eks_node_groups]
+  depends_on                  = [module.eks_node_groups]
 }
