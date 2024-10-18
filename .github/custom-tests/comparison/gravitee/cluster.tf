@@ -14,5 +14,5 @@ resource_nodes_count     = 1
 dependencies_nodes_count = 2
 
 tyk_enabled      = true
-kong_enabled     = true
+kong_enabled     = false
 gravitee_enabled = true
