@@ -139,7 +139,6 @@ jobs:
           cd deployments
           terraform init
           terraform ${{ inputs.action }} \
-            --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="analytics_database_enabled=${{ inputs.analytics_database_enabled }}" \
             --var="analytics_prometheus_enabled=${{ inputs.analytics_prometheus_enabled }}" \
@@ -149,6 +148,7 @@ jobs:
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="grafana_service_type=LoadBalancer" \
+            --var-file=main.tfvars \
             --auto-approve
 
       - name: Access to Grafana Dashboard
