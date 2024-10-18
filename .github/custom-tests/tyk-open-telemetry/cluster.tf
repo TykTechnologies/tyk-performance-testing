@@ -1,5 +1,5 @@
 cluster_location          = "westus"
-aks_version               = ""
+aks_version               = null
 cluster_machine_type      = "Standard_F8s_v2"
 service_machine_type      = ""
 upstream_machine_type     = ""
