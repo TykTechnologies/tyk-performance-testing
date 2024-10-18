@@ -1,0 +1,202 @@
+name: Custom Performance Test
+on:
+  workflow_dispatch:
+    inputs:
+      cloud:
+        description: 'Choose Cloud Provider'
+        required: true
+        type: choice
+        default: Azure
+        options:
+          - Azure
+          - AWS
+          - GCP
+      custom_cluster_descriptor:
+        description: 'Custom Cluster Descriptor'
+        required: true
+        type: string
+        default: '.github/custom-tests/comparison/all/cluster.tf'
+      custom_deployments_descriptor:
+        description: 'Custom Deployments Descriptor'
+        required: true
+        type: string
+        default: '.github/custom-tests/comparison/all/deployments.tf'
+      custom_tests_descriptor:
+        description: 'Custom Tests Descriptor'
+        required: true
+        type: string
+        default: '.github/custom-tests/comparison/all/tests.tf'
+
+env:
+  provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
+
+concurrency:
+  group: ${{ inputs.cloud }}
+
+jobs:
+  performance_test:
+    name: "${{ inputs.cloud }} custom full performance test run"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AKS credentials
+        if: ${{ inputs.cloud == 'Azure' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure AWS credentials
+        if: ${{ inputs.cloud == 'AWS' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
+
+      - name: Authenticate into gcloud
+        if: ${{ inputs.cloud == 'GCP' }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Install gcloud CLI
+        if: ${{ inputs.cloud == 'GCP' }}
+        uses: google-github-actions/setup-gcloud@v2.1.0
+
+      - name: Install gcloud k8s auth component
+        if: ${{ inputs.cloud == 'GCP' }}
+        run: gcloud components install gke-gcloud-auth-plugin
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_version: "1.8.2"
+
+      - name: Create Terraform Cloud descriptors
+        run: |
+          cp ${{ env.provider }}/terraform.cloud.tf.example ${{ env.provider }}/terraform.cloud.tf
+          cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
+          cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
+
+      - name: Copy Terraform descriptor
+        run: |
+          cp ${{ inputs.custom_cluster_descriptor }} ${{ env.provider }}/main.tfvars
+          cp ${{ inputs.custom_deployments_descriptor }} deployments/main.tfvars
+          cp ${{ inputs.custom_tests_descriptor }} tests/main.tfvars
+
+      - name: AKS cluster
+        if: ${{ inputs.cloud == 'Azure' }}
+        run: |
+          cd aks
+          terraform init
+          terraform apply \
+            --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
+            --var-file=main.tfvars \
+            --auto-approve
+
+      - name: EKS cluster
+        if: ${{ inputs.cloud == 'AWS' }}
+        run: |
+          cd eks
+          terraform init
+          terraform apply \
+            --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
+            --var-file=main.tfvars \
+            --auto-approve
+
+      - name: GKE cluster
+        if: ${{ inputs.cloud == 'GCP' }}
+        run: |
+          cd gke
+          terraform init
+          terraform apply \
+            --var="project=${{ secrets.GCP_PROJECT }}" \
+            --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+            --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
+            --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
+            --var-file=main.tfvars \
+            --auto-approve
+
+      - name: Connect to AKS cluster
+        if: ${{ inputs.cloud == 'Azure' }}
+        run: |
+          az aks get-credentials \
+            --resource-group "pt-${{ vars.AZURE_CLUSTER_LOCATION }}" \
+            --name "pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Connect to EKS cluster
+        if: ${{ inputs.cloud == 'AWS' }}
+        run: |
+          aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
+
+          kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Connect to GKE cluster
+        if: ${{ inputs.cloud == 'GCP' }}
+        run: |
+          gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --zone "${{ vars.GCP_CLUSTER_LOCATION }}" \
+            --project "${{ secrets.GCP_PROJECT }}"
+          
+          kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Run Terraform action on deployments
+        run: |
+          cd deployments
+          terraform init
+          terraform apply \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var-file=main.tfvars \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Run Tests
+        run: |
+          cd tests
+          terraform init
+          terraform apply \
+            --var-file=main.tfvars \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Test Grafana Snapshot
+        run: |
+          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
+
+      - name: Destroy Tests
+        run: |
+          cd tests
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Destroy testing resources
+        run: |
+          cd deployments
+          terraform destroy \
+            --var="kubernetes_config_context=performance-testing" \
+            --auto-approve
+
+      - name: Destroy AKS cluster
+        if: ${{ inputs.cloud == 'Azure' }}
+        run: cd aks && terraform destroy --auto-approve
+
+      - name: Destroy EKS cluster
+        if: ${{ inputs.cloud == 'AWS' }}
+        run: cd eks && terraform destroy --auto-approve
+
+      - name: Destroy GKE cluster
+        if: ${{ inputs.cloud == 'GCP' }}
+        run: cd gke && terraform destroy --auto-approve
