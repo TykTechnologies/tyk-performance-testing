@@ -31,7 +31,7 @@ resource "azurerm_resource_group" "this" {
 resource "azurerm_kubernetes_cluster" "this" {
   name                = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
-  kubernetes_version  = var.aks_version
+  kubernetes_version  = var.aks_version || null
   resource_group_name = azurerm_resource_group.this.name
   dns_prefix          = replace(azurerm_resource_group.this.name, "_", "-")
 
