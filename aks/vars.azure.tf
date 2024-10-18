@@ -6,6 +6,6 @@ variable "cluster_location" {
 
 variable "aks_version" {
   type        = string
-  default     = "1.29"
+  default     = ""
   description = "AKS cluster version."
 }
