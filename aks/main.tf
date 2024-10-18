@@ -31,12 +31,12 @@ resource "azurerm_resource_group" "this" {
 resource "azurerm_kubernetes_cluster" "this" {
   name                = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
-  kubernetes_version  = var.aks_version || null
+  kubernetes_version  = var.aks_version
   resource_group_name = azurerm_resource_group.this.name
   dns_prefix          = replace(azurerm_resource_group.this.name, "_", "-")
 
   default_node_pool {
-    name       = "this"
+    name       = "default"
     node_count = 1
     vm_size    = "Standard_B2s"
   }
