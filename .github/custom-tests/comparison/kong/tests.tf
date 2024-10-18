@@ -1,6 +1,6 @@
 tyk_enabled      = true
 kong_enabled     = true
-gravitee_enabled = true
+gravitee_enabled = false
 
 tests_fortio_options = "size=2000"
 tests_executor       = "constant-arrival-rate"

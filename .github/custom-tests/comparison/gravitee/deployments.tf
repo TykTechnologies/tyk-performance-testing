@@ -1,5 +1,3 @@
-kubernetes_config_context = "performance-testing"
-
 analytics_database_enabled    = true
 analytics_prometheus_enabled  = true
 auth_enabled                  = true
@@ -29,7 +27,7 @@ tyk_deployment_type = "Deployment"
 tyk_go_gc           = 1600
 tyk_go_max_procs    = 8
 
-kong_enabled         = true
+kong_enabled         = false
 kong_version         = "3.6"
 kong_deployment_type = "Deployment"
 

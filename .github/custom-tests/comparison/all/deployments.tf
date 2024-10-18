@@ -1,5 +1,3 @@
-kubernetes_config_context = "performance-testing"
-
 analytics_database_enabled    = true
 analytics_prometheus_enabled  = true
 auth_enabled                  = true

@@ -1,5 +1,3 @@
-kubernetes_config_context = "performance-testing"
-
 analytics_database_enabled    = false
 analytics_prometheus_enabled  = true
 auth_enabled                  = true
@@ -33,7 +31,7 @@ kong_enabled         = true
 kong_version         = "3.6"
 kong_deployment_type = "Deployment"
 
-gravitee_enabled         = true
+gravitee_enabled         = false
 gravitee_version         = "4.4"
 gravitee_deployment_type = "Deployment"
 gravitee_nginx_enabled   = false

@@ -1,5 +1,5 @@
 tyk_enabled      = true
-kong_enabled     = true
+kong_enabled     = false
 gravitee_enabled = true
 
 tests_fortio_options = "size=2000"
