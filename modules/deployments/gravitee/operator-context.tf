@@ -14,5 +14,5 @@ spec:
       username: "admin"
       password: "admin"
 YAML
-  depends_on = [helm_release.gravitee-operator]
+  depends_on = [helm_release.gravitee, helm_release.gravitee-operator]
 }

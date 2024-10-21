@@ -36,7 +36,7 @@ spec:
     - "${var.namespace}/api-policy"
 YAML
 
-  depends_on = [helm_release.tyk-operator]
+  depends_on = [helm_release.tyk, helm_release.tyk-operator]
 }
 
 resource "kubectl_manifest" "api-policy" {

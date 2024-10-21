@@ -95,6 +95,6 @@ spec:
       - name: "Default"
         target: "http://fortio.gravitee-upstream.svc:8080"
 YAML
-  depends_on = [helm_release.gravitee-operator, kubectl_manifest.gravitee-context]
+  depends_on = [helm_release.gravitee, helm_release.gravitee-operator, kubectl_manifest.gravitee-context]
   count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }
