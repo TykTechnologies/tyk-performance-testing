@@ -161,6 +161,7 @@ jobs:
             --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
+          sleep 300
 
       - name: Run Tests
         run: |

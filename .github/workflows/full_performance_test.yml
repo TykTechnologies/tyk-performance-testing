@@ -142,6 +142,7 @@ jobs:
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --auto-approve
+          sleep 300
 
       - name: Run Tests
         run: |
