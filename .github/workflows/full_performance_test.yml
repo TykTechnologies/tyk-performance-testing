@@ -160,7 +160,7 @@ jobs:
           sleep 300
 
       - name: Access to Tyk Gateway Profiler and Grafana Dashboard
-        if: ${{ inputs.tyk_profiler_enabled == 'true' }}
+        if: ${{ inputs.tyk_profiler_enabled == true }}
         run: |
           echo "###################################################################"
           echo "# Grafana Login"
