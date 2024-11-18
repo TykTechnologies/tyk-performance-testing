@@ -2,6 +2,10 @@ variable "deployment_type" {
   type = string
 }
 
+variable "service_type" {
+  type = string
+}
+
 variable "replica_count" {
   type = string
 }

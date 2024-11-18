@@ -25,6 +25,7 @@ resources_limits_memory     = "0"
 tyk_enabled          = true
 tyk_version          = "v5.6"
 tyk_deployment_type  = "Deployment"
+tyk_service_type     = "ClusterIP"
 tyk_go_gc            = 1600
 tyk_go_max_procs     = 8
 tyk_profiler_enabled = false
@@ -32,7 +33,9 @@ tyk_profiler_enabled = false
 kong_enabled         = false
 kong_version         = "3.8"
 kong_deployment_type = "Deployment"
+kong_service_type    = "ClusterIP"
 
 gravitee_enabled         = false
 gravitee_version         = "4.5"
 gravitee_deployment_type = "Deployment"
+gravitee_service_type    = "ClusterIP"

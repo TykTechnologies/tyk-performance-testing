@@ -21,6 +21,12 @@ variable "tyk_deployment_type" {
   description = "Tyk Gateway deployment type."
 }
 
+variable "tyk_service_type" {
+  type        = string
+  default     = "ClusterIP"
+  description = "Tyk Gateway service type."
+}
+
 variable "tyk_go_gc" {
   type        = number
   default     = 1600

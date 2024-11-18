@@ -16,6 +16,12 @@ variable "gravitee_deployment_type" {
   description = "Gravitee Gateway deployment type."
 }
 
+variable "gravitee_service_type" {
+  type        = string
+  default     = "ClusterIP"
+  description = "Gravitee Gateway service type."
+}
+
 variable "gravitee_nginx_enabled" {
   type        = bool
   default     = false

@@ -15,3 +15,9 @@ variable "kong_deployment_type" {
   default     = "Deployment"
   description = "Kong Gateway deployment type."
 }
+
+variable "kong_service_type" {
+  type        = string
+  default     = "ClusterIP"
+  description = "Kong Gateway service type."
+}

@@ -66,6 +66,12 @@ resource "helm_release" "kong" {
     value = var.deployment_type == "DaemonSet" ? true : false
   }
 
+
+  set {
+    name  = "gateway.service.type"
+    value = var.service_type
+  }
+
   set {
     name  = "gateway.replicaCount"
     value = var.replica_count

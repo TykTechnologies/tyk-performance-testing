@@ -106,6 +106,11 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    name  = "tyk-gateway.gateway.service.type"
+    value = var.service_type
+  }
+
+  set {
     name  = "tyk-gateway.gateway.replicaCount"
     value = var.replica_count
   }
