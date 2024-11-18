@@ -49,6 +49,7 @@ module "tyk" {
   resources               = var.resources
   go_gc                   = var.tyk.go_gc
   go_max_procs            = var.tyk.go_max_procs
+  profiler                = var.tyk.profiler
 
   analytics      = var.analytics
   auth           = var.auth

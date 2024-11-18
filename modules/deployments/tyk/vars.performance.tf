@@ -38,3 +38,9 @@ variable "go_gc" {
 variable "go_max_procs" {
   type = string
 }
+
+variable "profiler" {
+  type = object({
+    enabled = bool
+  })
+}

@@ -274,6 +274,16 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    name  = "tyk-gateway.gateway.extraEnvs[13].name"
+    value = "TYK_GW_HTTPPROFILE"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[13].name"
+    value = var.profiler.enabled
+  }
+
+  set {
     name  = "tyk-gateway.gateway.nodeSelector.node"
     value = var.label
   }

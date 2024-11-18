@@ -50,5 +50,6 @@
 | <a name="input_tyk_enabled"></a> [tyk\_enabled](#input\_tyk\_enabled) | Enable Tyk services. | `bool` | `true`             | no |
 | <a name="input_tyk_go_gc"></a> [tyk\_go\_gc](#input\_tyk\_go\_gc) | Target percentage for garbage collection execution in Go. | `number` | `1600`             | no |
 | <a name="input_tyk_go_max_procs"></a> [tyk\_go\_max\_procs](#input\_tyk\_go\_max\_procs) | Limits the number of operating system threads that can execute user-level Go code simultaneously. Matching the value to threads * cpu limit allows for optimal performance. | `number` | `8`                | no |
+| <a name="input_tyk_profiler_enabled"></a> [tyk\_profiler\_enabled](#input\_tyk\_profiler\_enabled) | Enables profiling on the Tyk Gateway. | `bool` | `false` | no |
 | <a name="input_tyk_license"></a> [tyk\_license](#input\_tyk\_license) | Tyk self-managed license. | `string` | n/a                | yes |
 | <a name="input_tyk_version"></a> [tyk\_version](#input\_tyk\_version) | Tyk Gateway version. | `string` | `"v5.6"`           | no |

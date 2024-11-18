@@ -21,11 +21,12 @@ resources_requests_memory   = "2048Mi"
 resources_limits_cpu        = "750m"
 resources_limits_memory     = "2048Mi"
 
-tyk_enabled         = true
-tyk_version         = "v5.6"
-tyk_deployment_type = "Deployment"
-tyk_go_gc           = 1600
-tyk_go_max_procs    = 8
+tyk_enabled          = true
+tyk_version          = "v5.6"
+tyk_deployment_type  = "Deployment"
+tyk_go_gc            = 1600
+tyk_go_max_procs     = 8
+tyk_profiler_enabled = false
 
 kong_enabled         = false
 kong_version         = "3.8"

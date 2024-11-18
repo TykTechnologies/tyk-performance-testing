@@ -61,6 +61,9 @@ module "deployments" {
     deployment_type = var.tyk_deployment_type
     go_gc           = var.tyk_go_gc
     go_max_procs    = var.tyk_go_max_procs
+    profiler        = {
+      enabled = var.tyk_profiler_enabled
+    }
   }
 
   kong = {

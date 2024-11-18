@@ -16,6 +16,11 @@ on:
         required: true
         type: string
         default: 'v5.6'
+      tyk_profiling_enabled:
+        description: 'Enabled Tyk Profiling'
+        required: true
+        type: boolean
+        default: false
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
@@ -141,6 +146,7 @@ jobs:
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
             --auto-approve
           sleep 300
 
