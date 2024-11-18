@@ -170,7 +170,8 @@ jobs:
         if: ${{ inputs.tyk_profiler_enabled == true }}
         run: |
           kubectl port-forward svc/gateway-svc-tyk-tyk-gateway -n tyk 8080 &
-          sleep 10
+          sleep 5
+          
           wget "http://localhost:8080/debug/pprof/heap?debug=1"       --directory-prefix=./profiles/${{ inputs.tyk_version }}-heap.txt
           wget "http://localhost:8080/debug/pprof/allocs?debug=1"     --directory-prefix=./profiles/${{ inputs.tyk_version }}-allocs.txt
           wget "http://localhost:8080/debug/pprof/goroutine?debug=1"  --directory-prefix=./profiles/${{ inputs.tyk_version }}-goroutine.txt
@@ -180,10 +181,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.tyk_version }}-profiles
-          path: |
-            ${{ inputs.tyk_version }}-heap.txt
-            ${{ inputs.tyk_version }}-allocs.txt
-            ${{ inputs.tyk_version }}-goroutine.txt
+          path: ./profiles
+          if-no-files-found: error
 
       - name: Destroy Tests
         run: |
