@@ -169,7 +169,7 @@ jobs:
           echo "# Password: topsecretpassword"
           echo "#"
           echo "# Tyk Gateway"
-          echo "# http://$(kubectl get svc -n tyk gateway-svc-tyk-tyk-gateway -ojsonpath='{.status.loadBalancer.ingress[0].ip}')":8080/debug/pprof/
+          echo "# http://$(kubectl get svc -n tyk gateway-svc-tyk-tyk-gateway -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"/debug/pprof/
           echo "###################################################################"
 
       - name: Run Tests
