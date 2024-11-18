@@ -15,23 +15,27 @@ hpa_enabled                 = false
 hpa_max_replica_count       = 10
 replica_count               = 4
 hpa_avg_cpu_util_percentage = 80
-external_traffic_policy     = "local"
+external_traffic_policy     = "Local"
 resources_requests_cpu      = "750m"
 resources_requests_memory   = "2048Mi"
 resources_limits_cpu        = "750m"
 resources_limits_memory     = "2048Mi"
 
-tyk_enabled         = true
-tyk_version         = "v5.6"
-tyk_deployment_type = "Deployment"
-tyk_go_gc           = 1600
-tyk_go_max_procs    = 8
+tyk_enabled          = true
+tyk_version          = "v5.6"
+tyk_deployment_type  = "Deployment"
+tyk_service_type     = "ClusterIP"
+tyk_go_gc            = 1600
+tyk_go_max_procs     = 8
+tyk_profiler_enabled = false
 
 kong_enabled         = false
 kong_version         = "3.8"
+kong_deployment_type = "Deployment"
 kong_deployment_type = "Deployment"
 
 gravitee_enabled         = true
 gravitee_version         = "4.5"
 gravitee_deployment_type = "Deployment"
+gravitee_service_type    = "ClusterIP"
 gravitee_nginx_enabled   = false

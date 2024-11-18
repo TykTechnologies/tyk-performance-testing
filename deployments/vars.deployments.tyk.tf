@@ -21,6 +21,12 @@ variable "tyk_deployment_type" {
   description = "Tyk Gateway deployment type."
 }
 
+variable "tyk_service_type" {
+  type        = string
+  default     = "ClusterIP"
+  description = "Tyk Gateway service type."
+}
+
 variable "tyk_go_gc" {
   type        = number
   default     = 1600
@@ -31,4 +37,10 @@ variable "tyk_go_max_procs" {
   type        = number
   default     = 8
   description = "Limits the number of operating system threads that can execute user-level Go code simultaneously. Matching the value to threads * cpu limit allows for optimal performance."
+}
+
+variable "tyk_profiler_enabled" {
+  type        = bool
+  default     = false
+  description = "Enables profiling on the Tyk Gateway."
 }

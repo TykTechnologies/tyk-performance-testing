@@ -24,7 +24,7 @@ variable "replica_count" {
 
 variable "external_traffic_policy" {
   type        = string
-  default     = "local"
+  default     = "Local"
   description = "Gateway service external traffic policy. Set to 'local' when using 1 k8s node per gateway and 'cluster' when using multiple k8s nodes per gateway for optimal routing performance."
 }
 

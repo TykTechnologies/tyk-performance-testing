@@ -2,6 +2,10 @@ variable "deployment_type" {
   type = string
 }
 
+variable "service_type" {
+  type = string
+}
+
 variable "replica_count" {
   type = string
 }
@@ -37,4 +41,10 @@ variable "go_gc" {
 
 variable "go_max_procs" {
   type = string
+}
+
+variable "profiler" {
+  type = object({
+    enabled = bool
+  })
 }

@@ -6,6 +6,10 @@ variable "tyk" {
     go_gc           = number
     go_max_procs    = number
     deployment_type = string
+    service_type    = string
+    profiler        = object({
+      enabled = bool
+    })
   })
 }
 
@@ -14,6 +18,7 @@ variable "kong" {
     enabled         = bool
     version         = string
     deployment_type = string
+    service_type    = string
   })
 }
 
@@ -22,6 +27,7 @@ variable "gravitee" {
     enabled         = bool
     version         = string
     deployment_type = string
+    service_type    = string
     nginx_enabled   = bool
   })
 }

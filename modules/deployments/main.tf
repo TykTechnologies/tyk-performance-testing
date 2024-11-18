@@ -43,12 +43,14 @@ module "tyk" {
   license         = var.tyk.license
 
   deployment_type         = var.tyk.deployment_type
+  service_type            = var.tyk.service_type
   hpa                     = var.hpa
   replica_count           = var.replica_count
   external_traffic_policy = var.external_traffic_policy
   resources               = var.resources
   go_gc                   = var.tyk.go_gc
   go_max_procs            = var.tyk.go_max_procs
+  profiler                = var.tyk.profiler
 
   analytics      = var.analytics
   auth           = var.auth
@@ -68,6 +70,7 @@ module "kong" {
   gateway_version = var.kong.version
 
   deployment_type         = var.kong.deployment_type
+  service_type            = var.kong.service_type
   hpa                     = var.hpa
   replica_count           = var.replica_count
   external_traffic_policy = var.external_traffic_policy
@@ -92,6 +95,7 @@ module "gravitee" {
   nginx_enabled   = var.gravitee.nginx_enabled
 
   deployment_type         = var.gravitee.deployment_type
+  service_type            = var.gravitee.service_type
   hpa                     = var.hpa
   replica_count           = var.replica_count
   external_traffic_policy = var.external_traffic_policy

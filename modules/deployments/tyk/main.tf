@@ -106,6 +106,11 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    name  = "tyk-gateway.gateway.service.type"
+    value = var.service_type
+  }
+
+  set {
     name  = "tyk-gateway.gateway.replicaCount"
     value = var.replica_count
   }
@@ -271,6 +276,17 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[12].value"
     value = "opentelemetry-collector.dependencies.svc:4317"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[13].name"
+    value = "TYK_GW_HTTPPROFILE"
+  }
+
+  set {
+    type  = "string"
+    name  = "tyk-gateway.gateway.extraEnvs[13].value"
+    value = var.profiler.enabled
   }
 
   set {

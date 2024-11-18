@@ -356,6 +356,11 @@ resource "helm_release" "gravitee" {
   }
 
   set {
+    name  = "gateway.service.type"
+    value = var.service_type
+  }
+
+  set {
     name  = "gateway.replicaCount"
     value = var.replica_count
   }

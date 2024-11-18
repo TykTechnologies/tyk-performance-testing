@@ -18,9 +18,10 @@
 | <a name="input_analytics_prometheus_enabled"></a> [analytics\_prometheus\_enabled](#input\_analytics\_prometheus\_enabled) | Enables metrics collection on gateway services and aggregates them on an endpoint for prometheus to scrape. | `bool` | `false`            | no |
 | <a name="input_auth_enabled"></a> [auth\_enabled](#input\_auth\_enabled) | Enables authorization on gateway APIs. | `bool` | `false`            | no |
 | <a name="input_auth_type"></a> [auth\_type](#input\_auth\_type) | Authorization type on gateway APIs. authToken or JWT. | `string` | `authToken`        | no |
-| <a name="input_external_traffic_policy"></a> [external\_traffic\_policy](#input\_external\_traffic\_policy) | Gateway service external traffic policy. Set to 'local' when using 1 k8s node per gateway and 'cluster' when using multiple k8s nodes per gateway for optimal routing performance. | `string` | `"local"`          | no |
+| <a name="input_external_traffic_policy"></a> [external\_traffic\_policy](#input\_external\_traffic\_policy) | Gateway service external traffic policy. Set to 'local' when using 1 k8s node per gateway and 'cluster' when using multiple k8s nodes per gateway for optimal routing performance. | `string` | `"Local"`          | no |
 | <a name="input_grafana_service_type"></a> [grafana\_service\_type](#input\_grafana\_service\_type) | Grafana Dashboard service type. Set to 'LoadBalancer' type to be able to access Dashboard over the internet. | `string` | `ClusterIP`        | yes |
 | <a name="input_gravitee_deployment_type"></a> [gravitee\_deployment\_type](#input\_gravitee\_deployment\_type) | Gravitee Gateway deployment type. | `string` | `"Deployment"`     | no |
+| <a name="input_gravitee_service_type"></a> [gravitee\_service\_type](#input\_gravitee\_service\_type) | Gravitee Gateway service type. | `string` | `"ClusterIP"`      | no |
 | <a name="input_gravitee_enabled"></a> [gravitee\_enabled](#input\_gravitee\_enabled) | Enable Gravitee services. | `bool` | `false`            | no |
 | <a name="input_gravitee_nginx_enabled"></a> [gravitee\_nginx\_enabled](#input\_gravitee\_nginx\_enabled) | Gravitee Nginx controller for exposing UI and Portal. | `bool` | `false`            | no |
 | <a name="input_gravitee_version"></a> [gravitee\_version](#input\_gravitee\_version) | Gravitee Gateway version. | `string` | `"4.5"`            | no |
@@ -28,6 +29,7 @@
 | <a name="input_hpa_enabled"></a> [hpa\_enabled](#input\_hpa\_enabled) | Option to enable gateways Horizontal Pod Autoscaler. | `bool` | `true`             | no |
 | <a name="input_hpa_max_replica_count"></a> [hpa\_max\_replica\_count](#input\_hpa\_max\_replica\_count) | Gateways Horizontal Pod Autoscaler max replica count. | `number` | `4`                | no |
 | <a name="input_kong_deployment_type"></a> [kong\_deployment\_type](#input\_kong\_deployment\_type) | Kong Gateway deployment type. | `string` | `"Deployment"`     | no |
+| <a name="input_kong_service_type"></a> [kong\_service\_type](#input\_kong\_service\_type) | Kong Gateway service type. | `string` | `"ClusterIP"`      | no |
 | <a name="input_kong_enabled"></a> [kong\_enabled](#input\_kong\_enabled) | Enable Kong services. | `bool` | `false`            | no |
 | <a name="input_kong_version"></a> [kong\_version](#input\_kong\_version) | Kong Gateway version. | `string` | `"3.8"`            | no |
 | <a name="input_kubernetes_config_context"></a> [kubernetes\_config\_context](#input\_kubernetes\_config\_context) | Kubernetes config context. | `string` | `"minikube"`       | no |
@@ -47,8 +49,10 @@
 | <a name="input_resources_requests_cpu"></a> [resources\_requests\_cpu](#input\_resources\_requests\_cpu) | Gateway CPU requests. | `string` | `"0"`              | no |
 | <a name="input_resources_requests_memory"></a> [resources\_requests\_memory](#input\_resources\_requests\_memory) | Gateway memory requests. | `string` | `"0"`              | no |
 | <a name="input_tyk_deployment_type"></a> [tyk\_deployment\_type](#input\_tyk\_deployment\_type) | Tyk Gateway deployment type. | `string` | `"Deployment"`     | no |
+| <a name="input_tyk_service_type"></a> [tyk\_service\_type](#input\_tyk\_service\_type) | Tyk Gateway service type. | `string` | `"ClusterIP"`      | no |
 | <a name="input_tyk_enabled"></a> [tyk\_enabled](#input\_tyk\_enabled) | Enable Tyk services. | `bool` | `true`             | no |
 | <a name="input_tyk_go_gc"></a> [tyk\_go\_gc](#input\_tyk\_go\_gc) | Target percentage for garbage collection execution in Go. | `number` | `1600`             | no |
 | <a name="input_tyk_go_max_procs"></a> [tyk\_go\_max\_procs](#input\_tyk\_go\_max\_procs) | Limits the number of operating system threads that can execute user-level Go code simultaneously. Matching the value to threads * cpu limit allows for optimal performance. | `number` | `8`                | no |
+| <a name="input_tyk_profiler_enabled"></a> [tyk\_profiler\_enabled](#input\_tyk\_profiler\_enabled) | Enables profiling on the Tyk Gateway. | `bool` | `false`            | no |
 | <a name="input_tyk_license"></a> [tyk\_license](#input\_tyk\_license) | Tyk self-managed license. | `string` | n/a                | yes |
 | <a name="input_tyk_version"></a> [tyk\_version](#input\_tyk\_version) | Tyk Gateway version. | `string` | `"v5.6"`           | no |
