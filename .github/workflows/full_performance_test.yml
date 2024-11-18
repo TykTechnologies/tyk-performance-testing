@@ -16,7 +16,7 @@ on:
         required: true
         type: string
         default: 'v5.6'
-      tyk_profiling_enabled:
+      tyk_profiler_enabled:
         description: 'Enabled Tyk Profiling'
         required: true
         type: boolean
