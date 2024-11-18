@@ -169,7 +169,7 @@ jobs:
       - name: Download Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}
         run: |
-          kubectl port-forward svc/gateway-svc-tyk-tyk-gateway -n tyk 8080
+          kubectl port-forward svc/gateway-svc-tyk-tyk-gateway -n tyk 8080 &
           
           wget "http://localhost:8080/debug/pprof/heap?debug=1"       --directory-prefix=./profiles/${{ inputs.tyk_version }}-heap.txt
           wget "http://localhost:8080/debug/pprof/allocs?debug=1"     --directory-prefix=./profiles/${{ inputs.tyk_version }}-allocs.txt
