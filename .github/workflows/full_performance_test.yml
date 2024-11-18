@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   performance_test:
-    name: "${{ inputs.cloud }} full performance run"
+    name: "${{ inputs.cloud }} full performance run on Tyk ${{ inputs.tyk_version }}"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
