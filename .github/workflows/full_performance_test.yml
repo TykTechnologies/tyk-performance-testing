@@ -36,6 +36,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Install wget
+        if: ${{ inputs.tyk_profiler_enabled == true }}
+        run: sudo apt-get update && sudo apt-get install -y wget
+
       - name: Configure AKS credentials
         if: ${{ inputs.cloud == 'Azure' }}
         uses: azure/login@v2
@@ -142,35 +146,13 @@ jobs:
         run: |
           cd deployments
           terraform init
-          
-          if [[ "${{ inputs.tyk_profiler_enabled }}" == "true" ]]; then
-            service_type="LoadBalancer"
-          else
-            service_type="ClusterIP"
-          fi
-          
           terraform apply \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
-            --var="tyk_service_type=$service_type" \
-            --var="grafana_service_type=$service_type" \
             --auto-approve
           sleep 300
-
-      - name: Access to Tyk Gateway Profiler and Grafana Dashboard
-        if: ${{ inputs.tyk_profiler_enabled == true }}
-        run: |
-          echo "###################################################################"
-          echo "# Grafana Login"
-          echo "# http://$(kubectl get svc -n dependencies grafana -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
-          echo "# Username: admin"
-          echo "# Password: topsecretpassword"
-          echo "#"
-          echo "# Tyk Gateway"
-          echo "# http://$(kubectl get svc -n tyk gateway-svc-tyk-tyk-gateway -ojsonpath='{.status.loadBalancer.ingress[0].ip}')":8080/debug/pprof/
-          echo "###################################################################"
 
       - name: Run Tests
         run: |
@@ -183,6 +165,24 @@ jobs:
       - name: Test Grafana Snapshot
         run: |
           kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
+
+      - name: Download Profiles
+        if: ${{ inputs.tyk_profiler_enabled == true }}
+        run: |
+          kubectl port-forward svc/gateway-svc-tyk-tyk-gateway -n tyk 8080
+          
+          wget "http://localhost:8080/debug/pprof/heap?debug=1"       --directory-prefix=./profiles/${{ inputs.tyk_version }}-heap.txt
+          wget "http://localhost:8080/debug/pprof/allocs?debug=1"     --directory-prefix=./profiles/${{ inputs.tyk_version }}-allocs.txt
+          wget "http://localhost:8080/debug/pprof/goroutine?debug=1"  --directory-prefix=./profiles/${{ inputs.tyk_version }}-goroutine.txt
+
+      - name: Upload Profiles
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.tyk_version }}-profiles
+          path: |
+            ${{ inputs.tyk_version }}-heap.txt
+            ${{ inputs.tyk_version }}-allocs.txt
+            ${{ inputs.tyk_version }}-goroutine.txt
 
       - name: Destroy Tests
         run: |
