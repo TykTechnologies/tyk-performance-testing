@@ -176,6 +176,7 @@ jobs:
           wget "http://localhost:8080/debug/pprof/goroutine?debug=1"  --directory-prefix=./profiles/${{ inputs.tyk_version }}-goroutine.txt
 
       - name: Upload Profiles
+        if: ${{ inputs.tyk_profiler_enabled == true }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.tyk_version }}-profiles
