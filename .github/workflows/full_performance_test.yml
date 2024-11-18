@@ -159,7 +159,7 @@ jobs:
             --auto-approve
           sleep 300
 
-      - name: Access to Grafana Dashboard
+      - name: Access to Tyk Gateway Profiler and Grafana Dashboard
         if: ${{ inputs.tyk_profiler_enabled == 'true' }}
         run: |
           echo "###################################################################"
@@ -169,7 +169,7 @@ jobs:
           echo "# Password: topsecretpassword"
           echo "#"
           echo "# Tyk Gateway"
-          echo "# http://$(kubectl get svc -n tyk gateway-svc-tyk-tyk-gateway -ojsonpath='{.status.loadBalancer.ingress[0].ip}')"
+          echo "# http://$(kubectl get svc -n tyk gateway-svc-tyk-tyk-gateway -ojsonpath='{.status.loadBalancer.ingress[0].ip}')":8080/debug/pprof/
           echo "###################################################################"
 
       - name: Run Tests
