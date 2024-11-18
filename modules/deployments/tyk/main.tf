@@ -284,6 +284,7 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    type  = "string"
     name  = "tyk-gateway.gateway.extraEnvs[13].name"
     value = var.profiler.enabled
   }
