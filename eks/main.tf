@@ -51,14 +51,6 @@ module "eks" {
 
   cluster_endpoint_public_access           = true
   enable_cluster_creator_admin_permissions = true
-
-  cluster_addons = {
-    aws-ebs-csi-driver = {
-      most_recent                 = true
-      resolve_conflicts_on_create = "OVERWRITE"
-      service_account_role_arn    = module.ebs_csi_controller_role.iam_role_arn
-    }
-  }
 }
 
 module "eks_node_groups" {
@@ -87,4 +79,19 @@ module "ebs_csi_controller_role" {
   provider_url                  = module.eks.cluster_oidc_issuer_url
   role_policy_arns              = ["arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"]
   oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+}
+
+resource "aws_eks_addon" "this" {
+  cluster_name                = module.eks.cluster_name
+  addon_name                  = "aws-ebs-csi-driver"
+  resolve_conflicts_on_create = "OVERWRITE"
+  service_account_role_arn    = module.ebs_csi_controller_role.iam_role_arn
+
+  configuration_values = jsonencode({
+    defaultStorageClass = {
+      enabled = true
+    }
+  })
+
+  depends_on = [module.eks, module.eks_node_groups]
 }
