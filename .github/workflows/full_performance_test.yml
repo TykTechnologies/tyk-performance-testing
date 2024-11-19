@@ -179,7 +179,7 @@ jobs:
 
       - name: Upload Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.tyk_version }}-profiles
           path: ./profiles
