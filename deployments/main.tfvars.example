@@ -42,3 +42,6 @@ gravitee_version         = "4.5"
 gravitee_deployment_type = "Deployment"
 gravitee_service_type    = "ClusterIP"
 gravitee_nginx_enabled   = false
+
+upstream_enabled     = false
+grafana_service_type = "ClusterIP"

@@ -56,3 +56,5 @@
 | <a name="input_tyk_profiler_enabled"></a> [tyk\_profiler\_enabled](#input\_tyk\_profiler\_enabled) | Enables profiling on the Tyk Gateway. | `bool` | `false`            | no |
 | <a name="input_tyk_license"></a> [tyk\_license](#input\_tyk\_license) | Tyk self-managed license. | `string` | n/a                | yes |
 | <a name="input_tyk_version"></a> [tyk\_version](#input\_tyk\_version) | Tyk Gateway version. | `string` | `"v5.6"`           | no |
+| <a name="input_upstream_enabled"></a> [upstream\_enabled](#input\_upstream\_enabled) | Enable Fortio upstream service for baseline testing. | `bool` | `false` | no |
+

@@ -13,5 +13,7 @@ variable "labels" {
     gravitee-upstream  = string
     gravitee-tests     = string
     gravitee-resources = string
+    upstream           = string
+    upstream-tests     = string
   })
 }

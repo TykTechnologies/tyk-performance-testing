@@ -13,6 +13,8 @@ variable "node_labels" {
     gravitee-upstream  = string
     gravitee-tests     = string
     gravitee-resources = string
+    upstream           = string
+    upstream-tests     = string
   })
 
   default     = null

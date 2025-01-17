@@ -27,6 +27,7 @@
 | <a name="input_tests_rate"></a> [tests\_rate](#input\_tests\_rate) | Test RPS, applies for 'constant-arrival-rate' and 'ramping-arrival-rate' executors. | `number` | `20000` | no |
 | <a name="input_tests_virtual_users"></a> [tests\_virtual\_users](#input\_tests\_virtual\_users) | Number of virtual users to be used for the test. | `number` | `50` | no |
 | <a name="input_tyk_enabled"></a> [tyk\_enabled](#input\_tyk\_enabled) | Enable Tyk services. | `bool` | `true` | no |
+| <a name="input_upstream_enabled"></a> [upstream\_enabled](#input\_upstream\_enabled) | Enable Fortio upstream service for baseline testing. | `bool` | `false` | no |
 
 ### externally-controlled
 
@@ -36,6 +37,7 @@ kubernetes_config_context = "performance-testing"
 tyk_enabled      = true
 kong_enabled     = true
 gravitee_enabled = true
+upstream_enabled = false
 
 tests_fortio_options = "size=20"
 tests_executor       = "externally-controlled"
@@ -52,8 +54,8 @@ Increase VUs dynamically over the next 15 minutes.
 for i in {1..100}; do
    VUS=$((i * 10))
 
-   kubectl exec -it $(kubectl get pod -l k6_cr=test -l runner=true -n tyk -o jsonpath='{.items[*].metadata.name}') -n tyk -- k6 scale --vus $VUS
-   kubectl exec -it $(kubectl get pod -l k6_cr=test -l runner=true -n kong -o jsonpath='{.items[*].metadata.name}') -n kong -- k6 scale --vus $VUS
+   kubectl exec -it $(kubectl get pod -l k6_cr=test -l runner=true -n tyk      -o jsonpath='{.items[*].metadata.name}') -n tyk      -- k6 scale --vus $VUS
+   kubectl exec -it $(kubectl get pod -l k6_cr=test -l runner=true -n kong     -o jsonpath='{.items[*].metadata.name}') -n kong     -- k6 scale --vus $VUS
    kubectl exec -it $(kubectl get pod -l k6_cr=test -l runner=true -n gravitee -o jsonpath='{.items[*].metadata.name}') -n gravitee -- k6 scale --vus $VUS
 
    sleep 9

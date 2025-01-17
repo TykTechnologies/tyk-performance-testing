@@ -33,6 +33,14 @@ module "gravitee-upstream" {
   count = var.gravitee.enabled == true ? 1 : 0
 }
 
+module "upstream" {
+  source = "./upstream"
+  label     = var.labels.upstream
+  namespace = var.labels.upstream
+
+  count = var.upstream.enabled == true ? 1 : 0
+}
+
 module "tyk" {
   source = "./tyk"
 

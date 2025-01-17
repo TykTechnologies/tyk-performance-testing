@@ -59,6 +59,8 @@ kubectl label nodes minikube-m09 node=gravitee
 kubectl label nodes minikube-m10 node=gravitee-upstream
 kubectl label nodes minikube-m11 node=gravitee-tests
 kubectl label nodes minikube-m12 node=gravitee-resources
+kubectl label nodes minikube-m13 node=upstream
+kubectl label nodes minikube-m14 node=upstream-tests
 ```
 
 Note: dependencies are required, while the rest are required based on where the tests are being run. 
@@ -110,6 +112,7 @@ gravitee_version         = "4.5"
 gravitee_deployment_type = "Deployment"
 gravitee_service_type    = "ClusterIP"
 
+upstream_enabled     = false
 grafana_service_type = "ClusterIP"
 ```
 
@@ -121,6 +124,7 @@ kubernetes_config_context = "performance-testing"
 tyk_enabled      = true
 kong_enabled     = false
 gravitee_enabled = false
+upstream_enabled = false
 
 tests_fortio_options = "size=20"
 tests_executor       = "constant-arrival-rate"
