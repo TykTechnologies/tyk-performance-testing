@@ -9,3 +9,7 @@ variable "kong_enabled" {
 variable "gravitee_enabled" {
   type = bool
 }
+
+variable "upstream_enabled" {
+  type = bool
+}

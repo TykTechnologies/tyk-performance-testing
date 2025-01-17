@@ -81,3 +81,9 @@ variable "gravitee_enabled" {
   default     = false
   description = "Enable Gravitee services."
 }
+
+variable "upstream_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Fortio upstream service for baseline testing."
+}

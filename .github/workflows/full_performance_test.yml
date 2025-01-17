@@ -15,7 +15,7 @@ on:
         description: 'Tyk Gateway version'
         required: true
         type: string
-        default: 'v5.6'
+        default: 'v5.7'
       tyk_profiler_enabled:
         description: 'Enabled Tyk Profiling'
         required: true

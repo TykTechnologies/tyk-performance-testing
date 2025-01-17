@@ -16,3 +16,4 @@ dependencies_nodes_count = 1
 tyk_enabled      = true
 kong_enabled     = false
 gravitee_enabled = false
+upstream_enabled = false

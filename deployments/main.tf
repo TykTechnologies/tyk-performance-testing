@@ -82,6 +82,10 @@ module "deployments" {
     nginx_enabled   = var.gravitee_nginx_enabled
   }
 
+  upstream = {
+    enabled = var.upstream_enabled
+  }
+
   dependencies = {
     grafana = {
       service = {

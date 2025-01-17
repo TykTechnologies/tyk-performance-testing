@@ -13,6 +13,10 @@ module "tests" {
     enabled = var.gravitee_enabled
   }
 
+  upstream = {
+    enabled = var.upstream_enabled
+  }
+
   tests = {
     fortio_options = var.tests_fortio_options
     executor       = var.tests_executor

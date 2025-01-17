@@ -21,6 +21,7 @@ module "h" {
   tyk_enabled      = var.tyk_enabled
   kong_enabled     = var.kong_enabled
   gravitee_enabled = var.gravitee_enabled
+  upstream_enabled = var.upstream_enabled
 }
 
 resource "azurerm_resource_group" "this" {

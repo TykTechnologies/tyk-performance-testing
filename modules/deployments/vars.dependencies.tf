@@ -7,3 +7,9 @@ variable "dependencies" {
     })
   })
 }
+
+variable "upstream" {
+  type = object({
+    enabled = bool
+  })
+}

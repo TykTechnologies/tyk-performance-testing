@@ -28,6 +28,16 @@ module "gravitee-test" {
   count = var.gravitee.enabled == true ? 1 : 0
 }
 
+module "upstream-test" {
+  source = "./test"
+
+  name   = "upstream"
+  url    = "fortio.upstream.svc:8080"
+  config = var.tests
+
+  count = var.upstream.enabled == true ? 1 : 0
+}
+
 module "results-snapshot" {
   source = "./snapshot"
 
