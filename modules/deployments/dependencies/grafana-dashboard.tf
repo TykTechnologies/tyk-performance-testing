@@ -1729,7 +1729,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
-        "orientation": "vertical",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "max"
@@ -1859,7 +1859,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
-        "orientation": "vertical",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [],
           "fields": "",
@@ -2020,7 +2020,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
-        "orientation": "vertical",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "max"
@@ -2150,7 +2150,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
-        "orientation": "vertical",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "max"
@@ -2280,7 +2280,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
-        "orientation": "vertical",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "max"
@@ -2410,7 +2410,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
-        "orientation": "vertical",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [],
           "fields": "",
