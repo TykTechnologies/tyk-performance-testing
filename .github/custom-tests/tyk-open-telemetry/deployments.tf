@@ -23,7 +23,7 @@ resources_limits_cpu        = "0"
 resources_limits_memory     = "0"
 
 tyk_enabled          = true
-tyk_version          = "v5.6"
+tyk_version          = "v5.7"
 tyk_deployment_type  = "Deployment"
 tyk_service_type     = "ClusterIP"
 tyk_go_gc            = 1600
