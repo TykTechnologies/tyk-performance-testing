@@ -13,8 +13,8 @@ locals {
     gravitee-upstream  = var.gravitee_enabled ? var.upstream_nodes_count : 0
     gravitee-tests     = var.gravitee_enabled ? var.tests_nodes_count    : 0
     gravitee-resources = var.gravitee_enabled ? var.resource_nodes_count : 0
-    upstream           = var.enabled_upstream ? var.upstream_nodes_count : 0
-    upstream-tests     = var.enabled_upstream ? var.tests_nodes_count    : 0
+    upstream           = var.upstream_enabled ? var.upstream_nodes_count : 0
+    upstream-tests     = var.upstream_enabled ? var.tests_nodes_count    : 0
   }
 
   machines = {
