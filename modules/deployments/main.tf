@@ -37,6 +37,7 @@ module "upstream" {
   source = "./upstream"
   label     = var.labels.upstream
   namespace = var.labels.upstream
+  test      = true
 
   count = var.upstream.enabled == true ? 1 : 0
 }
