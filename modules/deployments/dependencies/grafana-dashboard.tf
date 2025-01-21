@@ -2401,6 +2401,16 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                   "fixedColor": "dark-red",
                   "mode": "fixed"
                 }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 5
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
               }
             ]
           }
@@ -3826,153 +3836,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "x": 3,
         "y": 28
       },
-      "id": 280,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "(sum by(testid) (k6_http_reqs_total{group!=\"::setup\",status=~\"3..\"}) * 100 / sum by(testid) (k6_http_reqs_total{group!=\"::setup\"}))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{testid}} -",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "HTTP 300s",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^upstream.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8438fa",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Upstream"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 6,
-        "y": 28
-      },
       "id": 282,
       "interval": "1s",
       "options": {
@@ -4117,7 +3980,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 8,
         "w": 3,
-        "x": 9,
+        "x": 6,
         "y": 28
       },
       "id": 283,
@@ -4157,6 +4020,153 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         }
       ],
       "title": "HTTP 500s",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#20edba",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*kong.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1155cb",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*gravitee.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^upstream.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8438fa",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Upstream"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 9,
+        "y": 28
+      },
+      "id": 280,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(sum by(testid) (k6_http_reqs_total{group!=\"::setup\",expected_response=\"false\"}) * 100 / sum by(testid) (k6_http_reqs_total{group!=\"::setup\"}))",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{testid}} -",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Failures",
       "type": "stat"
     },
     {
@@ -8449,7 +8459,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 9,
-        "w": 5,
+        "w": 4,
         "x": 0,
         "y": 175
       },
@@ -8595,8 +8605,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 9,
-        "w": 5,
-        "x": 5,
+        "w": 4,
+        "x": 4,
         "y": 175
       },
       "id": 284,
@@ -8664,6 +8674,80 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         }
       ],
       "title": "Gateways Resources",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8438fa",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 4,
+        "x": 8,
+        "y": 175
+      },
+      "id": 259,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "uniqueValues"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"dependencies\"})",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Dependencies",
       "type": "stat"
     },
     {
@@ -8756,8 +8840,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 9,
-        "w": 5,
-        "x": 10,
+        "w": 6,
+        "x": 12,
         "y": 175
       },
       "id": 285,
@@ -8930,8 +9014,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 9,
-        "w": 5,
-        "x": 15,
+        "w": 6,
+        "x": 18,
         "y": 175
       },
       "id": 286,
@@ -9012,80 +9096,6 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         }
       ],
       "title": "Tests",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#8438fa",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 4,
-        "x": 20,
-        "y": 175
-      },
-      "id": 259,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "uniqueValues"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"dependencies\"})",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Dependencies",
       "type": "stat"
     },
     {
