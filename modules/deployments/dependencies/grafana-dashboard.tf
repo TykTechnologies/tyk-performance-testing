@@ -1882,6 +1882,620 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#20edba",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*kong.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1155cb",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*gravitee.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^upstream.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8438fa",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Upstream"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 0,
+        "y": 12
+      },
+      "id": 49,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (testid) (k6_http_reqs_total{group!=\"::setup\"})",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{testid}} -",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Requests Made",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": true,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "RPS",
+            "axisPlacement": "left",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#20edba",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*kong.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1155cb",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*gravitee.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*upstream.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8438fa",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "RPS"
+            },
+            "properties": [
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "Errors"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 5
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 9,
+        "x": 3,
+        "y": 12
+      },
+      "id": 298,
+      "interval": "5",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "timezones": [
+          "browser"
+        ],
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[$__rate_interval]))",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Requests Rate   - {{testid}}",
+          "range": true,
+          "refId": "RPS"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by(testid) (sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\", expected_response=\"false\"}[$__rate_interval])))",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "Failed Requests Rate  - {{testid}}",
+          "range": true,
+          "refId": "Errors"
+        }
+      ],
+      "title": "RPS and Errors",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": true,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisGridShow": true,
+            "axisLabel": "RPS",
+            "axisPlacement": "left",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#20edba",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*kong.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1155cb",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*gravitee.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*upstream.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8438fa",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "p99"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "solid"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Duration"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "p75"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Duration"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "id": 193,
+      "interval": "5",
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "mean",
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "timezones": [
+          "browser"
+        ],
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by(testid) (k6_http_req_duration_p99{group!=\"::setup\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "p99  - {{testid}}",
+          "range": true,
+          "refId": "p99"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "avg by(testid) (k6_http_req_duration_p75{group!=\"::setup\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "p75  - {{testid}}",
+          "range": true,
+          "refId": "p75"
+        }
+      ],
+      "title": "Duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "reqps"
         },
         "overrides": [
@@ -1964,10 +2578,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 6,
+        "h": 6,
+        "w": 3,
         "x": 0,
-        "y": 12
+        "y": 18
       },
       "id": 158,
       "interval": "1s",
@@ -2115,9 +2729,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       },
       "gridPos": {
         "h": 8,
-        "w": 6,
-        "x": 6,
-        "y": 12
+        "w": 3,
+        "x": 0,
+        "y": 24
       },
       "id": 195,
       "options": {
@@ -2195,341 +2809,23 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": true,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisGridShow": true,
-            "axisLabel": "RPS",
-            "axisPlacement": "left",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*upstream.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8438fa",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "p99"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "s"
-              },
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    10,
-                    10
-                  ],
-                  "fill": "dash"
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 2
-              },
-              {
-                "id": "custom.axisLabel",
-                "value": "Duration"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "p75"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "s"
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    0,
-                    10
-                  ],
-                  "fill": "dot"
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 3
-              },
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "custom.axisLabel",
-                "value": "Duration"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "RPS"
-            },
-            "properties": [
-              {
-                "id": "custom.lineWidth",
-                "value": 2
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byFrameRefID",
-              "options": "Errors"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 5
-              },
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "fill": "solid"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 9,
-        "x": 12,
-        "y": 12
-      },
-      "id": 193,
-      "interval": "5",
-      "options": {
-        "legend": {
-          "calcs": [
-            "min",
-            "mean",
-            "max",
-            "lastNotNull"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "timezones": [
-          "browser"
-        ],
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[$__rate_interval]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Requests Rate   - {{testid}}",
-          "range": true,
-          "refId": "RPS"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(testid) (k6_http_req_duration_p99{group!=\"::setup\"})",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "p99  - {{testid}}",
-          "range": true,
-          "refId": "p99"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "avg by(testid) (k6_http_req_duration_p75{group!=\"::setup\"})",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "p75  - {{testid}}",
-          "range": true,
-          "refId": "p75"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg by(testid) (sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\", expected_response=\"false\"}[$__rate_interval])))",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Failed Requests Rate  - {{testid}}",
-          "range": true,
-          "refId": "Errors"
-        }
-      ],
-      "title": "RPS, p99, p75 and errors",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "decimals": 2,
           "mappings": [],
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
               }
             ]
           },
-          "unit": "short"
+          "unit": "percent"
         },
         "overrides": [
           {
@@ -2611,12 +2907,13 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 12,
+        "h": 8,
         "w": 3,
-        "x": 21,
-        "y": 12
+        "x": 3,
+        "y": 24
       },
-      "id": 49,
+      "id": 71,
+      "interval": "1s",
       "options": {
         "colorMode": "background",
         "graphMode": "none",
@@ -2629,7 +2926,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         },
         "showPercentChange": false,
         "text": {},
-        "textMode": "auto",
+        "textMode": "value_and_name",
         "wideLayout": true
       },
       "pluginVersion": "10.4.1",
@@ -2641,7 +2938,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (testid) (k6_http_reqs_total{group!=\"::setup\"})",
+          "expr": "(sum by(testid) (k6_http_reqs_total{group!=\"::setup\",status=~\"2..\"}) * 100 / sum by(testid) (k6_http_reqs_total{group!=\"::setup\"}))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2651,7 +2948,301 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Requests Made",
+      "title": "HTTP 200s",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#20edba",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*kong.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1155cb",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*gravitee.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^upstream.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8438fa",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Upstream"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 6,
+        "y": 24
+      },
+      "id": 282,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by(testid) (k6_http_reqs_total{group!=\"::setup\",status=~\"4..\"})",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{testid}} -",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP 400s",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#20edba",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*kong.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1155cb",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*gravitee.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^upstream.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8438fa",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Upstream"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 9,
+        "y": 24
+      },
+      "id": 283,
+      "interval": "1s",
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by(testid) (k6_http_reqs_total{group!=\"::setup\",status=~\"5..\"})",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{testid}} -",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP 500s",
       "type": "stat"
     },
     {
@@ -2760,8 +3351,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 8,
         "w": 3,
-        "x": 0,
-        "y": 20
+        "x": 12,
+        "y": 24
       },
       "id": 122,
       "options": {
@@ -2909,8 +3500,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 8,
         "w": 3,
-        "x": 3,
-        "y": 20
+        "x": 15,
+        "y": 24
       },
       "id": 281,
       "options": {
@@ -3058,8 +3649,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 8,
         "w": 3,
-        "x": 6,
-        "y": 20
+        "x": 18,
+        "y": 24
       },
       "id": 52,
       "options": {
@@ -3207,8 +3798,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 8,
         "w": 3,
-        "x": 9,
-        "y": 20
+        "x": 21,
+        "y": 24
       },
       "id": 126,
       "options": {
@@ -3248,6 +3839,152 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         }
       ],
       "title": "P75 Duration Time",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#8438fa",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#20edba",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Tyk"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*kong.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1155cb",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Kong"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*gravitee.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Gravitee"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/^upstream.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8438fa",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Upstream"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 3,
+        "x": 0,
+        "y": 32
+      },
+      "id": 194,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by(testid) (avg_over_time(k6_vus{group!=\"::setup\"}[$__rate_interval]))",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{testid}} -",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Average VUs",
       "type": "stat"
     },
     {
@@ -3390,8 +4127,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "gridPos": {
         "h": 12,
         "w": 9,
-        "x": 12,
-        "y": 24
+        "x": 3,
+        "y": 32
       },
       "id": 14,
       "interval": "5",
@@ -3446,6 +4183,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
+          "decimals": 2,
+          "fieldMinMax": false,
           "mappings": [],
           "thresholds": {
             "mode": "percentage",
@@ -3456,7 +4195,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "short"
+          "unit": "bytes"
         },
         "overrides": [
           {
@@ -3538,19 +4277,21 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 12,
+        "h": 6,
         "w": 3,
-        "x": 21,
-        "y": 24
+        "x": 12,
+        "y": 32
       },
-      "id": 194,
+      "id": 64,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -3566,9 +4307,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "exemplar": false,
-          "expr": "sum by(testid) (avg_over_time(k6_vus{group!=\"::setup\"}[$__rate_interval]))",
+          "expr": "sum by(testid) (k6_data_sent_total)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3578,8 +4319,181 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Average VUs",
+      "title": "Data Sent",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "binBps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#20edba",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*kong.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1155cb",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*gravitee.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*upstream.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8438fa",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 9,
+        "x": 15,
+        "y": 32
+      },
+      "id": 18,
+      "interval": "5s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "avg by(testid)(sum by(testid)(irate(k6_data_received_total[$__rate_interval])))",
+          "interval": "",
+          "legendFormat": "Received - {{testid}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "avg by(testid)(sum by(testid)(irate(k6_data_sent_total[$__rate_interval])))",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Sent - {{testid}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Data flow",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -3592,17 +4506,18 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
+          "decimals": 2,
           "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": null
               }
             ]
           },
-          "unit": "percent"
+          "unit": "bytes"
         },
         "overrides": [
           {
@@ -3684,26 +4599,27 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 6,
         "w": 3,
-        "x": 0,
-        "y": 28
+        "x": 12,
+        "y": 38
       },
-      "id": 71,
-      "interval": "1s",
+      "id": 63,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
         "showPercentChange": false,
         "text": {},
-        "textMode": "value_and_name",
+        "textMode": "auto",
         "wideLayout": true
       },
       "pluginVersion": "10.4.1",
@@ -3713,9 +4629,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "exemplar": false,
-          "expr": "(sum by(testid) (k6_http_reqs_total{group!=\"::setup\",status=~\"2..\"}) * 100 / sum by(testid) (k6_http_reqs_total{group!=\"::setup\"}))",
+          "expr": "sum by(testid) (k6_data_received_total)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3725,448 +4641,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "HTTP 200s",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^upstream.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8438fa",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Upstream"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 3,
-        "y": 28
-      },
-      "id": 282,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "(sum by(testid) (k6_http_reqs_total{group!=\"::setup\",status=~\"4..\"}) * 100 / sum by(testid) (k6_http_reqs_total{group!=\"::setup\"}))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{testid}} -",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "HTTP 400s",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^upstream.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8438fa",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Upstream"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 6,
-        "y": 28
-      },
-      "id": 283,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "(sum by(testid) (k6_http_reqs_total{group!=\"::setup\",status=~\"5..\"}) * 100 / sum by(testid) (k6_http_reqs_total{group!=\"::setup\"}))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{testid}} -",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "HTTP 500s",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^upstream.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8438fa",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Upstream"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 9,
-        "y": 28
-      },
-      "id": 280,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "value_and_name",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "(sum by(testid) (k6_http_reqs_total{group!=\"::setup\",expected_response=\"false\"}) * 100 / sum by(testid) (k6_http_reqs_total{group!=\"::setup\"}))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{testid}} -",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Failures",
+      "title": "Data Received",
       "type": "stat"
     },
     {
@@ -4311,7 +4786,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 36
+        "y": 44
       },
       "id": 123,
       "options": {
@@ -4491,7 +4966,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 36
+        "y": 44
       },
       "id": 125,
       "options": {
@@ -4527,484 +5002,12 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "binBps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*upstream.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8438fa",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 11,
-        "w": 12,
-        "x": 0,
-        "y": 47
-      },
-      "id": 18,
-      "interval": "5s",
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "avg by(testid)(sum by(testid)(irate(k6_data_received_total[$__rate_interval])))",
-          "interval": "",
-          "legendFormat": "Received - {{testid}}",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "avg by(testid)(sum by(testid)(irate(k6_data_sent_total[$__rate_interval])))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Sent - {{testid}}",
-          "range": true,
-          "refId": "B"
-        }
-      ],
-      "title": "Data flow",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "fieldMinMax": false,
-          "mappings": [],
-          "thresholds": {
-            "mode": "percentage",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^upstream.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8438fa",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Upstream"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 11,
-        "w": 6,
-        "x": 12,
-        "y": 47
-      },
-      "id": 64,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "sum by(testid) (k6_data_sent_total)",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{testid}} -",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Data Sent",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "percentage",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^upstream.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8438fa",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Upstream"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 11,
-        "w": 6,
-        "x": 18,
-        "y": 47
-      },
-      "id": 63,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "sum by(testid) (k6_data_received_total)",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{testid}} -",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Data Received",
-      "type": "stat"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 58
+        "y": 55
       },
       "id": 127,
       "panels": [],
@@ -5153,7 +5156,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 59
+        "y": 56
       },
       "id": 136,
       "options": {
@@ -5358,7 +5361,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 59
+        "y": 56
       },
       "id": 137,
       "options": {
@@ -5533,7 +5536,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 70
+        "y": 67
       },
       "id": 128,
       "options": {
@@ -5707,7 +5710,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 70
+        "y": 67
       },
       "id": 130,
       "options": {
@@ -5777,7 +5780,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 81
+        "y": 78
       },
       "id": 192,
       "panels": [],
@@ -5849,7 +5852,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 82
+        "y": 79
       },
       "id": 151,
       "options": {
@@ -5919,7 +5922,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 93
+        "y": 90
       },
       "id": 135,
       "panels": [],
@@ -6068,7 +6071,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 94
+        "y": 91
       },
       "id": 138,
       "options": {
@@ -6273,7 +6276,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 94
+        "y": 91
       },
       "id": 144,
       "options": {
@@ -6448,7 +6451,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 105
+        "y": 102
       },
       "id": 131,
       "options": {
@@ -6622,7 +6625,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 105
+        "y": 102
       },
       "id": 139,
       "options": {
@@ -6692,7 +6695,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 116
+        "y": 113
       },
       "id": 142,
       "panels": [],
@@ -6841,7 +6844,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 117
+        "y": 114
       },
       "id": 143,
       "options": {
@@ -7059,7 +7062,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 117
+        "y": 114
       },
       "id": 132,
       "options": {
@@ -7201,7 +7204,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 128
+        "y": 125
       },
       "id": 145,
       "options": {
@@ -7343,7 +7346,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 128
+        "y": 125
       },
       "id": 146,
       "options": {
@@ -7426,7 +7429,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 139
+        "y": 136
       },
       "id": 141,
       "panels": [],
@@ -7575,7 +7578,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 140
+        "y": 137
       },
       "id": 147,
       "options": {
@@ -7793,7 +7796,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 140
+        "y": 137
       },
       "id": 150,
       "options": {
@@ -7935,7 +7938,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 151
+        "y": 148
       },
       "id": 148,
       "options": {
@@ -8076,7 +8079,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 151
+        "y": 148
       },
       "id": 149,
       "options": {
@@ -8159,7 +8162,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 162
+        "y": 159
       },
       "id": 140,
       "panels": [],
@@ -8231,7 +8234,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 163
+        "y": 160
       },
       "id": 133,
       "options": {
@@ -8333,7 +8336,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 163
+        "y": 160
       },
       "id": 134,
       "options": {
@@ -8377,7 +8380,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 174
+        "y": 171
       },
       "id": 197,
       "panels": [],
@@ -8461,7 +8464,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 4,
         "x": 0,
-        "y": 175
+        "y": 172
       },
       "id": 200,
       "interval": "1s",
@@ -8607,7 +8610,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 4,
         "x": 4,
-        "y": 175
+        "y": 172
       },
       "id": 284,
       "interval": "1s",
@@ -8707,7 +8710,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 4,
         "x": 8,
-        "y": 175
+        "y": 172
       },
       "id": 259,
       "interval": "1s",
@@ -8842,7 +8845,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 6,
         "x": 12,
-        "y": 175
+        "y": 172
       },
       "id": 285,
       "interval": "1s",
@@ -9016,7 +9019,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 6,
         "x": 18,
-        "y": 175
+        "y": 172
       },
       "id": 286,
       "interval": "1s",
@@ -9104,7 +9107,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 184
+        "y": 181
       },
       "id": 230,
       "panels": [],
@@ -9200,7 +9203,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 3,
         "x": 0,
-        "y": 185
+        "y": 182
       },
       "id": 287,
       "interval": "1s",
@@ -9358,7 +9361,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 3,
         "x": 3,
-        "y": 185
+        "y": 182
       },
       "id": 288,
       "interval": "1s",
@@ -9516,7 +9519,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 3,
         "x": 6,
-        "y": 185
+        "y": 182
       },
       "id": 289,
       "interval": "1s",
@@ -9674,7 +9677,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 3,
         "x": 9,
-        "y": 185
+        "y": 182
       },
       "id": 290,
       "interval": "1s",
@@ -9833,7 +9836,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 3,
         "x": 12,
-        "y": 185
+        "y": 182
       },
       "id": 291,
       "interval": "1s",
@@ -9992,7 +9995,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 3,
         "x": 15,
-        "y": 185
+        "y": 182
       },
       "id": 295,
       "interval": "1s",
@@ -10150,7 +10153,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 3,
         "x": 18,
-        "y": 185
+        "y": 182
       },
       "id": 296,
       "interval": "1s",
@@ -10309,7 +10312,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "h": 9,
         "w": 3,
         "x": 21,
-        "y": 185
+        "y": 182
       },
       "id": 297,
       "interval": "1s",
