@@ -53,12 +53,17 @@ resource "helm_release" "kong" {
 
   set {
     name  = "gateway.env.upstream_keepalive_max_requests"
-    value = "0"
+    value = "999999"
   }
 
   set {
     name  = "gateway.env.nginx_http_keepalive_requests"
-    value = "0"
+    value = "999999"
+  }
+
+  set {
+    name  = "gateway.env.proxy_access_log"
+    value = "off"
   }
 
   set {
