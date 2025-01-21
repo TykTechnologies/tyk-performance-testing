@@ -4712,7 +4712,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "decbytes"
+          "unit": "bytes"
         },
         "overrides": [
           {
@@ -4861,7 +4861,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "decbytes"
+          "unit": "bytes"
         },
         "overrides": [
           {
@@ -9124,7 +9124,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "cores"
         },
         "overrides": [
           {
@@ -9201,7 +9201,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -9220,7 +9220,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_requests{container=\"proxy\",resource=\"cpu\", namespace=\"tyk\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_requests{container=\"gateway-tyk-gateway\", resource=\"cpu\", namespace=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -9235,7 +9235,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_requests{container=\"proxy\",resource=\"cpu\", namespace=\"kong\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_requests{container=\"proxy\",resource=\"cpu\", namespace=\"kong\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -9248,7 +9248,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_requests{container=\"proxy\",resource=\"cpu\", namespace=\"gravitee\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_requests{container=\"gravitee-apim-gateway\",resource=\"cpu\", namespace=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -9282,7 +9282,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "cores"
         },
         "overrides": [
           {
@@ -9359,7 +9359,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -9378,7 +9378,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"cpu\", namespace=\"tyk\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_limits{container=\"gateway-tyk-gateway\",resource=\"cpu\", namespace=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -9393,7 +9393,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"cpu\", namespace=\"kong\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_limits{container=\"proxy\",resource=\"cpu\", namespace=\"kong\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -9406,7 +9406,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"cpu\", namespace=\"gravitee\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_limits{container=\"gravitee-apim-gateway\",resource=\"cpu\", namespace=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -9440,7 +9440,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "cores"
         },
         "overrides": [
           {
@@ -9517,7 +9517,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -9536,7 +9536,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{container=\"proxy\",resource=\"cpu\", namespace=\"tyk\"})",
+          "expr": "sum(kube_pod_container_resource_requests{container=\"gateway-tyk-gateway\", resource=\"cpu\", namespace=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -9564,7 +9564,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(kube_pod_container_resource_requests{container=\"proxy\",resource=\"cpu\", namespace=\"gravitee\"})",
+          "expr": "sum(kube_pod_container_resource_requests{container=\"gravitee-apim-gateway\",resource=\"cpu\", namespace=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -9598,7 +9598,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "cores"
         },
         "overrides": [
           {
@@ -9675,7 +9675,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -9694,7 +9694,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"cpu\", namespace=\"tyk\"}",
+          "expr": "sum(kube_pod_container_resource_limits{container=\"gateway-tyk-gateway\",resource=\"cpu\", namespace=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -9709,7 +9709,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"cpu\", namespace=\"kong\"}",
+          "expr": "sum(kube_pod_container_resource_limits{container=\"proxy\",resource=\"cpu\", namespace=\"kong\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -9722,7 +9722,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"cpu\", namespace=\"gravitee\"}",
+          "expr": "sum(kube_pod_container_resource_limits{container=\"gravitee-apim-gateway\",resource=\"cpu\", namespace=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -9746,6 +9746,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
+          "fieldMinMax": false,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -9756,7 +9757,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "bytes"
         },
         "overrides": [
           {
@@ -9833,7 +9834,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -9852,7 +9853,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_requests{container=\"proxy\",resource=\"memory\", namespace=\"tyk\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_requests{container=\"gateway-tyk-gateway\",resource=\"memory\", namespace=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -9867,7 +9868,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_requests{container=\"proxy\",resource=\"memory\", namespace=\"kong\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_requests{container=\"proxy\",resource=\"memory\", namespace=\"kong\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -9880,7 +9881,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_requests{container=\"proxy\",resource=\"memory\", namespace=\"gravitee\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_requests{container=\"gravitee-apim-gateway\",resource=\"memory\", namespace=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -9904,6 +9905,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
+          "fieldMinMax": false,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -9914,7 +9916,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "bytes"
         },
         "overrides": [
           {
@@ -9991,7 +9993,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -10010,7 +10012,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"memory\", namespace=\"tyk\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_limits{container=\"gateway-tyk-gateway\",resource=\"memory\", namespace=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10025,7 +10027,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"memory\", namespace=\"kong\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_limits{container=\"proxy\",resource=\"memory\", namespace=\"kong\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10038,7 +10040,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"memory\", namespace=\"gravitee\"}",
+          "expr": "avg by (container) (kube_pod_container_resource_limits{container=\"gravitee-apim-gateway\",resource=\"memory\", namespace=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10072,7 +10074,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "bytes"
         },
         "overrides": [
           {
@@ -10149,7 +10151,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -10168,7 +10170,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{container=\"proxy\",resource=\"memory\", namespace=\"tyk\"})",
+          "expr": "sum(kube_pod_container_resource_requests{container=\"gateway-tyk-gateway\",resource=\"memory\", namespace=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10196,7 +10198,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(kube_pod_container_resource_requests{container=\"proxy\",resource=\"memory\", namespace=\"gravitee\"})",
+          "expr": "sum(kube_pod_container_resource_requests{container=\"gravitee-apim-gateway\",resource=\"memory\", namespace=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10220,6 +10222,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "fixed"
           },
           "decimals": 2,
+          "fieldMinMax": false,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -10230,7 +10233,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "bytes"
         },
         "overrides": [
           {
@@ -10307,7 +10310,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -10326,7 +10329,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"memory\", namespace=\"tyk\"}",
+          "expr": "sum(kube_pod_container_resource_limits{container=\"gateway-tyk-gateway\",resource=\"memory\", namespace=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10341,7 +10344,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"memory\", namespace=\"kong\"}",
+          "expr": "sum(kube_pod_container_resource_limits{container=\"proxy\",resource=\"memory\", namespace=\"kong\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10354,7 +10357,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kube_pod_container_resource_limits{container=\"proxy\",resource=\"memory\", namespace=\"gravitee\"}",
+          "expr": "sum(kube_pod_container_resource_limits{container=\"gravitee-apim-gateway\",resource=\"memory\", namespace=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
