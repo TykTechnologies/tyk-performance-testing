@@ -38,3 +38,9 @@ variable "open_telemetry" {
     sampling_ratio = string
   })
 }
+
+variable "header_injection" {
+  type = object({
+    enabled = bool
+  })
+}

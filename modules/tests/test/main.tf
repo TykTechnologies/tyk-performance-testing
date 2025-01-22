@@ -16,7 +16,8 @@ resource "kubernetes_config_map" "test-configmap" {
   data = {
     "script.js" = <<EOF
 import http from 'k6/http';
-import { getAuth, getAuthType, generateJWTKeys, getScenarios, addTestInfoMetrics } from "/helpers/tests.js";
+import { getAuth, getAuthType, generateJWTKeys, addTestInfoMetrics } from "/helpers/tests.js";
+import { getScenarios } from "/helpers/scenarios.js";
 import { generateKeys } from "/helpers/auth.js";
 
 const { SCENARIO } = __ENV;
@@ -72,6 +73,9 @@ spec:
     - name: tests
       configMap:
         name: tests-configmap
+    - name: scenarios
+      configMap:
+        name: scenarios-configmap
     - name: auth
       configMap:
         name: auth-configmap
@@ -79,6 +83,9 @@ spec:
     - name: tests
       mountPath: /helpers/tests.js
       subPath: tests.js
+    - name: scenarios
+      mountPath: /helpers/scenarios.js
+      subPath: scenarios.js
     - name: auth
       mountPath: /helpers/auth.js
       subPath: auth.js
@@ -109,6 +116,9 @@ spec:
     - name: tests
       configMap:
         name: tests-configmap
+    - name: scenarios
+      configMap:
+        name: scenarios-configmap
     - name: auth
       configMap:
         name: auth-configmap
@@ -116,6 +126,9 @@ spec:
     - name: tests
       mountPath: /helpers/tests.js
       subPath: tests.js
+    - name: scenarios
+      mountPath: /helpers/scenarios.js
+      subPath: scenarios.js
     - name: auth
       mountPath: /helpers/auth.js
       subPath: auth.js

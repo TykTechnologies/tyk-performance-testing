@@ -1,11 +1,11 @@
-resource "kubernetes_config_map" "tests-configmap" {
+resource "kubernetes_config_map" "scenarios-configmap" {
   metadata {
-    name      = "tests-configmap"
+    name      = "scenarios-configmap"
     namespace = var.namespace
   }
 
   data = {
-    "tests.js" = <<EOF
+    "scenarios.js" = <<EOF
 const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
   "constant-vus": {
     executor: 'constant-vus',
@@ -51,34 +51,7 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
   },
 });
 
-const addTestInfoMetrics = () => {};
-const getAuth = () => false;
-const getAuthType = () => "";
-const generateJWTKeys = () => {
-  const keys = [];
-  return keys;
-};
-
-export { getAuth, getAuthType, generateJWTKeys, getScenarios, addTestInfoMetrics };
-
+export { getScenarios };
 EOF
   }
-
-  count = var.test ? 1 : 0
-}
-
-resource "kubernetes_config_map" "auth-configmap" {
-  metadata {
-    name      = "auth-configmap"
-    namespace = var.namespace
-  }
-
-  data = {
-    "auth.js" = <<EOF
-const generateKeys = (keyCount) => {};
-export { generateKeys };
-EOF
-  }
-
-  count = var.test ? 1 : 0
 }
