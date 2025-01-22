@@ -28,7 +28,7 @@ const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
   });
 
   authGauge.add(1, {
-    state: ${var.auth.enabled} ? "${var.auth.type} / key_count" : "Off",
+    state: ${var.auth.enabled} ? "${var.auth.type} / " + key_count : "Off",
   });
 
   quotaGauge.add(1, {

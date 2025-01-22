@@ -1245,7 +1245,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Auth",
+      "title": "Auth (Type/Key Count)",
       "type": "stat"
     },
     {
@@ -1396,7 +1396,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Rate Limit",
+      "title": "Rate Limit (Rate/Seconds)",
       "type": "stat"
     },
     {
@@ -1547,7 +1547,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Quota",
+      "title": "Quota (Rate/Seconds)",
       "type": "stat"
     },
     {
@@ -2007,7 +2007,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Live RPS",
+      "title": "RPS",
       "type": "stat"
     },
     {
@@ -4334,7 +4334,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "percentage",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               }
             ]
           },
@@ -4514,7 +4515,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4693,7 +4695,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -4881,7 +4884,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5085,7 +5089,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
