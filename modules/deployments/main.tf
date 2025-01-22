@@ -61,11 +61,12 @@ module "tyk" {
   go_max_procs            = var.tyk.go_max_procs
   profiler                = var.tyk.profiler
 
-  analytics      = var.analytics
-  auth           = var.auth
-  quota          = var.quota
-  rate_limit     = var.rate_limit
-  open_telemetry = var.open_telemetry
+  analytics        = var.analytics
+  auth             = var.auth
+  quota            = var.quota
+  rate_limit       = var.rate_limit
+  open_telemetry   = var.open_telemetry
+  header_injection = var.header_injection
 
   count = var.tyk.enabled == true ? 1 : 0
   depends_on = [module.dependencies]

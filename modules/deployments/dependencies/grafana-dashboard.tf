@@ -170,7 +170,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -470,7 +470,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -616,7 +616,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -763,7 +763,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "uniqueValues"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -1882,7 +1882,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "short"
+          "unit": "reqps"
         },
         "overrides": [
           {
@@ -1964,19 +1964,22 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 6,
+        "h": 12,
         "w": 3,
         "x": 0,
         "y": 12
       },
-      "id": 49,
+      "id": 158,
+      "interval": "1s",
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "fields": "",
           "values": false
         },
@@ -1994,7 +1997,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (testid) (k6_http_reqs_total{group!=\"::setup\"})",
+          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[$__rate_interval]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2004,7 +2007,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "refId": "A"
         }
       ],
-      "title": "Requests Made",
+      "title": "RPS",
       "type": "stat"
     },
     {
@@ -2496,7 +2499,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -2578,162 +2581,12 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         ]
       },
       "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 0,
-        "y": 18
-      },
-      "id": 158,
-      "interval": "1s",
-      "options": {
-        "colorMode": "background",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[$__rate_interval]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{testid}} -",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Peak RPS",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#8438fa",
-            "mode": "fixed"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "percentage",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "reqps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*tyk.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#20edba",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Tyk"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*kong.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1155cb",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Kong"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/.*gravitee.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#fe733f",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Gravitee"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/^RPS upstream.*/"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8438fa",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "Upstream"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
         "h": 8,
         "w": 3,
         "x": 0,
         "y": 24
       },
-      "id": 195,
+      "id": 49,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
@@ -2757,51 +2610,18 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "avg (k6_test_config_duration)",
-          "hide": true,
+          "exemplar": false,
+          "expr": "sum by (testid) (k6_http_reqs_total{group!=\"::setup\"})",
+          "format": "time_series",
+          "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "interval": "",
+          "legendFormat": "{{testid}} -",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "name": "Expression",
-            "type": "__expr__",
-            "uid": "__expr__"
-          },
-          "expression": "A",
-          "hide": true,
-          "reducer": "mean",
-          "refId": "C",
-          "type": "reduce"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "sum by (testid) (k6_http_reqs_total{group!=\"::setup\"})",
-          "hide": true,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "name": "Expression",
-            "type": "__expr__",
-            "uid": "__expr__"
-          },
-          "expression": "$B / ($C * 60)",
-          "hide": false,
-          "refId": "RPS",
-          "type": "math"
         }
       ],
-      "title": "Cumulative Average RPS per Test",
+      "title": "Requests Made",
       "type": "stat"
     },
     {
@@ -3362,7 +3182,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "max"
+            "mean"
           ],
           "fields": "",
           "values": false
@@ -3511,7 +3331,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "max"
+            "mean"
           ],
           "fields": "",
           "values": false
@@ -3660,7 +3480,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "max"
+            "mean"
           ],
           "fields": "",
           "values": false
@@ -3809,7 +3629,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "max"
+            "mean"
           ],
           "fields": "",
           "values": false
@@ -3956,7 +3776,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "justifyMode": "center",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "fields": "",
           "values": false
         },
@@ -3974,7 +3796,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(testid) (avg_over_time(k6_vus{group!=\"::setup\"}[$__rate_interval]))",
+          "expr": "sum by(testid) (k6_vus{group!=\"::setup\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4307,7 +4129,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
           "expr": "sum by(testid) (k6_data_sent_total)",
           "format": "time_series",
@@ -4629,7 +4451,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
           "expr": "sum by(testid) (k6_data_received_total)",
           "format": "time_series",

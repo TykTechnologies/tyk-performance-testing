@@ -34,6 +34,10 @@ module "deployments" {
     sampling_ratio = var.open_telemetry_sampling_ratio
   }
 
+  header_injection = {
+    enabled = var.header_injection_enabled
+  }
+
   hpa = {
     enabled                 = var.hpa_enabled
     max_replica_count       = var.hpa_max_replica_count
