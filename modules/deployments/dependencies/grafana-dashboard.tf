@@ -1997,7 +1997,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[1m]))",
+          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[10s]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2057,6 +2057,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               "mode": "off"
             }
           },
+          "fieldMinMax": false,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -2066,7 +2067,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "reqps"
         },
         "overrides": [
           {
@@ -2204,7 +2206,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[1m]))",
+          "expr": "sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\"}[10s]))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2220,7 +2222,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by(testid) (sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\", expected_response=\"false\"}[1m])))",
+          "expr": "avg by(testid) (sum by(testid) (rate(k6_http_reqs_total{group!=\"::setup\", expected_response=\"false\"}[10s])))",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -4293,7 +4295,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "avg by(testid)(sum by(testid)(irate(k6_data_received_total[$__rate_interval])))",
+          "expr": "avg by(testid)(sum by(testid)(irate(k6_data_received_total[10s])))",
           "interval": "",
           "legendFormat": "Received - {{testid}}",
           "range": true,
@@ -4306,7 +4308,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "avg by(testid)(sum by(testid)(irate(k6_data_sent_total[$__rate_interval])))",
+          "expr": "avg by(testid)(sum by(testid)(irate(k6_data_sent_total[10s])))",
           "hide": false,
           "interval": "",
           "legendFormat": "Sent - {{testid}}",
@@ -4811,7 +4813,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(1 - avg by (node) ((avg_over_time(node_memory_MemFree_bytes[5m])) / avg_over_time(node_memory_MemTotal_bytes[5m]))* on(node) group_left(label_node) kube_node_labels{label_node!=\"\"} ) * 100",
+          "expr": "(1 - avg by (node) ((avg_over_time(node_memory_MemFree_bytes[10s])) / avg_over_time(node_memory_MemTotal_bytes[10s]))* on(node) group_left(label_node) kube_node_labels{label_node!=\"\"} ) * 100",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -5295,7 +5297,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5468,7 +5471,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5655,7 +5659,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -5796,7 +5801,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6000,7 +6006,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6205,7 +6212,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6378,7 +6386,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6565,7 +6574,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -6782,7 +6792,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7000,7 +7011,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7141,7 +7153,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7295,7 +7308,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7512,7 +7526,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7730,7 +7745,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -7870,7 +7886,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -8024,7 +8041,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -8125,7 +8143,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -8210,7 +8229,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -8355,7 +8375,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -8500,7 +8521,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#8438fa"
+                "color": "#8438fa",
+                "value": null
               }
             ]
           },
@@ -8573,7 +8595,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -8746,7 +8769,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -8932,7 +8956,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -9089,7 +9114,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -9246,7 +9272,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -9403,7 +9430,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -9561,7 +9589,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -9719,7 +9748,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -9876,7 +9906,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
@@ -10034,7 +10065,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "mode": "absolute",
             "steps": [
               {
-                "color": "#20edba"
+                "color": "#20edba",
+                "value": null
               }
             ]
           },
