@@ -11,6 +11,7 @@ rate_limit_rate               = 999999
 rate_limit_per                = 60
 open_telemetry_enabled        = true
 open_telemetry_sampling_ratio = "0.5"
+header_injection_enabled      = false
 
 hpa_enabled                 = false
 hpa_max_replica_count       = 10

@@ -12,6 +12,7 @@ metadata:
     pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
     pt-annotations-analytics-database: "${var.analytics.database.enabled}"
     pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
+    pt-annotations-header-injection : "${var.header_injection.enabled}"
 spec:
   name: api
   protocol: http
@@ -34,6 +35,14 @@ spec:
   jwt_policy_field_name: pol
   jwt_default_policies:
     - "${var.namespace}/api-policy"
+  version_data:
+    default_version: Default
+    not_versioned: true
+    versions:
+      Default:
+        name: Default
+        use_extended_paths: true
+        global_headers: ${jsonencode(var.header_injection.enabled ? { "X-API-TEST": "Hello, World" } : {})}
 YAML
 
   depends_on = [helm_release.tyk, helm_release.tyk-operator]

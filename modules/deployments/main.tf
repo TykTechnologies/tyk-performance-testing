@@ -10,7 +10,7 @@ module "dependencies" {
 }
 
 module "tyk-upstream" {
-  source    = "./upstream"
+  source    = "./dependencies/upstream"
   label     = var.labels.tyk-upstream
   namespace = var.labels.tyk-upstream
 
@@ -18,7 +18,7 @@ module "tyk-upstream" {
 }
 
 module "kong-upstream" {
-  source = "./upstream"
+  source = "./dependencies/upstream"
   label     = var.labels.kong-upstream
   namespace = var.labels.kong-upstream
 
@@ -26,7 +26,7 @@ module "kong-upstream" {
 }
 
 module "gravitee-upstream" {
-  source = "./upstream"
+  source = "./dependencies/upstream"
   label     = var.labels.gravitee-upstream
   namespace = var.labels.gravitee-upstream
 
@@ -34,10 +34,9 @@ module "gravitee-upstream" {
 }
 
 module "upstream" {
-  source = "./upstream"
+  source    = "./upstream"
   label     = var.labels.upstream
   namespace = var.labels.upstream
-  test      = true
 
   count = var.upstream.enabled == true ? 1 : 0
 }
@@ -61,11 +60,12 @@ module "tyk" {
   go_max_procs            = var.tyk.go_max_procs
   profiler                = var.tyk.profiler
 
-  analytics      = var.analytics
-  auth           = var.auth
-  quota          = var.quota
-  rate_limit     = var.rate_limit
-  open_telemetry = var.open_telemetry
+  analytics        = var.analytics
+  auth             = var.auth
+  quota            = var.quota
+  rate_limit       = var.rate_limit
+  open_telemetry   = var.open_telemetry
+  header_injection = var.header_injection
 
   count = var.tyk.enabled == true ? 1 : 0
   depends_on = [module.dependencies]
@@ -85,11 +85,12 @@ module "kong" {
   external_traffic_policy = var.external_traffic_policy
   resources               = var.resources
 
-  analytics      = var.analytics
-  auth           = var.auth
-  quota          = var.quota
-  rate_limit     = var.rate_limit
-  open_telemetry = var.open_telemetry
+  analytics        = var.analytics
+  auth             = var.auth
+  quota            = var.quota
+  rate_limit       = var.rate_limit
+  open_telemetry   = var.open_telemetry
+  header_injection = var.header_injection
 
   count = var.kong.enabled == true ? 1 : 0
   depends_on = [module.dependencies]
@@ -110,11 +111,12 @@ module "gravitee" {
   external_traffic_policy = var.external_traffic_policy
   resources               = var.resources
 
-  analytics      = var.analytics
-  auth           = var.auth
-  quota          = var.quota
-  rate_limit     = var.rate_limit
-  open_telemetry = var.open_telemetry
+  analytics        = var.analytics
+  auth             = var.auth
+  quota            = var.quota
+  rate_limit       = var.rate_limit
+  open_telemetry   = var.open_telemetry
+  header_injection = var.header_injection
 
   count = var.gravitee.enabled == true ? 1 : 0
   depends_on = [module.dependencies]
