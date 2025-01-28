@@ -70,8 +70,14 @@ variable "open_telemetry_sampling_ratio" {
   description = "Open Telemetry sampling ration 0 to 1.0 range."
 }
 
-variable "header_injection_enabled" {
+variable "header_injection_req_enabled" {
   type        = bool
   default     = false
-  description = "Gateway will inject an X-API-TEST header with Hello, World value."
+  description = "Gateway will inject an X-API-REQ header with Foo value."
+}
+
+variable "header_injection_res_enabled" {
+  type        = bool
+  default     = false
+  description = "Gateway will inject an X-API-RES header with Bar value."
 }

@@ -7,6 +7,8 @@ module "upstream" {
 module "scenarios" {
   source    = "../dependencies/k6/scenarios"
   namespace = var.namespace
+
+  depends_on = [module.upstream]
 }
 
 resource "kubernetes_config_map" "tests-configmap" {
@@ -26,6 +28,8 @@ export { getAuth, getAuthType, generateJWTKeys, addTestInfoMetrics };
 
 EOF
   }
+
+  depends_on = [module.upstream]
 }
 
 resource "kubernetes_config_map" "auth-configmap" {
@@ -40,4 +44,6 @@ const generateKeys = (keyCount) => {};
 export { generateKeys };
 EOF
   }
+
+  depends_on = [module.upstream]
 }

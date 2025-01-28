@@ -12,7 +12,8 @@ metadata:
     pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
     pt-annotations-analytics-database: "${var.analytics.database.enabled}"
     pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
-    pt-annotations-header-injection : "${var.header_injection.enabled}"
+    pt-annotations-req-header-injection: "${var.header_injection.req.enabled}"
+    pt-annotations-res-header-injection: "${var.header_injection.res.enabled}"
 spec:
   name: api
   protocol: http
@@ -42,7 +43,8 @@ spec:
       Default:
         name: Default
         use_extended_paths: true
-        global_headers: ${jsonencode(var.header_injection.enabled ? { "X-API-TEST": "Hello, World" } : {})}
+        global_headers: ${jsonencode(var.header_injection.req.enabled ? { "X-API-REQ": "Foo" } : {})}
+        global_response_headers: ${jsonencode(var.header_injection.req.enabled ? { "X-API-RES": "Bar" } : {})}
 YAML
 
   depends_on = [helm_release.tyk, helm_release.tyk-operator]

@@ -43,8 +43,9 @@ const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
     state: ${var.open_telemetry.enabled} ? "${var.open_telemetry.sampling_ratio}" : "Off",
   });
 
+  const header_injection = [ ${var.header_injection.req.enabled} ? "Req" : "", ${var.header_injection.res.enabled} ? "Res" : "",  ].filter(item => item !== "")
   headerInjectionGauge.add(1, {
-    state: ${var.header_injection.enabled} ? "On" : "Off",
+    state: header_injection.length > 0 ? header_injection.join(" / ") : "Off",
   });
 
   durationGauge.add(duration);

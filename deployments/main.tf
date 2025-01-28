@@ -35,7 +35,12 @@ module "deployments" {
   }
 
   header_injection = {
-    enabled = var.header_injection_enabled
+    req = {
+      enabled = var.header_injection_req_enabled
+    }
+    res = {
+      enabled = var.header_injection_res_enabled
+    }
   }
 
   hpa = {

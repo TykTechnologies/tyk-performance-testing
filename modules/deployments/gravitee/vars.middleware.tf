@@ -41,6 +41,11 @@ variable "open_telemetry" {
 
 variable "header_injection" {
   type = object({
-    enabled = bool
+    req = object({
+      enabled = bool
+    })
+    res = object({
+      enabled = bool
+    })
   })
 }
