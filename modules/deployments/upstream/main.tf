@@ -22,10 +22,10 @@ resource "kubernetes_config_map" "tests-configmap" {
 const addTestInfoMetrics = () => {};
 const getAuth = () => false;
 const getAuthType = () => "";
-const generateJWTKeys = () => [];
-const generateHMACKeys = () => [];
+const generateJWTRSAKeys = () => [];
+const generateJWTHMACKeys = () => [];
 
-export { getAuth, getAuthType, generateJWTKeys, generateHMACKeys, addTestInfoMetrics };
+export { getAuth, getAuthType, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics };
 
 EOF
   }

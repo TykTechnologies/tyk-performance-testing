@@ -58,7 +58,7 @@ const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
 const getAuth = () => ${var.auth.enabled};
 const getAuthType = () => "${var.auth.type}";
 
-const generateJWTKeys = (keyCount) => {
+const generateJWTRSAKeys = (keyCount) => {
   const keys = [];
   const params = {
     responseType: 'text',
@@ -99,7 +99,7 @@ const encode = (payload, secret) => {
   return [header, payload, sig].join(".");
 }
 
-const generateHMACKeys = (keyCount) => {
+const generateJWTHMACKeys = (keyCount) => {
     const keys = [];
     const secret = "topsecretpassword";
 
@@ -117,7 +117,7 @@ const generateHMACKeys = (keyCount) => {
     return keys;
 };
 
-export { getAuth, getAuthType, generateJWTKeys, generateHMACKeys, addTestInfoMetrics };
+export { getAuth, getAuthType, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics };
 
 EOF
   }
