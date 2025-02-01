@@ -17,7 +17,7 @@
 | <a name="input_analytics_database_enabled"></a> [analytics\_database\_enabled](#input\_analytics\_database\_enabled)| Enables metrics collection on gateway services and stores them in gateways default database. | `bool`| `false`| no |
 | <a name="input_analytics_prometheus_enabled"></a> [analytics\_prometheus\_enabled](#input\_analytics\_prometheus\_enabled)| Enables metrics collection on gateway services and aggregates them on an endpoint for prometheus to scrape.| `bool`| `false`| no |
 | <a name="input_auth_enabled"></a> [auth\_enabled](#input\_auth\_enabled)| Enables authorization on gateway APIs. | `bool`| `false`| no |
-| <a name="input_auth_type"></a> [auth\_type](#input\_auth\_type) | Authorization type on gateway APIs. authToken or JWT.| `string`| `authToken`| no |
+| <a name="input_auth_type"></a> [auth\_type](#input\_auth\_type) | Authorization type on gateway APIs. authToken, JWT, or HMAC. | `string`| `authToken`| no |
 | <a name="input_external_traffic_policy"></a> [external\_traffic\_policy](#input\_external\_traffic\_policy) | Gateway service external traffic policy. Set to 'local' when using 1 k8s node per gateway and 'cluster' when using multiple k8s nodes per gateway for optimal routing performance. | `string`| `"Local"`| no |
 | <a name="input_grafana_service_type"></a> [grafana\_service\_type](#input\_grafana\_service\_type)| Grafana Dashboard service type. Set to 'LoadBalancer' type to be able to access Dashboard over the internet. | `string`| `ClusterIP`| yes |
 | <a name="input_gravitee_deployment_type"></a> [gravitee\_deployment\_type](#input\_gravitee\_deployment\_type)| Gravitee Gateway deployment type.| `string`| `"Deployment"` | no |
