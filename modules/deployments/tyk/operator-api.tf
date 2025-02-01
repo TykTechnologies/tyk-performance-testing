@@ -106,6 +106,7 @@ resource "kubernetes_config_map" "api" {
 EOF
   }
 }
+
 resource "kubectl_manifest" "api" {
   yaml_body = <<YAML
 apiVersion: tyk.tyk.io/v1alpha1
@@ -128,7 +129,7 @@ spec:
       namespace: ${var.namespace}
       keyName: api.json
 YAML
-  depends_on = [kubernetes_config_map.api]
+  depends_on = [kubernetes_config_map.api, helm_release.tyk-operator]
 }
 
 resource "kubectl_manifest" "api-policy" {
