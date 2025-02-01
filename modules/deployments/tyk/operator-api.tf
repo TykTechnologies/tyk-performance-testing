@@ -86,10 +86,10 @@ resource "kubernetes_config_map" "api" {
             },
             "identityBaseField": "sub",
             "policyFieldName": "pol",
-            "enabled": ${var.auth.type == "JWT" || var.auth.type == "HMAC"},
+            "enabled": ${var.auth.type == "JWT-RSA" || var.auth.type == "JWT-HMAC"},
             "defaultPolicies": [ "dHlrL2FwaS1wb2xpY3k" ],
-            "signingMethod": "${var.auth.type == "HMAC" ? "hmac" : "rsa"}",
-            "source": "${var.auth.type == "HMAC" ? "dG9wc2VjcmV0cGFzc3dvcmQ=": "aHR0cDovL2tleWNsb2FrLXNlcnZpY2UuZGVwZW5kZW5jaWVzLnN2Yzo4MDgwL3JlYWxtcy9qd3QvcHJvdG9jb2wvb3BlbmlkLWNvbm5lY3QvY2VydHM="}"
+            "signingMethod": "${var.auth.type == "JWT-HMAC" ? "hmac" : "rsa"}",
+            "source": "${var.auth.type == "JWT-HMAC" ? "dG9wc2VjcmV0cGFzc3dvcmQ=": "aHR0cDovL2tleWNsb2FrLXNlcnZpY2UuZGVwZW5kZW5jaWVzLnN2Yzo4MDgwL3JlYWxtcy9qd3QvcHJvdG9jb2wvb3BlbmlkLWNvbm5lY3QvY2VydHM="}"
           }
         }
       },
