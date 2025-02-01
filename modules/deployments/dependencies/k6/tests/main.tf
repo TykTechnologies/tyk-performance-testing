@@ -9,6 +9,8 @@ resource "kubernetes_config_map" "tests-configmap" {
 import http from 'k6/http';
 import { check, fail } from 'k6';
 import { Gauge } from 'k6/metrics';
+import crypto from 'k6/crypto';
+import encoding from 'k6/encoding';
 
 const analyticsGauge       = new Gauge('deployment_config_analytics');
 const authGauge            = new Gauge('deployment_config_auth');
@@ -81,7 +83,41 @@ const generateJWTKeys = (keyCount) => {
   return keys;
 };
 
-export { getAuth, getAuthType, generateJWTKeys, addTestInfoMetrics };
+const sign = (data, secret) => {
+  const hasher = crypto.createHMAC('sha256', secret);
+  hasher.update(data);
+  return hasher.digest("base64rawurl");
+}
+
+const encode = (payload, secret) => {
+  const header = encoding.b64encode(
+    JSON.stringify({ typ: "JWT", alg: "HS256" }),
+    "rawurl"
+  );
+  payload = encoding.b64encode(JSON.stringify(payload), "rawurl");
+  const sig = sign(header + "." + payload, secret);
+  return [header, payload, sig].join(".");
+}
+
+const generateHMACKeys = (keyCount) => {
+    const keys = [];
+    const secret = "topsecretpassword";
+
+    for (let i = 0; i < keyCount; i++) {
+        const now = Math.floor(Date.now() / 1000);
+
+        keys.push(encode({
+            sub: 'user' + i % 100 + '@test.com',
+            iat: now,
+            exp: now + 86400, // 24 hours from now
+            iss: "k6",
+            jti: 'jwt-' + i + '-' + now // Unique JWT ID
+        }, secret));
+    }
+    return keys;
+};
+
+export { getAuth, getAuthType, generateJWTKeys, generateHMACKeys, addTestInfoMetrics };
 
 EOF
   }

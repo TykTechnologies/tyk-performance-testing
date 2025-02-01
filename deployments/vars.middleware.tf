@@ -19,7 +19,7 @@ variable "auth_enabled" {
 variable "auth_type" {
   type        = string
   default     = "authToken"
-  description = "Authorization type on gateway APIs. authToken or JWT."
+  description = "Authorization type on gateway APIs. authToken, JWT or HMAC."
 }
 
 variable "quota_enabled" {

@@ -23,8 +23,9 @@ const addTestInfoMetrics = () => {};
 const getAuth = () => false;
 const getAuthType = () => "";
 const generateJWTKeys = () => [];
+const generateHMACKeys = () => [];
 
-export { getAuth, getAuthType, generateJWTKeys, addTestInfoMetrics };
+export { getAuth, getAuthType, generateJWTKeys, generateHMACKeys, addTestInfoMetrics };
 
 EOF
   }

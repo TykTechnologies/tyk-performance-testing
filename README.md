@@ -35,7 +35,7 @@ gcloud container clusters get-credentials pt-us-west1-a \
 
 ### Feature matrix
 
-| Gateway  | Database Analytics | Prometheus Analytics | AuthToken          | JWT                | Quota                             | Rate Limiting      | Open Telemetry     | 
+| Gateway  | Database Analytics | Prometheus Analytics | AuthToken          | JWT RSA/HMAC       | Quota                             | Rate Limiting      | Open Telemetry     | 
 |----------|--------------------|----------------------|--------------------|--------------------|-----------------------------------|--------------------|--------------------|
 | Tyk      | :white_check_mark: | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark:                | :white_check_mark: | :white_check_mark: |
 | Kong     | :x:                | :white_check_mark:   | :white_check_mark: | :x:                | Implemented through Rate Limiting | :white_check_mark: | :white_check_mark: | 
