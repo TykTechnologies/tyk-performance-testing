@@ -1,53 +1,134 @@
+resource "kubernetes_config_map" "api" {
+  metadata {
+    name      = "api"
+    namespace = var.namespace
+    annotations = {
+      pt-annotations-auth: "${var.auth.enabled}"
+      pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
+      pt-annotations-quota: "${var.quota.enabled}"
+      pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
+      pt-annotations-analytics-database: "${var.analytics.database.enabled}"
+      pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
+      pt-annotations-req-header-injection: "${var.header_injection.req.enabled}"
+      pt-annotations-res-header-injection: "${var.header_injection.res.enabled}"
+    }
+  }
+
+  data = {
+    "api.json" = <<EOF
+{
+  "info": {
+    "title": "api",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.3",
+  "servers": [
+    {
+      "url": "http://tyk-gw.local/api/"
+    }
+  ],
+  "security": [
+    {
+      "jwtAuth": []
+    }
+  ],
+  "paths": {},
+  "components": {
+    "securitySchemes": {
+      "jwtAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "authToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  },
+  "x-tyk-api-gateway": {
+    "info": {
+      "name": "api",
+      "state": {
+        "active": true,
+        "internal": false
+      }
+    },
+    "middleware": {
+      "global": {
+        "contextVariables": {
+          "enabled": false
+        },
+        "transformRequestHeaders": {
+          "add": [ { "name": "X-API-REQ", "value": "Foo" } ],
+          "enabled": ${var.header_injection.req.enabled},
+          "remove": []
+        },
+        "transformResponseHeaders": {
+          "add": [ { "name": "X-API-RES", "value": "Bar" } ],
+          "enabled": ${var.header_injection.res.enabled},
+          "remove": []
+        }
+      }
+    },
+    "server": {
+      "authentication": {
+        "enabled": ${var.auth.enabled || var.rate_limit.enabled || var.quota.enabled},
+        "securitySchemes": {
+          "authToken": {
+            "enabled": ${var.auth.type == "authToken"}
+          },
+          "jwtAuth": {
+            "header": {
+              "enabled": true,
+              "name": "Authorization"
+            },
+            "identityBaseField": "sub",
+            "policyFieldName": "pol",
+            "enabled": ${var.auth.type == "JWT" || var.auth.type == "HMAC"},
+            "defaultPolicies": [ "dHlrL2FwaS1wb2xpY3k" ],
+            "signingMethod": "${var.auth.type == "HMAC" ? "hmac" : "rsa"}",
+            "source": "${var.auth.type == "HMAC" ? "dG9wc2VjcmV0cGFzc3dvcmQ=": "aHR0cDovL2tleWNsb2FrLXNlcnZpY2UuZGVwZW5kZW5jaWVzLnN2Yzo4MDgwL3JlYWxtcy9qd3QvcHJvdG9jb2wvb3BlbmlkLWNvbm5lY3QvY2VydHM="}"
+          }
+        }
+      },
+      "listenPath": {
+        "strip": true,
+        "value": "/api/"
+      }
+    },
+    "upstream": {
+      "url": "http://fortio.tyk-upstream.svc:8080"
+    }
+  }
+}
+EOF
+  }
+}
 resource "kubectl_manifest" "api" {
   yaml_body = <<YAML
 apiVersion: tyk.tyk.io/v1alpha1
-kind: ApiDefinition
+kind: TykOasApiDefinition
 metadata:
   name: api
   namespace: ${var.namespace}
   annotations:
     pt-annotations-auth: "${var.auth.enabled}"
+    pt-annotations-auth-type: "${var.auth.type}"
     pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
     pt-annotations-quota: "${var.quota.enabled}"
     pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
     pt-annotations-analytics-database: "${var.analytics.database.enabled}"
     pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
-    pt-annotations-req-header-injection: "${var.header_injection.req.enabled}"
-    pt-annotations-res-header-injection: "${var.header_injection.res.enabled}"
 spec:
-  name: api
-  protocol: http
-  active: true
-  disable_quota: ${! var.quota.enabled}
-  disable_rate_limit: ${! var.rate_limit.enabled}
-  proxy:
-    target_url: http://fortio.tyk-upstream.svc:8080
-    listen_path: /api
-    strip_listen_path: true
-  use_keyless: ${! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled)}
-  use_standard_auth: ${(var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) && var.auth.type == "authToken"}
-  enable_jwt: ${(var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) && (var.auth.type == "JWT" || var.auth.type == "HMAC")}
-  auth_configs:
-    authToken:
-      auth_header_name: Authorization
-  jwt_signing_method: ${var.auth.type == "HMAC" ? "hmac" : "rsa"}
-  jwt_source: ${var.auth.type == "HMAC" ? "dG9wc2VjcmV0cGFzc3dvcmQ=" : "http://keycloak-service.dependencies.svc:8080/realms/jwt/protocol/openid-connect/certs"}
-  jwt_identity_base_field: sub
-  jwt_policy_field_name: pol
-  jwt_default_policies:
-    - "${var.namespace}/api-policy"
-  version_data:
-    default_version: Default
-    not_versioned: true
-    versions:
-      Default:
-        name: Default
-        use_extended_paths: true
-        global_headers: ${jsonencode(var.header_injection.req.enabled ? { "X-API-REQ": "Foo" } : {})}
-        global_response_headers: ${jsonencode(var.header_injection.req.enabled ? { "X-API-RES": "Bar" } : {})}
+  tykOAS:
+    configmapRef:
+      name: api
+      namespace: ${var.namespace}
+      keyName: api.json
 YAML
-
-  depends_on = [helm_release.tyk, helm_release.tyk-operator]
+  depends_on = [kubernetes_config_map.api]
 }
 
 resource "kubectl_manifest" "api-policy" {
@@ -78,6 +159,7 @@ spec:
   access_rights_array:
   - name: api
     namespace: ${var.namespace}
+    kind: TykOasApiDefinition
     versions:
     - Default
 YAML
