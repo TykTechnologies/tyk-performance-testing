@@ -4,6 +4,7 @@ resource "kubernetes_config_map" "api" {
     namespace = var.namespace
     annotations = {
       pt-annotations-auth: "${var.auth.enabled}"
+      pt-annotations-auth-type: "${var.auth.type}"
       pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
       pt-annotations-quota: "${var.quota.enabled}"
       pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
