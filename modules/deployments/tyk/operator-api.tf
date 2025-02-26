@@ -61,6 +61,9 @@ resource "kubernetes_config_map" "api" {
         "contextVariables": {
           "enabled": false
         },
+        "skipRateLimit": ${!var.rate_limit.enabled},
+        "skipQuota": ${var.quota.enabled},
+        "skipQuotaReset": true,
         "transformRequestHeaders": {
           "add": [ { "name": "X-API-REQ", "value": "Foo" } ],
           "enabled": ${var.header_injection.req.enabled},
