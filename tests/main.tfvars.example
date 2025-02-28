@@ -10,6 +10,6 @@ tests_executor       = "constant-arrival-rate"
 tests_auth_key_count = 100
 tests_ramping_steps  = 10
 tests_duration       = 15
-tests_rate           = 20000
+tests_rate           = 5000
 tests_virtual_users  = 50
 tests_parallelism    = 1
