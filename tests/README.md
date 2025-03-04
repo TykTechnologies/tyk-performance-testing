@@ -24,7 +24,7 @@
 | <a name="input_tests_fortio_options"></a> [tests\_fortio\_options](#input\_tests\_fortio\_options) | Set the parameters for the request to fortio-server. Read more at https://github.com/fortio/fortio?tab=readme-ov-file#server-urls-and-features | `string` | `"size=20"` | no |
 | <a name="input_tests_parallelism"></a> [tests\_parallelism](#input\_tests\_parallelism) | Number of workers for the tests. | `number` | `1` | no |
 | <a name="input_tests_ramping_steps"></a> [tests\_ramping\_steps](#input\_tests\_ramping\_steps) | Number of ramping steps for the test, applies for 'ramping-vus' and 'ramping-arrival-rate' executors. | `number` | `10` | no |
-| <a name="input_tests_rate"></a> [tests\_rate](#input\_tests\_rate) | Test RPS, applies for 'constant-arrival-rate' and 'ramping-arrival-rate' executors. | `number` | `20000` | no |
+| <a name="input_tests_rate"></a> [tests\_rate](#input\_tests\_rate) | Test RPS, applies for 'constant-arrival-rate' and 'ramping-arrival-rate' executors. | `number` | `5000` | no |
 | <a name="input_tests_virtual_users"></a> [tests\_virtual\_users](#input\_tests\_virtual\_users) | Number of virtual users to be used for the test. | `number` | `50` | no |
 | <a name="input_tyk_enabled"></a> [tyk\_enabled](#input\_tyk\_enabled) | Enable Tyk services. | `bool` | `true` | no |
 | <a name="input_upstream_enabled"></a> [upstream\_enabled](#input\_upstream\_enabled) | Enable Fortio upstream service for baseline testing. | `bool` | `false` | no |
