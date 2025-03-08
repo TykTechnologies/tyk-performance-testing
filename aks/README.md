@@ -40,6 +40,7 @@ az aks get-credentials \
 | <a name="input_services_nodes_count"></a> [services\_nodes\_count](#input\_services\_nodes\_count) | Number of nodes for each of the gateway services. | `number` | `1` | no |
 | <a name="input_tests_machine_type"></a> [tests\_machine\_type](#input\_tests\_machine\_type) | Machine type for tests, overrides cluster\_machine\_type. | `string` | `""` | no |
 | <a name="input_tests_nodes_count"></a> [tests\_nodes\_count](#input\_tests\_nodes\_count) | Number of nodes for each of the tests services. | `number` | `1` | no |
+| <a name="input_traefik_enabled"></a> [traefik\_enabled](#input\_traefik\_enabled) | Enable Traefik services. | `bool` | `true` | no |
 | <a name="input_tyk_enabled"></a> [tyk\_enabled](#input\_tyk\_enabled) | Enable Tyk services. | `bool` | `true` | no |
 | <a name="input_upstream_enabled"></a> [upstream\_enabled](#input\_upstream\_enabled) | Enable Fortio upstream service for baseline testing. | `bool` | `false` | no |
 | <a name="input_upstream_machine_type"></a> [upstream\_machine\_type](#input\_upstream\_machine\_type) | Machine type for upstreams, overrides cluster\_machine\_type. | `string` | `""` | no |

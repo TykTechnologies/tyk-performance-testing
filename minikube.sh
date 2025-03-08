@@ -1,4 +1,4 @@
-minikube start --nodes=15
+minikube start --nodes=19
 minikube addons enable ingress
 
 kubectl label nodes minikube node=dependencies
@@ -14,5 +14,9 @@ kubectl label nodes minikube-m10 node=gravitee
 kubectl label nodes minikube-m11 node=gravitee-upstream
 kubectl label nodes minikube-m12 node=gravitee-tests
 kubectl label nodes minikube-m13 node=gravitee-resources
-kubectl label nodes minikube-m14 node=upstream
-kubectl label nodes minikube-m15 node=upstream-tests
+kubectl label nodes minikube-m14 node=traefik
+kubectl label nodes minikube-m15 node=traefik-upstream
+kubectl label nodes minikube-m16 node=traefik-tests
+kubectl label nodes minikube-m17 node=traefik-resources
+kubectl label nodes minikube-m18 node=upstream
+kubectl label nodes minikube-m19 node=upstream-tests
