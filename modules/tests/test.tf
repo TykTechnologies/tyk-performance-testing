@@ -28,6 +28,16 @@ module "gravitee-test" {
   count = var.gravitee.enabled == true ? 1 : 0
 }
 
+module "traefik-test" {
+  source = "./test"
+
+  name   = "traefik"
+  url    = "traefik.traefik.svc:80"
+  config = var.tests
+
+  count = var.traefik.enabled == true ? 1 : 0
+}
+
 module "upstream-test" {
   source = "./test"
 

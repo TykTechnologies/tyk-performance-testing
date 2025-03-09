@@ -1,6 +1,8 @@
 tyk_enabled      = true
-kong_enabled     = true
+kong_enabled     = false
 gravitee_enabled = false
+traefik_enabled  = true
+upstream_enabled = true
 
 tests_fortio_options = "size=2000"
 tests_executor       = "constant-arrival-rate"

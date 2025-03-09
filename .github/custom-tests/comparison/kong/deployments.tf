@@ -46,3 +46,5 @@ traefik_enabled         = false
 traefik_version         = "3.3"
 traefik_deployment_type = "Deployment"
 traefik_service_type    = "ClusterIP"
+
+upstream_enabled = true

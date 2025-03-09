@@ -16,6 +16,12 @@ variable "gravitee" {
   })
 }
 
+variable "traefik" {
+  type = object({
+    enabled = bool
+  })
+}
+
 variable "upstream" {
   type = object({
     enabled = bool

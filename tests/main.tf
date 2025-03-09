@@ -13,6 +13,10 @@ module "tests" {
     enabled = var.gravitee_enabled
   }
 
+  traefik = {
+    enabled = var.traefik_enabled
+  }
+
   upstream = {
     enabled = var.upstream_enabled
   }
