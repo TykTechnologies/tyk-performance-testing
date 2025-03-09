@@ -33,6 +33,14 @@ module "gravitee-upstream" {
   count = var.gravitee.enabled == true ? 1 : 0
 }
 
+module "traefik-upstream" {
+  source = "./dependencies/upstream"
+  label     = var.labels.traefik-upstream
+  namespace = var.labels.traefik-upstream
+
+  count = var.traefik.enabled == true ? 1 : 0
+}
+
 module "upstream" {
   source    = "./upstream"
   label     = var.labels.upstream
@@ -119,5 +127,30 @@ module "gravitee" {
   header_injection = var.header_injection
 
   count = var.gravitee.enabled == true ? 1 : 0
+  depends_on = [module.dependencies]
+}
+
+module "traefik" {
+  source          = "./traefik"
+  label           = var.labels.traefik
+  resources-label = var.labels.traefik-resources
+
+  gateway_version = var.traefik.version
+
+  deployment_type         = var.traefik.deployment_type
+  service_type            = var.traefik.service_type
+  hpa                     = var.hpa
+  replica_count           = var.replica_count
+  external_traffic_policy = var.external_traffic_policy
+  resources               = var.resources
+
+  analytics        = var.analytics
+  auth             = var.auth
+  quota            = var.quota
+  rate_limit       = var.rate_limit
+  open_telemetry   = var.open_telemetry
+  header_injection = var.header_injection
+
+  count = var.traefik.enabled == true ? 1 : 0
   depends_on = [module.dependencies]
 }

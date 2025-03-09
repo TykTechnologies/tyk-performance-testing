@@ -1,13 +1,11 @@
 resource "kubectl_manifest" "api" {
   yaml_body = <<YAML
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
   name: api
   namespace: "${var.namespace}-upstream"
   annotations:
-    konghq.com/strip-path: 'true'
-    konghq.com/plugins: "${local.plugins}"
     pt-annotations-auth: "${var.auth.enabled}"
     pt-annotations-rate-limiting: "${var.rate_limit.enabled}"
     pt-annotations-quota: "${var.quota.enabled}"
@@ -17,17 +15,14 @@ metadata:
     pt-annotations-req-header-injection: "${var.header_injection.req.enabled}"
     pt-annotations-res-header-injection: "${var.header_injection.res.enabled}"
 spec:
-  ingressClassName: kong
-  rules:
-  - http:
-      paths:
-      - path: /api
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: fortio
-            port:
-              number: 8080
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule
+    match: PathPrefix(`/api`)
+    services:
+    - name: fortio
+      port: 8080
 YAML
-  depends_on = [helm_release.kong]
+  depends_on = [helm_release.traefik]
 }

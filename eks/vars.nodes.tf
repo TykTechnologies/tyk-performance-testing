@@ -10,6 +10,12 @@ variable "service_machine_type" {
   description = "Machine type for services, overrides cluster_machine_type."
 }
 
+variable "traefik_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Traefik services."
+}
+
 variable "upstream_machine_type" {
   type        = string
   default     = ""

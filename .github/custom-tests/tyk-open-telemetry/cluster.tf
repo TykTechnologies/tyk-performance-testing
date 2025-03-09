@@ -15,3 +15,4 @@ dependencies_nodes_count = 2
 tyk_enabled      = true
 kong_enabled     = false
 gravitee_enabled = false
+traefik_enabled  = false

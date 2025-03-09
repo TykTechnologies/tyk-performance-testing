@@ -13,6 +13,10 @@ locals {
     gravitee-upstream  = var.gravitee_enabled ? var.upstream_nodes_count : 0
     gravitee-tests     = var.gravitee_enabled ? var.tests_nodes_count    : 0
     gravitee-resources = var.gravitee_enabled ? var.resource_nodes_count : 0
+    traefik            = var.traefik_enabled  ? var.services_nodes_count : 0
+    traefik-upstream   = var.traefik_enabled  ? var.upstream_nodes_count : 0
+    traefik-tests      = var.traefik_enabled  ? var.tests_nodes_count    : 0
+    traefik-resources  = var.traefik_enabled  ? var.resource_nodes_count : 0
     upstream           = var.upstream_enabled ? var.upstream_nodes_count : 0
     upstream-tests     = var.upstream_enabled ? var.tests_nodes_count    : 0
   }
@@ -31,6 +35,10 @@ locals {
     gravitee-upstream  = var.upstream_machine_type     == "" ? var.cluster_machine_type : var.upstream_machine_type
     gravitee-tests     = var.tests_machine_type        == "" ? var.cluster_machine_type : var.tests_machine_type
     gravitee-resources = var.resources_machine_type    == "" ? var.cluster_machine_type : var.resources_machine_type
+    traefik            = var.service_machine_type      == "" ? var.cluster_machine_type : var.service_machine_type
+    traefik-upstream   = var.upstream_machine_type     == "" ? var.cluster_machine_type : var.upstream_machine_type
+    traefik-tests      = var.tests_machine_type        == "" ? var.cluster_machine_type : var.tests_machine_type
+    traefik-resources  = var.resources_machine_type    == "" ? var.cluster_machine_type : var.resources_machine_type
     upstream           = var.upstream_machine_type     == "" ? var.cluster_machine_type : var.upstream_machine_type
     upstream-tests     = var.tests_machine_type        == "" ? var.cluster_machine_type : var.tests_machine_type
   }

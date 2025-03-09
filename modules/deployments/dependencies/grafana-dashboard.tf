@@ -135,6 +135,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -282,6 +301,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -435,6 +473,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -577,6 +634,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -728,6 +804,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -873,6 +968,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -1030,6 +1144,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -1177,6 +1310,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -1332,6 +1484,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -1479,6 +1650,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -1634,6 +1824,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -1779,6 +1988,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -1939,6 +2167,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -2111,6 +2358,36 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "id": "color",
                 "value": {
                   "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
                   "mode": "fixed"
                 }
               }
@@ -2341,6 +2618,36 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           {
             "matcher": {
               "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
               "options": "/.*upstream.*/"
             },
             "properties": [
@@ -2562,6 +2869,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -2704,6 +3030,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -2855,6 +3200,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -2998,6 +3362,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -3146,6 +3529,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -3299,6 +3701,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -3444,6 +3865,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -3597,6 +4037,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -3741,6 +4200,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -3928,6 +4406,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/.*upstream.*/"
@@ -4076,6 +4573,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -4253,6 +4769,36 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           {
             "matcher": {
               "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
               "options": "/.*upstream.*/"
             },
             "properties": [
@@ -4398,6 +4944,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "displayName",
                 "value": "Gravitee"
+              }
+            ]
+          },
+          {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
               }
             ]
           },
@@ -4569,6 +5134,36 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "id": "color",
                 "value": {
                   "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
                   "mode": "fixed"
                 }
               }
@@ -4749,6 +5344,36 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "id": "color",
                 "value": {
                   "fixedColor": "#fe733f",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
                   "mode": "fixed"
                 }
               }
@@ -4956,6 +5581,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -5020,7 +5664,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee\", namespace=\"gravitee\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong\", namespace=\"kong\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -5033,12 +5677,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong\", namespace=\"kong\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee\", namespace=\"gravitee\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik\", namespace=\"traefik\"}[5m])) by (node)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "CPU Utilization per Service",
@@ -5161,6 +5818,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -5225,7 +5901,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee\", namespace=\"gravitee\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"kong\", namespace=\"kong\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -5238,12 +5914,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"kong\", namespace=\"kong\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee\", namespace=\"gravitee\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_memory_working_set_bytes{node=\"traefik\", namespace=\"traefik\"}) by (node)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Memory Utilization per Service",
@@ -5353,6 +6042,21 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -5400,7 +6104,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee\",namespace=\"gravitee\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong\",namespace=\"kong\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -5413,12 +6117,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong\",namespace=\"kong\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee\",namespace=\"gravitee\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik\",namespace=\"traefik\"}[5m])) by (pod)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "CPU Utilization per Service Pods",
@@ -5527,6 +6244,21 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -5574,7 +6306,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee\", namespace=\"gravitee\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"kong\", namespace=\"kong\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -5587,12 +6319,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"kong\", namespace=\"kong\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee\", namespace=\"gravitee\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_memory_working_set_bytes{node=\"traefik\", namespace=\"traefik\"}) by (pod)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Memory Utilization per Service Pods",
@@ -5716,10 +6461,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_status_phase{namespace=\"gravitee\",pod=~\"gravitee-apim-gateway-[0-9]+.*\",phase=\"Running\"})",
+          "expr": "count(kube_pod_status_phase{namespace=\"kong\",pod=~\"kong-gateway-[0-9]+.*\",phase=\"Running\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "Gravitee",
+          "legendFormat": "Kong",
           "range": true,
           "refId": "B"
         },
@@ -5729,12 +6474,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_status_phase{namespace=\"kong\",pod=~\"kong-gateway-[0-9]+.*\",phase=\"Running\"})",
+          "expr": "count(kube_pod_status_phase{namespace=\"gravitee\",pod=~\"gravitee-apim-gateway-[0-9]+.*\",phase=\"Running\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "Kong",
+          "legendFormat": "Gravitee",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "count(kube_pod_status_phase{namespace=\"traefik\",pod=~\"traefik-[0-9]+.*\",phase=\"Running\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Traefik",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Gateway HPA",
@@ -5871,6 +6629,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -5935,7 +6712,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-resources\",namespace=\"gravitee\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-resources\",namespace=\"kong\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -5948,12 +6725,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-resources\",namespace=\"kong\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-resources\",namespace=\"gravitee\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-resources\",namespace=\"traefik\"}[5m])) by (node)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "CPU Utilization per Resource",
@@ -6076,6 +6866,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -6140,7 +6949,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-resources\", namespace=\"gravitee\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"kong-resources\", namespace=\"kong\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -6153,12 +6962,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"kong-resources\", namespace=\"kong\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-resources\", namespace=\"gravitee\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_memory_working_set_bytes{node=\"traefik-resources\", namespace=\"traefik\"}) by (node)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Memory Utilization per Resource",
@@ -6268,6 +7090,21 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -6315,7 +7152,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-resources\",namespace=\"gravitee\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-resources\",namespace=\"kong\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -6328,12 +7165,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-resources\",namespace=\"kong\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-resources\",namespace=\"gravitee\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-resources\",namespace=\"traefik\"}[5m])) by (pod)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "CPU Utilization per Resource Pods",
@@ -6442,6 +7292,21 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -6489,7 +7354,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-resources\", namespace=\"gravitee\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"kong-resources\", namespace=\"kong\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -6502,12 +7367,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"kong-resources\", namespace=\"kong\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-resources\", namespace=\"gravitee\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_memory_working_set_bytes{node=\"traefik-resources\", namespace=\"traefik\"}) by (pod)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Memory Utilization per Resource Pods",
@@ -6644,6 +7522,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -6708,7 +7605,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-upstream\",namespace=\"gravitee-upstream\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-upstream\",namespace=\"kong-upstream\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -6721,7 +7618,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-upstream\",namespace=\"kong-upstream\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-upstream\",namespace=\"gravitee-upstream\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -6734,12 +7631,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream\",namespace=\"upstream\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-upstream\",namespace=\"traefik-upstream\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream\",namespace=\"upstream\"}[5m])) by (node)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "CPU Utilization per Resource",
@@ -6862,6 +7772,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -6926,7 +7855,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-upstream\", namespace=\"gravitee-upstream\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"kong-upstream\", namespace=\"kong-upstream\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -6939,7 +7868,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"kong-upstream\", namespace=\"kong-upstream\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-upstream\", namespace=\"gravitee-upstream\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -6952,12 +7881,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"upstream\", namespace=\"upstream\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"traefik-upstream\", namespace=\"traefik-upstream\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_memory_working_set_bytes{node=\"upstream\", namespace=\"upstream\"}) by (node)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "Memory Utilization per Resource",
@@ -7069,7 +8011,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-upstream\",namespace=\"gravitee-upstream\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-upstream\",namespace=\"kong-upstream\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7082,7 +8024,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-upstream\",namespace=\"kong-upstream\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-upstream\",namespace=\"gravitee-upstream\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7095,12 +8037,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream\",namespace=\"upstream\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-upstream\",namespace=\"traefik-upstream\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream\",namespace=\"upstream\"}[5m])) by (pod)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "CPU Utilization per Resource Pods",
@@ -7210,7 +8165,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-upstream\", namespace=\"gravitee-upstream\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"kong-upstream\", namespace=\"kong-upstream\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7223,7 +8178,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"kong-upstream\", namespace=\"kong-upstream\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-upstream\", namespace=\"gravitee-upstream\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7236,12 +8191,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"upstream\", namespace=\"upstream\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"traefik-upstream\", namespace=\"traefik-upstream\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_memory_working_set_bytes{node=\"upstream\", namespace=\"upstream\"}) by (pod)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "Memory Utilization per Resource Pods",
@@ -7378,6 +8346,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -7442,7 +8429,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-tests\",namespace=\"gravitee\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-tests\",namespace=\"kong\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7455,7 +8442,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-tests\",namespace=\"kong\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-tests\",namespace=\"gravitee\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7468,12 +8455,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream-tests\",namespace=\"upstream\"}[5m])) by (node)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-tests\",namespace=\"traefik\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream-tests\",namespace=\"upstream\"}[5m])) by (node)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "CPU Utilization per Resource",
@@ -7596,6 +8596,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             ]
           },
           {
+          "matcher": {
+              "id": "byRegexp",
+              "options": "/.*traefik.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
+          },
+          {
             "matcher": {
               "id": "byRegexp",
               "options": "/^upstream.*/"
@@ -7660,7 +8679,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-tests\", namespace=\"gravitee\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"kong-tests\", namespace=\"kong\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7673,7 +8692,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"kong-tests\", namespace=\"kong\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-tests\", namespace=\"gravitee\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7686,12 +8705,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"upstream-tests\", namespace=\"upstream\"}) by (node)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"traefik-tests\", namespace=\"traefik\"}) by (node)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_memory_working_set_bytes{node=\"upstream-tests\", namespace=\"upstream\"}) by (node)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "Memory Utilization per Resource",
@@ -7802,7 +8834,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-tests\",namespace=\"gravitee\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-tests\",namespace=\"kong\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7815,7 +8847,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-tests\",namespace=\"kong\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-tests\",namespace=\"gravitee\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7828,12 +8860,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream-tests\",namespace=\"upstream\"}[5m])) by (pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-tests\",namespace=\"traefik\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream-tests\",namespace=\"upstream\"}[5m])) by (pod)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "CPU Utilization per Resource Pods",
@@ -7943,7 +8988,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-tests\", namespace=\"gravitee\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"kong-tests\", namespace=\"kong\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7956,7 +9001,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"kong-tests\", namespace=\"kong\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-tests\", namespace=\"gravitee\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -7969,12 +9014,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(container_memory_working_set_bytes{node=\"upstream-tests\", namespace=\"upstream\"}) by (pod)",
+          "expr": "sum(container_memory_working_set_bytes{node=\"traefik-tests\", namespace=\"traefik\"}) by (pod)",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_memory_working_set_bytes{node=\"upstream-tests\", namespace=\"upstream\"}) by (pod)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "Memory Utilization per Resource Pods",
@@ -8281,6 +9339,21 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -8352,6 +9425,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Gateways",
@@ -8427,6 +9513,21 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -8498,6 +9599,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik-resources\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Gateways Resources",
@@ -8657,6 +9771,21 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               {
                 "id": "color",
                 "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "E"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
                   "fixedColor": "#8438fa",
                   "mode": "fixed"
                 }
@@ -8740,12 +9869,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"upstream\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik-upstream\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"upstream\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "Upstreams",
@@ -8826,6 +9968,21 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "matcher": {
               "id": "byFrameRefID",
               "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "E"
             },
             "properties": [
               {
@@ -8914,12 +10071,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"upstream-tests\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik-tests\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"upstream-tests\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "E"
         }
       ],
       "title": "Tests",
@@ -9020,6 +10190,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": "Gravitee"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
           }
         ]
       },
@@ -9091,6 +10280,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "avg by (container) (kube_pod_container_resource_requests{container=\"traefik\",resource=\"cpu\", namespace=\"traefik\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Containers CPU Requests",
@@ -9178,6 +10380,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": "Gravitee"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
           }
         ]
       },
@@ -9249,6 +10470,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "avg by (container) (kube_pod_container_resource_limits{container=\"traefik\",resource=\"cpu\", namespace=\"traefik\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Containers CPU Limits",
@@ -9336,6 +10570,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": "Gravitee"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
           }
         ]
       },
@@ -9407,6 +10660,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_container_resource_requests{container=\"traefik\",resource=\"cpu\", namespace=\"traefik\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Total CPU Requests",
@@ -9494,6 +10760,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": "Gravitee"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
           }
         ]
       },
@@ -9565,6 +10850,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_container_resource_limits{container=\"traefik\",resource=\"cpu\", namespace=\"traefik\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Total CPU Limits",
@@ -9653,6 +10951,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": "Gravitee"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
           }
         ]
       },
@@ -9724,6 +11041,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "avg by (container) (kube_pod_container_resource_requests{container=\"traefik\",resource=\"memory\", namespace=\"traefik\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Containers Memory Requests",
@@ -9812,6 +11142,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": "Gravitee"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
           }
         ]
       },
@@ -9883,6 +11232,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "avg by (container) (kube_pod_container_resource_limits{container=\"traefik\",resource=\"memory\", namespace=\"traefik\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Containers Memory Limits",
@@ -9970,6 +11332,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": "Gravitee"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
           }
         ]
       },
@@ -10041,6 +11422,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_container_resource_requests{container=\"traefik\",resource=\"memory\", namespace=\"traefik\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Total Memory Requests",
@@ -10129,6 +11523,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
                 "value": "Gravitee"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "D"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#00b8d4",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Traefik"
+              }
+            ]
           }
         ]
       },
@@ -10200,6 +11613,19 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "legendFormat": "__auto",
           "range": true,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_container_resource_limits{container=\"traefik\",resource=\"memory\", namespace=\"traefik\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "D"
         }
       ],
       "title": "Total Memory Limits",

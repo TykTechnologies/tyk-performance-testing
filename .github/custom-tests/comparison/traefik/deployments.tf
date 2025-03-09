@@ -1,15 +1,15 @@
-analytics_database_enabled    = true
+analytics_database_enabled    = false
 analytics_prometheus_enabled  = true
-auth_enabled                  = true
+auth_enabled                  = false
 auth_type                     = "authToken"
 quota_enabled                 = false
 quota_rate                    = 999999
 quota_per                     = 3600
-rate_limit_enabled            = true
+rate_limit_enabled            = false
 rate_limit_rate               = 999999
 rate_limit_per                = 60
 open_telemetry_enabled        = false
-open_telemetry_sampling_ratio = "0.5"
+open_telemetry_sampling_ratio = "0.75"
 header_injection_req_enabled  = false
 header_injection_res_enabled  = false
 
@@ -31,18 +31,18 @@ tyk_go_gc            = 1600
 tyk_go_max_procs     = 8
 tyk_profiler_enabled = false
 
-kong_enabled         = true
+kong_enabled         = false
 kong_version         = "3.8"
 kong_deployment_type = "Deployment"
 kong_service_type    = "ClusterIP"
 
-gravitee_enabled         = true
+gravitee_enabled         = false
 gravitee_version         = "4.5"
 gravitee_deployment_type = "Deployment"
 gravitee_service_type    = "ClusterIP"
 gravitee_nginx_enabled   = false
 
-traefik_enabled         = false
+traefik_enabled         = true
 traefik_version         = "3.3"
 traefik_deployment_type = "Deployment"
 traefik_service_type    = "ClusterIP"

@@ -32,6 +32,15 @@ variable "gravitee" {
   })
 }
 
+variable "traefik" {
+  type = object({
+    enabled         = bool
+    version         = string
+    deployment_type = string
+    service_type    = string
+  })
+}
+
 variable "hpa" {
   type = object({
     enabled                 = bool

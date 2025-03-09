@@ -30,7 +30,7 @@ aws eks --region "us-west-1" update-kubeconfig --name "pt-us-west-1"
 ```
 gcloud container clusters get-credentials pt-us-west1-a \
    --zone us-west1-a \
-   --project ce-team-zaid
+   --project performance-testing
 ```
 
 ### Feature matrix
@@ -40,6 +40,7 @@ gcloud container clusters get-credentials pt-us-west1-a \
 | Tyk      | :white_check_mark: | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark:                | :white_check_mark: | :white_check_mark: |
 | Kong     | :x:                | :white_check_mark:   | :white_check_mark: | :x:                | Implemented through Rate Limiting | :white_check_mark: | :white_check_mark: | 
 | Gravitee | :white_check_mark: | :white_check_mark:   | :white_check_mark: | :x:                | Implemented through Rate Limiting | :white_check_mark: | :x:                |
+| Traefik  | :x:                | :white_check_mark:   | :x:                | :x:                | :x:                               | :x:                | :x:                |
 
 ##### Self-managed cluster requirements
 To run the tests on your own cluster, you will need node labels that can house the different deployments and resources.
@@ -48,19 +49,23 @@ Example:
 ```
 kubectl label nodes minikube node=dependencies
 kubectl label nodes minikube-m02 node=tyk
-kubectl label nodes minikube-m02 node=tyk-upstream
-kubectl label nodes minikube-m03 node=tyk-tests
-kubectl label nodes minikube-m04 node=tyk-resources
-kubectl label nodes minikube-m05 node=kong
-kubectl label nodes minikube-m06 node=kong-upstream
-kubectl label nodes minikube-m07 node=kong-tests
-kubectl label nodes minikube-m08 node=kong-resources
-kubectl label nodes minikube-m09 node=gravitee
-kubectl label nodes minikube-m10 node=gravitee-upstream
-kubectl label nodes minikube-m11 node=gravitee-tests
-kubectl label nodes minikube-m12 node=gravitee-resources
-kubectl label nodes minikube-m13 node=upstream
-kubectl label nodes minikube-m14 node=upstream-tests
+kubectl label nodes minikube-m03 node=tyk-upstream
+kubectl label nodes minikube-m04 node=tyk-tests
+kubectl label nodes minikube-m05 node=tyk-resources
+kubectl label nodes minikube-m06 node=kong
+kubectl label nodes minikube-m07 node=kong-upstream
+kubectl label nodes minikube-m08 node=kong-tests
+kubectl label nodes minikube-m09 node=kong-resources
+kubectl label nodes minikube-m10 node=gravitee
+kubectl label nodes minikube-m11 node=gravitee-upstream
+kubectl label nodes minikube-m12 node=gravitee-tests
+kubectl label nodes minikube-m13 node=gravitee-resources
+kubectl label nodes minikube-m14 node=traefik
+kubectl label nodes minikube-m15 node=traefik-upstream
+kubectl label nodes minikube-m16 node=traefik-tests
+kubectl label nodes minikube-m17 node=traefik-resources
+kubectl label nodes minikube-m18 node=upstream
+kubectl label nodes minikube-m19 node=upstream-tests
 ```
 
 Note: dependencies are required, while the rest are required based on where the tests are being run. 
@@ -111,6 +116,11 @@ gravitee_enabled         = false
 gravitee_version         = "4.5"
 gravitee_deployment_type = "Deployment"
 gravitee_service_type    = "ClusterIP"
+
+traefik_enabled         = false
+traefik_version         = "3.3"
+traefik_deployment_type = "Deployment"
+traefik_service_type    = "ClusterIP"
 
 upstream_enabled     = false
 grafana_service_type = "ClusterIP"

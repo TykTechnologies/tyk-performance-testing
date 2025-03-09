@@ -82,6 +82,12 @@ variable "gravitee_enabled" {
   description = "Enable Gravitee services."
 }
 
+variable "traefik_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Traefik services."
+}
+
 variable "upstream_enabled" {
   type        = bool
   default     = false

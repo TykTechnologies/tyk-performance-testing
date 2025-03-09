@@ -7,3 +7,4 @@ dependencies_nodes_count = 2
 
 tyk_enabled      = true
 gravitee_enabled = true
+upstream_enabled = true

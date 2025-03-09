@@ -12,6 +12,8 @@ metadata:
     pt-annotations-open-telemetry: "${var.open_telemetry.enabled}"
     pt-annotations-analytics-database: "${var.analytics.database.enabled}"
     pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
+    pt-annotations-req-header-injection: "${var.header_injection.req.enabled}"
+    pt-annotations-res-header-injection: "${var.header_injection.res.enabled}"
 spec:
   name: "api"
   contextRef:
