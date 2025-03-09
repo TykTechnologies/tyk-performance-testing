@@ -1,7 +1,7 @@
 tyk_enabled      = true
 kong_enabled     = true
 gravitee_enabled = true
-traefik_enabled  = true
+traefik_enabled  = false
 upstream_enabled = true
 
 tests_fortio_options = "size=2000"

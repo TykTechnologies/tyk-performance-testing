@@ -1,5 +1,5 @@
 analytics_database_enabled    = false
-analytics_prometheus_enabled  = false
+analytics_prometheus_enabled  = true
 auth_enabled                  = false
 auth_type                     = "authToken"
 quota_enabled                 = false
