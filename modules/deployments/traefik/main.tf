@@ -69,8 +69,8 @@ resource "helm_release" "traefik" {
   }
 
   set {
-    name  = "metrics.prometheus"
-    value = var.analytics.prometheus.enabled ? jsonencode({ entryPoint: "metrics" }) : "null"
+    name  = var.analytics.prometheus.enabled ? "metrics.prometheus.entryPoint" : "metrics.prometheus"
+    value = var.analytics.prometheus.enabled ? "metrics" : "null"
   }
 
   depends_on = [kubernetes_namespace.traefik]
