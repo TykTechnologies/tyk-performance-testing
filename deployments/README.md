@@ -50,6 +50,10 @@
 | <a name="input_resources_limits_memory"></a> [resources\_limits\_memory](#input\_resources\_limits\_memory) | Gateway memory requests. | `string`| `"0"`| no |
 | <a name="input_resources_requests_cpu"></a> [resources\_requests\_cpu](#input\_resources\_requests\_cpu)| Gateway CPU requests.| `string`| `"0"`| no |
 | <a name="input_resources_requests_memory"></a> [resources\_requests\_memory](#input\_resources\_requests\_memory) | Gateway memory requests. | `string`| `"0"`| no |
+| <a name="input_traefik_deployment_type"></a> [traefik\_deployment\_type](#input\_traefik\_deployment\_type)| Traefik Gateway deployment type.| `string`| `"Deployment"` | no |
+| <a name="input_traefik_service_type"></a> [traefik\_service\_type](#input\_traefik\_service\_type) | Traefik Gateway service type. | `string`| `"ClusterIP"`| no |
+| <a name="input_traefik_enabled"></a> [traefik\_enabled](#input\_traefik\_enabled)| Enable Traefik services.| `bool`| `false`| no |
+| <a name="input_traefik_version"></a> [traefik\_version](#input\_traefik\_version)| Traefik Gateway version.| `string`| `"3.3"`| no |
 | <a name="input_tyk_deployment_type"></a> [tyk\_deployment\_type](#input\_tyk\_deployment\_type) | Tyk Gateway deployment type. | `string`| `"Deployment"` | no |
 | <a name="input_tyk_service_type"></a> [tyk\_service\_type](#input\_tyk\_service\_type)| Tyk Gateway service type.| `string`| `"ClusterIP"`| no |
 | <a name="input_tyk_enabled"></a> [tyk\_enabled](#input\_tyk\_enabled) | Enable Tyk services. | `bool`| `true` | no |

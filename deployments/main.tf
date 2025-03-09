@@ -91,6 +91,13 @@ module "deployments" {
     nginx_enabled   = var.gravitee_nginx_enabled
   }
 
+  traefik = {
+    enabled         = var.traefik_enabled
+    version         = var.traefik_version
+    deployment_type = var.traefik_deployment_type
+    service_type    = var.traefik_service_type
+  }
+
   upstream = {
     enabled = var.upstream_enabled
   }

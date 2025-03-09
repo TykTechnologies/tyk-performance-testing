@@ -13,6 +13,10 @@ variable "node_labels" {
     gravitee-upstream  = string
     gravitee-tests     = string
     gravitee-resources = string
+    traefik            = string
+    traefik-upstream   = string
+    traefik-tests      = string
+    traefik-resources  = string
     upstream           = string
     upstream-tests     = string
   })

@@ -41,3 +41,8 @@ gravitee_version         = "4.5"
 gravitee_deployment_type = "Deployment"
 gravitee_service_type    = "ClusterIP"
 gravitee_nginx_enabled   = false
+
+traefik_enabled         = false
+traefik_version         = "3.3"
+traefik_deployment_type = "Deployment"
+traefik_service_type    = "ClusterIP"
