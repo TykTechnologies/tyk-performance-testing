@@ -129,6 +129,6 @@ resource "helm_release" "grafana" {
     value = ""
   }
 
-  depends_on = [kubernetes_config_map.grafana-dashboard]
+  depends_on = [kubernetes_namespace.dependencies, kubernetes_config_map.grafana-dashboard]
 }
 

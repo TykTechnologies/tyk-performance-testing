@@ -6917,7 +6917,7 @@ spec:
 YAML
 
   count      = var.keycloak.enabled ? 1 : 0
-  depends_on = [helm_release.keycloak-pgsql]
+  depends_on = [kubernetes_namespace.dependencies, helm_release.keycloak-pgsql]
 }
 
 resource "kubectl_manifest" "keycloak-jwt-realm" {
@@ -9708,5 +9708,5 @@ spec:
 YAML
 
   count      = var.keycloak.enabled ? 1 : 0
-  depends_on = [kubectl_manifest.keycloak]
+  depends_on = [kubernetes_namespace.dependencies, kubectl_manifest.keycloak]
 }

@@ -48,5 +48,5 @@ resource "helm_release" "jaeger" {
   }
 
   count = var.open_telemetry.enabled ? 1 : 0
-  depends_on = [helm_release.cert-manager]
+  depends_on = [kubernetes_namespace.dependencies, helm_release.cert-manager]
 }
