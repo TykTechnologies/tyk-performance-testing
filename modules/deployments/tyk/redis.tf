@@ -35,5 +35,5 @@ resource "helm_release" "tyk-redis" {
     value = "none"
   }
 
-  depends_on = [kubernetes_namespace.tyk]
+  depends_on = [kubernetes_namespace.tyk, kubernetes_namespace.tyk]
 }

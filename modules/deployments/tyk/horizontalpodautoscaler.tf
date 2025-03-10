@@ -39,5 +39,5 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "tyk-hpa" {
   }
 
   count      = var.hpa.enabled ? 1 : 0
-  depends_on = [helm_release.tyk]
+  depends_on = [kubernetes_namespace.tyk, helm_release.tyk]
 }

@@ -47,7 +47,7 @@ spec:
         global_response_headers: ${jsonencode(var.header_injection.req.enabled ? { "X-API-RES": "Bar" } : {})}
 YAML
 
-  depends_on = [helm_release.tyk, helm_release.tyk-operator]
+  depends_on = [kubernetes_namespace.tyk, helm_release.tyk, helm_release.tyk-operator]
 }
 
 resource "kubectl_manifest" "api-policy" {
@@ -82,6 +82,6 @@ spec:
     - Default
 YAML
 
-  depends_on = [kubectl_manifest.api]
+  depends_on = [kubernetes_namespace.tyk, kubectl_manifest.api]
   count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }

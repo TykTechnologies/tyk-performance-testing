@@ -11,5 +11,5 @@ resource "helm_release" "tyk-operator" {
     value = var.resources-label
   }
 
-  depends_on = [helm_release.tyk]
+  depends_on = [kubernetes_namespace.tyk, helm_release.tyk]
 }

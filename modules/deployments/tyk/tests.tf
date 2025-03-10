@@ -20,7 +20,7 @@ data "kubernetes_secret" "tyk-operator-conf" {
     namespace = var.namespace
   }
 
-  depends_on = [helm_release.tyk]
+  depends_on = [kubernetes_namespace.tyk, helm_release.tyk]
 }
 
 resource "kubernetes_config_map" "auth-configmap" {
@@ -29,7 +29,7 @@ resource "kubernetes_config_map" "auth-configmap" {
     namespace = var.namespace
   }
 
-  depends_on = [data.kubernetes_secret.tyk-operator-conf]
+  depends_on = [kubernetes_namespace.tyk, data.kubernetes_secret.tyk-operator-conf]
   data = {
     "auth.js" = <<EOF
 import http from 'k6/http';

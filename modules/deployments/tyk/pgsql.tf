@@ -57,5 +57,5 @@ resource "helm_release" "tyk-pgsql" {
     value = var.resources-label
   }
 
-  depends_on = [kubernetes_namespace.tyk]
+  depends_on = [kubernetes_namespace.tyk, kubernetes_namespace.tyk]
 }
