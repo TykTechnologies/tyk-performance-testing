@@ -26,12 +26,12 @@ spec:
     strip_listen_path: true
   use_keyless: ${! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled)}
   use_standard_auth: ${(var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) && var.auth.type == "authToken"}
-  enable_jwt: ${(var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) && (var.auth.type == "JWT" || var.auth.type == "HMAC")}
+  enable_jwt: ${(var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) && (var.auth.type == "JWT-RSA" || var.auth.type == "JWT-HMAC")}
   auth_configs:
     authToken:
       auth_header_name: Authorization
-  jwt_signing_method: ${var.auth.type == "HMAC" ? "hmac" : "rsa"}
-  jwt_source: ${var.auth.type == "HMAC" ? "dG9wc2VjcmV0cGFzc3dvcmQ=" : "http://keycloak-service.dependencies.svc:8080/realms/jwt/protocol/openid-connect/certs"}
+  jwt_signing_method: ${var.auth.type == "JWT-HMAC" ? "hmac" : "rsa"}
+  jwt_source: ${var.auth.type == "JWT-HMAC" ? "dG9wc2VjcmV0cGFzc3dvcmQ=" : "http://keycloak-service.dependencies.svc:8080/realms/jwt/protocol/openid-connect/certs"}
   jwt_identity_base_field: sub
   jwt_policy_field_name: pol
   jwt_default_policies:
