@@ -6676,6 +6676,8 @@ resource "kubernetes_service" "keycloak_operator_service" {
 
     type = "ClusterIP"
   }
+
+  depends_on = [kubernetes_namespace.dependencies]
 }
 
 resource "kubernetes_deployment" "keycloak_operator_deployment" {

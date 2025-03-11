@@ -25,6 +25,10 @@ resources_requests_memory   = "0"
 resources_limits_cpu        = "0"
 resources_limits_memory     = "0"
 
+service_route_count = 1
+service_app_count   = 1
+service_host_count  = 1
+
 tyk_enabled          = true
 tyk_version          = "v5.7"
 tyk_license          = ""

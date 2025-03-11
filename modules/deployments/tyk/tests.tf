@@ -7,11 +7,16 @@ module "tests" {
   rate_limit       = var.rate_limit
   open_telemetry   = var.open_telemetry
   header_injection = var.header_injection
+  service          = var.service
+
+  depends_on = [kubernetes_namespace.tyk]
 }
 
 module "scenarios" {
-  source         = "../dependencies/k6/scenarios"
-  namespace      = var.namespace
+  source    = "../dependencies/k6/scenarios"
+  namespace = var.namespace
+
+  depends_on = [kubernetes_namespace.tyk]
 }
 
 data "kubernetes_secret" "tyk-operator-conf" {
@@ -48,8 +53,7 @@ const params = {
   },
 };
 
-const createKeys = (baseURL, policyId, keyCount) => {
-  const keys = [];
+const createKey = (baseURL, policyId) => {
   const payload = JSON.stringify({
     "allowance": -1,
     "rate": -1,
@@ -59,21 +63,23 @@ const createKeys = (baseURL, policyId, keyCount) => {
     "apply_policies": [ policyId ]
   });
 
-  for (let i = 0; i < keyCount; i++) {
-    const res = http.post(baseURL + '/api/keys', payload, params);
-    check(res, {
-      ['key creation call status is 200']: (r) => r.status === 200,
-    }) || fail('Failed to create key');
-    keys.push(res.json().key_id);
-  }
-  return keys;
+  const res = http.post(baseURL + '/api/keys', payload, params);
+  check(res, {
+    ['key creation call status is 200']: (r) => r.status === 200,
+  }) || fail('Failed to create key');
+
+  return res.json().key_id;
 };
 
 const generateKeys = (keyCount) => {
+  const keys = [];
   const baseURL = "http://dashboard-svc-tyk-tyk-dashboard:3000";
-  const policyId = base64UrlEncode("${var.namespace}/api-policy");
 
-  return createKeys(baseURL, policyId, keyCount);
+  for (let i = 0; i < keyCount; i++) {
+    keys.push(createKey(baseURL, base64UrlEncode(`${var.namespace}/api-policy-$${i % ${var.service.app_count}}`)));
+  }
+
+  return keys;
 };
 
 export { generateKeys };

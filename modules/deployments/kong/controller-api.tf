@@ -3,7 +3,7 @@ resource "kubectl_manifest" "api" {
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: api
+  name: api-${count.index}
   namespace: "${var.namespace}-upstream"
   annotations:
     konghq.com/strip-path: 'true'
@@ -21,13 +21,14 @@ spec:
   rules:
   - http:
       paths:
-      - path: /api
+      - path: /api-${count.index}
         pathType: ImplementationSpecific
         backend:
           service:
-            name: fortio
+            name: fortio-${count.index % var.service.host_count}
             port:
               number: 8080
 YAML
+  count      = var.service.route_count
   depends_on = [helm_release.kong]
 }

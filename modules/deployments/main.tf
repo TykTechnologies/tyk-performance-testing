@@ -10,41 +10,46 @@ module "dependencies" {
 }
 
 module "tyk-upstream" {
-  source    = "./dependencies/upstream"
-  label     = var.labels.tyk-upstream
-  namespace = var.labels.tyk-upstream
+  source        = "./dependencies/upstream"
+  label         = var.labels.tyk-upstream
+  namespace     = var.labels.tyk-upstream
+  service_count = var.service.host_count
 
   count = var.tyk.enabled == true ? 1 : 0
 }
 
 module "kong-upstream" {
-  source = "./dependencies/upstream"
-  label     = var.labels.kong-upstream
-  namespace = var.labels.kong-upstream
+  source        = "./dependencies/upstream"
+  label         = var.labels.kong-upstream
+  namespace     = var.labels.kong-upstream
+  service_count = var.service.host_count
 
   count = var.kong.enabled == true ? 1 : 0
 }
 
 module "gravitee-upstream" {
-  source = "./dependencies/upstream"
-  label     = var.labels.gravitee-upstream
-  namespace = var.labels.gravitee-upstream
+  source        = "./dependencies/upstream"
+  label         = var.labels.gravitee-upstream
+  namespace     = var.labels.gravitee-upstream
+  service_count = var.service.host_count
 
   count = var.gravitee.enabled == true ? 1 : 0
 }
 
 module "traefik-upstream" {
-  source = "./dependencies/upstream"
-  label     = var.labels.traefik-upstream
-  namespace = var.labels.traefik-upstream
+  source        = "./dependencies/upstream"
+  label         = var.labels.traefik-upstream
+  namespace     = var.labels.traefik-upstream
+  service_count = var.service.host_count
 
   count = var.traefik.enabled == true ? 1 : 0
 }
 
 module "upstream" {
-  source    = "./upstream"
-  label     = var.labels.upstream
-  namespace = var.labels.upstream
+  source     = "./upstream"
+  label      = var.labels.upstream
+  namespace  = var.labels.upstream
+  service    = var.service
 
   count = var.upstream.enabled == true ? 1 : 0
 }
@@ -75,6 +80,8 @@ module "tyk" {
   open_telemetry   = var.open_telemetry
   header_injection = var.header_injection
 
+  service = var.service
+
   count = var.tyk.enabled == true ? 1 : 0
   depends_on = [module.dependencies]
 }
@@ -99,6 +106,8 @@ module "kong" {
   rate_limit       = var.rate_limit
   open_telemetry   = var.open_telemetry
   header_injection = var.header_injection
+
+  service = var.service
 
   count = var.kong.enabled == true ? 1 : 0
   depends_on = [module.dependencies]
@@ -126,6 +135,8 @@ module "gravitee" {
   open_telemetry   = var.open_telemetry
   header_injection = var.header_injection
 
+  service = var.service
+
   count = var.gravitee.enabled == true ? 1 : 0
   depends_on = [module.dependencies]
 }
@@ -150,6 +161,8 @@ module "traefik" {
   rate_limit       = var.rate_limit
   open_telemetry   = var.open_telemetry
   header_injection = var.header_injection
+
+  service = var.service
 
   count = var.traefik.enabled == true ? 1 : 0
   depends_on = [module.dependencies]

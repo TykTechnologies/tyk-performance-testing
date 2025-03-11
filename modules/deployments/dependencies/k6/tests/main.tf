@@ -22,8 +22,13 @@ const headerInjectionGauge = new Gauge('deployment_config_header_injection');
 const durationGauge     = new Gauge('test_config_duration');
 const rateGauge         = new Gauge('test_config_rate');
 const virtualUsersGauge = new Gauge('test_config_virtual_users');
+const fortioOptsGauge   = new Gauge('tests_fortio_options');
 
-const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
+const routeCountGauge = new Gauge('service_route_count');
+const appCountGauge   = new Gauge('service_app_count');
+const hostCountGauge  = new Gauge('service_host_count');
+
+const addTestInfoMetrics = ({ duration, rate, virtual_users, fortio_options }, key_count) => {
   const analytics = [ ${var.analytics.database.enabled} ? "Database" : "", ${var.analytics.prometheus.enabled} ? "Prometheus" : "",  ].filter(item => item !== "")
   analyticsGauge.add(1, {
     state: analytics.length > 0 ? analytics.join(", ") : "Off",
@@ -53,10 +58,20 @@ const addTestInfoMetrics = ({ duration, rate, virtual_users }, key_count) => {
   durationGauge.add(duration);
   rateGauge.add(rate);
   virtualUsersGauge.add(virtual_users);
+  fortioOptsGauge.add(1, {
+    state: fortio_options ? fortio_options.split("&").join(", ") : "None",
+  });
+
+  routeCountGauge.add(${var.service.route_count});
+  appCountGauge.add(${var.service.app_count});
+  hostCountGauge.add(${var.service.host_count});
 };
 
 const getAuth = () => ${var.auth.enabled};
 const getAuthType = () => "${var.auth.type}";
+
+const getRouteCount = () => ${var.service.route_count};
+const getHostCount = () => ${var.service.host_count};
 
 const generateJWTRSAKeys = (keyCount) => {
   const keys = [];
@@ -117,7 +132,7 @@ const generateJWTHMACKeys = (keyCount) => {
     return keys;
 };
 
-export { getAuth, getAuthType, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics };
+export { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics };
 
 EOF
   }

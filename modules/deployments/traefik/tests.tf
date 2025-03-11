@@ -7,11 +7,16 @@ module "tests" {
   rate_limit       = var.rate_limit
   open_telemetry   = var.open_telemetry
   header_injection = var.header_injection
+  service          = var.service
+
+  depends_on = [kubernetes_namespace.traefik]
 }
 
 module "scenarios" {
-  source         = "../dependencies/k6/scenarios"
-  namespace      = var.namespace
+  source    = "../dependencies/k6/scenarios"
+  namespace = var.namespace
+
+  depends_on = [kubernetes_namespace.traefik]
 }
 
 resource "kubernetes_config_map" "auth-configmap" {
@@ -22,8 +27,10 @@ resource "kubernetes_config_map" "auth-configmap" {
 
   data = {
     "auth.js" = <<EOF
-const generateKeys = (keyCount) => {};
+const generateKeys = (keyCount) => [];
 export { generateKeys };
 EOF
   }
+
+  depends_on = [kubernetes_namespace.traefik]
 }

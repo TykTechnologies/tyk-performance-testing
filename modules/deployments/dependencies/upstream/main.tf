@@ -43,7 +43,7 @@ resource "kubernetes_deployment" "fortio" {
 
 resource "kubernetes_service_v1" "fortio" {
   metadata {
-    name      = "fortio"
+    name      = "fortio-${count.index}"
     namespace = var.namespace
     labels = {
       app = "fortio"
@@ -62,6 +62,7 @@ resource "kubernetes_service_v1" "fortio" {
     }
   }
 
+  count      = var.service_count
   depends_on = [kubernetes_deployment.fortio]
 }
 

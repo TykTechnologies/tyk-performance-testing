@@ -7,11 +7,16 @@ module "tests" {
   rate_limit       = var.rate_limit
   open_telemetry   = var.open_telemetry
   header_injection = var.header_injection
+  service          = var.service
+
+  depends_on = [kubernetes_namespace.kong]
 }
 
 module "scenarios" {
-  source         = "../dependencies/k6/scenarios"
-  namespace      = var.namespace
+  source    = "../dependencies/k6/scenarios"
+  namespace = var.namespace
+
+  depends_on = [kubernetes_namespace.kong]
 }
 
 resource "kubernetes_config_map" "auth-configmap" {
@@ -32,26 +37,26 @@ const params = {
   },
 };
 
-const createConsumers = (baseURL, keyCount) => {
-  for (let i = 0; i < keyCount; i++) {
+const createConsumers = (baseURL, appCount) => {
+  for (let i = 0; i < appCount; i++) {
     const payload = JSON.stringify({
-      username: 'app' + i
+      username: 'app-' + i
     });
 
     const res = http.post(baseURL + '/consumers/', payload, params);
     check(res, {
-      ['consumer "app' + i + '" creation status is 201/409']: (r) => r.status === 201 || r.status === 409,
-    }) || fail('Failed to create consumer "app' + i + '"');
+      ['consumer "app-' + i + '" creation status is 201/409']: (r) => r.status === 201 || r.status === 409,
+    }) || fail('Failed to create consumer "app-' + i + '"');
   }
 };
 
 const createKeys = (baseURL, keyCount) => {
   const keys = [];
   for (let i = 0; i < keyCount; i++) {
-    const res = http.post(baseURL + '/consumers/app' + i + '/key-auth/', JSON.stringify({}), params);
+    const res = http.post(baseURL + '/consumers/app-' + i % ${var.service.app_count} + '/key-auth/', JSON.stringify({}), params);
     check(res, {
-      ['key for consumer "app' + i + '" creation status is 201']: (r) => r.status === 201,
-    }) || fail('Failed to create key for consumer "app' + i + '"');
+      ['key for consumer "app-' + i % ${var.service.app_count} + '" creation status is 201']: (r) => r.status === 201,
+    }) || fail('Failed to create key for consumer "app-' + i % ${var.service.app_count} + '"');
 
     keys.push(res.json().key);
   }
@@ -61,7 +66,7 @@ const createKeys = (baseURL, keyCount) => {
 
 const generateKeys = (keyCount) => {
   const baseURL = "https://${helm_release.kong.name}-gateway-admin:8444";
-  createConsumers(baseURL, keyCount);
+  createConsumers(baseURL, ${var.service.app_count});
 
   return createKeys(baseURL, keyCount);
 };
@@ -69,4 +74,6 @@ const generateKeys = (keyCount) => {
 export { generateKeys };
 EOF
   }
+
+  depends_on = [kubernetes_namespace.kong]
 }

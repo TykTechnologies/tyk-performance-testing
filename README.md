@@ -98,6 +98,10 @@ resources_requests_memory   = "0"
 resources_limits_cpu        = "0"
 resources_limits_memory     = "0"
 
+service_route_count = 1
+service_app_count   = 1
+service_host_count  = 1
+
 tyk_enabled          = true
 tyk_version          = "v5.7"
 tyk_license          = ""
@@ -134,6 +138,7 @@ kubernetes_config_context = "performance-testing"
 tyk_enabled      = true
 kong_enabled     = false
 gravitee_enabled = false
+traefik_enabled  = false
 upstream_enabled = false
 
 tests_fortio_options = "size=20"
