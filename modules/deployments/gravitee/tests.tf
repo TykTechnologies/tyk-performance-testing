@@ -7,11 +7,16 @@ module "tests" {
   rate_limit       = var.rate_limit
   open_telemetry   = var.open_telemetry
   header_injection = var.header_injection
+  service          = var.service
+
+  depends_on = [kubernetes_namespace.gravitee]
 }
 
 module "scenarios" {
-  source         = "../dependencies/k6/scenarios"
-  namespace      = var.namespace
+  source    = "../dependencies/k6/scenarios"
+  namespace = var.namespace
+
+  depends_on = [kubernetes_namespace.gravitee]
 }
 
 resource "kubernetes_config_map" "auth-configmap" {
@@ -25,32 +30,46 @@ resource "kubernetes_config_map" "auth-configmap" {
 import http from 'k6/http';
 import { check, fail } from 'k6';
 
-const getAPIId = (baseURL) => {
-  const res = http.get(baseURL + '/apis/', { responseType: 'text' });
+const getAPIIds = (baseURL, apiCount) => {
+  const res = http.get(baseURL + '/apis/?page=1&size=' + apiCount, { responseType: 'text' });
   check(res, {
     'apis get call status is 200': (r) => r.status === 200,
   }) || fail('Failed to get APIs');
 
-  const api = res.json().data.find((api) => api.name === "api");
-  check(api, {
-    ['api "api" exists']: (a) => a,
-  }) || fail('API "api" not found');
+  const apiIds = [];
+  const data = res.json().data;
 
-  return api.id;
+  for (let i = 0; i < apiCount; i++) {
+    let api = data.find((api) => api.name === "api-" + i);
+    check(api, {
+      ['api "api-' + i + '" exists']: (a) => a,
+    }) || fail('API "api-' + i + '" not found');
+
+    apiIds.push(api.id);
+  }
+
+  return apiIds;
 };
 
-const getPlanId = (baseURL, apiId) => {
-  const res = http.get(baseURL + '/apis/' + apiId + '/plans', { responseType: 'text' });
-  check(res, {
-    'plans get call status is 200': (r) => r.status === 200,
-  }) || fail('Failed to get plans');
+const getPlanIds = (baseURL, apiIds, planCount) => {
+  const planIds = [];
+  const apiCount = apiIds.length;
 
-  const plan = res.json().data.find((plan) => plan.name === "API_KEY");
-  check(plan, {
-    'plan API_KEY exists': (p) => p,
-  }) || fail('Plan "API_KEY" not found');
+  for (let i = 0; i < planCount; i++) {
+    let  res = http.get(baseURL + '/apis/' + apiIds[i % apiCount] + '/plans', { responseType: 'text' });
+    check(res, {
+      'plans get call status is 200': (r) => r.status === 200,
+    }) || fail('Failed to get plans');
 
-  return plan.id;
+    let plan = res.json().data.find((plan) => plan.name === "API_KEY");
+    check(plan, {
+      'plan API_KEY exists': (p) => p,
+    }) || fail('Plan "API_KEY" not found');
+
+    planIds.push(plan.id)
+  }
+
+  return planIds;
 };
 
 const params = {
@@ -64,7 +83,7 @@ const params = {
 const createApplications = (baseURL, keyCount) => {
   const applicationIds = [];
   for (let i = 0; i < keyCount; i++) {
-    const name = 'app' + i;
+    const name = 'app-' + i;
     const payload = JSON.stringify({
       name: name,
       description: name,
@@ -78,15 +97,17 @@ const createApplications = (baseURL, keyCount) => {
 
     applicationIds.push(res.json().id);
   }
+
   return applicationIds;
 };
 
-const createSubscriptions = (baseURL, planId, applicationIds) => {
+const createSubscriptions = (baseURL, planIds, applicationIds) => {
   const keys = [];
+  const planCount = planIds.length;
   for (let i = 0; i < applicationIds.length; i++) {
     const payload = JSON.stringify({
       application: applicationIds[i],
-      plan: planId
+      plan: planIds[i % planCount]
     });
 
     const res = http.post(baseURL + '/subscriptions', payload, params);
@@ -102,14 +123,16 @@ const createSubscriptions = (baseURL, planId, applicationIds) => {
 
 const generateKeys = (keyCount) => {
   const baseURL = "http://${helm_release.gravitee.name}-apim-api:83/portal/environments/DEFAULT";
-  const apiId = getAPIId(baseURL);
-  const planId = getPlanId(baseURL, apiId);
+  const apiIds = getAPIIds(baseURL, ${var.service.route_count});
+  const planIds = getPlanIds(baseURL, apiIds, ${var.service.app_count});
   const applicationIds = createApplications(baseURL, keyCount);
 
-  return createSubscriptions(baseURL, planId, applicationIds);
+  return createSubscriptions(baseURL, planIds, applicationIds);
 };
 
 export { generateKeys };
 EOF
   }
+
+  depends_on = [kubernetes_namespace.gravitee]
 }

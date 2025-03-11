@@ -1,7 +1,8 @@
 module "upstream" {
-  source    = "../dependencies/upstream"
-  namespace = var.namespace
-  label     = var.label
+  source        = "../dependencies/upstream"
+  namespace     = var.namespace
+  label         = var.label
+  service_count = var.service.host_count
 }
 
 module "scenarios" {
@@ -24,8 +25,10 @@ const getAuth = () => false;
 const getAuthType = () => "";
 const generateJWTRSAKeys = () => [];
 const generateJWTHMACKeys = () => [];
+const getRouteCount = () => ${var.service.route_count};
+const getHostCount = () => ${var.service.host_count};
 
-export { getAuth, getAuthType, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics };
+export { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics };
 
 EOF
   }
@@ -41,7 +44,7 @@ resource "kubernetes_config_map" "auth-configmap" {
 
   data = {
     "auth.js" = <<EOF
-const generateKeys = (keyCount) => {};
+const generateKeys = (keyCount) => [];
 export { generateKeys };
 EOF
   }

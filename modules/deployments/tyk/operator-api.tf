@@ -3,7 +3,7 @@ resource "kubectl_manifest" "api" {
 apiVersion: tyk.tyk.io/v1alpha1
 kind: ApiDefinition
 metadata:
-  name: api
+  name: api-${count.index}
   namespace: ${var.namespace}
   annotations:
     pt-annotations-auth: "${var.auth.enabled}"
@@ -15,14 +15,14 @@ metadata:
     pt-annotations-req-header-injection: "${var.header_injection.req.enabled}"
     pt-annotations-res-header-injection: "${var.header_injection.res.enabled}"
 spec:
-  name: api
+  name: api-${count.index}
   protocol: http
   active: true
   disable_quota: ${! var.quota.enabled}
   disable_rate_limit: ${! var.rate_limit.enabled}
   proxy:
-    target_url: http://fortio.tyk-upstream.svc:8080
-    listen_path: /api
+    target_url: http://fortio-${count.index % var.service.host_count}.tyk-upstream.svc:8080
+    listen_path: /api-${count.index}
     strip_listen_path: true
   use_keyless: ${! (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled)}
   use_standard_auth: ${(var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) && var.auth.type == "authToken"}
@@ -35,7 +35,7 @@ spec:
   jwt_identity_base_field: sub
   jwt_policy_field_name: pol
   jwt_default_policies:
-    - "${var.namespace}/api-policy"
+    - "${var.namespace}/api-policy-${count.index % var.service.app_count}"
   version_data:
     default_version: Default
     not_versioned: true
@@ -47,6 +47,7 @@ spec:
         global_response_headers: ${jsonencode(var.header_injection.req.enabled ? { "X-API-RES": "Bar" } : {})}
 YAML
 
+  count      = var.service.route_count
   depends_on = [kubernetes_namespace.tyk, helm_release.tyk, helm_release.tyk-operator]
 }
 
@@ -55,7 +56,7 @@ resource "kubectl_manifest" "api-policy" {
 apiVersion: tyk.tyk.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: api-policy
+  name: api-policy-${count.index}
   namespace: ${var.namespace}
   annotations:
     pt-annotations-auth: "${var.auth.enabled}"
@@ -66,7 +67,7 @@ metadata:
     pt-annotations-analytics-database: "${var.analytics.database.enabled}"
     pt-annotations-analytics-prometheus: "${var.analytics.prometheus.enabled}"
 spec:
-  name: api-policy
+  name: api-policy-${count.index}
   state: active
   active: true
   quota_max: ${var.quota.enabled ? var.quota.rate : -1}
@@ -76,12 +77,12 @@ spec:
   throttle_interval: -1
   throttle_retry_limit: -1
   access_rights_array:
-  - name: api
+  - name: api-${count.index % var.service.route_count}
     namespace: ${var.namespace}
     versions:
     - Default
 YAML
 
+  count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? var.service.app_count : 0
   depends_on = [kubernetes_namespace.tyk, kubectl_manifest.api]
-  count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
 }

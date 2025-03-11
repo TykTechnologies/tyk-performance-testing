@@ -16,7 +16,7 @@ resource "kubernetes_config_map" "test-configmap" {
   data = {
     "script.js" = <<EOF
 import http from 'k6/http';
-import { getAuth, getAuthType, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics } from "/helpers/tests.js";
+import { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics } from "/helpers/tests.js";
 import { getScenarios } from "/helpers/scenarios.js";
 import { generateKeys } from "/helpers/auth.js";
 
@@ -42,13 +42,21 @@ export function setup() {
 }
 
 export default function (keys) {
+  const routeCount = getRouteCount();
+  let i = Math.floor(Math.random() * routeCount);
+
   let headers = {};
   if (getAuth()) {
-    const i = Math.floor(Math.random() * keys.length);
-    headers = { "Authorization": keys[i] }
+    headers = { "Authorization": keys[i % keys.length] }
   }
 
-  http.get('http://${var.url}/api/?${var.config.fortio_options}', { headers });
+  let url = "http://${var.service_name}.${var.name}.svc:${var.service_port}/api-" + i + "/?${var.config.fortio_options}";
+  if (${"upstream" == var.name}) {
+    i = Math.floor(Math.random() * getHostCount());
+    url = "http://${var.service_name}-" + i + ".${var.name}.svc:${var.service_port}/?${var.config.fortio_options}"
+  }
+
+  http.get(url, { headers });
 }
 EOF
   }

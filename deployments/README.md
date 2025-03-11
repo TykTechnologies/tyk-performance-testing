@@ -50,6 +50,9 @@
 | <a name="input_resources_limits_memory"></a> [resources\_limits\_memory](#input\_resources\_limits\_memory) | Gateway memory requests. | `string`| `"0"`| no |
 | <a name="input_resources_requests_cpu"></a> [resources\_requests\_cpu](#input\_resources\_requests\_cpu)| Gateway CPU requests.| `string`| `"0"`| no |
 | <a name="input_resources_requests_memory"></a> [resources\_requests\_memory](#input\_resources\_requests\_memory) | Gateway memory requests. | `string`| `"0"`| no |
+| <a name="input_service_route_count"></a> [service\_route\_count](#input\_service\_route\_count)| Service route count - number of APIs. | `number`| `1` | no |
+| <a name="input_service_app_count"></a> [service\_app\_count](#input\_service\_app\_count)| Service app count - number of security policies/API product/Apps. | `number`| `1` | no |
+| <a name="input_service_host_count"></a> [service\_host\_count](#input\_service\_host\_count)| Service host count - number of k8s services to provision. | `number`| `1` | no |
 | <a name="input_traefik_deployment_type"></a> [traefik\_deployment\_type](#input\_traefik\_deployment\_type)| Traefik Gateway deployment type.| `string`| `"Deployment"` | no |
 | <a name="input_traefik_service_type"></a> [traefik\_service\_type](#input\_traefik\_service\_type) | Traefik Gateway service type. | `string`| `"ClusterIP"`| no |
 | <a name="input_traefik_enabled"></a> [traefik\_enabled](#input\_traefik\_enabled)| Enable Traefik services.| `bool`| `false`| no |

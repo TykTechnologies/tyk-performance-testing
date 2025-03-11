@@ -102,6 +102,12 @@ module "deployments" {
     enabled = var.upstream_enabled
   }
 
+  service = {
+    route_count = var.service_route_count
+    app_count   = var.service_app_count
+    host_count  = var.service_host_count
+  }
+
   dependencies = {
     grafana = {
       service = {

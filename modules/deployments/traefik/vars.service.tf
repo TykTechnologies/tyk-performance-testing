@@ -1,12 +1,3 @@
-variable "namespace" {
-  type    = string
-  default = "upstream"
-}
-
-variable "label" {
-  type = string
-}
-
 variable "service" {
   type    = object({
     route_count = number

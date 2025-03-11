@@ -3,7 +3,7 @@ resource "kubectl_manifest" "api" {
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: api
+  name: api-${count.index}
   namespace: "${var.namespace}-upstream"
   annotations:
     pt-annotations-auth: "${var.auth.enabled}"
@@ -19,10 +19,11 @@ spec:
   - web
   routes:
   - kind: Rule
-    match: PathPrefix(`/api`)
+    match: PathPrefix(`/api-${count.index}`)
     services:
-    - name: fortio
+    - name: fortio-${count.index % var.service.host_count}
       port: 8080
 YAML
+  count      = var.service.route_count
   depends_on = [helm_release.traefik]
 }
