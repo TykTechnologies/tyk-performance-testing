@@ -3,7 +3,7 @@ terraform {
     organization = "tyk-performance-testing"
 
     workspaces {
-      name = "eks-cluster"
+      name = "eks-cluster-clean-1753787360"
     }
   }
 }
