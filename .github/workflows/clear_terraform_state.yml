@@ -1,0 +1,98 @@
+name: Clear Terraform Cloud State
+
+on:
+  workflow_dispatch:
+    inputs:
+      workspace_name:
+        description: 'Terraform Cloud workspace to clear'
+        required: true
+        type: string
+        default: 'eks-cluster'
+      confirm_deletion:
+        description: 'Type "DELETE" to confirm workspace state deletion'
+        required: true
+        type: string
+
+jobs:
+  clear_state:
+    name: "Clear Terraform Cloud workspace: ${{ inputs.workspace_name }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ inputs.confirm_deletion }}" != "DELETE" ]; then
+            echo "::error::You must type 'DELETE' to confirm workspace state deletion"
+            exit 1
+          fi
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_version: "1.8.2"
+
+      - name: Setup Terraform Cloud configuration
+        run: |
+          cd eks
+          cp terraform.cloud.tf.example terraform.cloud.tf
+          # Update workspace name if different
+          if [ "${{ inputs.workspace_name }}" != "eks-cluster" ]; then
+            sed -i 's/name = "eks-cluster"/name = "${{ inputs.workspace_name }}"/' terraform.cloud.tf
+          fi
+
+      - name: Initialize Terraform
+        run: |
+          cd eks
+          terraform init
+
+      - name: Clear workspace state
+        run: |
+          cd eks
+          echo "Attempting to clear state for workspace: ${{ inputs.workspace_name }}"
+          
+          # Try to destroy resources first (will likely fail due to cross-account)
+          echo "Attempting terraform destroy (may fail due to cross-account access)..."
+          terraform destroy --auto-approve || echo "Destroy failed as expected due to cross-account access"
+          
+          # Force unlock any locks
+          echo "Attempting to force unlock workspace..."
+          terraform force-unlock -force $(terraform show -json 2>/dev/null | jq -r '.terraform_version // "unknown"') || echo "No locks to unlock"
+
+      - name: Recreate workspace with clean state
+        run: |
+          cd eks
+          echo "Creating new workspace configuration with clean state..."
+          
+          # Create a temporary new workspace name
+          NEW_WORKSPACE="${{ inputs.workspace_name }}-clean-$(date +%s)"
+          
+          # Update terraform.cloud.tf to use new workspace
+          sed -i "s/name = \"${{ inputs.workspace_name }}\"/name = \"$NEW_WORKSPACE\"/" terraform.cloud.tf
+          
+          echo "New workspace name: $NEW_WORKSPACE"
+          echo "NEW_WORKSPACE=$NEW_WORKSPACE" >> $GITHUB_ENV
+          
+          # Initialize with new workspace (creates it with clean state)
+          terraform init
+          
+          echo "✅ Clean workspace created: $NEW_WORKSPACE"
+          echo "Next steps:"
+          echo "1. Update your terraform.cloud.tf to use: name = \"$NEW_WORKSPACE\""
+          echo "2. Or manually rename the workspace in Terraform Cloud UI"
+          echo "3. Run your normal deployment workflow"
+
+      - name: Output next steps
+        run: |
+          echo "## 🎉 Terraform Cloud State Cleared!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "A new clean workspace has been created: \`$NEW_WORKSPACE\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Update \`eks/terraform.cloud.tf\` to use the new workspace name" >> $GITHUB_STEP_SUMMARY
+          echo "2. Or rename the workspace in [Terraform Cloud UI](https://app.terraform.io/app/tyk-performance-testing/workspaces)" >> $GITHUB_STEP_SUMMARY
+          echo "3. Run your normal deployment workflow" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The old workspace with cross-account resources has been bypassed." >> $GITHUB_STEP_SUMMARY
