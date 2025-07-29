@@ -7,22 +7,22 @@ resource "helm_release" "k6-operator" {
   namespace = var.namespace
   atomic    = true
 
-  set {
+  set = {
     name  = "namespace.create"
     value = "false"
   }
 
-  set {
+  set = {
     name  = "authProxy.enabled"
     value = "false"
   }
 
-  set {
+  set = {
     name  = "manager.resources"
     value = "null"
   }
 
-  set {
+  set = {
     name  = "nodeSelector.node"
     value = var.label
   }

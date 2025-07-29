@@ -27,7 +27,7 @@ resource "helm_release" "kong" {
   namespace = var.namespace
   atomic    = true
 
-  set {
+  set = {
     name  = "gateway.image.tag"
     value = var.gateway_version
   }
@@ -36,68 +36,68 @@ resource "helm_release" "kong" {
   # Performance
   #############################################################################
 
-  set {
+  set = {
     name  = "gateway.env.nginx_worker_processes"
     value = "auto"
   }
 
-  set {
+  set = {
     name  = "gateway.env.nginx_main_worker_rlimit_nofile"
     value = "auto"
   }
 
-  set {
+  set = {
     name  = "gateway.env.nginx_events_worker_connections"
     value = "auto"
   }
 
-  set {
+  set = {
     name  = "gateway.env.upstream_keepalive_max_requests"
     value = "999999"
   }
 
-  set {
+  set = {
     name  = "gateway.env.nginx_http_keepalive_requests"
     value = "999999"
   }
 
-  set {
+  set = {
     name  = "gateway.env.proxy_access_log"
     value = "off"
   }
 
-  set {
+  set = {
     name  = "gateway.deployment.daemonset"
     value = var.deployment_type == "DaemonSet" ? true : false
   }
 
 
-  set {
+  set = {
     name  = "gateway.service.type"
     value = var.service_type
   }
 
-  set {
+  set = {
     name  = "gateway.replicaCount"
     value = var.replica_count
   }
 
-  set {
+  set = {
     name  = "gateway.resources.requests.cpu"
     value = var.resources.requests.cpu
   }
 
-  set {
+  set = {
     name  = "gateway.resources.requests.memory"
     value = var.resources.requests.memory
   }
 
-  set {
+  set = {
     name  = "gateway.resources.limits.cpu"
     value = var.resources.limits.cpu
   }
 
-  set {
+  set = {
     name  = "gateway.resources.limits.memory"
     value = var.resources.limits.memory
   }
@@ -106,17 +106,17 @@ resource "helm_release" "kong" {
   # Database
   #############################################################################
 
-  set {
+  set = {
     name  = "gateway.postgresql.enabled"
     value = "true"
   }
 
-  set {
+  set = {
     name  = "gateway.postgresql.primary.nodeSelector.node"
     value = var.resources-label
   }
 
-  set {
+  set = {
     name  = "gateway.env.database"
     value = "postgres"
   }
@@ -124,12 +124,12 @@ resource "helm_release" "kong" {
   #############################################################################
   # Kong Open Telemetry
   #############################################################################
-  set {
+  set = {
     name  = "gateway.env.tracing_instrumentations"
     value = var.open_telemetry.enabled ? "all" : "off"
   }
 
-  set {
+  set = {
     name  = "gateway.env.tracing_sampling_rate"
     value = var.open_telemetry.enabled ? var.open_telemetry.sampling_ratio : "0"
   }
@@ -138,42 +138,42 @@ resource "helm_release" "kong" {
   # Kong services
   #############################################################################
 
-  set {
+  set = {
     name  = "gateway.proxy.type"
     value = "ClusterIP"
   }
 
-  set {
+  set = {
     name  = "gateway.admin.enabled"
     value = "true"
   }
 
-  set {
+  set = {
     name  = "gateway.admin.type"
     value = "ClusterIP"
   }
 
-  set {
+  set = {
     name  = "gateway.ingressController.enabled"
     value = "false"
   }
 
-  set {
+  set = {
     name  = "gateway.portal.enabled"
     value = "false"
   }
 
-  set {
+  set = {
     name  = "gateway.portalapi.enabled"
     value = "false"
   }
 
-  set {
+  set = {
     name  = "gateway.nodeSelector.node"
     value = var.label
   }
 
-  set {
+  set = {
     name  = "controller.nodeSelector.node"
     value = var.resources-label
   }

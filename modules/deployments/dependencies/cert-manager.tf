@@ -7,22 +7,22 @@ resource "helm_release" "cert-manager" {
   namespace = var.namespace
   atomic    = true
 
-  set {
+  set = {
     name  = "installCRDs"
     value = true
   }
 
-  set {
+  set = {
     name  = "nodeSelector.node"
     value = var.label
   }
 
-  set {
+  set = {
     name  = "webhook.nodeSelector.node"
     value = var.label
   }
 
-  set {
+  set = {
     name  = "cainjector.nodeSelector.node"
     value = var.label
   }

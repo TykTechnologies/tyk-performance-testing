@@ -22,53 +22,53 @@ resource "helm_release" "traefik" {
   namespace = var.namespace
   atomic    = true
 
-  set {
+  set = {
     name  = "image.tag"
     value = var.gateway_version
   }
 
-  set {
+  set = {
     name  = "deployment.kind"
     value = var.deployment_type
   }
 
 
-  set {
+  set = {
     name  = "service.type"
     value = var.service_type
   }
 
-  set {
+  set = {
     name  = "deployment.replicas"
     value = var.replica_count
   }
 
-  set {
+  set = {
     name  = "resources.requests.cpu"
     value = var.resources.requests.cpu
   }
 
-  set {
+  set = {
     name  = "resources.requests.memory"
     value = var.resources.requests.memory
   }
 
-  set {
+  set = {
     name  = "resources.limits.cpu"
     value = var.resources.limits.cpu
   }
 
-  set {
+  set = {
     name  = "resources.limits.memory"
     value = var.resources.limits.memory
   }
 
-  set {
+  set = {
     name  = "nodeSelector.node"
     value = var.label
   }
 
-  set {
+  set = {
     name  = var.analytics.prometheus.enabled ? "metrics.prometheus.entryPoint" : "metrics.prometheus"
     value = var.analytics.prometheus.enabled ? "metrics" : "null"
   }

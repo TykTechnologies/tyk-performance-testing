@@ -10,27 +10,27 @@ resource "helm_release" "tyk-redis" {
   namespace = var.namespace
   atomic    = true
 
-  set {
+  set = {
     name  = "password"
     value = local.redis-pass
   }
 
-  set {
+  set = {
     name  = "volumePermissions.enabled"
     value = true
   }
 
-  set {
+  set = {
     name  = "service.ports.redis"
     value = local.redis-port
   }
 
-  set {
+  set = {
     name  = "redis.nodeSelector.node"
     value = var.resources-label
   }
 
-  set {
+  set = {
     name  = "redis.resourcesPreset"
     value = "none"
   }

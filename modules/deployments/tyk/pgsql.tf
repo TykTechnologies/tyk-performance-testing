@@ -7,52 +7,52 @@ resource "helm_release" "tyk-pgsql" {
   namespace = var.namespace
   atomic    = true
 
-  set {
+  set = {
     name  = "auth.database"
     value = local.pgsql-name
   }
 
-  set {
+  set = {
     name  = "auth.postgresPassword"
     value = local.pgsql-pass
   }
 
-  set {
+  set = {
     name  = "auth.username"
     value = local.pgsql-user
   }
 
-  set {
+  set = {
     name  = "auth.password"
     value = local.pgsql-pass
   }
 
-  set {
+  set = {
     name  = "containerPorts.postgresql"
     value = local.pgsql-port
   }
 
-  set {
+  set = {
     name  = "primary.service.ports.postgresql"
     value = local.pgsql-port
   }
 
-  set {
+  set = {
     name  = "primary.resources"
     value = "null"
   }
 
-  set {
+  set = {
     name  = "primary.persistence.size"
     value = "20Gi"
   }
 
-  set {
+  set = {
     name  = "primary.nodeSelector.node"
     value = var.resources-label
   }
 
-  set {
+  set = {
     name  = "readReplicas.nodeSelector.node"
     value = var.resources-label
   }

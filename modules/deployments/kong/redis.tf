@@ -10,37 +10,37 @@ resource "helm_release" "kong-redis" {
   namespace = var.namespace
   atomic    = true
 
-  set {
+  set = {
     name  = "image.tag"
     value = "6.2.7"
   }
 
-  set {
+  set = {
     name  = "auth.password"
     value = local.redis-pass
   }
 
-  set {
+  set = {
     name  = "volumePermissions.enabled"
     value = true
   }
 
-  set {
+  set = {
     name  = "master.service.ports.redis"
     value = local.redis-port
   }
 
-  set {
+  set = {
     name  = "replica.service.ports.redis"
     value = local.redis-port
   }
 
-  set {
+  set = {
     name  = "master.nodeSelector.node"
     value = var.resources-label
   }
 
-  set {
+  set = {
     name  = "replica.nodeSelector.node"
     value = var.resources-label
   }

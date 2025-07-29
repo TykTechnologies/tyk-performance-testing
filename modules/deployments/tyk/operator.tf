@@ -6,7 +6,7 @@ resource "helm_release" "tyk-operator" {
   namespace = var.namespace
   atomic    = true
 
-  set {
+  set = {
     name  = "nodeSelector.node"
     value = var.resources-label
   }
