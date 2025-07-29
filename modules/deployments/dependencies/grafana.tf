@@ -14,117 +14,117 @@ resource "helm_release" "grafana" {
   namespace = var.namespace
   atomic    = true
 
-  set = {
+  set {
     name  = "adminPassword"
     value = local.grafana.password
   }
 
-  set = {
+  set {
     name  = "service.type"
     value = var.grafana.service.type
   }
 
-  set = {
+  set {
     name  = "datasources.datasources\\.yaml.apiVersion"
     value = "1"
   }
 
-  set = {
+  set {
     name  = "datasources.datasources\\.yaml.datasources[0].name"
     value = "Prometheus"
   }
 
-  set = {
+  set {
     name  = "datasources.datasources\\.yaml.datasources[0].type"
     value = "prometheus"
   }
 
-  set = {
+  set {
     name  = "datasources.datasources\\.yaml.datasources[0].url"
     value = "http://prometheus-server.dependencies.svc"
   }
 
-  set = {
+  set {
     name  = "datasources.datasources\\.yaml.datasources[0].access"
     value = "proxy"
   }
 
-  set = {
+  set {
     name  = "datasources.datasources\\.yaml.datasources[0].isDefault"
     value = "true"
   }
 
-  set = {
+  set {
     name  = "dashboardProviders.dashboardproviders\\.yaml.apiVersion"
     value = "1"
   }
 
-  set = {
+  set {
     name  = "dashboardProviders.dashboardproviders\\.yaml.providers[0].name"
     value = "Tyk"
   }
 
-  set = {
+  set {
     name  = "dashboardProviders.dashboardproviders\\.yaml.providers[0].orgId"
     value = "1"
   }
 
-  set = {
+  set {
     name  = "dashboardProviders.dashboardproviders\\.yaml.providers[0].type"
     value = "file"
   }
 
-  set = {
+  set {
     name  = "dashboardProviders.dashboardproviders\\.yaml.providers[0].disableDeletion"
     value = "false"
   }
 
-  set = {
+  set {
     name  = "dashboardProviders.dashboardproviders\\.yaml.providers[0].editable"
     value = "true"
   }
 
-  set = {
+  set {
     name  = "dashboardProviders.dashboardproviders\\.yaml.providers[0].updateIntervalSeconds"
     value = "10"
   }
 
-  set = {
+  set {
     name  = "dashboardProviders.dashboardproviders\\.yaml.providers[0].options.path"
     value = "/etc/tyk-grafana/provisioning/dashboards"
   }
 
-  set = {
+  set {
     name  = "extraConfigmapMounts[0].name"
     value = "grafana-dashboards"
   }
 
-  set = {
+  set {
     name  = "extraConfigmapMounts[0].mountPath"
     value = "/etc/tyk-grafana/provisioning/dashboards/dashboards.json"
   }
 
-  set = {
+  set {
     name  = "extraConfigmapMounts[0].subPath"
     value = "dashboards.json"
   }
 
-  set = {
+  set {
     name  = "extraConfigmapMounts[0].configMap"
     value = "grafana-dashboards-configmap"
   }
 
-  set = {
+  set {
     name  = "extraConfigmapMounts[0].readOnly"
     value = "true"
   }
 
-  set = {
+  set {
     name  = "nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "env.JAEGER_AGENT_PORT"
     value = ""
   }

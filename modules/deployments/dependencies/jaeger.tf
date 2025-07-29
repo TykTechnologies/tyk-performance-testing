@@ -7,42 +7,42 @@ resource "helm_release" "jaeger" {
   namespace = var.namespace
   atomic    = true
 
-  set = {
+  set {
     name  = "provisionDataStore.cassandra"
     value = false
   }
 
-  set = {
+  set {
     name  = "provisionDataStore.elasticsearch"
     value = true
   }
 
-  set = {
+  set {
     name  = "storage.type"
     value = "elasticsearch"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "elasticsearch.antiAffinity"
     value = "soft"
   }
 
-  set = {
+  set {
     name  = "agent.nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "collector.nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "query.nodeSelector.node"
     value = var.label
   }

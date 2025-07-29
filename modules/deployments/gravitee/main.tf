@@ -33,122 +33,122 @@ resource "helm_release" "gravitee" {
   #############################################################################
   # Gravitee Components
   #############################################################################
-  set = {
+  set {
     name  = "gateway.apiKey.header"
     value = "Authorization"
   }
 
-  set = {
+  set {
     name  = "gateway.resources.requests.cpu"
     value = var.resources.requests.cpu
   }
 
-  set = {
+  set {
     name  = "gateway.resources.requests.memory"
     value = var.resources.requests.memory
   }
 
-  set = {
+  set {
     name  = "gateway.resources.limits.cpu"
     value = var.resources.limits.cpu
   }
 
-  set = {
+  set {
     name  = "gateway.resources.limits.memory"
     value = var.resources.limits.memory
   }
 
-  set = {
+  set {
     name  = "gateway.deployment.nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "api.ingress.management.scheme"
     value = "http"
   }
 
-  set = {
+  set {
     name  = "api.ingress.portal.scheme"
     value = "http"
   }
 
-  set = {
+  set {
     name  = "api.resources.limits.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "api.resources.limits.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "api.resources.requests.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "api.resources.requests.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "api.deployment.nodeSelector.node"
     value = var.resources-label
   }
 
-  set = {
+  set {
     name  = "ui.resources.limits.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "ui.resources.limits.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "ui.resources.requests.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "ui.resources.requests.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "ui.deployment.nodeSelector.node"
     value = var.resources-label
   }
 
-  set = {
+  set {
     name  = "portal.ingress.hosts[0]"
     value = "portal.example.com"
   }
 
-  set = {
+  set {
     name  = "portal.resources.limits.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "portal.resources.limits.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "portal.resources.requests.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "portal.resources.requests.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "portal.deployment.nodeSelector.node"
     value = var.resources-label
   }
@@ -157,147 +157,147 @@ resource "helm_release" "gravitee" {
   # Database
   #############################################################################
 
-  set = {
+  set {
     name  = "management.type"
     value = "jdbc"
   }
 
-  set = {
+  set {
     name  = "jdbc.driver"
     value = "https://jdbc.postgresql.org/download/postgresql-42.2.23.jar"
   }
 
-  set = {
+  set {
     name  = "jdbc.url"
     value = "jdbc:postgresql://${helm_release.gravitee-pgsql.name}-postgresql:${local.pgsql-port}/${local.pgsql-name}"
   }
 
-  set = {
+  set {
     name  = "jdbc.username"
     value = local.pgsql-user
   }
 
-  set = {
+  set {
     name  = "jdbc.password"
     value = local.pgsql-pass
   }
 
-  set = {
+  set {
     name  = "elasticsearch.enabled"
     value = "true"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.master.resources.limits.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.master.resources.limits.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.master.resources.requests.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.master.resources.requests.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.master.nodeSelector.node"
     value = var.resources-label
   }
 
-  set = {
+  set {
     name  = "elasticsearch.coordinating.replicaCount"
     value = 1
   }
 
-  set = {
+  set {
     name  = "elasticsearch.coordinating.resources.limits.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.coordinating.resources.limits.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.coordinating.resources.requests.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.coordinating.resources.requests.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.coordinating.nodeSelector.node"
     value = var.resources-label
   }
 
-  set = {
+  set {
     name  = "elasticsearch.ingest.replicaCount"
     value = 1
   }
 
-  set = {
+  set {
     name  = "elasticsearch.ingest.resources.limits.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.ingest.resources.limits.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.ingest.resources.requests.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.ingest.resources.requests.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.ingest.nodeSelector.node"
     value = var.resources-label
   }
 
-  set = {
+  set {
     name  = "elasticsearch.data.replicaCount"
     value = 1
   }
 
-  set = {
+  set {
     name  = "elasticsearch.data.resources.limits.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.data.resources.limits.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.data.resources.requests.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.data.resources.requests.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "elasticsearch.data.nodeSelector.node"
     value = var.resources-label
   }
@@ -306,27 +306,27 @@ resource "helm_release" "gravitee" {
   # Rate Limiting
   #############################################################################
 
-  set = {
+  set {
     name  = "ratelimit.type"
     value = "redis"
   }
 
-  set = {
+  set {
     name  = "gateway.ratelimit.redis.host"
     value = "${helm_release.gravitee-redis.name}-master.${var.namespace}.svc"
   }
 
-  set = {
+  set {
     name  = "gateway.ratelimit.redis.port"
     value = local.redis-port
   }
 
-  set = {
+  set {
     name  = "gateway.ratelimit.redis.password"
     value = local.redis-pass
   }
 
-  set = {
+  set {
     name  = "gateway.ratelimit.redis.ssl"
     value = "false"
   }
@@ -335,92 +335,92 @@ resource "helm_release" "gravitee" {
   # Gateway settings
   #############################################################################
 
-  set = {
+  set {
     name  = "gateway.image.tag"
     value = var.gateway_version
   }
 
-  set = {
+  set {
     name  = "gateway.services.sync.kubernetes.enabled"
     value = "true"
   }
 
-  set = {
+  set {
     name  = "gateway.autoscaling.enabled"
     value = "false"
   }
 
-  set = {
+  set {
     name  = "gateway.type"
     value = var.deployment_type
   }
 
-  set = {
+  set {
     name  = "gateway.service.type"
     value = var.service_type
   }
 
-  set = {
+  set {
     name  = "gateway.replicaCount"
     value = var.replica_count
   }
 
-  set = {
+  set {
     name  = "gateway.services.metrics.enabled"
     value = var.analytics.prometheus.enabled
   }
 
-  set = {
+  set {
     name  = "api.analytics.type"
     value = var.analytics.database.enabled ? "elasticsearch" : "none"
   }
 
-  set = {
+  set {
     name  = "gateway.reporters.elasticsearch.enabled"
     value = var.analytics.database.enabled
   }
 
-  set = {
+  set {
     name  = "gateway.services.metrics.labels[0]"
     value = "local"
   }
 
-  set = {
+  set {
     name  = "gateway.services.metrics.labels[1]"
     value = "remote"
   }
 
-  set = {
+  set {
     name  = "gateway.services.metrics.labels[2]"
     value = "http_method"
   }
 
-  set = {
+  set {
     name  = "gateway.services.metrics.labels[3]"
     value = "http_code"
   }
 
-  set = {
+  set {
     name  = "gateway.services.metrics.labels[4]"
     value = "http_path"
   }
 
-  set = {
+  set {
     name  = "gateway.services.metrics.labels[5]"
     value = "http_route"
   }
 
-  set = {
+  set {
     name  = "gateway.service.externalTrafficPolicy"
     value = var.external_traffic_policy
   }
 
-  set = {
+  set {
     name  = "gateway.env[0].name"
     value = "JAVA_OPTS"
   }
 
-  set = {
+  set {
     name  = "gateway.env[0].value"
     value = "-Xms256m -Xmx256m -XX:MaxMetaspaceSize=128m -XX:CompressedClassSpaceSize=48m -XX:ReservedCodeCacheSize=32m -XX:+UseStringDeduplication -XX:MaxTenuringThreshold=1 -XX:+ParallelRefProcEnabled -XX:InitiatingHeapOccupancyPercent=25 -Xss256k"
   }

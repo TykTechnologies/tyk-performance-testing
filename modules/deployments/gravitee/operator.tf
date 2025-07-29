@@ -7,27 +7,27 @@ resource "helm_release" "gravitee-operator" {
   atomic    = true
 
   # Gravitee Operator does not support nodeSelectors
-  #  set = {
+  #  set {
   #    name  = "nodeSelector.node"
   #    value = var.resources-label
   #  }
 
-  set = {
+  set {
     name  = "manager.resources.limits.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "manager.resources.limits.memory"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "manager.resources.requests.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "manager.resources.requests.memory"
     value = "0"
   }

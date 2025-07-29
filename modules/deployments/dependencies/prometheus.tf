@@ -7,37 +7,37 @@ resource "helm_release" "prometheus" {
   namespace = var.namespace
   atomic    = true
 
-  set = {
+  set {
     name  = "server.nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "server.extraFlags[0]"
     value = "web.enable-remote-write-receiver"
   }
 
-  set = {
+  set {
     name  = "server.extraArgs.enable-feature"
     value = "native-histograms"
   }
 
-  set = {
+  set {
     name  = "alertmanager.nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "kube-state-metrics.nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "prometheus-pushgateway.nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "kube-state-metrics.extraArgs[0]"
     value = "--metric-labels-allowlist=nodes=[*]"
   }

@@ -30,291 +30,291 @@ resource "helm_release" "tyk" {
   namespace = var.namespace
   atomic    = true
 
-  set = {
+  set {
     name  = "global.adminUser.email"
     value = "default@example.com"
   }
 
-  set = {
+  set {
     name  = "global.adminUser.password"
     value = "topsecretpassword"
   }
 
-  set = {
+  set {
     name  = "global.storageType"
     value = "postgres"
   }
 
-  set = {
+  set {
     name  = "global.license.dashboard"
     value = var.license
   }
 
-  set = {
+  set {
     name  = "global.license.operator"
     value = var.license
   }
 
-  set = {
+  set {
     name  = "global.postgres.host"
     value = "${helm_release.tyk-pgsql.name}-postgresql"
   }
 
-  set = {
+  set {
     name  = "global.postgres.port"
     value = local.pgsql-port
   }
 
-  set = {
+  set {
     name  = "global.postgres.database"
     value = local.pgsql-name
   }
 
-  set = {
+  set {
     name  = "global.postgres.password"
     value = local.pgsql-pass
   }
 
-  set = {
+  set {
     name  = "global.postgres.sslmode"
     value = "disable"
   }
 
-  set = {
+  set {
     name  = "global.redis.addrs[0]"
     value = "${helm_release.tyk-redis.name}-redis-cluster.${var.namespace}.svc:${local.redis-port}"
   }
 
-  set = {
+  set {
     name  = "global.redis.pass"
     value = local.redis-pass
   }
 
-  set = {
+  set {
     name  = "global.redis.enableCluster"
     value = true
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.image.tag"
     value = var.gateway_version
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.kind"
     value = var.deployment_type
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.service.type"
     value = var.service_type
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.replicaCount"
     value = var.replica_count
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.service.externalTrafficPolicy"
     value = var.external_traffic_policy
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.resources.requests.cpu"
     value = var.resources.requests.cpu
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.resources.requests.memory"
     value = var.resources.requests.memory
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.resources.limits.cpu"
     value = var.resources.limits.cpu
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.resources.limits.memory"
     value = var.resources.limits.memory
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[0].name"
     value = "GOGC"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[0].value"
     type  = "string"
     value = var.go_gc
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[1].name"
     value = "GOMAXPROCS"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[1].value"
     type  = "string"
     value = var.go_max_procs
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[2].name"
     value = "GOMEMLIMIT"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[2].value"
     value = var.resources.limits.memory != "0" ? "${var.resources.limits.memory}B" : ""
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[3].name"
     value = "TYK_GW_MAXIDLECONNSPERHOST"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[3].value"
     type  = "string"
     value = "1000"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[4].name"
     value = "TYK_GW_MAXIDLECONNSPERHOST"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[4].value"
     type  = "string"
     value = "10000"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[5].name"
     value = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[5].value"
     type  = "string"
     value = "true"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[6].name"
     value = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[6].value"
     value = "protobuf"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[7].name"
     value = "TYK_GW_STORAGE_MAXACTIVE"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[7].value"
     type  = "string"
     value = "10000"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[8].name"
     value = "TYK_GW_OPENTELEMETRY_ENABLED"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[8].value"
     type  = "string"
     value = var.open_telemetry.enabled
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[9].name"
     value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[9].value"
     value = "TraceIDRatioBased"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[10].name"
     value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[10].value"
     type  = "string"
     value = var.open_telemetry.sampling_ratio
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[11].name"
     value = "TYK_GW_OPENTELEMETRY_EXPORTER"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[11].value"
     value = "grpc"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[12].name"
     value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[12].value"
     value = "opentelemetry-collector.dependencies.svc:4317"
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.extraEnvs[13].name"
     value = "TYK_GW_HTTPPROFILE"
   }
 
-  set = {
+  set {
     type  = "string"
     name  = "tyk-gateway.gateway.extraEnvs[13].value"
     value = var.profiler.enabled
   }
 
-  set = {
+  set {
     name  = "tyk-gateway.gateway.nodeSelector.node"
     value = var.label
   }
 
-  set = {
+  set {
     name  = "tyk-dashboard.dashboard.nodeSelector.node"
     value = var.resources-label
   }
 
-  set = {
+  set {
     name  = "global.components.pump"
     value = var.analytics.database.enabled || var.analytics.prometheus.enabled
   }
 
-  set = {
+  set {
     name  = "tyk-pump.pump.backend[0]"
     value = var.analytics.database.enabled ? "postgres" : ""
   }
 
-  set = {
+  set {
     name  = "tyk-pump.pump.backend[1]"
     value = var.analytics.prometheus.enabled ? "prometheus" : ""
   }
 
-  set = {
+  set {
     name  = "tyk-pump.pump.nodeSelector.node"
     value = var.resources-label
   }

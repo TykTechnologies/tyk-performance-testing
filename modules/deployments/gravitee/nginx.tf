@@ -7,22 +7,22 @@ resource "helm_release" "gravitee-nginx" {
   namespace = var.namespace
   atomic    = true
 
-  set = {
+  set {
     name  = "controller.allowSnippetAnnotations"
     value = true
   }
 
-  set = {
+  set {
     name  = "controller.nodeSelector.node"
     value = var.resources-label
   }
 
-  set = {
+  set {
     name  = "controller.resources.requests.cpu"
     value = "0"
   }
 
-  set = {
+  set {
     name  = "controller.resources.requests.memory"
     value = "0"
   }
