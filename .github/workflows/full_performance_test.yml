@@ -164,11 +164,13 @@ jobs:
             --auto-approve
 
       - name: Test Grafana Snapshot
+        continue-on-error: true
         run: |
           kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
 
       - name: Download Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}
+        continue-on-error: true
         run: |
           kubectl port-forward svc/gateway-svc-tyk-tyk-gateway -n tyk 8080 &
           sleep 5
@@ -180,13 +182,15 @@ jobs:
 
       - name: Upload Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.tyk_version }}-profiles
           path: ./profiles
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: Destroy Tests
+        if: always()
         run: |
           cd tests
           terraform destroy \
@@ -194,6 +198,7 @@ jobs:
             --auto-approve
 
       - name: Destroy testing resources
+        if: always()
         run: |
           cd deployments
           terraform destroy \
@@ -202,7 +207,7 @@ jobs:
             --auto-approve
 
       - name: Destroy AKS cluster
-        if: ${{ inputs.cloud == 'Azure' }}
+        if: always() && inputs.cloud == 'Azure'
         run: |
           cd aks
           terraform init
@@ -214,7 +219,7 @@ jobs:
             --auto-approve
 
       - name: Destroy EKS cluster
-        if: ${{ inputs.cloud == 'AWS' }}
+        if: always() && inputs.cloud == 'AWS'
         run: |
           cd eks
           terraform init
@@ -226,7 +231,7 @@ jobs:
             --auto-approve
 
       - name: Destroy GKE cluster
-        if: ${{ inputs.cloud == 'GCP' }}
+        if: always() && inputs.cloud == 'GCP'
         run: |
           cd gke
           terraform init
