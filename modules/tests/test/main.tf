@@ -16,17 +16,71 @@ resource "kubernetes_config_map" "test-configmap" {
   data = {
     "script.js" = <<EOF
 import http from 'k6/http';
+import { check, sleep } from 'k6';
 import { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics } from "/helpers/tests.js";
 import { getScenarios } from "/helpers/scenarios.js";
 import { generateKeys } from "/helpers/auth.js";
 
-const { SCENARIO } = __ENV;
+const { SCENARIO, SCALING_ENABLED } = __ENV;
+
 export const options = {
   discardResponseBodies: true,
   insecureSkipTLSVerify: true,
   setupTimeout: '300s',
-  scenarios: { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
+  scenarios: SCALING_ENABLED === "true" ? getScalingScenarios() : { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
+  thresholds: {
+    'http_req_duration': ['p(95)<2000'],
+    'http_req_failed': ['rate<0.05'],
+  },
 };
+
+function getScalingScenarios() {
+  const baseScenario = getScenarios(${jsonencode(var.config)})[SCENARIO || "constant-arrival-rate"];
+  const baseDuration = ${var.config.duration};
+  const scaleUpTime = Math.floor(baseDuration * 0.3); // Scale up at 30% of test duration
+  const scaledDuration = 600; // 10 minutes with extra nodes
+  const scaleDownTime = scaleUpTime + scaledDuration;
+  
+  return {
+    baseline_load: {
+      ...baseScenario,
+      exec: 'loadTest',
+      startTime: '0s',
+      duration: scaleUpTime + 's',
+      tags: { phase: 'baseline' },
+    },
+    scale_up_trigger: {
+      executor: 'constant-vus',
+      vus: 1,
+      duration: '30s',
+      exec: 'scaleUp',
+      startTime: scaleUpTime + 's',
+      tags: { phase: 'scale_up' },
+    },
+    scaled_load: {
+      ...baseScenario,
+      exec: 'loadTest',
+      startTime: (scaleUpTime + 30) + 's',
+      duration: scaledDuration + 's',
+      tags: { phase: 'scaled' },
+    },
+    scale_down_trigger: {
+      executor: 'constant-vus',
+      vus: 1,
+      duration: '30s', 
+      exec: 'scaleDown',
+      startTime: (scaleUpTime + 30 + scaledDuration) + 's',
+      tags: { phase: 'scale_down' },
+    },
+    final_load: {
+      ...baseScenario,
+      exec: 'loadTest',
+      startTime: (scaleUpTime + 60 + scaledDuration) + 's',
+      duration: (baseDuration - scaleUpTime) + 's',
+      tags: { phase: 'final' },
+    }
+  };
+}
 
 export function setup() {
   addTestInfoMetrics(${jsonencode(var.config)}, ${var.config.auth.key_count});
@@ -42,6 +96,10 @@ export function setup() {
 }
 
 export default function (keys) {
+  loadTest(keys);
+}
+
+export function loadTest(keys) {
   const routeCount = getRouteCount();
   let i = Math.floor(Math.random() * routeCount);
 
@@ -56,7 +114,60 @@ export default function (keys) {
     url = "http://${var.service_name}-" + i + ".${var.name}.svc:${var.service_port}/?${var.config.fortio_options}"
   }
 
-  http.get(url, { headers });
+  const response = http.get(url, { headers });
+  check(response, {
+    'status is 200': (r) => r.status === 200,
+  });
+}
+
+export function scaleUp(keys) {
+  console.log('Triggering scale-up: Adding 2 nodes to ${var.name} node group');
+  
+  // Call scaling webhook or kubectl command
+  const scaleResponse = http.post('http://scaling-webhook.dependencies.svc:8080/scale', 
+    JSON.stringify({
+      action: 'scale_up',
+      target: '${var.name}',
+      nodes_to_add: 2,
+      cluster_type: __ENV.CLUSTER_TYPE || 'eks'
+    }), {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: '60s'
+    }
+  );
+  
+  check(scaleResponse, {
+    'scale-up request sent': (r) => r.status === 200 || r.status === 202,
+  });
+  
+  // Wait for nodes to be ready
+  sleep(20);
+  console.log('Scale-up operation initiated');
+}
+
+export function scaleDown(keys) {
+  console.log('Triggering scale-down: Removing 2 nodes from ${var.name} node group');
+  
+  // Call scaling webhook or kubectl command
+  const scaleResponse = http.post('http://scaling-webhook.dependencies.svc:8080/scale',
+    JSON.stringify({
+      action: 'scale_down', 
+      target: '${var.name}',
+      nodes_to_remove: 2,
+      cluster_type: __ENV.CLUSTER_TYPE || 'eks'
+    }), {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: '60s'
+    }
+  );
+  
+  check(scaleResponse, {
+    'scale-down request sent': (r) => r.status === 200 || r.status === 202,
+  });
+  
+  // Wait for scale-down to complete
+  sleep(20);
+  console.log('Scale-down operation initiated');
 }
 EOF
   }
@@ -74,7 +185,7 @@ spec:
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env SCALING_ENABLED=${var.scaling_enabled} --env CLUSTER_TYPE=${var.cluster_type}
   initializer:
     metadata:
       labels:

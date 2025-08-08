@@ -56,3 +56,8 @@ traefik_service_type    = "ClusterIP"
 
 upstream_enabled     = false
 grafana_service_type = "ClusterIP"
+
+# Scaling Configuration
+scaling_webhook_enabled = true
+cluster_type           = "eks"
+aws_region            = "us-west-1"

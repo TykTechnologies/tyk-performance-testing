@@ -63,6 +63,7 @@ jobs:
             --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="aws_region=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --auto-approve
 
       - name: Run Tests
@@ -93,6 +94,7 @@ jobs:
             --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="aws_region=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --auto-approve
 
       - name: Destroy EKS cluster

@@ -1,10 +1,12 @@
 module "tyk-test" {
   source = "./test"
 
-  name         = "tyk"
-  service_name = "gateway-svc-tyk-tyk-gateway"
-  service_port = 8080
-  config       = var.tests
+  name            = "tyk"
+  service_name    = "gateway-svc-tyk-tyk-gateway"
+  service_port    = 8080
+  config          = var.tests
+  scaling_enabled = var.scaling_enabled
+  cluster_type    = var.cluster_type
 
   count = var.tyk.enabled == true ? 1 : 0
 }

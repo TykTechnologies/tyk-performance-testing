@@ -45,3 +45,15 @@ variable "tests_parallelism" {
   default     = 1
   description = "Number of workers for the tests."
 }
+
+variable "tests_scaling_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable dynamic node scaling during tests."
+}
+
+variable "tests_cluster_type" {
+  type        = string
+  default     = "eks"
+  description = "Type of Kubernetes cluster (eks, aks, gke)."
+}

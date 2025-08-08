@@ -5,6 +5,11 @@ variable "dependencies" {
         type = string
       })
     })
+    scaling_webhook = object({
+      enabled      = bool
+      cluster_type = string
+      aws_region   = string
+    })
   })
 }
 

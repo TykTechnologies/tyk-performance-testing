@@ -13,3 +13,15 @@ variable "tests" {
     })
   })
 }
+
+variable "scaling_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable dynamic node scaling during tests"
+}
+
+variable "cluster_type" {
+  type        = string
+  default     = "eks"
+  description = "Type of Kubernetes cluster (eks, aks, gke)"
+}

@@ -63,6 +63,7 @@ jobs:
             --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="cluster_type=aks" \
             --auto-approve
 
       - name: Run Tests

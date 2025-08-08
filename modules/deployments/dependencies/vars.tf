@@ -32,3 +32,19 @@ variable "keycloak" {
     enabled = bool
   })
 }
+
+variable "scaling_webhook" {
+  type = object({
+    enabled      = bool
+    cluster_type = string
+    aws_region   = string
+  })
+  
+  default = {
+    enabled      = false
+    cluster_type = "eks"
+    aws_region   = "us-west-2"
+  }
+  
+  description = "Scaling webhook configuration for dynamic node scaling"
+}

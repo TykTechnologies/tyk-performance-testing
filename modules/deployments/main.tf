@@ -1,10 +1,11 @@
 module "dependencies" {
   source = "./dependencies"
 
-  label          = var.labels.dependencies
-  grafana        = var.dependencies.grafana
-  open_telemetry = var.open_telemetry
-  keycloak       = {
+  label            = var.labels.dependencies
+  grafana          = var.dependencies.grafana
+  open_telemetry   = var.open_telemetry
+  scaling_webhook  = var.dependencies.scaling_webhook
+  keycloak         = {
     enabled = var.auth.enabled && var.auth.type == "JWT-RSA" ? true : false
   }
 }

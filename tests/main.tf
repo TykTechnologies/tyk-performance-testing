@@ -34,4 +34,7 @@ module "tests" {
       key_count = var.tests_auth_key_count
     }
   }
+
+  scaling_enabled = var.tests_scaling_enabled
+  cluster_type    = var.tests_cluster_type
 }

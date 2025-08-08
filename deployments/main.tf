@@ -114,5 +114,10 @@ module "deployments" {
         type = var.grafana_service_type
       }
     }
+    scaling_webhook = {
+      enabled      = var.scaling_webhook_enabled
+      cluster_type = var.cluster_type
+      aws_region   = var.aws_region
+    }
   }
 }

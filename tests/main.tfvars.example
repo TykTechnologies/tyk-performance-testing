@@ -14,3 +14,7 @@ tests_duration       = 15
 tests_rate           = 20000
 tests_virtual_users  = 50
 tests_parallelism    = 1
+
+# Scaling Configuration
+tests_scaling_enabled = true
+tests_cluster_type    = "eks"
