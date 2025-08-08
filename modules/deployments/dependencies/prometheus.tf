@@ -6,6 +6,7 @@ resource "helm_release" "prometheus" {
 
   namespace = var.namespace
   atomic    = true
+  timeout   = 600  # 10 minutes
 
   set {
     name  = "server.nodeSelector.node"

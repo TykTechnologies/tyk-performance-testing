@@ -62,12 +62,12 @@ resource "kubernetes_deployment" "scaling-webhook" {
 
           resources {
             requests = {
-              cpu    = "100m"
-              memory = "128Mi"
+              cpu    = "50m"
+              memory = "64Mi"
             }
             limits = {
-              cpu    = "200m"
-              memory = "256Mi"
+              cpu    = "100m"
+              memory = "128Mi"
             }
           }
         }

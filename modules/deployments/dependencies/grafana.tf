@@ -13,6 +13,7 @@ resource "helm_release" "grafana" {
 
   namespace = var.namespace
   atomic    = true
+  timeout   = 600  # 10 minutes
 
   set {
     name  = "adminPassword"

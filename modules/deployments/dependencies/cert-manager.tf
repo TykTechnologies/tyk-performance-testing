@@ -6,6 +6,7 @@ resource "helm_release" "cert-manager" {
 
   namespace = var.namespace
   atomic    = true
+  timeout   = 600  # 10 minutes instead of default 5 minutes
 
   set {
     name  = "installCRDs"

@@ -7,7 +7,8 @@
       "Bash(git push:*)",
       "Bash(gh run view:*)",
       "Bash(find:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }

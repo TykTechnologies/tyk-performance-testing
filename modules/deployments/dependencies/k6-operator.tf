@@ -6,6 +6,7 @@ resource "helm_release" "k6-operator" {
 
   namespace = var.namespace
   atomic    = true
+  timeout   = 600  # 10 minutes
 
   set {
     name  = "namespace.create"
