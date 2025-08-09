@@ -27,3 +27,9 @@ variable "aws_region" {
   default     = "us-west-2"
   description = "AWS region for EKS operations."
 }
+
+variable "gcp_region" {
+  type        = string
+  default     = "us-central1-a"
+  description = "GCP region/zone for GKE operations."
+}

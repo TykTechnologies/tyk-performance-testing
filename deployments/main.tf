@@ -118,6 +118,7 @@ module "deployments" {
       enabled      = var.scaling_webhook_enabled
       cluster_type = var.cluster_type
       aws_region   = var.aws_region
+      gcp_region   = var.gcp_region
     }
   }
 }

@@ -9,6 +9,7 @@ variable "dependencies" {
       enabled      = bool
       cluster_type = string
       aws_region   = string
+      gcp_region   = string
     })
   })
 }
