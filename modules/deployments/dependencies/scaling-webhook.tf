@@ -276,8 +276,12 @@ func scaleEKSNodeGroup(req ScaleRequest) (error, string) {
     // Get current node group info
     nodeGroupName := req.Target + "-node-group"
     
+    log.Printf("[EKS] Starting %s operation on cluster=%s, nodegroup=%s, region=%s", 
+        req.Action, clusterName, nodeGroupName, region)
+    
     var newSize int
     if req.Action == "scale_up" {
+        log.Printf("[EKS] Getting current node count for %s", nodeGroupName)
         // Get current desired capacity and add nodes
         cmd := exec.Command("aws", "eks", "describe-nodegroup",
             "--cluster-name", clusterName,
@@ -288,15 +292,18 @@ func scaleEKSNodeGroup(req ScaleRequest) (error, string) {
         
         output, err := cmd.Output()
         if err != nil {
+            log.Printf("[EKS] Failed to get current size: %v", err)
             return err, ""
         }
         
         currentSize, err := strconv.Atoi(strings.TrimSpace(string(output)))
         if err != nil {
+            log.Printf("[EKS] Failed to parse current size: %v", err)
             return err, ""
         }
         
         newSize = currentSize + req.NodesToAdd
+        log.Printf("[EKS] Scaling UP %s: %d -> %d nodes (+%d)", nodeGroupName, currentSize, newSize, req.NodesToAdd)
     } else if req.Action == "scale_down" {
         // Get current desired capacity and remove nodes
         cmd := exec.Command("aws", "eks", "describe-nodegroup",

@@ -7026,6 +7026,117 @@ resource "kubernetes_config_map" "grafana-dashboard" {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
+      "description": "Shows the number of nodes over time for each gateway type during scaling",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Node Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "pointSize": 8,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/.*tyk.*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 79
+      },
+      "id": 301,
+      "options": {
+        "legend": {
+          "calcs": ["last"],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "count by (label_node) (kube_node_labels{label_node=~\"tyk|kong|gravitee|traefik\"})",
+          "instant": false,
+          "legendFormat": "{{label_node}} nodes",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Gateway Nodes Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -10056,7 +10167,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk\"})",
+          "expr": "count(kube_node_labels{label_node=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10071,7 +10182,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong\"})",
+          "expr": "count(kube_node_labels{label_node=\"kong\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10084,7 +10195,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee\"})",
+          "expr": "count(kube_node_labels{label_node=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
