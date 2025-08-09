@@ -20,8 +20,6 @@ resource "kubernetes_job" "snapshot_job" {
     namespace = "dependencies"
   }
 
-  wait_for_completion = true
-
   spec {
     template {
       metadata {
