@@ -38,12 +38,14 @@ variable "scaling_webhook" {
     enabled      = bool
     cluster_type = string
     aws_region   = string
+    gcp_region   = string
   })
   
   default = {
     enabled      = false
     cluster_type = "eks"
     aws_region   = "us-west-2"
+    gcp_region   = "us-central1-a"
   }
   
   description = "Scaling webhook configuration for dynamic node scaling"

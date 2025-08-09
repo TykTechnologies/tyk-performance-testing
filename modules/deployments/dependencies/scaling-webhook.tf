@@ -54,6 +54,16 @@ resource "kubernetes_deployment" "scaling-webhook" {
             name = "EKS_CLUSTER_NAME"
             value = "pt-${var.scaling_webhook.aws_region}"
           }
+          
+          env {
+            name = "GKE_CLUSTER_NAME"
+            value = "pt-${var.scaling_webhook.gcp_region}"
+          }
+          
+          env {
+            name = "GCP_REGION"
+            value = var.scaling_webhook.gcp_region
+          }
 
           volume_mount {
             name       = "webhook-code"
@@ -349,8 +359,90 @@ func scaleAKSNodePool(req ScaleRequest) (error, string) {
 }
 
 func scaleGKENodePool(req ScaleRequest) (error, string) {
-    // Implementation for GKE scaling  
-    return fmt.Errorf("GKE scaling not implemented yet"), ""
+    clusterName := os.Getenv("GKE_CLUSTER_NAME")
+    if clusterName == "" {
+        return fmt.Errorf("GKE_CLUSTER_NAME not set"), ""
+    }
+    region := os.Getenv("GCP_REGION") 
+    if region == "" {
+        region = os.Getenv("GCP_ZONE") // fallback to zone
+        if region == "" {
+            region = "us-central1" // default
+        }
+    }
+    
+    nodePoolName := req.Target + "-node-pool"
+    
+    log.Printf("[GKE] Starting %s operation on cluster=%s, nodepool=%s, region=%s", 
+        req.Action, clusterName, nodePoolName, region)
+    
+    var newSize int
+    if req.Action == "scale_up" {
+        log.Printf("[GKE] Getting current node count for %s", nodePoolName)
+        // Get current node count
+        cmd := exec.Command("gcloud", "container", "node-pools", "describe", nodePoolName,
+            "--cluster", clusterName,
+            "--region", region,
+            "--format", "value(initialNodeCount)")
+            
+        output, err := cmd.Output()
+        if err != nil {
+            log.Printf("[GKE] Failed to get current size: %v", err)
+            return err, ""
+        }
+        
+        currentSize, err := strconv.Atoi(strings.TrimSpace(string(output)))
+        if err != nil {
+            log.Printf("[GKE] Failed to parse current size: %v", err) 
+            return err, ""
+        }
+        
+        newSize = currentSize + req.NodesToAdd
+        log.Printf("[GKE] Scaling UP %s: %d -> %d nodes (+%d)", nodePoolName, currentSize, newSize, req.NodesToAdd)
+        
+    } else if req.Action == "scale_down" {
+        log.Printf("[GKE] Getting current node count for %s", nodePoolName)
+        // Get current node count
+        cmd := exec.Command("gcloud", "container", "node-pools", "describe", nodePoolName,
+            "--cluster", clusterName,
+            "--region", region,
+            "--format", "value(initialNodeCount)")
+            
+        output, err := cmd.Output()
+        if err != nil {
+            log.Printf("[GKE] Failed to get current size: %v", err)
+            return err, ""
+        }
+        
+        currentSize, err := strconv.Atoi(strings.TrimSpace(string(output)))
+        if err != nil {
+            log.Printf("[GKE] Failed to parse current size: %v", err)
+            return err, ""
+        }
+        
+        newSize = currentSize - req.NodesToRemove
+        if newSize < 1 {
+            newSize = 1 // Minimum of 1 node
+        }
+        
+        log.Printf("[GKE] Scaling DOWN %s: %d -> %d nodes (-%d)", nodePoolName, currentSize, newSize, req.NodesToRemove)
+    }
+    
+    // Scale the node pool
+    cmd := exec.Command("gcloud", "container", "clusters", "resize", clusterName,
+        "--node-pool", nodePoolName,
+        "--num-nodes", strconv.Itoa(newSize),
+        "--region", region,
+        "--quiet")
+        
+    cmdOutput, err := cmd.CombinedOutput()
+    if err != nil {
+        log.Printf("[GKE] Scale operation failed: %v, output: %s", err, string(cmdOutput))
+        return err, ""
+    }
+    
+    log.Printf("[GKE] Successfully initiated scaling operation: %s", string(cmdOutput))
+    return nil, fmt.Sprintf("GKE node pool %s scaled to %d nodes", nodePoolName, newSize)
 }
 EOF
     
