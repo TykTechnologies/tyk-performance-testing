@@ -1,6 +1,6 @@
 variable "services_nodes_count" {
   type    = number
-  default = 1
+  default = 2
 
   validation {
     condition = var.services_nodes_count > 0
