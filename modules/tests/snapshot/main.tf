@@ -8,7 +8,7 @@ terraform {
 }
 
 locals {
-  buffer    = var.duration <= 20 ? 4 : 10
+  buffer    = var.duration <= 20 ? 8 : 15  # Increased buffer for scaling operations
   delay     = (var.duration + local.buffer) * 60
   timeout   = (var.duration + local.buffer) * 2
   timestamp = formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())
@@ -19,6 +19,8 @@ resource "kubernetes_job" "snapshot_job" {
     name      = "snapshot-job-${var.name}-${local.timestamp}"
     namespace = "dependencies"
   }
+
+  wait_for_completion = true
 
   spec {
     template {
@@ -32,7 +34,7 @@ resource "kubernetes_job" "snapshot_job" {
         container {
           name    = "snapshot-container"
           image   = "python:3.9"
-          command = ["bash", "-c", "pip install selenium && sleep ${local.delay} && python /scripts/snapshot.py"]
+          command = ["bash", "-c", "pip install selenium && sleep ${local.delay} && timeout 300 python /scripts/snapshot.py || echo 'Snapshot timeout - continuing'"]
 
           volume_mount {
             name       = "script-volume"

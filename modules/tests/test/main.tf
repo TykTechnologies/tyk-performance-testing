@@ -37,9 +37,9 @@ export const options = {
 function getScalingScenarios() {
   const baseScenario = getScenarios(${jsonencode(var.config)})[SCENARIO || "constant-arrival-rate"];
   const baseDuration = ${var.config.duration};
-  const scaleUpTime = Math.floor(baseDuration * 0.3); // Scale up at 30% of test duration
-  const scaledDuration = 600; // 10 minutes with extra nodes
-  const scaleDownTime = scaleUpTime + scaledDuration;
+  const scaleUpTime = Math.floor(baseDuration * 0.2); // Scale up at 20% of test duration
+  const scaledDuration = Math.floor(baseDuration * 0.6); // 60% of test duration with extra nodes
+  const finalDuration = baseDuration - scaleUpTime - scaledDuration - 1; // Remaining duration (minus 1 min for scale ops)
   
   return {
     baseline_load: {
@@ -76,7 +76,7 @@ function getScalingScenarios() {
       ...baseScenario,
       exec: 'loadTest',
       startTime: (scaleUpTime + 60 + scaledDuration) + 's',
-      duration: (baseDuration - scaleUpTime) + 's',
+      duration: Math.max(finalDuration, 60) + 's', // Minimum 1 minute final phase
       tags: { phase: 'final' },
     }
   };
