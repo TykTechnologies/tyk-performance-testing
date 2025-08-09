@@ -37,46 +37,47 @@ export const options = {
 function getScalingScenarios() {
   const baseScenario = getScenarios(${jsonencode(var.config)})[SCENARIO || "constant-arrival-rate"];
   const baseDuration = ${var.config.duration};
-  const scaleUpTime = Math.floor(baseDuration * 0.2); // Scale up at 20% of test duration
-  const scaledDuration = Math.floor(baseDuration * 0.6); // 60% of test duration with extra nodes
-  const finalDuration = baseDuration - scaleUpTime - scaledDuration - 1; // Remaining duration (minus 1 min for scale ops)
+  
+  // Simple 3-phase scaling test: 10min baseline, 10min scaled, 10min final
+  const phaseLength = Math.floor(baseDuration / 3) * 60; // Convert to seconds and divide by 3
+  const scaleOpTime = 30; // 30 seconds per scale operation
   
   return {
     baseline_load: {
       ...baseScenario,
       exec: 'loadTest',
       startTime: '0s',
-      duration: scaleUpTime + 's',
+      duration: phaseLength + 's',
       tags: { phase: 'baseline' },
     },
     scale_up_trigger: {
       executor: 'constant-vus',
       vus: 1,
-      duration: '30s',
+      duration: scaleOpTime + 's',
       exec: 'scaleUp',
-      startTime: scaleUpTime + 's',
+      startTime: phaseLength + 's',
       tags: { phase: 'scale_up' },
     },
     scaled_load: {
       ...baseScenario,
       exec: 'loadTest',
-      startTime: (scaleUpTime + 30) + 's',
-      duration: scaledDuration + 's',
+      startTime: (phaseLength + scaleOpTime) + 's',
+      duration: phaseLength + 's',
       tags: { phase: 'scaled' },
     },
     scale_down_trigger: {
       executor: 'constant-vus',
       vus: 1,
-      duration: '30s', 
+      duration: scaleOpTime + 's',
       exec: 'scaleDown',
-      startTime: (scaleUpTime + 30 + scaledDuration) + 's',
+      startTime: (phaseLength * 2 + scaleOpTime) + 's',
       tags: { phase: 'scale_down' },
     },
     final_load: {
       ...baseScenario,
       exec: 'loadTest',
-      startTime: (scaleUpTime + 60 + scaledDuration) + 's',
-      duration: Math.max(finalDuration, 60) + 's', // Minimum 1 minute final phase
+      startTime: (phaseLength * 2 + scaleOpTime * 2) + 's',
+      duration: phaseLength + 's',
       tags: { phase: 'final' },
     }
   };
