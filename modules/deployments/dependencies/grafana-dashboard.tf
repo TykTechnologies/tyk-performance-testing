@@ -7122,9 +7122,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_node) (kube_node_labels{label_node=~\"tyk|kong|gravitee|traefik\"})",
+          "expr": "count by (label_node_node) (kube_node_labels{label_node_node=~\"tyk|kong|gravitee|traefik\"})",
           "instant": false,
-          "legendFormat": "{{label_node}} nodes",
+          "legendFormat": "{{label_node_node}} nodes",
           "range": true,
           "refId": "A"
         }
