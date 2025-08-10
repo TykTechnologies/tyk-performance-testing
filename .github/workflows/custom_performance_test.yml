@@ -179,6 +179,7 @@ jobs:
       - name: Destroy Tests
         run: |
           cd tests
+          terraform init
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
             --var-file=main.tfvars \

@@ -193,6 +193,7 @@ jobs:
         if: always()
         run: |
           cd tests
+          terraform init
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
