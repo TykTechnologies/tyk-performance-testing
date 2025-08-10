@@ -6,7 +6,7 @@ resource "helm_release" "cert-manager" {
 
   namespace = var.namespace
   atomic    = true
-  timeout   = 900  # 15 minutes for AWS EKS compatibility
+  timeout   = 1200  # 20 minutes for AWS EKS compatibility
 
   set {
     name  = "installCRDs"
