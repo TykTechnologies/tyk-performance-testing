@@ -284,7 +284,7 @@ func scaleEKSNodeGroup(req ScaleRequest) (error, string) {
     }
 
     // Get current node group info
-    nodeGroupName := req.Target + "-node-group"
+    nodeGroupName := req.Target + "-np"
     
     log.Printf("[EKS] Starting %s operation on cluster=%s, nodegroup=%s, region=%s", 
         req.Action, clusterName, nodeGroupName, region)
@@ -371,7 +371,7 @@ func scaleGKENodePool(req ScaleRequest) (error, string) {
         }
     }
     
-    nodePoolName := req.Target + "-node-pool"
+    nodePoolName := req.Target + "-np"
     
     log.Printf("[GKE] Starting %s operation on cluster=%s, nodepool=%s, region=%s", 
         req.Action, clusterName, nodePoolName, region)
