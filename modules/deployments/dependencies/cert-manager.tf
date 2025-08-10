@@ -6,7 +6,7 @@ resource "helm_release" "cert-manager" {
 
   namespace = var.namespace
   atomic    = true
-  timeout   = 600  # 10 minutes instead of default 5 minutes
+  timeout   = 900  # 15 minutes for AWS EKS compatibility
 
   set {
     name  = "installCRDs"
@@ -26,6 +26,47 @@ resource "helm_release" "cert-manager" {
   set {
     name  = "cainjector.nodeSelector.node"
     value = var.label
+  }
+
+  # Reduce resource requirements for better AWS EKS compatibility
+  set {
+    name  = "resources.requests.cpu"
+    value = "100m"
+  }
+
+  set {
+    name  = "resources.requests.memory"
+    value = "128Mi"
+  }
+
+  set {
+    name  = "resources.limits.cpu"
+    value = "300m"
+  }
+
+  set {
+    name  = "resources.limits.memory"
+    value = "256Mi"
+  }
+
+  set {
+    name  = "webhook.resources.requests.cpu"
+    value = "50m"
+  }
+
+  set {
+    name  = "webhook.resources.requests.memory"
+    value = "64Mi"
+  }
+
+  set {
+    name  = "cainjector.resources.requests.cpu"
+    value = "50m"
+  }
+
+  set {
+    name  = "cainjector.resources.requests.memory"
+    value = "64Mi"
   }
 
   depends_on = [kubernetes_namespace.dependencies]
