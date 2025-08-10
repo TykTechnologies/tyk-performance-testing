@@ -6826,6 +6826,7 @@ resource "helm_release" "keycloak-pgsql" {
 
   namespace = var.namespace
   atomic    = true
+  timeout   = 1200  # 20 minutes for AWS EKS compatibility
 
   set {
     name  = "auth.database"
@@ -6870,6 +6871,27 @@ resource "helm_release" "keycloak-pgsql" {
   set {
     name  = "readReplicas.nodeSelector.node"
     value = var.label
+  }
+
+  # Add resource limits for AWS EKS compatibility
+  set {
+    name  = "primary.resources.requests.cpu"
+    value = "100m"
+  }
+
+  set {
+    name  = "primary.resources.requests.memory"
+    value = "128Mi"
+  }
+
+  set {
+    name  = "primary.resources.limits.cpu"
+    value = "300m"
+  }
+
+  set {
+    name  = "primary.resources.limits.memory"
+    value = "256Mi"
   }
 
   depends_on = [kubernetes_namespace.dependencies]
