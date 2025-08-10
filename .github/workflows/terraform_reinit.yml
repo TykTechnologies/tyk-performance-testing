@@ -77,7 +77,7 @@ jobs:
           rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
           
           # Reinitialize
-          terraform init -reconfigure
+          terraform init
           
           echo "✅ Cluster terraform reinitialized successfully"
 
@@ -94,7 +94,7 @@ jobs:
           rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
           
           # Reinitialize
-          terraform init -reconfigure
+          terraform init
           
           echo "✅ Deployments terraform reinitialized successfully"
 
@@ -111,7 +111,7 @@ jobs:
           rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
           
           # Reinitialize
-          terraform init -reconfigure
+          terraform init
           
           echo "✅ Tests terraform reinitialized successfully"
 
@@ -125,7 +125,7 @@ jobs:
           echo "### What was done:" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Removed old terraform state and lock files" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Copied fresh terraform cloud configuration" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Reinitialized terraform with -reconfigure flag" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Reinitialized terraform (HCP Terraform compatible)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
           echo "You can now run your normal deployment workflows without terraform init errors!" >> $GITHUB_STEP_SUMMARY
