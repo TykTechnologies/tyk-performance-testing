@@ -13,7 +13,7 @@ resource "helm_release" "grafana" {
 
   namespace = var.namespace
   atomic    = true
-  timeout   = 600  # 10 minutes
+  timeout   = 1200  # 20 minutes for AWS EKS compatibility
 
   set {
     name  = "adminPassword"
@@ -128,6 +128,27 @@ resource "helm_release" "grafana" {
   set {
     name  = "env.JAEGER_AGENT_PORT"
     value = ""
+  }
+
+  # Add resource limits for AWS EKS compatibility
+  set {
+    name  = "resources.requests.cpu"
+    value = "100m"
+  }
+
+  set {
+    name  = "resources.requests.memory"
+    value = "128Mi"
+  }
+
+  set {
+    name  = "resources.limits.cpu"
+    value = "300m"
+  }
+
+  set {
+    name  = "resources.limits.memory"
+    value = "256Mi"
   }
 
   depends_on = [kubernetes_namespace.dependencies, kubernetes_config_map.grafana-dashboard]

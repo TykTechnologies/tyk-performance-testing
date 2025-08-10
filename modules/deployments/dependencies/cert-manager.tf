@@ -6,7 +6,7 @@ resource "helm_release" "cert-manager" {
 
   namespace = var.namespace
   atomic    = true
-  timeout   = 1200  # 20 minutes for AWS EKS compatibility
+  timeout   = 1800  # 30 minutes for AWS EKS compatibility
 
   set {
     name  = "installCRDs"
@@ -31,41 +31,61 @@ resource "helm_release" "cert-manager" {
   # Reduce resource requirements for better AWS EKS compatibility
   set {
     name  = "resources.requests.cpu"
-    value = "100m"
-  }
-
-  set {
-    name  = "resources.requests.memory"
-    value = "128Mi"
-  }
-
-  set {
-    name  = "resources.limits.cpu"
-    value = "300m"
-  }
-
-  set {
-    name  = "resources.limits.memory"
-    value = "256Mi"
-  }
-
-  set {
-    name  = "webhook.resources.requests.cpu"
     value = "50m"
   }
 
   set {
+    name  = "resources.requests.memory"
+    value = "64Mi"
+  }
+
+  set {
+    name  = "resources.limits.cpu"
+    value = "200m"
+  }
+
+  set {
+    name  = "resources.limits.memory"
+    value = "128Mi"
+  }
+
+  set {
+    name  = "webhook.resources.requests.cpu"
+    value = "25m"
+  }
+
+  set {
     name  = "webhook.resources.requests.memory"
+    value = "32Mi"
+  }
+
+  set {
+    name  = "webhook.resources.limits.cpu"
+    value = "100m"
+  }
+
+  set {
+    name  = "webhook.resources.limits.memory"
     value = "64Mi"
   }
 
   set {
     name  = "cainjector.resources.requests.cpu"
-    value = "50m"
+    value = "25m"
   }
 
   set {
     name  = "cainjector.resources.requests.memory"
+    value = "32Mi"
+  }
+
+  set {
+    name  = "cainjector.resources.limits.cpu"
+    value = "100m"
+  }
+
+  set {
+    name  = "cainjector.resources.limits.memory"
     value = "64Mi"
   }
 
