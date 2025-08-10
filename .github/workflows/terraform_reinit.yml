@@ -85,10 +85,11 @@ jobs:
         if: ${{ inputs.component == 'all' || inputs.component == 'deployments' }}
         run: |
           echo "🔄 Reinitializing deployments terraform..."
-          cd deployments
           
           # Copy terraform cloud configuration
-          cp .github/${{ env.provider }}/deployments.tf terraform.cloud.tf
+          cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
+          
+          cd deployments
           
           # Remove terraform state files and directories
           rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
@@ -102,10 +103,11 @@ jobs:
         if: ${{ inputs.component == 'all' || inputs.component == 'tests' }}
         run: |
           echo "🔄 Reinitializing tests terraform..."
-          cd tests
           
           # Copy terraform cloud configuration  
-          cp .github/${{ env.provider }}/tests.tf terraform.cloud.tf
+          cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
+          
+          cd tests
           
           # Remove terraform state files and directories
           rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
