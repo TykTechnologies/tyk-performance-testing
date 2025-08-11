@@ -178,6 +178,12 @@ jobs:
         continue-on-error: true
         run: |
           kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
+      
+      - name: Check Scaling Webhook Logs
+        continue-on-error: true
+        run: |
+          echo "=== Scaling Webhook Logs ==="
+          kubectl logs -n dependencies -l app=scaling-webhook --tail=100 || echo "No scaling webhook logs found"
 
       - name: Download Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}

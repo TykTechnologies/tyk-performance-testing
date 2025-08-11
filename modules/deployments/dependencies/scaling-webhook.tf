@@ -30,11 +30,11 @@ resource "kubernetes_deployment" "scaling-webhook" {
         automount_service_account_token = true
         
         container {
-          image = "google/cloud-sdk:alpine"
+          image = "golang:1.21-alpine"
           name  = "scaling-webhook"
           
           command = ["/bin/sh"]
-          args = ["-c", "apk add --no-cache go curl aws-cli && go run /app/main.go"]
+          args = ["-c", "apk add --no-cache curl && go run /app/main.go"]
 
           port {
             container_port = 8080
@@ -238,18 +238,28 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleScale(w http.ResponseWriter, r *http.Request) {
+    log.Printf("=== WEBHOOK CALLED: Method=%s, Path=%s ===", r.Method, r.URL.Path)
+    
     if r.Method != http.MethodPost {
+        log.Printf("ERROR: Invalid method %s", r.Method)
         http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
         return
     }
 
     var req ScaleRequest
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        log.Printf("ERROR: Failed to decode JSON: %v", err)
         http.Error(w, "Invalid JSON", http.StatusBadRequest)
         return
     }
 
-    log.Printf("Received scaling request: %+v", req)
+    log.Printf("=== SCALING REQUEST RECEIVED ===")
+    log.Printf("Action: %s", req.Action)
+    log.Printf("Target: %s", req.Target)
+    log.Printf("NodesToAdd: %d", req.NodesToAdd)
+    log.Printf("NodesToRemove: %d", req.NodesToRemove)
+    log.Printf("ClusterType: %s", req.ClusterType)
+    log.Printf("================================")
 
     var err error
     var message string
@@ -370,9 +380,12 @@ func scaleAKSNodePool(req ScaleRequest) (error, string) {
 }
 
 func scaleGKENodePool(req ScaleRequest) (error, string) {
+    log.Printf("=== GKE SCALING FUNCTION CALLED ===")
+    
     clusterName := os.Getenv("GKE_CLUSTER_NAME")
     if clusterName == "" {
-        return fmt.Errorf("GKE_CLUSTER_NAME not set"), ""
+        log.Printf("WARNING: GKE_CLUSTER_NAME not set, using default")
+        clusterName = "pt-us-west1-a"
     }
     
     location := os.Getenv("GCP_REGION")
