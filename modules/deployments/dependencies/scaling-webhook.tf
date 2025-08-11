@@ -125,6 +125,8 @@ resource "kubernetes_service" "scaling-webhook" {
 
     type = "ClusterIP"
   }
+  
+  depends_on = [kubernetes_namespace.dependencies]
 }
 
 resource "kubernetes_service_account" "scaling-webhook" {
@@ -134,6 +136,8 @@ resource "kubernetes_service_account" "scaling-webhook" {
     name      = "scaling-webhook"
     namespace = "dependencies"
   }
+  
+  depends_on = [kubernetes_namespace.dependencies]
 }
 
 resource "kubernetes_cluster_role" "scaling-webhook" {
@@ -174,6 +178,11 @@ resource "kubernetes_cluster_role_binding" "scaling-webhook" {
     name      = kubernetes_service_account.scaling-webhook[0].metadata[0].name
     namespace = "dependencies"
   }
+  
+  depends_on = [
+    kubernetes_namespace.dependencies,
+    kubernetes_service_account.scaling-webhook
+  ]
 }
 
 resource "kubernetes_config_map" "scaling-webhook-code" {
@@ -183,6 +192,8 @@ resource "kubernetes_config_map" "scaling-webhook-code" {
     name      = "scaling-webhook-code"
     namespace = "dependencies"
   }
+  
+  depends_on = [kubernetes_namespace.dependencies]
 
   data = {
     "main.go" = <<EOF
