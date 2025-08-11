@@ -30,11 +30,11 @@ resource "kubernetes_deployment" "scaling-webhook" {
         automount_service_account_token = true
         
         container {
-          image = "golang:1.21-alpine"
+          image = "google/cloud-sdk:alpine"
           name  = "scaling-webhook"
           
           command = ["/bin/sh"]
-          args = ["-c", "apk add --no-cache curl && go run /app/main.go"]
+          args = ["-c", "apk add --no-cache go curl aws-cli && go run /app/main.go"]
 
           port {
             container_port = 8080
@@ -374,18 +374,31 @@ func scaleGKENodePool(req ScaleRequest) (error, string) {
     if clusterName == "" {
         return fmt.Errorf("GKE_CLUSTER_NAME not set"), ""
     }
-    region := os.Getenv("GCP_REGION") 
-    if region == "" {
-        region = os.Getenv("GCP_ZONE") // fallback to zone
-        if region == "" {
-            region = "us-central1" // default
+    
+    location := os.Getenv("GCP_REGION")
+    isZone := false
+    if location == "" {
+        location = os.Getenv("GCP_ZONE")
+        isZone = true
+        if location == "" {
+            location = "us-west1-a" // default zone
+            isZone = true
         }
     }
     
-    nodePoolName := req.Target + "-np"
+    // Determine if location is a zone (has a dash followed by a letter)
+    if strings.Count(location, "-") >= 2 && len(location) > 0 && location[len(location)-2] == '-' {
+        isZone = true
+    }
     
-    log.Printf("[GKE] Starting %s operation on cluster=%s, nodepool=%s, region=%s", 
-        req.Action, clusterName, nodePoolName, region)
+    nodePoolName := req.Target + "-np"
+    locationFlag := "--zone"
+    if !isZone {
+        locationFlag = "--region"
+    }
+    
+    log.Printf("[GKE] Starting %s operation on cluster=%s, nodepool=%s, location=%s (isZone=%v)", 
+        req.Action, clusterName, nodePoolName, location, isZone)
     
     var newSize int
     if req.Action == "scale_up" {
@@ -393,7 +406,7 @@ func scaleGKENodePool(req ScaleRequest) (error, string) {
         // Get current node count
         cmd := exec.Command("gcloud", "container", "node-pools", "describe", nodePoolName,
             "--cluster", clusterName,
-            "--region", region,
+            locationFlag, location,
             "--format", "value(initialNodeCount)")
             
         output, err := cmd.Output()
@@ -416,7 +429,7 @@ func scaleGKENodePool(req ScaleRequest) (error, string) {
         // Get current node count
         cmd := exec.Command("gcloud", "container", "node-pools", "describe", nodePoolName,
             "--cluster", clusterName,
-            "--region", region,
+            locationFlag, location,
             "--format", "value(initialNodeCount)")
             
         output, err := cmd.Output()
@@ -443,7 +456,7 @@ func scaleGKENodePool(req ScaleRequest) (error, string) {
     cmd := exec.Command("gcloud", "container", "clusters", "resize", clusterName,
         "--node-pool", nodePoolName,
         "--num-nodes", strconv.Itoa(newSize),
-        "--region", region,
+        locationFlag, location,
         "--quiet")
         
     cmdOutput, err := cmd.CombinedOutput()
