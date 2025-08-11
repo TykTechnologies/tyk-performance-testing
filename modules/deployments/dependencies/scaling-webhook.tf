@@ -35,7 +35,7 @@ resource "kubernetes_deployment" "scaling-webhook" {
           
           command = ["/bin/sh"]
           args = ["-c", <<-EOF
-            set -ex
+            set -x  # Show commands being executed
             echo "=== Starting scaling webhook container ==="
             echo "Installing curl..."
             apk add --no-cache curl
@@ -44,8 +44,22 @@ resource "kubernetes_deployment" "scaling-webhook" {
             echo "Checking if go is available:"
             which go
             go version
-            echo "Starting webhook server..."
-            cd /app && go run main.go
+            echo "Checking Go code syntax:"
+            cd /app
+            cat main.go | head -30
+            echo "Attempting to compile webhook..."
+            go build -v -o webhook main.go 2>&1 || {
+              echo "=== COMPILATION FAILED ==="
+              echo "Error output:"
+              go build -v -o webhook main.go
+              echo "=== Attempting go vet for more details ==="
+              go vet main.go
+              echo "=== Attempting gofmt check ==="
+              gofmt -d main.go
+              exit 1
+            }
+            echo "Compilation successful! Starting webhook server..."
+            ./webhook
           EOF
           ]
 
@@ -92,6 +106,28 @@ resource "kubernetes_deployment" "scaling-webhook" {
               cpu    = "100m"
               memory = "128Mi"
             }
+          }
+          
+          liveness_probe {
+            http_get {
+              path = "/health"
+              port = 8080
+            }
+            initial_delay_seconds = 30
+            period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
+          }
+          
+          readiness_probe {
+            http_get {
+              path = "/health"
+              port = 8080
+            }
+            initial_delay_seconds = 10
+            period_seconds        = 5
+            timeout_seconds       = 3
+            failure_threshold     = 3
           }
         }
 

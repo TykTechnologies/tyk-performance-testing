@@ -182,8 +182,20 @@ jobs:
       - name: Check Scaling Webhook Logs
         continue-on-error: true
         run: |
+          echo "=== Scaling Webhook Pod Status ==="
+          kubectl get pods -n dependencies -l app=scaling-webhook -o wide
+          echo ""
+          echo "=== Scaling Webhook Pod Events ==="
+          POD_NAME=$(kubectl get pods -n dependencies -l app=scaling-webhook -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+          if [ ! -z "$POD_NAME" ]; then
+            kubectl describe pod -n dependencies $POD_NAME | grep -A 10 "Events:" || true
+          fi
+          echo ""
           echo "=== Scaling Webhook Logs ==="
-          kubectl logs -n dependencies -l app=scaling-webhook --tail=100 || echo "No scaling webhook logs found"
+          kubectl logs -n dependencies -l app=scaling-webhook --tail=200 || echo "No scaling webhook logs found"
+          echo ""
+          echo "=== Previous Container Logs (if crashed) ==="
+          kubectl logs -n dependencies -l app=scaling-webhook --tail=200 --previous 2>/dev/null || echo "No previous container logs"
 
       - name: Download Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}
