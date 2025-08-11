@@ -113,7 +113,7 @@ resource "kubernetes_deployment" "scaling-webhook" {
               path = "/health"
               port = 8080
             }
-            initial_delay_seconds = 30
+            initial_delay_seconds = 90
             period_seconds        = 10
             timeout_seconds       = 5
             failure_threshold     = 3
@@ -124,10 +124,10 @@ resource "kubernetes_deployment" "scaling-webhook" {
               path = "/health"
               port = 8080
             }
-            initial_delay_seconds = 10
-            period_seconds        = 5
-            timeout_seconds       = 3
-            failure_threshold     = 3
+            initial_delay_seconds = 60
+            period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 6
           }
         }
 
