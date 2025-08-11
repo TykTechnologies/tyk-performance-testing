@@ -34,7 +34,20 @@ resource "kubernetes_deployment" "scaling-webhook" {
           name  = "scaling-webhook"
           
           command = ["/bin/sh"]
-          args = ["-c", "apk add --no-cache curl && go run /app/main.go"]
+          args = ["-c", <<-EOF
+            set -ex
+            echo "=== Starting scaling webhook container ==="
+            echo "Installing curl..."
+            apk add --no-cache curl
+            echo "Checking /app directory contents:"
+            ls -la /app/
+            echo "Checking if go is available:"
+            which go
+            go version
+            echo "Starting webhook server..."
+            cd /app && go run main.go
+          EOF
+          ]
 
           port {
             container_port = 8080
