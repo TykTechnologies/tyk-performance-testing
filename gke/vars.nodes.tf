@@ -36,7 +36,7 @@ variable "dependencies_machine_type" {
 
 variable "services_nodes_count" {
   type        = number
-  default     = 1
+  default     = 2
   description = "Number of nodes for each of the gateway services."
 }
 

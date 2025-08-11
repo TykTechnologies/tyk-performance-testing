@@ -7122,9 +7122,9 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_node_node) (kube_node_info * on(node) group_left(label_node_node) kube_node_labels{label_node_node=~\"tyk|kong|gravitee|traefik\"})",
+          "expr": "count by (label_node) (kube_node_labels{label_node=~\"tyk|kong|gravitee|traefik\"})",
           "instant": false,
-          "legendFormat": "{{label_node_node}} nodes",
+          "legendFormat": "{{label_node}} nodes",
           "range": true,
           "refId": "A"
         }
@@ -10167,7 +10167,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(kube_node_labels{label_node_node=\"tyk\"})",
+          "expr": "count(kube_node_labels{label_node=\"tyk\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10182,7 +10182,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_node_labels{label_node_node=\"kong\"})",
+          "expr": "count(kube_node_labels{label_node=\"kong\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10195,7 +10195,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_node_labels{label_node_node=\"gravitee\"})",
+          "expr": "count(kube_node_labels{label_node=\"gravitee\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10208,7 +10208,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"traefik\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10341,7 +10341,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"tyk-resources\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk-resources\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10356,7 +10356,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"kong-resources\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-resources\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10369,7 +10369,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"gravitee-resources\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-resources\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10382,7 +10382,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"traefik-resources\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik-resources\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10454,7 +10454,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"dependencies\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"dependencies\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10604,7 +10604,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"tyk-upstream\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk-upstream\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10619,7 +10619,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"kong-upstream\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-upstream\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10632,7 +10632,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"gravitee-upstream\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-upstream\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10645,7 +10645,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"traefik-upstream\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik-upstream\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10658,7 +10658,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"upstream\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"upstream\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10806,7 +10806,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"tyk-tests\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk-tests\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -10821,7 +10821,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"kong-tests\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-tests\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10834,7 +10834,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"gravitee-tests\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-tests\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10847,7 +10847,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"traefik-tests\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik-tests\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -10860,7 +10860,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node_node=\"upstream-tests\"})",
+          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"upstream-tests\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",

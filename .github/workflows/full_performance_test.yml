@@ -147,12 +147,23 @@ jobs:
         run: |
           cd deployments
           terraform init
+          
+          # Start background process to monitor pod status
+          (while true; do 
+            echo "=== Pod Status at $(date) ==="
+            kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded
+            sleep 30
+          done) &
+          MONITOR_PID=$!
+          
           terraform apply \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
-            --auto-approve
+            --auto-approve || (kill $MONITOR_PID; exit 1)
+          
+          kill $MONITOR_PID
           sleep 300
 
       - name: Run Tests
