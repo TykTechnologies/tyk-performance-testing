@@ -213,7 +213,6 @@ resource "kubernetes_config_map" "scaling-webhook-code" {
 package main
 
 import (
-    "context"
     "encoding/json"
     "fmt"
     "log"
