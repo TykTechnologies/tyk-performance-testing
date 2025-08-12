@@ -178,17 +178,17 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.readinessProbe.initialDelaySeconds"
-    value = "10"
+    value = "30"
   }
 
   set {
     name  = "tyk-gateway.gateway.readinessProbe.periodSeconds"
-    value = "5"
+    value = "10"
   }
 
   set {
     name  = "tyk-gateway.gateway.readinessProbe.successThreshold"
-    value = "1"
+    value = "2"
   }
 
   set {
@@ -303,45 +303,66 @@ resource "helm_release" "tyk" {
     value = "TraceIDRatioBased"
   }
 
+  # Add DB app config options for better API sync
   set {
     name  = "tyk-gateway.gateway.extraEnvs[10].name"
-    value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
+    value = "TYK_GW_DBAPPCONFOPTIONS_NODEISSEGMENTED"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[10].value"
+    value = "false"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[11].name"
+    value = "TYK_GW_DBAPPCONFOPTIONS_TAGS"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[11].value"
+    value = ""
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[12].name"
+    value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[12].value"
     type  = "string"
     value = var.open_telemetry.sampling_ratio
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[11].name"
+    name  = "tyk-gateway.gateway.extraEnvs[13].name"
     value = "TYK_GW_OPENTELEMETRY_EXPORTER"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[11].value"
+    name  = "tyk-gateway.gateway.extraEnvs[13].value"
     value = "grpc"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[12].name"
+    name  = "tyk-gateway.gateway.extraEnvs[14].name"
     value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[12].value"
+    name  = "tyk-gateway.gateway.extraEnvs[14].value"
     value = "opentelemetry-collector.dependencies.svc:4317"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[13].name"
+    name  = "tyk-gateway.gateway.extraEnvs[15].name"
     value = "TYK_GW_HTTPPROFILE"
   }
 
   set {
     type  = "string"
-    name  = "tyk-gateway.gateway.extraEnvs[13].value"
+    name  = "tyk-gateway.gateway.extraEnvs[15].value"
     value = var.profiler.enabled
   }
 
