@@ -18,7 +18,7 @@ variable "scaling_webhook_enabled" {
 
 variable "cluster_type" {
   type        = string
-  default     = "eks"
+  default     = ""
   description = "Type of Kubernetes cluster (eks, aks, gke)."
 }
 

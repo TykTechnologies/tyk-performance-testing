@@ -54,6 +54,6 @@ variable "tests_scaling_enabled" {
 
 variable "tests_cluster_type" {
   type        = string
-  default     = "eks"
+  default     = ""
   description = "Type of Kubernetes cluster (eks, aks, gke)."
 }

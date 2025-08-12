@@ -25,7 +25,7 @@ variable "labels" {
 variable "cluster_type" {
   type        = string
   default     = ""
-  description = "Type of Kubernetes cluster (eks, aks, gke)"
+  description = "Type of Kubernetes cluster (eks, aks, gke) - must be explicitly set"
 }
 
 variable "cluster_name" {
