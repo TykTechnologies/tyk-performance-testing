@@ -39,10 +39,10 @@ function getScalingScenarios() {
   const baseRate = ${var.config.rate};
   const baseVUs = ${var.config.virtual_users};
   
-  // Autoscaling test: gradually increase load to trigger scaling, then decrease
-  // Phase 1: 10min baseline (normal load)
-  // Phase 2: 10min high load (3x traffic to trigger scale-up)
-  // Phase 3: 10min baseline (back to normal, triggers scale-down)
+  // Autoscaling test: very gradual increase through multiple stages
+  // Phase 1: 5min baseline (20k req/s)
+  // Phase 2: 15min gradual scale-up through multiple stages to 2x (40k req/s)
+  // Phase 3: 10min gradual scale-down to baseline
   
   return {
     baseline_phase: {
@@ -52,8 +52,8 @@ function getScalingScenarios() {
       preAllocatedVUs: baseVUs,
       maxVUs: baseVUs * 4,
       stages: [
-        { target: baseRate, duration: '1m' },           // Ramp up to baseline
-        { target: baseRate, duration: '9m' },           // Hold baseline for 9 minutes
+        { target: baseRate, duration: '1m' },           // Ramp up to baseline (20k)
+        { target: baseRate, duration: '4m' },           // Hold baseline for 4 minutes
       ],
       exec: 'loadTest',
       startTime: '0s',
@@ -64,24 +64,34 @@ function getScalingScenarios() {
       startRate: baseRate,
       timeUnit: '1s',
       preAllocatedVUs: baseVUs * 2,
-      maxVUs: baseVUs * 6,
+      maxVUs: baseVUs * 5,
       stages: [
-        { target: baseRate * 3, duration: '2m' },       // Ramp up to 3x load
-        { target: baseRate * 3, duration: '8m' },       // Hold high load for 8 minutes
+        { target: baseRate * 1.25, duration: '2m' },    // Step 1: 20k -> 25k
+        { target: baseRate * 1.25, duration: '2m' },    // Hold at 25k
+        { target: baseRate * 1.5, duration: '2m' },     // Step 2: 25k -> 30k
+        { target: baseRate * 1.5, duration: '2m' },     // Hold at 30k
+        { target: baseRate * 1.75, duration: '2m' },    // Step 3: 30k -> 35k
+        { target: baseRate * 1.75, duration: '1m' },    // Hold at 35k
+        { target: baseRate * 2, duration: '2m' },       // Step 4: 35k -> 40k
+        { target: baseRate * 2, duration: '2m' },       // Hold at 40k
       ],
       exec: 'loadTest',
-      startTime: '10m',
+      startTime: '5m',
       tags: { phase: 'scale_up' },
     },
     scale_down_phase: {
       executor: 'ramping-arrival-rate',
-      startRate: baseRate * 3,
+      startRate: baseRate * 2,
       timeUnit: '1s',
       preAllocatedVUs: baseVUs * 2,
       maxVUs: baseVUs * 4,
       stages: [
-        { target: baseRate, duration: '2m' },           // Ramp down to baseline
-        { target: baseRate, duration: '8m' },           // Hold baseline for 8 minutes
+        { target: baseRate * 1.75, duration: '1m' },    // Step down: 40k -> 35k
+        { target: baseRate * 1.5, duration: '2m' },     // Step down: 35k -> 30k
+        { target: baseRate * 1.5, duration: '1m' },     // Hold at 30k
+        { target: baseRate * 1.25, duration: '2m' },    // Step down: 30k -> 25k
+        { target: baseRate, duration: '2m' },           // Step down: 25k -> 20k
+        { target: baseRate, duration: '2m' },           // Hold at baseline
       ],
       exec: 'loadTest',
       startTime: '20m',
@@ -129,9 +139,11 @@ export function loadTest(keys) {
 }
 
 // Autoscaling is now handled by Kubernetes Cluster Autoscaler
-// The increased traffic in scale_up_phase will cause pods to need more resources,
-// triggering the cluster autoscaler to add nodes automatically.
-// When traffic decreases in scale_down_phase, the autoscaler will remove unneeded nodes.
+// Traffic gradually increases to 2x (40k req/s) over 6 minutes, giving time for:
+// 1. HPA to detect CPU increase and add pod replicas
+// 2. Cluster autoscaler to detect pending pods and add nodes (2-5 min)
+// 3. System to stabilize at the new capacity level
+// Traffic then gradually decreases, allowing graceful scale-down.
 EOF
   }
 }

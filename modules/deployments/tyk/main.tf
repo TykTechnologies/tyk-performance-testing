@@ -140,6 +140,52 @@ resource "helm_release" "tyk" {
     value = var.resources.limits.memory
   }
 
+  # Health check configuration for better autoscaling
+  set {
+    name  = "tyk-gateway.gateway.livenessProbe.httpGet.path"
+    value = "/hello"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.livenessProbe.initialDelaySeconds"
+    value = "30"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.livenessProbe.periodSeconds"
+    value = "10"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.livenessProbe.timeoutSeconds"
+    value = "5"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.readinessProbe.httpGet.path"
+    value = "/hello"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.readinessProbe.initialDelaySeconds"
+    value = "10"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.readinessProbe.periodSeconds"
+    value = "5"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.readinessProbe.successThreshold"
+    value = "1"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.readinessProbe.failureThreshold"
+    value = "3"
+  }
+
   set {
     name  = "tyk-gateway.gateway.extraEnvs[0].name"
     value = "GOGC"
