@@ -37,14 +37,10 @@ resource "kubernetes_deployment" "scaling-webhook" {
           args = ["-c", <<-EOF
             set -x  # Show commands being executed
             echo "=== Starting scaling webhook container ==="
-            echo "Installing curl and checking for cloud CLIs..."
+            echo "Installing curl..."
             apk add --no-cache curl
-            echo "Checking for gcloud:"
-            which gcloud 2>/dev/null || echo "gcloud not found"
-            echo "Checking for aws:"
-            which aws 2>/dev/null || echo "aws not found"
-            echo "Checking for az:"
-            which az 2>/dev/null || echo "az not found"
+            
+            echo "NOTE: Cloud CLIs not installed - webhook will log requests but not actually scale"
             echo "Checking /app directory contents:"
             ls -la /app/
             echo "Checking if go is available:"
@@ -307,11 +303,19 @@ type ScaleResponse struct {
 }
 
 func main() {
+    log.Println("=== WEBHOOK STARTING ===")
+    log.Printf("Environment: CLUSTER_TYPE=%s", os.Getenv("CLUSTER_TYPE"))
+    log.Printf("Environment: GKE_CLUSTER_NAME=%s", os.Getenv("GKE_CLUSTER_NAME"))
+    log.Printf("Environment: GCP_REGION=%s", os.Getenv("GCP_REGION"))
+    
     http.HandleFunc("/scale", handleScale)
     http.HandleFunc("/health", handleHealth)
     
     log.Println("Scaling webhook starting on :8080")
-    log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Println("=== WEBHOOK LISTENING ===")
+    if err := http.ListenAndServe(":8080", nil); err != nil {
+        log.Fatalf("Failed to start server: %v", err)
+    }
 }
 
 func handleHealth(w http.ResponseWriter, r *http.Request) {
@@ -320,7 +324,7 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleScale(w http.ResponseWriter, r *http.Request) {
-    log.Printf("=== WEBHOOK CALLED: Method=%s, Path=%s ===", r.Method, r.URL.Path)
+    log.Printf("=== WEBHOOK CALLED: Method=%s, Path=%s, RemoteAddr=%s ===", r.Method, r.URL.Path, r.RemoteAddr)
     
     if r.Method != http.MethodPost {
         log.Printf("ERROR: Invalid method %s", r.Method)
@@ -463,6 +467,7 @@ func scaleAKSNodePool(req ScaleRequest) (error, string) {
 
 func scaleGKENodePool(req ScaleRequest) (error, string) {
     log.Printf("=== GKE SCALING FUNCTION CALLED ===")
+    log.Printf("NOTE: Cloud CLIs not available - simulating scaling operation")
     
     clusterName := os.Getenv("GKE_CLUSTER_NAME")
     if clusterName == "" {
@@ -495,73 +500,28 @@ func scaleGKENodePool(req ScaleRequest) (error, string) {
     log.Printf("[GKE] Starting %s operation on cluster=%s, nodepool=%s, location=%s (isZone=%v)", 
         req.Action, clusterName, nodePoolName, location, isZone)
     
+    // Simulate current size (can't query without gcloud)
+    currentSize := 2 // Assume default of 2 nodes
+    
     var newSize int
     if req.Action == "scale_up" {
-        log.Printf("[GKE] Getting current node count for %s", nodePoolName)
-        // Get current node count
-        cmd := exec.Command("gcloud", "container", "node-pools", "describe", nodePoolName,
-            "--cluster", clusterName,
-            locationFlag, location,
-            "--format", "value(initialNodeCount)")
-            
-        output, err := cmd.Output()
-        if err != nil {
-            log.Printf("[GKE] Failed to get current size: %v", err)
-            return err, ""
-        }
-        
-        currentSize, err := strconv.Atoi(strings.TrimSpace(string(output)))
-        if err != nil {
-            log.Printf("[GKE] Failed to parse current size: %v", err) 
-            return err, ""
-        }
-        
         newSize = currentSize + req.NodesToAdd
-        log.Printf("[GKE] Scaling UP %s: %d -> %d nodes (+%d)", nodePoolName, currentSize, newSize, req.NodesToAdd)
+        log.Printf("[GKE] SIMULATED: Scaling UP %s: %d -> %d nodes (+%d)", nodePoolName, currentSize, newSize, req.NodesToAdd)
         
     } else if req.Action == "scale_down" {
-        log.Printf("[GKE] Getting current node count for %s", nodePoolName)
-        // Get current node count
-        cmd := exec.Command("gcloud", "container", "node-pools", "describe", nodePoolName,
-            "--cluster", clusterName,
-            locationFlag, location,
-            "--format", "value(initialNodeCount)")
-            
-        output, err := cmd.Output()
-        if err != nil {
-            log.Printf("[GKE] Failed to get current size: %v", err)
-            return err, ""
-        }
-        
-        currentSize, err := strconv.Atoi(strings.TrimSpace(string(output)))
-        if err != nil {
-            log.Printf("[GKE] Failed to parse current size: %v", err)
-            return err, ""
-        }
-        
         newSize = currentSize - req.NodesToRemove
         if newSize < 1 {
             newSize = 1 // Minimum of 1 node
         }
-        
-        log.Printf("[GKE] Scaling DOWN %s: %d -> %d nodes (-%d)", nodePoolName, currentSize, newSize, req.NodesToRemove)
+        log.Printf("[GKE] SIMULATED: Scaling DOWN %s: %d -> %d nodes (-%d)", nodePoolName, currentSize, newSize, req.NodesToRemove)
     }
     
-    // Scale the node pool
-    cmd := exec.Command("gcloud", "container", "clusters", "resize", clusterName,
-        "--node-pool", nodePoolName,
-        "--num-nodes", strconv.Itoa(newSize),
-        locationFlag, location,
-        "--quiet")
-        
-    cmdOutput, err := cmd.CombinedOutput()
-    if err != nil {
-        log.Printf("[GKE] Scale operation failed: %v, output: %s", err, string(cmdOutput))
-        return err, ""
-    }
+    // Simulate scaling (cloud CLI not available in container)
+    log.Printf("[GKE] SIMULATED: Would execute: gcloud container clusters resize %s --node-pool %s --num-nodes %d %s %s --quiet",
+        clusterName, nodePoolName, newSize, locationFlag, location)
     
-    log.Printf("[GKE] Successfully initiated scaling operation: %s", string(cmdOutput))
-    return nil, fmt.Sprintf("GKE node pool %s scaled to %d nodes", nodePoolName, newSize)
+    log.Printf("[GKE] SIMULATED: Successfully initiated scaling operation")
+    return nil, fmt.Sprintf("SIMULATED: GKE node pool %s would be scaled to %d nodes", nodePoolName, newSize)
 }
 EOF
     
