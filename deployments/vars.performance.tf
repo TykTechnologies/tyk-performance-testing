@@ -6,7 +6,7 @@ variable "hpa_enabled" {
 
 variable "hpa_max_replica_count" {
   type        = number
-  default     = 4
+  default     = 12
   description = "Gateways Horizontal Pod Autoscaler max replica count."
 }
 
@@ -18,7 +18,7 @@ variable "hpa_avg_cpu_util_percentage" {
 
 variable "replica_count" {
   type        = number
-  default     = 1
+  default     = 2
   description = "Gateway replica count."
 }
 
@@ -30,24 +30,24 @@ variable "external_traffic_policy" {
 
 variable "resources_requests_cpu" {
   type        = string
-  default     = "0"
+  default     = "1000m"
   description = "Gateway CPU requests."
 }
 
 variable "resources_requests_memory" {
   type        = string
-  default     = "0"
+  default     = "1Gi"
   description = "Gateway memory requests."
 }
 
 variable "resources_limits_cpu" {
   type        = string
-  default     = "0"
-  description = "Gateway CPU requests."
+  default     = "2000m"
+  description = "Gateway CPU limits."
 }
 
 variable "resources_limits_memory" {
   type        = string
-  default     = "0"
-  description = "Gateway memory requests."
+  default     = "2Gi"
+  description = "Gateway memory limits."
 }
