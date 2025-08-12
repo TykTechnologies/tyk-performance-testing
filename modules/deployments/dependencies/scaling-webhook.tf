@@ -37,8 +37,14 @@ resource "kubernetes_deployment" "scaling-webhook" {
           args = ["-c", <<-EOF
             set -x  # Show commands being executed
             echo "=== Starting scaling webhook container ==="
-            echo "Installing curl..."
+            echo "Installing curl and checking for cloud CLIs..."
             apk add --no-cache curl
+            echo "Checking for gcloud:"
+            which gcloud 2>/dev/null || echo "gcloud not found"
+            echo "Checking for aws:"
+            which aws 2>/dev/null || echo "aws not found"
+            echo "Checking for az:"
+            which az 2>/dev/null || echo "az not found"
             echo "Checking /app directory contents:"
             ls -la /app/
             echo "Checking if go is available:"
@@ -59,7 +65,34 @@ resource "kubernetes_deployment" "scaling-webhook" {
               exit 1
             }
             echo "Compilation successful! Starting webhook server..."
-            ./webhook
+            echo "Testing webhook binary..."
+            ./webhook &
+            WEBHOOK_PID=$!
+            echo "Webhook started with PID: $WEBHOOK_PID"
+            
+            # Give it a moment to start
+            sleep 2
+            
+            # Check if process is still running
+            if ! kill -0 $WEBHOOK_PID 2>/dev/null; then
+              echo "=== WEBHOOK CRASHED IMMEDIATELY ==="
+              echo "Trying to run with more debugging..."
+              ./webhook || {
+                echo "=== WEBHOOK FAILED TO START ==="
+                echo "Exit code: $?"
+                echo "Checking for missing dependencies..."
+                ldd webhook 2>&1 || echo "ldd not available"
+                echo "File info:"
+                file webhook
+                ls -la webhook
+                echo "Trying with strace if available..."
+                apk add --no-cache strace 2>/dev/null && strace -f ./webhook 2>&1 | head -100
+                exit 1
+              }
+            fi
+            
+            echo "Webhook appears to be running, waiting..."
+            wait $WEBHOOK_PID
           EOF
           ]
 
