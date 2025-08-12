@@ -51,7 +51,15 @@ resource "google_container_node_pool" "this" {
   cluster    = google_container_cluster.this.name
   version    = var.gke_version
   location   = google_container_cluster.this.location
-  node_count = each.value
+  
+  # Enable autoscaling for service node pools
+  autoscaling {
+    min_node_count = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 2 : 1
+    max_node_count = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 6 : 3
+    location_policy = "BALANCED"
+  }
+  
+  initial_node_count = each.value
 
   node_config {
     machine_type = module.h.machines[each.key]

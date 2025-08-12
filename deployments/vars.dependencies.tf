@@ -12,14 +12,20 @@ variable "upstream_enabled" {
 
 variable "scaling_webhook_enabled" {
   type        = bool
-  default     = true
-  description = "Enable scaling webhook for dynamic node scaling during tests."
+  default     = false
+  description = "Enable scaling webhook for dynamic node scaling during tests (deprecated - use native cluster autoscaler instead)."
 }
 
 variable "cluster_type" {
   type        = string
   default     = "eks"
   description = "Type of Kubernetes cluster (eks, aks, gke)."
+}
+
+variable "cluster_name" {
+  type        = string
+  default     = ""
+  description = "Name of the Kubernetes cluster."
 }
 
 variable "aws_region" {

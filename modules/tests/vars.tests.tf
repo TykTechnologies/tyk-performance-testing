@@ -16,7 +16,7 @@ variable "tests" {
 
 variable "scaling_enabled" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable dynamic node scaling during tests"
 }
 

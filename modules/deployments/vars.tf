@@ -21,3 +21,21 @@ variable "labels" {
     upstream-tests     = string
   })
 }
+
+variable "cluster_type" {
+  type        = string
+  default     = ""
+  description = "Type of Kubernetes cluster (eks, aks, gke)"
+}
+
+variable "cluster_name" {
+  type        = string
+  default     = ""
+  description = "Name of the Kubernetes cluster"
+}
+
+variable "aws_region" {
+  type        = string
+  default     = "us-east-1"
+  description = "AWS region for EKS cluster autoscaler"
+}

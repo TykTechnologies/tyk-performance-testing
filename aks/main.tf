@@ -53,8 +53,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   name                  = substr(replace(each.key, "-", ""), 0, 12)
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
 
-  vm_size    = module.h.machines[each.key]
-  node_count = each.value
+  vm_size = module.h.machines[each.key]
+  
+  # Enable autoscaling for node pools
+  enable_auto_scaling = true
+  min_count = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 2 : 1
+  max_count = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 6 : 3
+  node_count = each.value  # Initial count
 
   node_labels = {
     "node": each.key

@@ -5,6 +5,9 @@ module "dependencies" {
   grafana          = var.dependencies.grafana
   open_telemetry   = var.open_telemetry
   scaling_webhook  = var.dependencies.scaling_webhook
+  cluster_type     = var.cluster_type
+  cluster_name     = var.cluster_name
+  aws_region       = var.aws_region
   keycloak         = {
     enabled = var.auth.enabled && var.auth.type == "JWT-RSA" ? true : false
   }

@@ -35,50 +35,57 @@ export const options = {
 };
 
 function getScalingScenarios() {
-  const baseScenario = getScenarios(${jsonencode(var.config)})[SCENARIO || "constant-arrival-rate"];
   const baseDuration = ${var.config.duration};
+  const baseRate = ${var.config.rate};
+  const baseVUs = ${var.config.virtual_users};
   
-  // Simple 3-phase scaling test: 10min baseline, 10min scaled, 10min final
-  const phaseLength = Math.floor(baseDuration / 3) * 60; // Convert to seconds and divide by 3
-  const scaleOpTime = 30; // 30 seconds per scale operation
+  // Autoscaling test: gradually increase load to trigger scaling, then decrease
+  // Phase 1: 10min baseline (normal load)
+  // Phase 2: 10min high load (3x traffic to trigger scale-up)
+  // Phase 3: 10min baseline (back to normal, triggers scale-down)
   
   return {
-    baseline_load: {
-      ...baseScenario,
+    baseline_phase: {
+      executor: 'ramping-arrival-rate',
+      startRate: Math.floor(baseRate * 0.5),
+      timeUnit: '1s',
+      preAllocatedVUs: baseVUs,
+      maxVUs: baseVUs * 4,
+      stages: [
+        { target: baseRate, duration: '1m' },           // Ramp up to baseline
+        { target: baseRate, duration: '9m' },           // Hold baseline for 9 minutes
+      ],
       exec: 'loadTest',
       startTime: '0s',
-      duration: phaseLength + 's',
       tags: { phase: 'baseline' },
     },
-    scale_up_trigger: {
-      executor: 'constant-vus',
-      vus: 1,
-      duration: scaleOpTime + 's',
-      exec: 'scaleUp',
-      startTime: phaseLength + 's',
+    scale_up_phase: {
+      executor: 'ramping-arrival-rate',
+      startRate: baseRate,
+      timeUnit: '1s',
+      preAllocatedVUs: baseVUs * 2,
+      maxVUs: baseVUs * 6,
+      stages: [
+        { target: baseRate * 3, duration: '2m' },       // Ramp up to 3x load
+        { target: baseRate * 3, duration: '8m' },       // Hold high load for 8 minutes
+      ],
+      exec: 'loadTest',
+      startTime: '10m',
       tags: { phase: 'scale_up' },
     },
-    scaled_load: {
-      ...baseScenario,
+    scale_down_phase: {
+      executor: 'ramping-arrival-rate',
+      startRate: baseRate * 3,
+      timeUnit: '1s',
+      preAllocatedVUs: baseVUs * 2,
+      maxVUs: baseVUs * 4,
+      stages: [
+        { target: baseRate, duration: '2m' },           // Ramp down to baseline
+        { target: baseRate, duration: '8m' },           // Hold baseline for 8 minutes
+      ],
       exec: 'loadTest',
-      startTime: (phaseLength + scaleOpTime) + 's',
-      duration: phaseLength + 's',
-      tags: { phase: 'scaled' },
-    },
-    scale_down_trigger: {
-      executor: 'constant-vus',
-      vus: 1,
-      duration: scaleOpTime + 's',
-      exec: 'scaleDown',
-      startTime: (phaseLength * 2 + scaleOpTime) + 's',
+      startTime: '20m',
       tags: { phase: 'scale_down' },
-    },
-    final_load: {
-      ...baseScenario,
-      exec: 'loadTest',
-      startTime: (phaseLength * 2 + scaleOpTime * 2) + 's',
-      duration: phaseLength + 's',
-      tags: { phase: 'final' },
     }
   };
 }
@@ -121,55 +128,10 @@ export function loadTest(keys) {
   });
 }
 
-export function scaleUp(keys) {
-  console.log('Triggering scale-up: Adding 2 nodes to ${var.name} node group');
-  
-  // Call scaling webhook or kubectl command
-  const scaleResponse = http.post('http://scaling-webhook.dependencies.svc:8080/scale', 
-    JSON.stringify({
-      action: 'scale_up',
-      target: '${var.name}',
-      nodes_to_add: 2,
-      cluster_type: __ENV.CLUSTER_TYPE || 'eks'
-    }), {
-      headers: { 'Content-Type': 'application/json' },
-      timeout: '60s'
-    }
-  );
-  
-  check(scaleResponse, {
-    'scale-up request sent': (r) => r.status === 200 || r.status === 202,
-  });
-  
-  // Wait for nodes to be ready
-  sleep(20);
-  console.log('Scale-up operation initiated');
-}
-
-export function scaleDown(keys) {
-  console.log('Triggering scale-down: Removing 2 nodes from ${var.name} node group');
-  
-  // Call scaling webhook or kubectl command
-  const scaleResponse = http.post('http://scaling-webhook.dependencies.svc:8080/scale',
-    JSON.stringify({
-      action: 'scale_down', 
-      target: '${var.name}',
-      nodes_to_remove: 2,
-      cluster_type: __ENV.CLUSTER_TYPE || 'eks'
-    }), {
-      headers: { 'Content-Type': 'application/json' },
-      timeout: '60s'
-    }
-  );
-  
-  check(scaleResponse, {
-    'scale-down request sent': (r) => r.status === 200 || r.status === 202,
-  });
-  
-  // Wait for scale-down to complete
-  sleep(20);
-  console.log('Scale-down operation initiated');
-}
+// Autoscaling is now handled by Kubernetes Cluster Autoscaler
+// The increased traffic in scale_up_phase will cause pods to need more resources,
+// triggering the cluster autoscaler to add nodes automatically.
+// When traffic decreases in scale_down_phase, the autoscaler will remove unneeded nodes.
 EOF
   }
 }

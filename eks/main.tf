@@ -81,8 +81,19 @@ module "eks_node_groups" {
   vpc_security_group_ids            = [module.eks.node_security_group_id]
   cluster_service_cidr              = module.eks.cluster_service_cidr
 
+  # Enable autoscaling for node groups
+  min_size     = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 2 : 1
+  max_size     = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 6 : 3
+  desired_size = each.value
+
   labels = {
     "node": each.key
+  }
+
+  # Required tags for cluster autoscaler discovery
+  tags = {
+    "k8s.io/cluster-autoscaler/enabled" = "true"
+    "k8s.io/cluster-autoscaler/${module.eks.cluster_name}" = "owned"
   }
 }
 

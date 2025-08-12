@@ -1,7 +1,10 @@
 module "deployments" {
   source = "../modules/deployments"
 
-  labels = local.labels
+  labels       = local.labels
+  cluster_type = var.cluster_type
+  cluster_name = var.cluster_name
+  aws_region   = var.aws_region
 
   analytics = {
     database = {
