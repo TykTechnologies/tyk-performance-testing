@@ -108,27 +108,28 @@ resource "kubernetes_deployment" "scaling-webhook" {
             }
           }
           
-          liveness_probe {
-            http_get {
-              path = "/health"
-              port = 8080
-            }
-            initial_delay_seconds = 90
-            period_seconds        = 10
-            timeout_seconds       = 5
-            failure_threshold     = 3
-          }
+# Temporarily disabled health probes to debug startup issues
+          # liveness_probe {
+          #   http_get {
+          #     path = "/health"
+          #     port = 8080
+          #   }
+          #   initial_delay_seconds = 90
+          #   period_seconds        = 10
+          #   timeout_seconds       = 5
+          #   failure_threshold     = 3
+          # }
           
-          readiness_probe {
-            http_get {
-              path = "/health"
-              port = 8080
-            }
-            initial_delay_seconds = 60
-            period_seconds        = 10
-            timeout_seconds       = 5
-            failure_threshold     = 6
-          }
+          # readiness_probe {
+          #   http_get {
+          #     path = "/health"
+          #     port = 8080
+          #   }
+          #   initial_delay_seconds = 60
+          #   period_seconds        = 10
+          #   timeout_seconds       = 5
+          #   failure_threshold     = 6
+          # }
         }
 
         volume {
