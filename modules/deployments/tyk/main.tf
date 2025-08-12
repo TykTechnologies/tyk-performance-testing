@@ -22,6 +22,24 @@ resource "kubernetes_namespace" "tyk" {
   }
 }
 
+resource "kubernetes_persistent_volume_claim" "tyk-api-definitions" {
+  metadata {
+    name      = "tyk-api-definitions-pvc"
+    namespace = var.namespace
+  }
+  spec {
+    access_modes = ["ReadWriteMany"]
+    resources {
+      requests = {
+        storage = "1Gi"
+      }
+    }
+    # Use default storage class which should support RWX on GKE with Filestore
+    # On EKS use EFS, on AKS use Azure Files
+  }
+  depends_on = [kubernetes_namespace.tyk]
+}
+
 resource "helm_release" "tyk" {
   name       = "tyk"
   repository = "https://helm.tyk.io/public/helm/charts"
@@ -178,7 +196,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.readinessProbe.initialDelaySeconds"
-    value = "10"
+    value = "60"
   }
 
   set {
@@ -196,6 +214,28 @@ resource "helm_release" "tyk" {
     value = "3"
   }
 
+  # Mount shared volume for API definitions
+  set {
+    name  = "tyk-gateway.gateway.extraVolumes[0].name"
+    value = "api-definitions"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraVolumes[0].persistentVolumeClaim.claimName"
+    value = kubernetes_persistent_volume_claim.tyk-api-definitions.metadata[0].name
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraVolumeMounts[0].name"
+    value = "api-definitions"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraVolumeMounts[0].mountPath"
+    value = "/mnt/tyk-gateway/apps"
+  }
+
+  # Configure gateway to use the shared apps folder
   set {
     name  = "tyk-gateway.gateway.extraEnvs[0].name"
     value = "GOGC"
@@ -236,113 +276,124 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[3].value"
     type  = "string"
-    value = "1000"
+    value = "10000"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[4].name"
-    value = "TYK_GW_MAXIDLECONNSPERHOST"
+    value = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[4].value"
     type  = "string"
-    value = "10000"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[5].name"
-    value = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[5].value"
-    type  = "string"
     value = "true"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[6].name"
+    name  = "tyk-gateway.gateway.extraEnvs[5].name"
     value = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[6].value"
+    name  = "tyk-gateway.gateway.extraEnvs[5].value"
     value = "protobuf"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[7].name"
+    name  = "tyk-gateway.gateway.extraEnvs[6].name"
     value = "TYK_GW_STORAGE_MAXACTIVE"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[6].value"
+    type  = "string"
+    value = "10000"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[7].name"
+    value = "TYK_GW_OPENTELEMETRY_ENABLED"
   }
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[7].value"
     type  = "string"
-    value = "10000"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[8].name"
-    value = "TYK_GW_OPENTELEMETRY_ENABLED"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[8].value"
-    type  = "string"
     value = var.open_telemetry.enabled
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[9].name"
+    name  = "tyk-gateway.gateway.extraEnvs[8].name"
     value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[9].value"
+    name  = "tyk-gateway.gateway.extraEnvs[8].value"
     value = "TraceIDRatioBased"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[10].name"
+    name  = "tyk-gateway.gateway.extraEnvs[9].name"
     value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[10].value"
+    name  = "tyk-gateway.gateway.extraEnvs[9].value"
     type  = "string"
     value = var.open_telemetry.sampling_ratio
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[11].name"
+    name  = "tyk-gateway.gateway.extraEnvs[10].name"
     value = "TYK_GW_OPENTELEMETRY_EXPORTER"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[11].value"
+    name  = "tyk-gateway.gateway.extraEnvs[10].value"
     value = "grpc"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[12].name"
+    name  = "tyk-gateway.gateway.extraEnvs[11].name"
     value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[12].value"
+    name  = "tyk-gateway.gateway.extraEnvs[11].value"
     value = "opentelemetry-collector.dependencies.svc:4317"
   }
 
   set {
-    name  = "tyk-gateway.gateway.extraEnvs[13].name"
+    name  = "tyk-gateway.gateway.extraEnvs[12].name"
     value = "TYK_GW_HTTPPROFILE"
   }
 
   set {
     type  = "string"
-    name  = "tyk-gateway.gateway.extraEnvs[13].value"
+    name  = "tyk-gateway.gateway.extraEnvs[12].value"
     value = var.profiler.enabled
+  }
+
+  # Configure gateway to use the shared apps folder for API definitions
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[13].name"
+    value = "TYK_GW_APPPATH"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[13].value"
+    value = "/mnt/tyk-gateway/apps"
+  }
+
+  # Configure gateway to use the shared apps folder for policies
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[14].name"
+    value = "TYK_GW_POLICIES_POLICYPATH"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[14].value"
+    value = "/mnt/tyk-gateway/apps/policies"
   }
 
   set {
