@@ -147,6 +147,11 @@ resource "helm_release" "tyk" {
   }
 
   set {
+    name  = "tyk-gateway.gateway.livenessProbe.httpGet.port"
+    value = "8080"
+  }
+
+  set {
     name  = "tyk-gateway.gateway.livenessProbe.initialDelaySeconds"
     value = "30"
   }
@@ -164,6 +169,11 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.readinessProbe.httpGet.path"
     value = "/hello"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.readinessProbe.httpGet.port"
+    value = "8080"
   }
 
   set {
