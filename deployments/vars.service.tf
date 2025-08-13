@@ -1,12 +1,12 @@
 variable "service_route_count" {
   type        = number
-  default     = 1
+  default     = 100
   description = "Service route count - number of APIs."
 }
 
 variable "service_app_count" {
   type        = number
-  default     = 1
+  default     = 10
   description = "Service app count - number of security policies/API product/Apps."
 }
 
