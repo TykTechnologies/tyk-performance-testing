@@ -104,22 +104,23 @@ jobs:
           LOCK_ID="${{ github.event.inputs.lock_id }}"
           
           echo "Attempting to force unlock workspace..."
+          echo "Force unlocking workspace ID: $WORKSPACE_ID"
           
-          # If lock_id is provided, include it in the request
-          if [ -n "$LOCK_ID" ]; then
-            echo "Using provided lock ID: $LOCK_ID"
+          # Force unlock using POST request as per API docs
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            --header "Authorization: Bearer $TF_TOKEN" \
+            --header "Content-Type: application/vnd.api+json" \
+            --request POST \
+            "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/actions/force-unlock")
+          
+          # Alternative: try with empty data body if above doesn't work
+          if [ "$(echo "$RESPONSE" | tail -n 1)" == "404" ] || [ "$(echo "$RESPONSE" | tail -n 1)" == "400" ]; then
+            echo "Trying with empty JSON data body..."
             RESPONSE=$(curl -s -w "\n%{http_code}" \
               --header "Authorization: Bearer $TF_TOKEN" \
               --header "Content-Type: application/vnd.api+json" \
-              --request DELETE \
-              --data "{\"type\":\"workspaces\",\"attributes\":{\"lock-id\":\"$LOCK_ID\"}}" \
-              "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/actions/force-unlock")
-          else
-            echo "No lock ID provided, forcing unlock without verification"
-            RESPONSE=$(curl -s -w "\n%{http_code}" \
-              --header "Authorization: Bearer $TF_TOKEN" \
-              --header "Content-Type: application/vnd.api+json" \
-              --request DELETE \
+              --request POST \
+              --data '{}' \
               "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/actions/force-unlock")
           fi
           
