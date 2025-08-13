@@ -47,7 +47,7 @@ spec:
         global_response_headers: ${jsonencode(var.header_injection.req.enabled ? { "X-API-RES": "Bar" } : {})}
 YAML
 
-  count      = var.service.route_count
+  count      = var.use_config_maps_for_apis ? 0 : var.service.route_count
   depends_on = [kubernetes_namespace.tyk, helm_release.tyk, helm_release.tyk-operator]
 }
 
@@ -83,6 +83,6 @@ spec:
     - Default
 YAML
 
-  count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? var.service.app_count : 0
+  count      = var.use_config_maps_for_apis ? 0 : ((var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? var.service.app_count : 0)
   depends_on = [kubernetes_namespace.tyk, kubectl_manifest.api]
 }

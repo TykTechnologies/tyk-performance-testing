@@ -22,7 +22,37 @@ resource "kubernetes_namespace" "tyk" {
   }
 }
 
+# Create a StorageClass for RWX support based on cloud provider
+resource "kubernetes_storage_class" "tyk-rwx" {
+  count = var.enable_shared_storage ? 1 : 0
+  
+  metadata {
+    name = "tyk-rwx-storage"
+  }
+  
+  # GKE: Use Filestore CSI driver
+  provisioner = var.cluster_type == "gke" ? "filestore.csi.storage.gke.io" : (
+    # EKS: Use EFS CSI driver  
+    var.cluster_type == "eks" ? "efs.csi.aws.com" : (
+      # AKS: Use Azure Files
+      var.cluster_type == "aks" ? "file.csi.azure.com" : "standard"
+    )
+  )
+  
+  reclaim_policy = "Delete"
+  volume_binding_mode = "Immediate"
+  
+  parameters = var.cluster_type == "gke" ? {
+    tier = "standard"  # Use "enterprise" for better performance
+    network = "default"
+  } : var.cluster_type == "aks" ? {
+    skuName = "Standard_LRS"
+  } : {}
+}
+
 resource "kubernetes_persistent_volume_claim" "tyk-api-definitions" {
+  count = var.enable_shared_storage ? 1 : 0
+  
   metadata {
     name      = "tyk-api-definitions-pvc"
     namespace = var.namespace
@@ -31,13 +61,12 @@ resource "kubernetes_persistent_volume_claim" "tyk-api-definitions" {
     access_modes = ["ReadWriteMany"]
     resources {
       requests = {
-        storage = "1Gi"
+        storage = var.cluster_type == "gke" ? "1Ti" : "1Gi"  # GKE Filestore min is 1TB
       }
     }
-    # Use default storage class which should support RWX on GKE with Filestore
-    # On EKS use EFS, on AKS use Azure Files
+    storage_class_name = kubernetes_storage_class.tyk-rwx[0].metadata[0].name
   }
-  depends_on = [kubernetes_namespace.tyk]
+  depends_on = [kubernetes_namespace.tyk, kubernetes_storage_class.tyk-rwx]
 }
 
 resource "helm_release" "tyk" {
@@ -214,25 +243,70 @@ resource "helm_release" "tyk" {
     value = "3"
   }
 
-  # Mount shared volume for API definitions
-  set {
-    name  = "tyk-gateway.gateway.extraVolumes[0].name"
-    value = "api-definitions"
+  # Mount API definitions from ConfigMap when using file-based approach
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[0].name"
+      value = "api-definitions"
+    }
   }
 
-  set {
-    name  = "tyk-gateway.gateway.extraVolumes[0].persistentVolumeClaim.claimName"
-    value = kubernetes_persistent_volume_claim.tyk-api-definitions.metadata[0].name
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[0].configMap.name"
+      value = kubernetes_config_map.api-definitions[0].metadata[0].name
+    }
   }
 
-  set {
-    name  = "tyk-gateway.gateway.extraVolumeMounts[0].name"
-    value = "api-definitions"
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[0].name"
+      value = "api-definitions"
+    }
   }
 
-  set {
-    name  = "tyk-gateway.gateway.extraVolumeMounts[0].mountPath"
-    value = "/mnt/tyk-gateway/apps"
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[0].mountPath"
+      value = "/mnt/tyk-gateway/apps"
+    }
+  }
+
+  # Mount policy definitions from ConfigMap when using file-based approach with auth/rate-limit/quota
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[1].name"
+      value = "policy-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[1].configMap.name"
+      value = kubernetes_config_map.policy-definitions[0].metadata[0].name
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[1].name"
+      value = "policy-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[1].mountPath"
+      value = "/mnt/tyk-gateway/policies"
+    }
   }
 
   # Configure gateway to use the shared apps folder
@@ -374,26 +448,38 @@ resource "helm_release" "tyk" {
     value = var.profiler.enabled
   }
 
-  # Configure gateway to use the shared apps folder for API definitions
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[13].name"
-    value = "TYK_GW_APPPATH"
+  # Configure gateway to use file-based API definitions when ConfigMaps are used
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[13].name"
+      value = "TYK_GW_APPPATH"
+    }
   }
 
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[13].value"
-    value = "/mnt/tyk-gateway/apps"
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[13].value"
+      value = "/mnt/tyk-gateway/apps"
+    }
   }
 
-  # Configure gateway to use the shared apps folder for policies
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[14].name"
-    value = "TYK_GW_POLICIES_POLICYPATH"
+  # Configure gateway to use file-based policies when ConfigMaps are used
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[14].name"
+      value = "TYK_GW_POLICIES_POLICYPATH"
+    }
   }
 
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[14].value"
-    value = "/mnt/tyk-gateway/apps/policies"
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[14].value"
+      value = "/mnt/tyk-gateway/policies"
+    }
   }
 
   set {
