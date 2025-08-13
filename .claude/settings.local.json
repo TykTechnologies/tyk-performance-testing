@@ -9,7 +9,8 @@
       "Bash(find:*)",
       "Bash(grep:*)",
       "WebFetch(domain:github.com)",
-      "Bash(docker run:*)"
+      "Bash(docker run:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

@@ -22,52 +22,9 @@ resource "kubernetes_namespace" "tyk" {
   }
 }
 
-# Create a StorageClass for RWX support based on cloud provider
-resource "kubernetes_storage_class" "tyk-rwx" {
-  count = var.enable_shared_storage ? 1 : 0
-  
-  metadata {
-    name = "tyk-rwx-storage"
-  }
-  
-  # GKE: Use Filestore CSI driver
-  storage_provisioner = var.cluster_type == "gke" ? "filestore.csi.storage.gke.io" : (
-    # EKS: Use EFS CSI driver  
-    var.cluster_type == "eks" ? "efs.csi.aws.com" : (
-      # AKS: Use Azure Files
-      var.cluster_type == "aks" ? "file.csi.azure.com" : "standard"
-    )
-  )
-  
-  reclaim_policy = "Delete"
-  volume_binding_mode = "Immediate"
-  
-  parameters = var.cluster_type == "gke" ? {
-    tier = "standard"  # Use "enterprise" for better performance
-    network = "default"
-  } : var.cluster_type == "aks" ? {
-    skuName = "Standard_LRS"
-  } : {}
-}
-
-resource "kubernetes_persistent_volume_claim" "tyk-api-definitions" {
-  count = var.enable_shared_storage ? 1 : 0
-  
-  metadata {
-    name      = "tyk-api-definitions-pvc"
-    namespace = var.namespace
-  }
-  spec {
-    access_modes = ["ReadWriteMany"]
-    resources {
-      requests = {
-        storage = var.cluster_type == "gke" ? "1Ti" : "1Gi"  # GKE Filestore min is 1TB
-      }
-    }
-    storage_class_name = kubernetes_storage_class.tyk-rwx[0].metadata[0].name
-  }
-  depends_on = [kubernetes_namespace.tyk, kubernetes_storage_class.tyk-rwx]
-}
+# Note: Shared storage resources removed - using ConfigMaps instead
+# ConfigMaps provide a simpler, more reliable solution for mounting
+# API definitions to all pods without requiring special storage classes
 
 resource "helm_release" "tyk" {
   name       = "tyk"

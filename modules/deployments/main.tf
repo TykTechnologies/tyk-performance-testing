@@ -86,9 +86,7 @@ module "tyk" {
 
   service = var.service
   
-  # Shared storage configuration
-  enable_shared_storage = var.enable_shared_storage
-  cluster_type         = var.cluster_type
+  # ConfigMap-based API definitions
   use_config_maps_for_apis = var.use_config_maps_for_apis
 
   count = var.tyk.enabled == true ? 1 : 0

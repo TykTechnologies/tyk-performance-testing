@@ -19,17 +19,8 @@ variable "gateway_version" {
   type = string
 }
 
-variable "enable_shared_storage" {
-  type    = bool
-  default = false
-  description = "Enable shared storage for API definitions (requires RWX storage class)"
-}
-
-variable "cluster_type" {
-  type    = string
-  default = ""
-  description = "Cloud provider type: gke, eks, or aks"
-}
+// Removed enable_shared_storage and cluster_type variables
+// No longer needed since we're using ConfigMaps instead of shared storage
 
 variable "use_config_maps_for_apis" {
   type    = bool

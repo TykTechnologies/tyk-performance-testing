@@ -34,11 +34,6 @@ variable "cluster_name" {
   description = "Name of the Kubernetes cluster"
 }
 
-variable "enable_shared_storage" {
-  type        = bool
-  default     = false
-  description = "Enable shared storage for API definitions (requires appropriate CSI driver)"
-}
 
 variable "use_config_maps_for_apis" {
   type        = bool
