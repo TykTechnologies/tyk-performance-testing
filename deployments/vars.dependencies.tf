@@ -20,12 +20,22 @@ variable "cluster_type" {
   type        = string
   default     = ""
   description = "Type of Kubernetes cluster (eks, aks, gke)."
+
+  validation {
+    condition     = contains(["eks", "aks", "gke"], var.cluster_type)
+    error_message = "cluster_type must be one of: eks, aks, gke. Provide it via -var or TF_VAR_cluster_type."
+  }
 }
 
 variable "cluster_name" {
   type        = string
   default     = ""
   description = "Name of the Kubernetes cluster."
+
+  validation {
+    condition     = length(trim(var.cluster_name)) > 0
+    error_message = "cluster_name must be a non-empty string (e.g., 'performance-testing')."
+  }
 }
 
 variable "aws_region" {

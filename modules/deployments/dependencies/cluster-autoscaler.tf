@@ -1,11 +1,21 @@
 variable "cluster_type" {
   type    = string
   default = ""
+
+  validation {
+    condition     = contains(["eks", "aks", "gke"], var.cluster_type)
+    error_message = "cluster_type must be one of: eks, aks, gke."
+  }
 }
 
 variable "cluster_name" {
   type    = string
   default = ""
+
+  validation {
+    condition     = length(trim(var.cluster_name)) > 0
+    error_message = "cluster_name must be a non-empty string."
+  }
 }
 
 variable "aws_region" {

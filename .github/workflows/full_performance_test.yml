@@ -24,6 +24,9 @@ on:
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
+  # Ensure Terraform always has concrete values for these, across plan/apply/destroy/console
+  TF_VAR_cluster_type: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
+  TF_VAR_cluster_name: performance-testing
 
 concurrency:
   group: ${{ inputs.cloud }}
