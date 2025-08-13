@@ -1,0 +1,29 @@
+      - name: Export Tyk Pod Logs
+        if: always()
+        run: |
+          echo "=== Tyk Gateway Pod Logs ==="
+          kubectl logs -n tyk -l app.kubernetes.io/name=tyk-gateway --tail=100 || true
+          
+          echo "=== Tyk Pod Details ==="
+          kubectl describe pods -n tyk -l app.kubernetes.io/name=tyk-gateway || true
+          
+          echo "=== ConfigMap Contents ==="
+          kubectl get configmap -n tyk tyk-api-definitions -o yaml || true
+          
+          echo "=== Check Mounted Files ==="
+          POD=$(kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+          if [ ! -z "$POD" ]; then
+            echo "Checking files in pod $POD:"
+            kubectl exec -n tyk $POD -- ls -la /mnt/tyk-gateway/apps/ 2>/dev/null || true
+            echo "First API definition content:"
+            kubectl exec -n tyk $POD -- cat /mnt/tyk-gateway/apps/api-0.json 2>/dev/null || true
+          fi
+
+      - name: Upload Debug Logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: tyk-debug-logs
+          path: |
+            tyk-logs.txt
+          retention-days: 7

@@ -405,38 +405,27 @@ resource "helm_release" "tyk" {
     value = var.profiler.enabled
   }
 
-  # Configure gateway to use file-based API definitions when ConfigMaps are used
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[13].name"
-      value = "TYK_GW_APPPATH"
-    }
+  # Configure gateway to use file-based API definitions
+  # These should always be set when using ConfigMaps
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[13].name"
+    value = "TYK_GW_APPPATH"
   }
 
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[13].value"
-      value = "/mnt/tyk-gateway/apps"
-    }
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[13].value"
+    value = var.use_config_maps_for_apis ? "/mnt/tyk-gateway/apps" : "/opt/tyk-gateway/apps"
   }
 
-  # Configure gateway to use file-based policies when ConfigMaps are used
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[14].name"
-      value = "TYK_GW_POLICIES_POLICYPATH"
-    }
+  # Configure gateway to use file-based policies
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[14].name"
+    value = "TYK_GW_POLICIES_POLICYPATH"
   }
 
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[14].value"
-      value = "/mnt/tyk-gateway/policies"
-    }
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[14].value"
+    value = var.use_config_maps_for_apis ? "/mnt/tyk-gateway/policies" : "/opt/tyk-gateway/policies"
   }
 
   set {
