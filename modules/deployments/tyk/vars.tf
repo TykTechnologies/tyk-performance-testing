@@ -24,6 +24,6 @@ variable "gateway_version" {
 
 variable "use_config_maps_for_apis" {
   type    = bool
-  default = false
+  default = true
   description = "Use ConfigMaps to mount API definitions directly (instead of Tyk Operator)"
 }

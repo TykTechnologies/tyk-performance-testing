@@ -200,11 +200,87 @@ resource "helm_release" "tyk" {
     value = "3"
   }
 
-  # NOTE: ConfigMap volume mounting is currently disabled due to Helm value complexity
-  # The ConfigMaps are created but not mounted. To use file-based APIs:
-  # 1. Either mount manually after deployment
-  # 2. Or use an init container to copy files
-  # 3. Or revert to using Tyk Operator (set use_config_maps_for_apis=false)
+  # Mount API definitions ConfigMap
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[0].name"
+      value = "api-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[0].configMap.name"
+      value = kubernetes_config_map.api-definitions[0].metadata[0].name
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[0].name"
+      value = "api-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[0].mountPath"
+      value = "/mnt/tyk-gateway/apps"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[0].readOnly"
+      value = "true"
+    }
+  }
+
+  # Mount policy definitions ConfigMap if policies are enabled
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[1].name"
+      value = "policy-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[1].configMap.name"
+      value = kubernetes_config_map.policy-definitions[0].metadata[0].name
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[1].name"
+      value = "policy-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[1].mountPath"
+      value = "/mnt/tyk-gateway/policies"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[1].readOnly"
+      value = "true"
+    }
+  }
 
   # Configure gateway to use the shared apps folder
   set {
