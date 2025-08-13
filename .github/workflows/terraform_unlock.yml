@@ -1,0 +1,162 @@
+name: Force Unlock Terraform Workspace
+
+on:
+  workflow_dispatch:
+    inputs:
+      workspace:
+        description: 'Workspace to unlock (gke-cluster, eks-cluster, or deployment)'
+        required: true
+        type: choice
+        options:
+          - gke-cluster
+          - eks-cluster
+          - deployment
+        default: gke-cluster
+      lock_id:
+        description: 'Lock ID (optional - if provided, will verify before unlocking)'
+        required: false
+        type: string
+
+jobs:
+  unlock:
+    name: Force Unlock Terraform Workspace
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Get Workspace Info
+        id: workspace_info
+        env:
+          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
+        run: |
+          # Get organization and workspace details
+          ORG_NAME="tyk-performance-testing"  # Update if different
+          WORKSPACE_NAME="${{ github.event.inputs.workspace }}"
+          
+          echo "Fetching workspace ID for $ORG_NAME/$WORKSPACE_NAME..."
+          
+          # Get workspace ID
+          WORKSPACE_RESPONSE=$(curl -s \
+            --header "Authorization: Bearer $TF_TOKEN" \
+            --header "Content-Type: application/vnd.api+json" \
+            "https://app.terraform.io/api/v2/organizations/$ORG_NAME/workspaces/$WORKSPACE_NAME")
+          
+          WORKSPACE_ID=$(echo $WORKSPACE_RESPONSE | jq -r '.data.id')
+          
+          if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
+            echo "Error: Could not find workspace $WORKSPACE_NAME"
+            echo "Response: $WORKSPACE_RESPONSE"
+            exit 1
+          fi
+          
+          echo "workspace_id=$WORKSPACE_ID" >> $GITHUB_OUTPUT
+          echo "Found workspace ID: $WORKSPACE_ID"
+          
+          # Check if workspace is locked
+          IS_LOCKED=$(echo $WORKSPACE_RESPONSE | jq -r '.data.attributes.locked')
+          echo "Workspace locked status: $IS_LOCKED"
+          
+          if [ "$IS_LOCKED" == "true" ]; then
+            LOCK_USER=$(echo $WORKSPACE_RESPONSE | jq -r '.data.relationships."locked-by".data.id // "unknown"')
+            echo "Workspace is locked by: $LOCK_USER"
+          else
+            echo "⚠️ Workspace is not currently locked!"
+          fi
+
+      - name: Check Current Runs
+        env:
+          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
+        run: |
+          WORKSPACE_ID="${{ steps.workspace_info.outputs.workspace_id }}"
+          
+          echo "Checking for active runs..."
+          
+          # Get current runs
+          RUNS_RESPONSE=$(curl -s \
+            --header "Authorization: Bearer $TF_TOKEN" \
+            --header "Content-Type: application/vnd.api+json" \
+            "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/runs?filter%5Bstatus%5D=pending,plan_queued,planning,cost_estimating,policy_checking,policy_override,confirmed,apply_queued,applying")
+          
+          ACTIVE_RUNS=$(echo $RUNS_RESPONSE | jq -r '.data | length')
+          
+          if [ "$ACTIVE_RUNS" -gt 0 ]; then
+            echo "⚠️ Found $ACTIVE_RUNS active run(s):"
+            echo $RUNS_RESPONSE | jq -r '.data[] | "- Run ID: \(.id), Status: \(.attributes.status), Created: \(.attributes."created-at")"'
+            
+            echo ""
+            echo "Consider canceling these runs first before force unlocking."
+          else
+            echo "No active runs found."
+          fi
+
+      - name: Force Unlock Workspace
+        env:
+          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
+        run: |
+          WORKSPACE_ID="${{ steps.workspace_info.outputs.workspace_id }}"
+          LOCK_ID="${{ github.event.inputs.lock_id }}"
+          
+          echo "Attempting to force unlock workspace..."
+          
+          # If lock_id is provided, include it in the request
+          if [ -n "$LOCK_ID" ]; then
+            echo "Using provided lock ID: $LOCK_ID"
+            RESPONSE=$(curl -s -w "\n%{http_code}" \
+              --header "Authorization: Bearer $TF_TOKEN" \
+              --header "Content-Type: application/vnd.api+json" \
+              --request DELETE \
+              --data "{\"type\":\"workspaces\",\"attributes\":{\"lock-id\":\"$LOCK_ID\"}}" \
+              "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/actions/force-unlock")
+          else
+            echo "No lock ID provided, forcing unlock without verification"
+            RESPONSE=$(curl -s -w "\n%{http_code}" \
+              --header "Authorization: Bearer $TF_TOKEN" \
+              --header "Content-Type: application/vnd.api+json" \
+              --request DELETE \
+              "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/actions/force-unlock")
+          fi
+          
+          # Extract HTTP status code
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          
+          if [ "$HTTP_CODE" == "204" ] || [ "$HTTP_CODE" == "200" ]; then
+            echo "✅ Successfully unlocked workspace!"
+          elif [ "$HTTP_CODE" == "409" ]; then
+            echo "⚠️ Workspace was not locked or lock ID mismatch"
+            echo "Response: $BODY"
+          else
+            echo "❌ Failed to unlock workspace (HTTP $HTTP_CODE)"
+            echo "Response: $BODY"
+            exit 1
+          fi
+
+      - name: Verify Unlock
+        env:
+          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
+        run: |
+          WORKSPACE_ID="${{ steps.workspace_info.outputs.workspace_id }}"
+          
+          echo "Verifying workspace is unlocked..."
+          sleep 2
+          
+          # Check workspace status again
+          WORKSPACE_RESPONSE=$(curl -s \
+            --header "Authorization: Bearer $TF_TOKEN" \
+            --header "Content-Type: application/vnd.api+json" \
+            "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID")
+          
+          IS_LOCKED=$(echo $WORKSPACE_RESPONSE | jq -r '.data.attributes.locked')
+          
+          if [ "$IS_LOCKED" == "false" ]; then
+            echo "✅ Workspace is now unlocked and ready for use!"
+          else
+            echo "⚠️ Workspace still appears to be locked. You may need to wait or check Terraform Cloud UI."
+          fi
