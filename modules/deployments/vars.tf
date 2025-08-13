@@ -37,7 +37,7 @@ variable "cluster_name" {
 
 variable "use_config_maps_for_apis" {
   type        = bool
-  default     = true
+  default     = false
   description = "Use ConfigMaps to mount API definitions directly (bypasses Tyk Operator)"
 }
 
