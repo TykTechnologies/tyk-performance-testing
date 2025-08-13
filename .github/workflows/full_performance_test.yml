@@ -306,6 +306,8 @@ jobs:
           cd deployments
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
+            --var="cluster_type=${{ env.provider }}" \
+            --var="cluster_name=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --auto-approve
 

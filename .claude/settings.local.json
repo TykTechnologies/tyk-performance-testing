@@ -10,7 +10,13 @@
       "Bash(grep:*)",
       "WebFetch(domain:github.com)",
       "Bash(docker run:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "WebSearch",
+      "WebFetch(domain:developer.hashicorp.com)",
+      "Bash(git log:*)",
+      "mcp__big-brain__ask_big_brain"
     ],
     "deny": []
   }

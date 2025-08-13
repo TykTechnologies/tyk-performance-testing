@@ -1,11 +1,3 @@
-locals {
-  # Extract enabled flags to avoid "count depends on resource attributes" error
-  tyk_enabled      = var.tyk.enabled
-  kong_enabled     = var.kong.enabled
-  gravitee_enabled = var.gravitee.enabled
-  traefik_enabled  = var.traefik.enabled
-  upstream_enabled = var.upstream.enabled
-}
 
 module "dependencies" {
   source = "./dependencies"
@@ -28,7 +20,7 @@ module "tyk-upstream" {
   namespace     = var.labels.tyk-upstream
   service_count = var.service.host_count
 
-  count = local.tyk_enabled ? 1 : 0
+  count = var.tyk.enabled ? 1 : 0
 }
 
 module "kong-upstream" {
@@ -37,7 +29,7 @@ module "kong-upstream" {
   namespace     = var.labels.kong-upstream
   service_count = var.service.host_count
 
-  count = local.kong_enabled ? 1 : 0
+  count = var.kong.enabled ? 1 : 0
 }
 
 module "gravitee-upstream" {
@@ -46,7 +38,7 @@ module "gravitee-upstream" {
   namespace     = var.labels.gravitee-upstream
   service_count = var.service.host_count
 
-  count = local.gravitee_enabled ? 1 : 0
+  count = var.gravitee.enabled ? 1 : 0
 }
 
 module "traefik-upstream" {
@@ -55,7 +47,7 @@ module "traefik-upstream" {
   namespace     = var.labels.traefik-upstream
   service_count = var.service.host_count
 
-  count = local.traefik_enabled ? 1 : 0
+  count = var.traefik.enabled ? 1 : 0
 }
 
 module "upstream" {
@@ -64,7 +56,7 @@ module "upstream" {
   namespace  = var.labels.upstream
   service    = var.service
 
-  count = local.upstream_enabled ? 1 : 0
+  count = var.upstream.enabled ? 1 : 0
 }
 
 module "tyk" {
@@ -98,7 +90,7 @@ module "tyk" {
   # ConfigMap-based API definitions
   use_config_maps_for_apis = var.use_config_maps_for_apis
 
-  count = local.tyk_enabled ? 1 : 0
+  count = var.tyk.enabled ? 1 : 0
   depends_on = [module.dependencies]
 }
 
@@ -125,7 +117,7 @@ module "kong" {
 
   service = var.service
 
-  count = local.kong_enabled ? 1 : 0
+  count = var.kong.enabled ? 1 : 0
   depends_on = [module.dependencies]
 }
 
@@ -153,7 +145,7 @@ module "gravitee" {
 
   service = var.service
 
-  count = local.gravitee_enabled ? 1 : 0
+  count = var.gravitee.enabled ? 1 : 0
   depends_on = [module.dependencies]
 }
 
@@ -180,6 +172,6 @@ module "traefik" {
 
   service = var.service
 
-  count = local.traefik_enabled ? 1 : 0
+  count = var.traefik.enabled ? 1 : 0
   depends_on = [module.dependencies]
 }
