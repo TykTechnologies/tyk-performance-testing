@@ -1,0 +1,150 @@
+name: Force Unlock All Terraform Workspaces
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: 'Cloud provider workspaces to unlock'
+        required: true
+        type: choice
+        options:
+          - gke
+          - eks
+          - aks
+          - all
+        default: all
+
+jobs:
+  unlock_all:
+    name: Force Unlock All Related Workspaces
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Unlock All Workspaces
+        env:
+          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
+        run: |
+          ORG_NAME="tyk-performance-testing"
+          
+          # Define workspaces based on provider selection
+          if [ "${{ github.event.inputs.provider }}" == "all" ]; then
+            WORKSPACES=("gke-cluster" "gke-deployments" "gke-tests" \
+                       "eks-cluster" "eks-deployments" "eks-tests" \
+                       "aks-cluster" "aks-deployments" "aks-tests")
+          else
+            PROVIDER="${{ github.event.inputs.provider }}"
+            WORKSPACES=("${PROVIDER}-cluster" "${PROVIDER}-deployments" "${PROVIDER}-tests")
+          fi
+          
+          echo "Will attempt to unlock the following workspaces:"
+          printf '%s\n' "${WORKSPACES[@]}"
+          echo ""
+          
+          # Function to unlock a workspace
+          unlock_workspace() {
+            local WORKSPACE_NAME=$1
+            echo "========================================="
+            echo "Processing workspace: $WORKSPACE_NAME"
+            echo "========================================="
+            
+            # Get workspace info
+            WORKSPACE_RESPONSE=$(curl -s \
+              --header "Authorization: Bearer $TF_TOKEN" \
+              --header "Content-Type: application/vnd.api+json" \
+              "https://app.terraform.io/api/v2/organizations/$ORG_NAME/workspaces/$WORKSPACE_NAME")
+            
+            WORKSPACE_ID=$(echo $WORKSPACE_RESPONSE | jq -r '.data.id')
+            
+            if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
+              echo "⚠️  Workspace $WORKSPACE_NAME not found, skipping..."
+              return
+            fi
+            
+            IS_LOCKED=$(echo $WORKSPACE_RESPONSE | jq -r '.data.attributes.locked')
+            
+            if [ "$IS_LOCKED" == "false" ]; then
+              echo "✓ Workspace $WORKSPACE_NAME is not locked"
+              return
+            fi
+            
+            echo "🔒 Workspace $WORKSPACE_NAME is locked, attempting to unlock..."
+            
+            # Check for active runs
+            RUNS_RESPONSE=$(curl -s \
+              --header "Authorization: Bearer $TF_TOKEN" \
+              --header "Content-Type: application/vnd.api+json" \
+              "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/runs?filter%5Bstatus%5D=pending,plan_queued,planning,cost_estimating,policy_checking,policy_override,confirmed,apply_queued,applying")
+            
+            ACTIVE_RUNS=$(echo $RUNS_RESPONSE | jq -r '.data | length')
+            
+            if [ "$ACTIVE_RUNS" -gt 0 ]; then
+              echo "  Found $ACTIVE_RUNS active run(s), will cancel them first..."
+              
+              # Cancel active runs
+              echo $RUNS_RESPONSE | jq -r '.data[].id' | while read RUN_ID; do
+                echo "  Canceling run $RUN_ID..."
+                curl -s \
+                  --header "Authorization: Bearer $TF_TOKEN" \
+                  --header "Content-Type: application/vnd.api+json" \
+                  --request POST \
+                  --data '{"comment":"Canceled by unlock-all workflow"}' \
+                  "https://app.terraform.io/api/v2/runs/$RUN_ID/actions/cancel" > /dev/null
+              done
+              
+              # Wait a bit for cancellations to process
+              sleep 3
+            fi
+            
+            # Force unlock
+            RESPONSE=$(curl -s -w "\n%{http_code}" \
+              --header "Authorization: Bearer $TF_TOKEN" \
+              --header "Content-Type: application/vnd.api+json" \
+              --request POST \
+              "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/actions/force-unlock")
+            
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
+            
+            if [ "$HTTP_CODE" == "204" ] || [ "$HTTP_CODE" == "200" ]; then
+              echo "✅ Successfully unlocked $WORKSPACE_NAME"
+            elif [ "$HTTP_CODE" == "409" ]; then
+              echo "✓ Workspace $WORKSPACE_NAME was already unlocked"
+            else
+              echo "❌ Failed to unlock $WORKSPACE_NAME (HTTP $HTTP_CODE)"
+              echo "Response: $(echo "$RESPONSE" | head -n -1)"
+            fi
+          }
+          
+          # Process each workspace
+          for WORKSPACE in "${WORKSPACES[@]}"; do
+            unlock_workspace "$WORKSPACE"
+            echo ""
+          done
+          
+          echo "========================================="
+          echo "Summary"
+          echo "========================================="
+          echo "Attempted to unlock ${#WORKSPACES[@]} workspace(s)"
+          
+          # Final verification
+          echo ""
+          echo "Final status check:"
+          for WORKSPACE in "${WORKSPACES[@]}"; do
+            WORKSPACE_RESPONSE=$(curl -s \
+              --header "Authorization: Bearer $TF_TOKEN" \
+              --header "Content-Type: application/vnd.api+json" \
+              "https://app.terraform.io/api/v2/organizations/$ORG_NAME/workspaces/$WORKSPACE" 2>/dev/null)
+            
+            if [ $? -eq 0 ]; then
+              IS_LOCKED=$(echo $WORKSPACE_RESPONSE | jq -r '.data.attributes.locked' 2>/dev/null)
+              if [ "$IS_LOCKED" == "false" ]; then
+                echo "✅ $WORKSPACE: unlocked"
+              elif [ "$IS_LOCKED" == "true" ]; then
+                echo "🔒 $WORKSPACE: still locked"
+              else
+                echo "⚠️  $WORKSPACE: not found"
+              fi
+            fi
+          done

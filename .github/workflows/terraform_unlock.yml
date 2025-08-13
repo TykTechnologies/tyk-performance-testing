@@ -4,13 +4,19 @@ on:
   workflow_dispatch:
     inputs:
       workspace:
-        description: 'Workspace to unlock (gke-cluster, eks-cluster, or deployment)'
+        description: 'Workspace to unlock'
         required: true
         type: choice
         options:
           - gke-cluster
           - eks-cluster
-          - deployment
+          - aks-cluster
+          - gke-deployments
+          - eks-deployments
+          - aks-deployments
+          - gke-tests
+          - eks-tests
+          - aks-tests
         default: gke-cluster
       lock_id:
         description: 'Lock ID (optional - if provided, will verify before unlocking)'
