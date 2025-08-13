@@ -213,7 +213,7 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraVolumes[0].configMap.name"
-      value = kubernetes_config_map.api-definitions[0].metadata[0].name
+      value = "tyk-api-definitions"  # Use literal name instead of reference
     }
   }
 
@@ -254,7 +254,7 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraVolumes[1].configMap.name"
-      value = kubernetes_config_map.policy-definitions[0].metadata[0].name
+      value = "tyk-policy-definitions"  # Use literal name instead of reference
     }
   }
 

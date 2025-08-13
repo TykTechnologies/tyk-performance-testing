@@ -155,7 +155,16 @@ jobs:
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
-            -out=tfplan 2>&1 | tail -100
+            -out=tfplan 2>&1 | tee plan.log
+          
+          echo "=== Checking if ConfigMaps will be created ==="
+          grep -E "kubernetes_config_map|helm_release.tyk|will be created" plan.log | head -50 || true
+          
+          echo "=== Checking use_config_maps_for_apis variable ==="
+          terraform console -var="kubernetes_config_context=performance-testing" \
+            -var="tyk_version=${{ inputs.tyk_version }}" \
+            -var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            -var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" <<< "module.tyk[0].var.use_config_maps_for_apis" 2>&1 || true
           
           # Start background process to monitor pod status
           (while true; do 
