@@ -39,7 +39,7 @@ variable "cluster_name" {
   description = "Name of the Kubernetes cluster"
 
   validation {
-    condition     = length(trim(var.cluster_name)) > 0
+    condition     = length(trimspace(var.cluster_name)) > 0
     error_message = "cluster_name must be a non-empty string (e.g., 'performance-testing')."
   }
 }

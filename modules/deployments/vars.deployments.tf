@@ -41,6 +41,32 @@ variable "traefik" {
   })
 }
 
+# NEW: plain booleans solely for count meta-arguments (decoupled from the objects above)
+variable "enable_tyk" {
+  type        = bool
+  description = "Enable Tyk gateway and its related upstream resources."
+}
+
+variable "enable_kong" {
+  type        = bool
+  description = "Enable Kong gateway and its related upstream resources."
+}
+
+variable "enable_gravitee" {
+  type        = bool
+  description = "Enable Gravitee gateway and its related upstream resources."
+}
+
+variable "enable_traefik" {
+  type        = bool
+  description = "Enable Traefik gateway and its related upstream resources."
+}
+
+variable "enable_upstream" {
+  type        = bool
+  description = "Enable shared upstream (Fortio) baseline services."
+}
+
 variable "hpa" {
   type = object({
     enabled                 = bool

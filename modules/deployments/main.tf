@@ -20,7 +20,7 @@ module "tyk-upstream" {
   namespace     = var.labels.tyk-upstream
   service_count = var.service.host_count
 
-  count = var.tyk.enabled ? 1 : 0
+  count = var.enable_tyk ? 1 : 0
 }
 
 module "kong-upstream" {
@@ -29,7 +29,7 @@ module "kong-upstream" {
   namespace     = var.labels.kong-upstream
   service_count = var.service.host_count
 
-  count = var.kong.enabled ? 1 : 0
+  count = var.enable_kong ? 1 : 0
 }
 
 module "gravitee-upstream" {
@@ -38,7 +38,7 @@ module "gravitee-upstream" {
   namespace     = var.labels.gravitee-upstream
   service_count = var.service.host_count
 
-  count = var.gravitee.enabled ? 1 : 0
+  count = var.enable_gravitee ? 1 : 0
 }
 
 module "traefik-upstream" {
@@ -47,7 +47,7 @@ module "traefik-upstream" {
   namespace     = var.labels.traefik-upstream
   service_count = var.service.host_count
 
-  count = var.traefik.enabled ? 1 : 0
+  count = var.enable_traefik ? 1 : 0
 }
 
 module "upstream" {
@@ -56,7 +56,7 @@ module "upstream" {
   namespace  = var.labels.upstream
   service    = var.service
 
-  count = var.upstream.enabled ? 1 : 0
+  count = var.enable_upstream ? 1 : 0
 }
 
 module "tyk" {
@@ -90,7 +90,7 @@ module "tyk" {
   # ConfigMap-based API definitions
   use_config_maps_for_apis = var.use_config_maps_for_apis
 
-  count = var.tyk.enabled ? 1 : 0
+  count = var.enable_tyk ? 1 : 0
   depends_on = [module.dependencies]
 }
 
@@ -117,7 +117,7 @@ module "kong" {
 
   service = var.service
 
-  count = var.kong.enabled ? 1 : 0
+  count = var.enable_kong ? 1 : 0
   depends_on = [module.dependencies]
 }
 
@@ -145,7 +145,7 @@ module "gravitee" {
 
   service = var.service
 
-  count = var.gravitee.enabled ? 1 : 0
+  count = var.enable_gravitee ? 1 : 0
   depends_on = [module.dependencies]
 }
 
@@ -172,6 +172,6 @@ module "traefik" {
 
   service = var.service
 
-  count = var.traefik.enabled ? 1 : 0
+  count = var.enable_traefik ? 1 : 0
   depends_on = [module.dependencies]
 }

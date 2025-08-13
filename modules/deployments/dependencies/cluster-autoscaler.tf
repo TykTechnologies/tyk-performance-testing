@@ -13,7 +13,7 @@ variable "cluster_name" {
   default = ""
 
   validation {
-    condition     = length(trim(var.cluster_name)) > 0
+    condition     = length(trimspace(var.cluster_name)) > 0
     error_message = "cluster_name must be a non-empty string."
   }
 }
