@@ -31,7 +31,7 @@ resource "kubernetes_storage_class" "tyk-rwx" {
   }
   
   # GKE: Use Filestore CSI driver
-  provisioner = var.cluster_type == "gke" ? "filestore.csi.storage.gke.io" : (
+  storage_provisioner = var.cluster_type == "gke" ? "filestore.csi.storage.gke.io" : (
     # EKS: Use EFS CSI driver  
     var.cluster_type == "eks" ? "efs.csi.aws.com" : (
       # AKS: Use Azure Files
