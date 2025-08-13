@@ -9,5 +9,26 @@ module "h" {
 }
 
 locals {
-  labels = var.node_labels == null ? module.h.labels : var.node_labels
+  # Use static labels to avoid computed dependency issues
+  labels = var.node_labels == null ? {
+    dependencies       = "dependencies"
+    tyk                = "tyk"
+    tyk-upstream       = "tyk-upstream"
+    tyk-tests          = "tyk-tests"
+    tyk-resources      = "tyk-resources"
+    kong               = "kong"
+    kong-upstream      = "kong-upstream"
+    kong-tests         = "kong-tests"
+    kong-resources     = "kong-resources"
+    gravitee           = "gravitee"
+    gravitee-upstream  = "gravitee-upstream"
+    gravitee-tests     = "gravitee-tests"
+    gravitee-resources = "gravitee-resources"
+    traefik            = "traefik"
+    traefik-upstream   = "traefik-upstream"
+    traefik-tests      = "traefik-tests"
+    traefik-resources  = "traefik-resources"
+    upstream           = "upstream"
+    upstream-tests     = "upstream-tests"
+  } : var.node_labels
 }
