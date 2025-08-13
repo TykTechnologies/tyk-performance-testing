@@ -85,7 +85,7 @@ jobs:
         if: ${{ inputs.cloud == 'Azure' }}
         run: |
           cd aks
-          terraform init
+          terraform init -upgrade
           terraform apply \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
@@ -106,7 +106,7 @@ jobs:
         if: ${{ inputs.cloud == 'AWS' }}
         run: |
           cd eks
-          terraform init
+          terraform init -upgrade
           terraform apply \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
@@ -125,7 +125,7 @@ jobs:
         if: ${{ inputs.cloud == 'GCP' }}
         run: |
           cd gke
-          terraform init
+          terraform init -upgrade
           terraform apply \
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
@@ -146,7 +146,7 @@ jobs:
       - name: Deploy testing resources
         run: |
           cd deployments
-          terraform init
+          terraform init -upgrade
           
           # Show terraform plan for debugging
           echo "=== Terraform Plan Output ==="
@@ -238,7 +238,7 @@ jobs:
       - name: Run Tests
         run: |
           cd tests
-          terraform init
+          terraform init -upgrade
           terraform apply \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
@@ -291,7 +291,7 @@ jobs:
         if: always()
         run: |
           cd tests
-          terraform init
+          terraform init -upgrade
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
@@ -309,7 +309,7 @@ jobs:
         if: always() && inputs.cloud == 'Azure'
         run: |
           cd aks
-          terraform init
+          terraform init -upgrade
           terraform destroy \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
@@ -321,7 +321,7 @@ jobs:
         if: always() && inputs.cloud == 'AWS'
         run: |
           cd eks
-          terraform init
+          terraform init -upgrade
           terraform destroy \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
@@ -333,7 +333,7 @@ jobs:
         if: always() && inputs.cloud == 'GCP'
         run: |
           cd gke
-          terraform init
+          terraform init -upgrade
           terraform destroy \
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
