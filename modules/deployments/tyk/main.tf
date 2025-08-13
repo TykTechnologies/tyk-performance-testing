@@ -474,5 +474,11 @@ resource "helm_release" "tyk" {
     value = var.resources-label
   }
 
-  depends_on = [kubernetes_namespace.tyk, helm_release.tyk-redis, helm_release.tyk-pgsql]
+  depends_on = [
+    kubernetes_namespace.tyk, 
+    helm_release.tyk-redis, 
+    helm_release.tyk-pgsql,
+    kubernetes_config_map.api-definitions,
+    kubernetes_config_map.policy-definitions
+  ]
 }

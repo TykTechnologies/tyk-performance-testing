@@ -148,6 +148,15 @@ jobs:
           cd deployments
           terraform init
           
+          # Show terraform plan for debugging
+          echo "=== Terraform Plan Output ==="
+          terraform plan \
+            --var="kubernetes_config_context=performance-testing" \
+            --var="tyk_version=${{ inputs.tyk_version }}" \
+            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
+            -out=tfplan 2>&1 | tail -100
+          
           # Start background process to monitor pod status
           (while true; do 
             echo "=== Pod Status at $(date) ==="
@@ -156,14 +165,37 @@ jobs:
           done) &
           MONITOR_PID=$!
           
-          terraform apply \
-            --var="kubernetes_config_context=performance-testing" \
-            --var="tyk_version=${{ inputs.tyk_version }}" \
-            --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
-            --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
-            --auto-approve || (kill $MONITOR_PID; exit 1)
+          # Apply with detailed logging
+          echo "=== Starting Terraform Apply ==="
+          terraform apply tfplan 2>&1 | tee terraform-apply.log || (
+            echo "=== Terraform Apply Failed ==="
+            echo "=== Last 200 lines of terraform apply log ==="
+            tail -200 terraform-apply.log
+            echo "=== Checking Terraform State ==="
+            terraform state list || true
+            echo "=== Checking Tyk Module State ==="
+            terraform state show module.tyk[0].helm_release.tyk 2>&1 || true
+            echo "=== Checking ConfigMaps ==="
+            kubectl get configmaps -n tyk || true
+            echo "=== Checking Helm Releases ==="
+            helm list -n tyk || true
+            echo "=== Checking Events in Tyk Namespace ==="
+            kubectl get events -n tyk --sort-by='.lastTimestamp' | tail -50 || true
+            kill $MONITOR_PID
+            exit 1
+          )
           
           kill $MONITOR_PID
+          
+          # Post-deployment validation
+          echo "=== Post-Deployment Validation ==="
+          echo "=== Terraform State List ==="
+          terraform state list | grep -E "(tyk|config_map)" || true
+          echo "=== Helm Releases in Tyk Namespace ==="
+          helm list -n tyk || true
+          echo "=== All Resources in Tyk Namespace ==="
+          kubectl get all -n tyk || true
+          
           sleep 300
 
       - name: Debug Tyk Setup
