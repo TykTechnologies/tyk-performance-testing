@@ -45,26 +45,31 @@ variable "traefik" {
 variable "enable_tyk" {
   type        = bool
   description = "Enable Tyk gateway and its related upstream resources."
+  default     = false
 }
 
 variable "enable_kong" {
   type        = bool
   description = "Enable Kong gateway and its related upstream resources."
+  default     = false
 }
 
 variable "enable_gravitee" {
   type        = bool
   description = "Enable Gravitee gateway and its related upstream resources."
+  default     = false
 }
 
 variable "enable_traefik" {
   type        = bool
   description = "Enable Traefik gateway and its related upstream resources."
+  default     = false
 }
 
 variable "enable_upstream" {
   type        = bool
   description = "Enable shared upstream (Fortio) baseline services."
+  default     = false
 }
 
 variable "hpa" {

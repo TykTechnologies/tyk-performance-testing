@@ -16,8 +16,8 @@ module "dependencies" {
 
 module "tyk-upstream" {
   source        = "./dependencies/upstream"
-  label         = var.labels.tyk-upstream
-  namespace     = var.labels.tyk-upstream
+  label         = var.labels["tyk-upstream"]
+  namespace     = var.labels["tyk-upstream"]
   service_count = var.service.host_count
 
   count = var.enable_tyk ? 1 : 0
@@ -25,8 +25,8 @@ module "tyk-upstream" {
 
 module "kong-upstream" {
   source        = "./dependencies/upstream"
-  label         = var.labels.kong-upstream
-  namespace     = var.labels.kong-upstream
+  label         = var.labels["kong-upstream"]
+  namespace     = var.labels["kong-upstream"]
   service_count = var.service.host_count
 
   count = var.enable_kong ? 1 : 0
@@ -34,8 +34,8 @@ module "kong-upstream" {
 
 module "gravitee-upstream" {
   source        = "./dependencies/upstream"
-  label         = var.labels.gravitee-upstream
-  namespace     = var.labels.gravitee-upstream
+  label         = var.labels["gravitee-upstream"]
+  namespace     = var.labels["gravitee-upstream"]
   service_count = var.service.host_count
 
   count = var.enable_gravitee ? 1 : 0
@@ -43,8 +43,8 @@ module "gravitee-upstream" {
 
 module "traefik-upstream" {
   source        = "./dependencies/upstream"
-  label         = var.labels.traefik-upstream
-  namespace     = var.labels.traefik-upstream
+  label         = var.labels["traefik-upstream"]
+  namespace     = var.labels["traefik-upstream"]
   service_count = var.service.host_count
 
   count = var.enable_traefik ? 1 : 0
@@ -63,7 +63,7 @@ module "tyk" {
   source = "./tyk"
 
   label           = var.labels.tyk
-  resources-label = var.labels.tyk-resources
+  resources-label = var.labels["tyk-resources"]
 
   gateway_version = var.tyk.version
   license         = var.tyk.license
@@ -97,7 +97,7 @@ module "tyk" {
 module "kong" {
   source          = "./kong"
   label           = var.labels.kong
-  resources-label = var.labels.kong-resources
+  resources-label = var.labels["kong-resources"]
 
   gateway_version = var.kong.version
 
@@ -124,7 +124,7 @@ module "kong" {
 module "gravitee" {
   source          = "./gravitee"
   label           = var.labels.gravitee
-  resources-label = var.labels.gravitee-resources
+  resources-label = var.labels["gravitee-resources"]
 
   gateway_version = var.gravitee.version
   nginx_enabled   = var.gravitee.nginx_enabled
@@ -152,7 +152,7 @@ module "gravitee" {
 module "traefik" {
   source          = "./traefik"
   label           = var.labels.traefik
-  resources-label = var.labels.traefik-resources
+  resources-label = var.labels["traefik-resources"]
 
   gateway_version = var.traefik.version
 
