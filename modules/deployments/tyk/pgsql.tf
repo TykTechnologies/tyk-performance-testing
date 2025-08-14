@@ -49,12 +49,12 @@ resource "helm_release" "tyk-pgsql" {
 
   set {
     name  = "primary.nodeSelector.node"
-    value = var.resources-label
+    value = var.resources_label
   }
 
   set {
     name  = "readReplicas.nodeSelector.node"
-    value = var.resources-label
+    value = var.resources_label
   }
 
   depends_on = [kubernetes_namespace.tyk, kubernetes_namespace.tyk]

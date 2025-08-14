@@ -27,7 +27,7 @@ resource "helm_release" "tyk-redis" {
 
   set {
     name  = "redis.nodeSelector.node"
-    value = var.resources-label
+    value = var.resources_label
   }
 
   set {

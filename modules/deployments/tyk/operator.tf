@@ -10,7 +10,7 @@ resource "helm_release" "tyk-operator" {
 
   set {
     name  = "nodeSelector.node"
-    value = var.resources-label
+    value = var.resources_label
   }
 
   depends_on = [kubernetes_namespace.tyk, helm_release.tyk]
