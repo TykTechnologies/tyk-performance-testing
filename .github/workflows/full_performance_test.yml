@@ -46,7 +46,7 @@ env:
   # Make Terraform strictly non-interactive and give use_config_maps_for_apis a safe default
   TF_INPUT: 'false'
   TF_IN_AUTOMATION: 'true'
-  TF_VAR_use_config_maps_for_apis: 'false'
+  TF_VAR_use_config_maps_for_apis: 'true'
 
 concurrency:
   group: ${{ inputs.cloud }}
