@@ -452,14 +452,14 @@ resource "helm_release" "tyk" {
   dynamic "set" {
     for_each = var.cluster_type == "gke" ? [1] : []
     content {
-      name  = "tyk-gateway.gateway.nodeSelector.\"cloud.google.com/gke-nodepool\""
+      name  = "tyk-gateway.gateway.nodeSelector.cloud\\.google\\.com/gke-nodepool"
       value = var.label
     }
   }
   dynamic "set" {
     for_each = var.cluster_type == "gke" ? [1] : []
     content {
-      name  = "tyk-dashboard.dashboard.nodeSelector.\"cloud.google.com/gke-nodepool\""
+      name  = "tyk-dashboard.dashboard.nodeSelector.cloud\\.google\\.com/gke-nodepool"
       value = var.resources_label
     }
   }
@@ -531,7 +531,7 @@ resource "helm_release" "tyk" {
   dynamic "set" {
     for_each = var.cluster_type == "gke" ? [1] : []
     content {
-      name  = "tyk-pump.pump.nodeSelector.\"cloud.google.com/gke-nodepool\""
+      name  = "tyk-pump.pump.nodeSelector.cloud\\.google\\.com/gke-nodepool"
       value = var.resources_label
     }
   }
