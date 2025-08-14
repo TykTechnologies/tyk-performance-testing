@@ -42,6 +42,7 @@ env:
   TF_VAR_enable_kong: ${{ inputs.gateway == 'Kong' && 'true' || 'false' }}
   TF_VAR_enable_gravitee: ${{ inputs.gateway == 'Gravitee' && 'true' || 'false' }}
   TF_VAR_enable_traefik: ${{ inputs.gateway == 'Traefik' && 'true' || 'false' }}
+  TF_VAR_enable_upstream: 'true'
 
 concurrency:
   group: ${{ inputs.cloud }}
@@ -198,6 +199,7 @@ jobs:
           terraform console <<< 'module.deployments.var.enable_kong' 2>&1 || true
           terraform console <<< 'module.deployments.var.enable_gravitee' 2>&1 || true
           terraform console <<< 'module.deployments.var.enable_traefik' 2>&1 || true
+          terraform console <<< 'module.deployments.var.enable_upstream' 2>&1 || true
           
           # Start background process to monitor pod status
           (while true; do 

@@ -71,7 +71,7 @@ module "deployments" {
   enable_kong     = var.enable_kong
   enable_gravitee = var.enable_gravitee
   enable_traefik  = var.enable_traefik
-  enable_upstream = var.upstream_enabled
+  enable_upstream = var.enable_upstream
 
   tyk = {
     enabled         = var.tyk_enabled
