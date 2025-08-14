@@ -43,6 +43,10 @@ env:
   TF_VAR_enable_gravitee: ${{ inputs.gateway == 'Gravitee' && 'true' || 'false' }}
   TF_VAR_enable_traefik: ${{ inputs.gateway == 'Traefik' && 'true' || 'false' }}
   TF_VAR_enable_upstream: 'true'
+  # Make Terraform strictly non-interactive and give use_config_maps_for_apis a safe default
+  TF_INPUT: 'false'
+  TF_IN_AUTOMATION: 'true'
+  TF_VAR_use_config_maps_for_apis: 'false'
 
 concurrency:
   group: ${{ inputs.cloud }}
@@ -182,9 +186,9 @@ jobs:
           cd deployments
           terraform init -upgrade
           
-          # Show terraform plan for debugging
+          # Show terraform plan for debugging (non-interactive)
           echo "=== Terraform Plan Output ==="
-          terraform plan \
+          terraform plan -input=false \
             --var="kubernetes_config_context=performance-testing" \
             --var="cluster_type=${{ env.provider }}" \
             --var="cluster_name=performance-testing" \
@@ -196,25 +200,17 @@ jobs:
           echo "=== Checking if ConfigMaps will be created ==="
           grep -E "kubernetes_config_map|helm_release.tyk|will be created" plan.log | head -50 || true
           
-          echo "=== Checking use_config_maps_for_apis variable ==="
-          terraform console -var="kubernetes_config_context=performance-testing" \
-            -var="cluster_type=${{ env.provider }}" \
-            -var="cluster_name=performance-testing" \
-            -var="tyk_version=${{ inputs.tyk_version }}" \
-            -var="tyk_license=${{ secrets.DASH_LICENSE }}" \
-            -var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" <<< "module.deployments.var.use_config_maps_for_apis" 2>&1 || true
-          
-          echo "=== Checking gateway enable_* toggles (must be concrete true/false) ==="
-          terraform console -var="kubernetes_config_context=performance-testing" \
-            -var="cluster_type=${{ env.provider }}" \
-            -var="cluster_name=performance-testing" \
-            -var="tyk_version=${{ inputs.tyk_version }}" \
-            -var="tyk_license=${{ secrets.DASH_LICENSE }}" \
-            -var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" <<< 'module.deployments.var.enable_tyk' 2>&1 || true
-          terraform console <<< 'module.deployments.var.enable_kong' 2>&1 || true
-          terraform console <<< 'module.deployments.var.enable_gravitee' 2>&1 || true
-          terraform console <<< 'module.deployments.var.enable_traefik' 2>&1 || true
-          terraform console <<< 'module.deployments.var.enable_upstream' 2>&1 || true
+          # Avoid terraform console in CI (interactive). Echo the values we pass at plan time instead.
+          echo "=== Debug: variable snapshot (CI env -> Terraform) ==="
+          echo "TF_VAR_enable_tyk=${TF_VAR_enable_tyk}"
+          echo "TF_VAR_enable_kong=${TF_VAR_enable_kong}"
+          echo "TF_VAR_enable_gravitee=${TF_VAR_enable_gravitee}"
+          echo "TF_VAR_enable_traefik=${TF_VAR_enable_traefik}"
+          echo "TF_VAR_enable_upstream=${TF_VAR_enable_upstream}"
+          echo "TF_VAR_use_config_maps_for_apis=${TF_VAR_use_config_maps_for_apis}"
+
+          # If you need to inspect values inside the child module, prefer adding outputs and using `terraform output` after apply.
+          # Example (post-apply): terraform output -json | jq '.deployments_use_config_maps_for_apis'
           
           # Start background process to monitor pod status
           (while true; do 

@@ -33,3 +33,10 @@ variable "enable_upstream" {
   description = "Enable shared upstream (Fortio) baseline services (propagated to modules/deployments). Prefer passing this from the existing upstream_enabled variable."
   nullable    = false
 }
+
+variable "use_config_maps_for_apis" {
+  type        = bool
+  default     = false
+  nullable    = false
+  description = "Use ConfigMaps for API definitions (plumbed to module.deployments -> module.tyk). Having a default prevents CI prompts."
+}
