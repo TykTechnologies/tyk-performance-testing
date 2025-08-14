@@ -110,6 +110,11 @@ jobs:
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
+            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
+            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
+            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
+            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
+            --var="upstream_enabled=true" \
             --auto-approve
 
       - name: Connect to AKS cluster
@@ -131,6 +136,11 @@ jobs:
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
+            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
+            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
+            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
+            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
+            --var="upstream_enabled=true" \
             --auto-approve
 
       - name: Connect to EKS cluster
@@ -151,6 +161,11 @@ jobs:
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
+            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
+            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
+            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
+            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
+            --var="upstream_enabled=true" \
             --auto-approve
 
       - name: Connect to GKE cluster
