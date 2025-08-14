@@ -203,7 +203,7 @@ resource "helm_release" "tyk" {
     value = "3"
   }
 
-  # Mount API definitions ConfigMap
+  # Mount API definitions ConfigMap - try a simpler approach with indexed notation
   dynamic "set" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
@@ -216,7 +216,7 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraVolumes[0].configMap.name"
-      value = "tyk-api-definitions"  # Use literal name instead of reference
+      value = "tyk-api-definitions"
     }
   }
 
@@ -240,7 +240,8 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraVolumeMounts[0].readOnly"
-      value = "true"
+      value = true
+      type  = "auto"
     }
   }
 
@@ -281,7 +282,8 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraVolumeMounts[1].readOnly"
-      value = "true"
+      value = true
+      type  = "auto"
     }
   }
 
