@@ -522,6 +522,64 @@ resource "helm_release" "tyk" {
     }
   }
 
+  # AKS prefer mode - try agentpool first, fallback to any node
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
+      value = "100"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
+      value = "agentpool"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
+      value = "In"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
+      value = var.label
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
+      value = "100"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
+      value = "agentpool"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
+      value = "In"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
+      value = var.resources_label
+    }
+  }
+
   # AKS: agentpool (stable) / kubernetes.azure.com/nodepool (also exists)
   dynamic "set" {
     for_each = var.cluster_type == "aks" && var.node_selector_strategy == "strict" ? [1] : []
@@ -534,6 +592,64 @@ resource "helm_release" "tyk" {
     for_each = var.cluster_type == "aks" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-dashboard.dashboard.nodeSelector.agentpool"
+      value = var.resources_label
+    }
+  }
+
+  # EKS prefer mode - try nodegroup first, fallback to any node
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
+      value = "100"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
+      value = "eks.amazonaws.com/nodegroup"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
+      value = "In"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
+      value = var.label
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
+      value = "100"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
+      value = "eks.amazonaws.com/nodegroup"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
+      value = "In"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
       value = var.resources_label
     }
   }
@@ -639,6 +755,66 @@ resource "helm_release" "tyk" {
   }
   dynamic "set" {
     for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
+      value = var.resources_label
+    }
+  }
+
+  # AKS prefer mode for pump - try agentpool first, fallback to any node
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
+      value = "100"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
+      value = "agentpool"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
+      value = "In"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
+      value = var.resources_label
+    }
+  }
+
+  # EKS prefer mode for pump - try nodegroup first, fallback to any node
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
+      value = "100"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
+      value = "eks.amazonaws.com/nodegroup"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
+      value = "In"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
     content {
       name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
       value = var.resources_label
