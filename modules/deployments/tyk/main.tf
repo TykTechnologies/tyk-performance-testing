@@ -464,6 +464,64 @@ resource "helm_release" "tyk" {
     }
   }
 
+  # Optional fallback: prefer the target GKE nodepool, but allow scheduling elsewhere
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
+      value = "100"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
+      value = "cloud.google.com/gke-nodepool"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
+      value = "In"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
+      value = var.label
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
+      value = "100"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
+      value = "cloud.google.com/gke-nodepool"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
+      value = "In"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
+      value = var.resources_label
+    }
+  }
+
   # AKS: agentpool (stable) / kubernetes.azure.com/nodepool (also exists)
   dynamic "set" {
     for_each = var.cluster_type == "aks" && var.node_selector_strategy == "strict" ? [1] : []
@@ -554,6 +612,122 @@ resource "helm_release" "tyk" {
     content {
       name  = "tyk-pump.pump.nodeSelector.node"
       value = var.resources_label
+    }
+  }
+
+  # Prefer pump on the same GKE nodepool in 'prefer' mode  
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
+      value = "100"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
+      value = "cloud.google.com/gke-nodepool"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
+      value = "In"
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
+    content {
+      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
+      value = var.resources_label
+    }
+  }
+
+  # Optional tolerations to match tainted nodes (enable with var.enable_tolerations)
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.tolerations[0].key"
+      value = var.node_taint_key
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.tolerations[0].operator"
+      value = var.node_taint_operator
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.tolerations[0].value"
+      value = var.node_taint_value
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.tolerations[0].effect"
+      value = var.node_taint_effect
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.tolerations[0].key"
+      value = var.node_taint_key
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.tolerations[0].operator"
+      value = var.node_taint_operator
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.tolerations[0].value"
+      value = var.node_taint_value
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.tolerations[0].effect"
+      value = var.node_taint_effect
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-pump.pump.tolerations[0].key"
+      value = var.node_taint_key
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-pump.pump.tolerations[0].operator"
+      value = var.node_taint_operator
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-pump.pump.tolerations[0].value"
+      value = var.node_taint_value
+    }
+  }
+  dynamic "set" {
+    for_each = var.enable_tolerations ? [1] : []
+    content {
+      name  = "tyk-pump.pump.tolerations[0].effect"
+      value = var.node_taint_effect
     }
   }
 

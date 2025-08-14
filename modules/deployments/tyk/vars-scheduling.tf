@@ -1,7 +1,7 @@
 variable "node_selector_strategy" {
   description = "How to place pods on nodepools: 'strict' uses hard nodeSelector, 'prefer' uses soft nodeAffinity, 'none' disables node selection"
   type        = string
-  default     = "none"
+  default     = "prefer"
   validation {
     condition     = contains(["strict", "prefer", "none"], var.node_selector_strategy)
     error_message = "node_selector_strategy must be 'strict', 'prefer', or 'none'."
