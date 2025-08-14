@@ -21,12 +21,27 @@ on:
         required: true
         type: boolean
         default: false
+      gateway:
+        description: 'Gateway to deploy'
+        required: true
+        type: choice
+        default: Tyk
+        options:
+          - Tyk
+          - Kong
+          - Gravitee
+          - Traefik
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
   # Ensure Terraform always has concrete values for these, across plan/apply/destroy/console
   TF_VAR_cluster_type: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
   TF_VAR_cluster_name: performance-testing
+  # Make the gateway toggles explicit and known at plan time
+  TF_VAR_enable_tyk: ${{ inputs.gateway == 'Tyk' && 'true' || 'false' }}
+  TF_VAR_enable_kong: ${{ inputs.gateway == 'Kong' && 'true' || 'false' }}
+  TF_VAR_enable_gravitee: ${{ inputs.gateway == 'Gravitee' && 'true' || 'false' }}
+  TF_VAR_enable_traefik: ${{ inputs.gateway == 'Traefik' && 'true' || 'false' }}
 
 concurrency:
   group: ${{ inputs.cloud }}
@@ -172,6 +187,17 @@ jobs:
             -var="tyk_version=${{ inputs.tyk_version }}" \
             -var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             -var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" <<< "module.deployments.var.use_config_maps_for_apis" 2>&1 || true
+          
+          echo "=== Checking gateway enable_* toggles (must be concrete true/false) ==="
+          terraform console -var="kubernetes_config_context=performance-testing" \
+            -var="cluster_type=${{ env.provider }}" \
+            -var="cluster_name=performance-testing" \
+            -var="tyk_version=${{ inputs.tyk_version }}" \
+            -var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            -var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" <<< 'module.deployments.var.enable_tyk' 2>&1 || true
+          terraform console <<< 'module.deployments.var.enable_kong' 2>&1 || true
+          terraform console <<< 'module.deployments.var.enable_gravitee' 2>&1 || true
+          terraform console <<< 'module.deployments.var.enable_traefik' 2>&1 || true
           
           # Start background process to monitor pod status
           (while true; do 

@@ -66,11 +66,11 @@ module "deployments" {
     }
   }
 
-  # New explicit booleans that drive module counts
-  enable_tyk      = var.tyk_enabled
-  enable_kong     = var.kong_enabled
-  enable_gravitee = var.gravitee_enabled
-  enable_traefik  = var.traefik_enabled
+  # NEW (safe): simple, explicit booleans known at plan time
+  enable_tyk      = var.enable_tyk
+  enable_kong     = var.enable_kong
+  enable_gravitee = var.enable_gravitee
+  enable_traefik  = var.enable_traefik
   enable_upstream = var.upstream_enabled
 
   tyk = {

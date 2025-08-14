@@ -16,7 +16,8 @@
       "WebSearch",
       "WebFetch(domain:developer.hashicorp.com)",
       "Bash(git log:*)",
-      "mcp__big-brain__ask_big_brain"
+      "mcp__big-brain__ask_big_brain",
+      "Bash(terraform plan:*)"
     ],
     "deny": []
   }
