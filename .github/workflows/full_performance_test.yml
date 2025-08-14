@@ -250,8 +250,26 @@ jobs:
           helm list -n tyk || true
           echo "=== All Resources in Tyk Namespace ==="
           kubectl get all -n tyk || true
-          
-          sleep 300
+
+          echo "=== Waiting for Tyk Gateway rollout ==="
+          GATEWAY_RES=$(kubectl -n tyk get deploy,ds -l app.kubernetes.io/name=tyk-gateway -o jsonpath='{range .items[0]}{.kind}{" "}{.metadata.name}{end}' 2>/dev/null || true)
+          if [ -z "$GATEWAY_RES" ]; then
+            echo "No Deployment or DaemonSet found for tyk-gateway. Listing resources in tyk namespace:"
+            kubectl -n tyk get all
+          else
+            KIND=$(echo "$GATEWAY_RES" | awk '{print $1}')
+            NAME=$(echo "$GATEWAY_RES" | awk '{print $2}')
+            echo "Found $KIND/$NAME; waiting for rollout..."
+            if [ "$KIND" = "DaemonSet" ]; then
+              kubectl -n tyk rollout status daemonset/$NAME --timeout=15m || true
+              kubectl -n tyk describe daemonset $NAME || true
+            else
+              kubectl -n tyk rollout status deployment/$NAME --timeout=15m || true
+              kubectl -n tyk describe deployment $NAME || true
+            fi
+            echo "=== Gateway pods ==="
+            kubectl -n tyk get pods -l app.kubernetes.io/name=tyk-gateway -o wide || true
+          fi
 
       - name: Debug Tyk Setup
         if: always()
@@ -262,8 +280,12 @@ jobs:
           echo "=== Tyk Gateway Pod Logs (last 50 lines) ==="
           kubectl logs -n tyk -l app.kubernetes.io/name=tyk-gateway --tail=50 || true
           
-          echo "=== Check ConfigMap ==="
-          kubectl get configmap -n tyk tyk-api-definitions -o jsonpath='{.data}' | head -c 1000 || true
+          if [ "${TF_VAR_use_config_maps_for_apis}" = "true" ]; then
+            echo "=== Check ConfigMap ==="
+            kubectl get configmap -n tyk tyk-api-definitions -o jsonpath='{.data}' | head -c 1000 || true
+          else
+            echo "=== Skipping ConfigMap check (use_config_maps_for_apis=false) ==="
+          fi
           
           echo "=== Check Mounted Files in Pod ==="
           POD=$(kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)

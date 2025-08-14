@@ -27,3 +27,8 @@ variable "use_config_maps_for_apis" {
   default = true
   description = "Use ConfigMaps to mount API definitions directly (instead of Tyk Operator)"
 }
+
+variable "cluster_type" {
+  type        = string
+  description = "Kubernetes provider (aks|eks|gke|other) used to choose the correct nodeSelector key."
+}

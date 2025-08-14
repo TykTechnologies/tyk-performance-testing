@@ -33,6 +33,9 @@ resource "helm_release" "tyk" {
 
   namespace = var.namespace
   atomic    = true
+  wait          = true
+  wait_for_jobs = true
+  timeout       = 1800
 
   set {
     name  = "global.adminUser.email"
@@ -444,14 +447,69 @@ resource "helm_release" "tyk" {
     value = var.use_config_maps_for_apis ? "/mnt/tyk-gateway/policies" : "/opt/tyk-gateway/policies"
   }
 
-  set {
-    name  = "tyk-gateway.gateway.nodeSelector.node"
-    value = var.label
+  # --- Node placement: choose the correct label key per provider ---
+  # GKE: cloud.google.com/gke-nodepool
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.nodeSelector.cloud\\.google\\.com/gke-nodepool"
+      value = var.label
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.nodeSelector.cloud\\.google\\.com/gke-nodepool"
+      value = var.resources-label
+    }
   }
 
-  set {
-    name  = "tyk-dashboard.dashboard.nodeSelector.node"
-    value = var.resources-label
+  # AKS: agentpool (stable) / kubernetes.azure.com/nodepool (also exists)
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.nodeSelector.agentpool"
+      value = var.label
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.nodeSelector.agentpool"
+      value = var.resources-label
+    }
+  }
+
+  # EKS: eks.amazonaws.com/nodegroup
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
+      value = var.label
+    }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" ? [1] : []
+    content {
+      name  = "tyk-dashboard.dashboard.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
+      value = var.resources-label
+    }
+  }
+
+  # Fallback: custom clusters where nodes are labeled as "node=<value>"
+  dynamic "set" {
+    for_each = contains(["gke","aks","eks"], var.cluster_type) ? [] : [1]
+    content {
+      name  = "tyk-gateway.gateway.nodeSelector.node"
+      value = var.label
+    }
+  }
+  dynamic "set" {
+    for_each = contains(["gke","aks","eks"], var.cluster_type) ? [] : [1]
+    content {
+      name  = "tyk-dashboard.dashboard.nodeSelector.node"
+      value = var.resources-label
+    }
   }
 
   set {
@@ -469,16 +527,27 @@ resource "helm_release" "tyk" {
     value = var.analytics.prometheus.enabled ? "prometheus" : ""
   }
 
-  set {
-    name  = "tyk-pump.pump.nodeSelector.node"
-    value = var.resources-label
+  # Pump node placement (match dashboard placement for shared resources)
+  dynamic "set" {
+    for_each = var.cluster_type == "gke" ? [1] : []
+    content { name = "tyk-pump.pump.nodeSelector.cloud\\.google\\.com/gke-nodepool", value = var.resources-label }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "aks" ? [1] : []
+    content { name = "tyk-pump.pump.nodeSelector.agentpool", value = var.resources-label }
+  }
+  dynamic "set" {
+    for_each = var.cluster_type == "eks" ? [1] : []
+    content { name = "tyk-pump.pump.nodeSelector.eks\\.amazonaws\\.com/nodegroup", value = var.resources-label }
+  }
+  dynamic "set" {
+    for_each = contains(["gke","aks","eks"], var.cluster_type) ? [] : [1]
+    content { name = "tyk-pump.pump.nodeSelector.node", value = var.resources-label }
   }
 
   depends_on = [
     kubernetes_namespace.tyk, 
     helm_release.tyk-redis, 
-    helm_release.tyk-pgsql,
-    kubernetes_config_map.api-definitions,
-    kubernetes_config_map.policy-definitions
+    helm_release.tyk-pgsql
   ]
 }
