@@ -452,15 +452,15 @@ resource "helm_release" "tyk" {
   dynamic "set" {
     for_each = var.cluster_type == "gke" ? [1] : []
     content {
-      name  = "tyk-gateway.gateway.nodeSelector.cloud\\.google\\.com/gke-nodepool"
+      name  = "tyk-gateway.gateway.nodeSelector.\"cloud.google.com/gke-nodepool\""
       value = var.label
     }
   }
   dynamic "set" {
     for_each = var.cluster_type == "gke" ? [1] : []
     content {
-      name  = "tyk-dashboard.dashboard.nodeSelector.cloud\\.google\\.com/gke-nodepool"
-      value = var.resources-label
+      name  = "tyk-dashboard.dashboard.nodeSelector.\"cloud.google.com/gke-nodepool\""
+      value = var.resources_label
     }
   }
 
@@ -476,7 +476,7 @@ resource "helm_release" "tyk" {
     for_each = var.cluster_type == "aks" ? [1] : []
     content {
       name  = "tyk-dashboard.dashboard.nodeSelector.agentpool"
-      value = var.resources-label
+      value = var.resources_label
     }
   }
 
@@ -492,7 +492,7 @@ resource "helm_release" "tyk" {
     for_each = var.cluster_type == "eks" ? [1] : []
     content {
       name  = "tyk-dashboard.dashboard.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
-      value = var.resources-label
+      value = var.resources_label
     }
   }
 
@@ -508,7 +508,7 @@ resource "helm_release" "tyk" {
     for_each = contains(["gke","aks","eks"], var.cluster_type) ? [] : [1]
     content {
       name  = "tyk-dashboard.dashboard.nodeSelector.node"
-      value = var.resources-label
+      value = var.resources_label
     }
   }
 
@@ -531,29 +531,29 @@ resource "helm_release" "tyk" {
   dynamic "set" {
     for_each = var.cluster_type == "gke" ? [1] : []
     content {
-      name  = "tyk-pump.pump.nodeSelector.cloud\\.google\\.com/gke-nodepool"
-      value = var.resources-label
+      name  = "tyk-pump.pump.nodeSelector.\"cloud.google.com/gke-nodepool\""
+      value = var.resources_label
     }
   }
   dynamic "set" {
     for_each = var.cluster_type == "aks" ? [1] : []
     content {
       name  = "tyk-pump.pump.nodeSelector.agentpool"
-      value = var.resources-label
+      value = var.resources_label
     }
   }
   dynamic "set" {
     for_each = var.cluster_type == "eks" ? [1] : []
     content {
       name  = "tyk-pump.pump.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
-      value = var.resources-label
+      value = var.resources_label
     }
   }
   dynamic "set" {
     for_each = contains(["gke","aks","eks"], var.cluster_type) ? [] : [1]
     content {
       name  = "tyk-pump.pump.nodeSelector.node"
-      value = var.resources-label
+      value = var.resources_label
     }
   }
 

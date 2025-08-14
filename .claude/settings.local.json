@@ -19,6 +19,7 @@
       "mcp__big-brain__ask_big_brain",
       "Bash(terraform plan:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }

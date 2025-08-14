@@ -63,7 +63,7 @@ module "tyk" {
   source = "./tyk"
 
   label           = var.labels.tyk
-  resources-label = var.labels["tyk-resources"]
+  resources_label = var.labels["tyk-resources"]
 
   gateway_version = var.tyk.version
   license         = var.tyk.license

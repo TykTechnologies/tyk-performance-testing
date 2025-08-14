@@ -11,7 +11,7 @@ variable "label" {
   type = string
 }
 
-variable "resources-label" {
+variable "resources_label" {
   type = string
 }
 
