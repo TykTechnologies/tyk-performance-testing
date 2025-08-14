@@ -530,19 +530,31 @@ resource "helm_release" "tyk" {
   # Pump node placement (match dashboard placement for shared resources)
   dynamic "set" {
     for_each = var.cluster_type == "gke" ? [1] : []
-    content { name = "tyk-pump.pump.nodeSelector.cloud\\.google\\.com/gke-nodepool", value = var.resources-label }
+    content {
+      name  = "tyk-pump.pump.nodeSelector.cloud\\.google\\.com/gke-nodepool"
+      value = var.resources-label
+    }
   }
   dynamic "set" {
     for_each = var.cluster_type == "aks" ? [1] : []
-    content { name = "tyk-pump.pump.nodeSelector.agentpool", value = var.resources-label }
+    content {
+      name  = "tyk-pump.pump.nodeSelector.agentpool"
+      value = var.resources-label
+    }
   }
   dynamic "set" {
     for_each = var.cluster_type == "eks" ? [1] : []
-    content { name = "tyk-pump.pump.nodeSelector.eks\\.amazonaws\\.com/nodegroup", value = var.resources-label }
+    content {
+      name  = "tyk-pump.pump.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
+      value = var.resources-label
+    }
   }
   dynamic "set" {
     for_each = contains(["gke","aks","eks"], var.cluster_type) ? [] : [1]
-    content { name = "tyk-pump.pump.nodeSelector.node", value = var.resources-label }
+    content {
+      name  = "tyk-pump.pump.nodeSelector.node"
+      value = var.resources-label
+    }
   }
 
   depends_on = [
