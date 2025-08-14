@@ -448,16 +448,16 @@ resource "helm_release" "tyk" {
   }
 
   # --- Node placement: choose the correct label key per provider ---
-  # GKE: cloud.google.com/gke-nodepool
+  # GKE: cloud.google.com/gke-nodepool (only when strategy is 'strict')
   dynamic "set" {
-    for_each = var.cluster_type == "gke" ? [1] : []
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-gateway.gateway.nodeSelector.cloud\\.google\\.com/gke-nodepool"
       value = var.label
     }
   }
   dynamic "set" {
-    for_each = var.cluster_type == "gke" ? [1] : []
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-dashboard.dashboard.nodeSelector.cloud\\.google\\.com/gke-nodepool"
       value = var.resources_label
@@ -466,14 +466,14 @@ resource "helm_release" "tyk" {
 
   # AKS: agentpool (stable) / kubernetes.azure.com/nodepool (also exists)
   dynamic "set" {
-    for_each = var.cluster_type == "aks" ? [1] : []
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-gateway.gateway.nodeSelector.agentpool"
       value = var.label
     }
   }
   dynamic "set" {
-    for_each = var.cluster_type == "aks" ? [1] : []
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-dashboard.dashboard.nodeSelector.agentpool"
       value = var.resources_label
@@ -482,14 +482,14 @@ resource "helm_release" "tyk" {
 
   # EKS: eks.amazonaws.com/nodegroup
   dynamic "set" {
-    for_each = var.cluster_type == "eks" ? [1] : []
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-gateway.gateway.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
       value = var.label
     }
   }
   dynamic "set" {
-    for_each = var.cluster_type == "eks" ? [1] : []
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-dashboard.dashboard.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
       value = var.resources_label
@@ -498,14 +498,14 @@ resource "helm_release" "tyk" {
 
   # Fallback: custom clusters where nodes are labeled as "node=<value>"
   dynamic "set" {
-    for_each = contains(["gke","aks","eks"], var.cluster_type) ? [] : [1]
+    for_each = contains(["gke","aks","eks"], var.cluster_type) == false && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-gateway.gateway.nodeSelector.node"
       value = var.label
     }
   }
   dynamic "set" {
-    for_each = contains(["gke","aks","eks"], var.cluster_type) ? [] : [1]
+    for_each = contains(["gke","aks","eks"], var.cluster_type) == false && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-dashboard.dashboard.nodeSelector.node"
       value = var.resources_label
@@ -527,30 +527,30 @@ resource "helm_release" "tyk" {
     value = var.analytics.prometheus.enabled ? "prometheus" : ""
   }
 
-  # Pump node placement (match dashboard placement for shared resources)
+  # Pump node placement (match dashboard placement for shared resources) - only when strategy is 'strict'
   dynamic "set" {
-    for_each = var.cluster_type == "gke" ? [1] : []
+    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-pump.pump.nodeSelector.cloud\\.google\\.com/gke-nodepool"
       value = var.resources_label
     }
   }
   dynamic "set" {
-    for_each = var.cluster_type == "aks" ? [1] : []
+    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-pump.pump.nodeSelector.agentpool"
       value = var.resources_label
     }
   }
   dynamic "set" {
-    for_each = var.cluster_type == "eks" ? [1] : []
+    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-pump.pump.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
       value = var.resources_label
     }
   }
   dynamic "set" {
-    for_each = contains(["gke","aks","eks"], var.cluster_type) ? [] : [1]
+    for_each = contains(["gke","aks","eks"], var.cluster_type) == false && var.node_selector_strategy == "strict" ? [1] : []
     content {
       name  = "tyk-pump.pump.nodeSelector.node"
       value = var.resources_label
