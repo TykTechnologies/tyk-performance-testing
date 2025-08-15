@@ -277,14 +277,14 @@ jobs:
           echo "=== Tyk Gateway Pod Status ==="
           kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway -o wide || kubectl get pods -n tyk | grep gateway
           
-          echo "=== Tyk Gateway Pod Logs (last 50 lines) ==="
-          kubectl logs -n tyk -l app.kubernetes.io/name=tyk-gateway --tail=50 || kubectl logs -n tyk $(kubectl get pods -n tyk | grep gateway | head -1 | awk '{print $1}') --tail=50 || true
+          echo "=== Tyk Gateway Pod Logs (last 100 lines) ==="
+          kubectl logs -n tyk -l app.kubernetes.io/name=tyk-gateway --tail=100 || kubectl logs -n tyk $(kubectl get pods -n tyk | grep gateway | head -1 | awk '{print $1}') --tail=100 || true
           
-          echo "=== Tyk Gateway Pod Startup Logs (first 500 lines) ==="
+          echo "=== Tyk Gateway Pod Startup Logs (first 1000 lines) ==="
           POD_NAME=$(kubectl get pods -n tyk | grep gateway | head -1 | awk '{print $1}' || echo "")
           if [ ! -z "$POD_NAME" ]; then
             echo "Getting startup logs from pod: $POD_NAME"
-            kubectl logs -n tyk $POD_NAME --tail=-1 | head -500 || echo "Failed to get startup logs"
+            kubectl logs -n tyk $POD_NAME --tail=-1 | head -1000 || echo "Failed to get startup logs"
           else
             echo "No gateway pod found for startup logs"
           fi
