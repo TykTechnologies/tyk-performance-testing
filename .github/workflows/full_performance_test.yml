@@ -344,25 +344,21 @@ jobs:
       - name: Test Grafana Snapshot
         continue-on-error: true
         run: |
-          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
-      
-      - name: Check Scaling Webhook Logs
-        continue-on-error: true
-        run: |
-          echo "=== Scaling Webhook Pod Status ==="
-          kubectl get pods -n dependencies -l app=scaling-webhook -o wide
+          echo "=== Snapshot Job Pod Status ==="
+          kubectl get pods -n dependencies -l app=snapshot-job -o wide
           echo ""
-          echo "=== Scaling Webhook Pod Events ==="
-          POD_NAME=$(kubectl get pods -n dependencies -l app=scaling-webhook -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
-          if [ ! -z "$POD_NAME" ]; then
-            kubectl describe pod -n dependencies $POD_NAME | grep -A 10 "Events:" || true
+          echo "=== Snapshot Job Full Logs ==="
+          SNAPSHOT_POD=$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}' 2>/dev/null || echo "")
+          if [ ! -z "$SNAPSHOT_POD" ]; then
+            echo "Getting logs from pod: $SNAPSHOT_POD"
+            kubectl logs -n dependencies $SNAPSHOT_POD || echo "Failed to get snapshot logs"
+          else
+            echo "No snapshot job pod found"
           fi
           echo ""
-          echo "=== Scaling Webhook Logs ==="
-          kubectl logs -n dependencies -l app=scaling-webhook --tail=200 || echo "No scaling webhook logs found"
-          echo ""
-          echo "=== Previous Container Logs (if crashed) ==="
-          kubectl logs -n dependencies -l app=scaling-webhook --tail=200 --previous 2>/dev/null || echo "No previous container logs"
+          echo "=== Grafana Service Status ==="
+          kubectl get svc -n dependencies | grep grafana || echo "No Grafana service found"
+      
 
       - name: Download Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}
