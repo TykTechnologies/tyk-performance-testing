@@ -1,4 +1,7 @@
 locals {
+  # Single source of truth for "service" pools that need >=2 nodes.
+  service_pools = ["tyk", "kong", "gravitee", "traefik"]
+
   nodes = {
     dependencies       = var.dependencies_nodes_count
     tyk                = var.tyk_enabled      ? var.services_nodes_count : 0
@@ -44,6 +47,14 @@ locals {
   }
 }
 
+output "min_nodes" {
+  value = tomap({
+    for key, value in local.nodes :
+    key => (contains(local.service_pools, key) ? 2 : 1)
+    if tonumber(value) != 0
+  })
+}
+
 output "nodes" {
   value = tomap({
     for key, value in local.nodes: key => tonumber(value) if tonumber(value) != 0
@@ -52,7 +63,7 @@ output "nodes" {
 
 output "labels" {
   value = tomap({
-    for key, _ in local.nodes: key => key
+    for key, value in local.nodes: key => key if tonumber(value) != 0
   })
 }
 

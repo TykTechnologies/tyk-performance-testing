@@ -44,7 +44,7 @@ variable "dependencies_nodes_count" {
 
   validation {
     condition = var.dependencies_nodes_count > 0
-    error_message = "Variable resource_nodes_count should be 1 or higher"
+    error_message = "Variable dependencies_nodes_count should be 1 or higher"
   }
 }
 
