@@ -715,7 +715,6 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "global.components.pump"
-    type  = "bool"
     value = var.analytics.database.enabled || var.analytics.prometheus.enabled
   }
 
