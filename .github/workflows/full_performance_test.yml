@@ -316,8 +316,15 @@ jobs:
             echo "=== Check /mnt directory structure ==="
             kubectl exec -n tyk $POD -- ls -la /mnt/ 2>/dev/null || echo "Cannot access /mnt directory"
             
+            echo "=== Find Tyk binary location ==="
+            kubectl exec -n tyk $POD -- which tyk 2>/dev/null || echo "tyk binary not in PATH"
+            kubectl exec -n tyk $POD -- find / -name "tyk*" -type f 2>/dev/null | head -10 || echo "Cannot search for tyk files"
+            
+            echo "=== Working directory ==="
+            kubectl exec -n tyk $POD -- pwd 2>/dev/null || echo "Cannot get working directory"
+            
             echo "=== Environment Variables ==="
-            kubectl exec -n tyk $POD -- env | grep -E "TYK_GW_APPPATH|TYK_GW_POLICIES" || echo "No app path env vars found"
+            kubectl exec -n tyk $POD -- printenv | grep -E "TYK_GW_APPPATH|TYK_GW_POLICIES" || echo "No app path env vars found"
             
             echo "=== Trigger Tyk Reload ==="
             kubectl exec -n tyk $POD -- curl -H "x-tyk-authorization: foo" http://localhost:8080/tyk/reload 2>/dev/null || echo "Reload failed"
