@@ -465,11 +465,22 @@ resource "helm_release" "tyk" {
     value = "/opt/tyk-gateway/policies"
   }
 
+  # Configure policy source to use files instead of dashboard service
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[16].name"
+    value = "TYK_GW_POLICIES_POLICYSOURCE"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[16].value"
+    value = "file"
+  }
+
   # Force Tyk to use file-based configs instead of database when using ConfigMaps
   dynamic "set" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
-      name  = "tyk-gateway.gateway.extraEnvs[15].name"
+      name  = "tyk-gateway.gateway.extraEnvs[17].name"
       value = "TYK_GW_USEDBAPPCONFIGS"
     }
   }
@@ -477,7 +488,7 @@ resource "helm_release" "tyk" {
   dynamic "set" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
-      name  = "tyk-gateway.gateway.extraEnvs[15].value"
+      name  = "tyk-gateway.gateway.extraEnvs[17].value"
       type  = "string"
       value = "false"
     }
