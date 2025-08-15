@@ -316,21 +316,29 @@ jobs:
             echo "=== Check /mnt directory structure ==="
             kubectl exec -n tyk $POD -- ls -la /mnt/ 2>/dev/null || echo "Cannot access /mnt directory"
             
-            echo "=== Find Tyk binary location ==="
-            kubectl exec -n tyk $POD -- which tyk 2>/dev/null || echo "tyk binary not in PATH"
-            kubectl exec -n tyk $POD -- find / -name "tyk*" -type f 2>/dev/null | head -10 || echo "Cannot search for tyk files"
+            echo "=== Pod Image and Command ==="
+            kubectl get pod $POD -n tyk -o jsonpath='{.spec.containers[0].image}' && echo ""
+            kubectl get pod $POD -n tyk -o jsonpath='{.spec.containers[0].command[*]} {.spec.containers[0].args[*]}' && echo ""
             
-            echo "=== Working directory ==="
-            kubectl exec -n tyk $POD -- pwd 2>/dev/null || echo "Cannot get working directory"
+            echo "=== Environment Variables (from pod spec) ==="
+            kubectl get pod $POD -n tyk -o json | jq -r '.spec.containers[0].env[] | select(.name | test("TYK_GW_APPPATH|TYK_GW_POLICIES|TYK_GW_USEDBAPPCONFIGS")) | "\(.name)=\(.value)"' || echo "No relevant env vars found in spec"
             
-            echo "=== Environment Variables ==="
-            kubectl exec -n tyk $POD -- printenv | grep -E "TYK_GW_APPPATH|TYK_GW_POLICIES" || echo "No app path env vars found"
+            echo "=== Container Status ==="
+            kubectl get pod $POD -n tyk -o jsonpath='{.status.containerStatuses[0]}' | jq '.' || echo "Cannot get container status"
             
             echo "=== Trigger Tyk Reload ==="
-            kubectl exec -n tyk $POD -- curl -H "x-tyk-authorization: foo" http://localhost:8080/tyk/reload 2>/dev/null || echo "Reload failed"
+            kubectl exec -n tyk $POD -- curl -H "x-tyk-authorization: foo" http://localhost:8080/tyk/reload 2>/dev/null || echo "Reload failed (curl not available in distroless)"
             
             echo "=== Check Loaded APIs ==="
-            kubectl exec -n tyk $POD -- curl -H "x-tyk-authorization: foo" http://localhost:8080/tyk/apis 2>/dev/null || echo "Failed to get APIs"
+            kubectl exec -n tyk $POD -- curl -H "x-tyk-authorization: foo" http://localhost:8080/tyk/apis 2>/dev/null || echo "Failed to get APIs (curl not available in distroless)"
+            
+            echo "=== Port Forward Test (alternative to curl) ==="
+            echo "Testing connectivity via port-forward..."
+            timeout 10s kubectl port-forward -n tyk $POD 8080:8080 &
+            PF_PID=$!
+            sleep 2
+            curl -s -H "x-tyk-authorization: foo" http://localhost:8080/tyk/apis 2>/dev/null | head -200 || echo "Port-forward test failed"
+            kill $PF_PID 2>/dev/null || true
           fi
 
       - name: Run Tests
