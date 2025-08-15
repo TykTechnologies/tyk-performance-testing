@@ -99,7 +99,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "global.redis.enableCluster"
-    value = true
+    value = "true"
   }
 
   set {
@@ -303,7 +303,7 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[0].value"
     type  = "string"
-    value = var.go_gc
+    value = tostring(var.go_gc)
   }
 
   set {
@@ -314,7 +314,7 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[1].value"
     type  = "string"
-    value = var.go_max_procs
+    value = tostring(var.go_max_procs)
   }
 
   set {
@@ -378,7 +378,7 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[7].value"
     type  = "string"
-    value = var.open_telemetry.enabled
+    value = tostring(var.open_telemetry.enabled)
   }
 
   set {
@@ -399,7 +399,7 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-gateway.gateway.extraEnvs[9].value"
     type  = "string"
-    value = var.open_telemetry.sampling_ratio
+    value = tostring(var.open_telemetry.sampling_ratio)
   }
 
   set {
@@ -430,7 +430,7 @@ resource "helm_release" "tyk" {
   set {
     type  = "string"
     name  = "tyk-gateway.gateway.extraEnvs[12].value"
-    value = var.profiler.enabled
+    value = tostring(var.profiler.enabled)
   }
 
   # Configure gateway to use file-based API definitions
@@ -714,7 +714,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "global.components.pump"
-    value = var.analytics.database.enabled || var.analytics.prometheus.enabled
+    value = tostring(var.analytics.database.enabled || var.analytics.prometheus.enabled)
   }
 
   set {
