@@ -249,7 +249,7 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraVolumes[0].configMap.defaultMode"
-      value = "0644"
+      value = 0644
     }
   }
 
