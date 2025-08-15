@@ -247,24 +247,9 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
       from_timeframe.send_keys(f'now-{TEST_DURATION}m')
       safe_get_element(By.XPATH, "//button[contains(., 'Apply time range')]").click()
 
-      # Wait for dashboard to fully load data
+      # Wait for dashboard to load data
       logging.info("Waiting for dashboard data to load...")
-      time.sleep(30)  # Initial wait for queries to execute
-      
-      # Check if any panels have data by looking for "No data" indicators
-      max_retries = 3  # Reduced retries to avoid excessive refreshing
-      retry_count = 0
-      while retry_count < max_retries:
-          no_data_elements = driver.find_elements(By.XPATH, "//*[contains(text(), 'No data')]")
-          if len(no_data_elements) == 0:
-              logging.info(f"Data loaded successfully after {retry_count * 15} seconds")
-              break
-          logging.info(f"Retry {retry_count + 1}/{max_retries}: Waiting for data to load...")
-          time.sleep(15)  # Wait longer between retries
-          retry_count += 1
-
-      # Wait additional time for any slow queries
-      time.sleep(10)
+      time.sleep(60)  # Single longer wait instead of complex retry logic
 
       # Scroll to the bottom to load entire dashboard
       scroll_body = safe_get_element(By.CLASS_NAME, "scrollbar-view")
@@ -274,9 +259,9 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
           # Scroll down by a small increment
           driver.execute_script("arguments[0].scrollTop = arguments[1];", scroll_body, scroll_top)
           # Wait for a short time to simulate scrolling
-          time.sleep(0.2)
+          time.sleep(0.1)
           # Update the current scroll position
-          scroll_top += 20
+          scroll_top += 10
 
       # Click on Share button
       safe_get_element(By.XPATH, "//button[contains(., 'Share')]").click()

@@ -240,8 +240,7 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraVolumeMounts[0].readOnly"
-      value = true
-      type  = "auto"
+      value = "true"
     }
   }
 
@@ -251,24 +250,6 @@ resource "helm_release" "tyk" {
     content {
       name  = "tyk-gateway.gateway.extraVolumes[0].configMap.defaultMode"
       value = "0644"
-    }
-  }
-
-  # Set security context for proper file access
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.securityContext.runAsNonRoot"
-      value = false
-      type  = "auto"
-    }
-  }
-
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.securityContext.runAsUser"
-      value = "0"
     }
   }
 
@@ -309,8 +290,7 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraVolumeMounts[1].readOnly"
-      value = true
-      type  = "auto"
+      value = "true"
     }
   }
 
@@ -454,40 +434,26 @@ resource "helm_release" "tyk" {
   }
 
   # Configure gateway to use file-based API definitions
-  # These should always be set when using ConfigMaps
-  # No need to override TYK_GW_APPPATH - use Tyk's default /opt/tyk-gateway/apps
-  # Only set if we need to override the default behavior
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [] : [1]  # Only set when NOT using ConfigMaps
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[13].name"
-      value = "TYK_GW_APPPATH"
-    }
+  # Always set these environment variables for consistent behavior
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[13].name"
+    value = "TYK_GW_APPPATH"
   }
 
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [] : [1]  # Only set when NOT using ConfigMaps
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[13].value"
-      value = "/opt/tyk-gateway/apps"
-    }
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[13].value"
+    value = "/opt/tyk-gateway/apps"
   }
 
-  # No need to override TYK_GW_POLICIES_POLICYPATH - use Tyk's default /opt/tyk-gateway/policies
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [] : [1]  # Only set when NOT using ConfigMaps
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[14].name"
-      value = "TYK_GW_POLICIES_POLICYPATH"
-    }
+  # Configure gateway to use file-based policies
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[14].name"
+    value = "TYK_GW_POLICIES_POLICYPATH"
   }
 
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [] : [1]  # Only set when NOT using ConfigMaps
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[14].value"
-      value = "/opt/tyk-gateway/policies"
-    }
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[14].value"
+    value = "/opt/tyk-gateway/policies"
   }
 
   # Force Tyk to use file-based configs instead of database when using ConfigMaps

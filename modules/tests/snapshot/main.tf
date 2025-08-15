@@ -8,7 +8,7 @@ terraform {
 }
 
 locals {
-  buffer    = var.duration <= 20 ? 12 : 20  # Further increased buffer for data ingestion
+  buffer    = var.duration <= 20 ? 15 : 25  # Even more buffer time for reliable data ingestion
   delay     = (var.duration + local.buffer) * 60
   timeout   = (var.duration + local.buffer) * 2
   timestamp = formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())

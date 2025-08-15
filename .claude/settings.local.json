@@ -18,7 +18,8 @@
       "Bash(git log:*)",
       "mcp__big-brain__ask_big_brain",
       "Bash(terraform plan:*)",
-      "Bash(gh run list:*)"
+      "Bash(gh run list:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
