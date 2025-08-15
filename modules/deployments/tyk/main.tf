@@ -469,6 +469,7 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraEnvs[15].value"
+      type  = "string"
       value = "false"
     }
   }
@@ -714,7 +715,8 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "global.components.pump"
-    value = tostring(var.analytics.database.enabled || var.analytics.prometheus.enabled)
+    type  = "bool"
+    value = var.analytics.database.enabled || var.analytics.prometheus.enabled
   }
 
   set {
