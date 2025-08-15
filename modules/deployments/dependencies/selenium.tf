@@ -247,6 +247,25 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
       from_timeframe.send_keys(f'now-{TEST_DURATION}m')
       safe_get_element(By.XPATH, "//button[contains(., 'Apply time range')]").click()
 
+      # Wait for dashboard to fully load data
+      logging.info("Waiting for dashboard data to load...")
+      time.sleep(30)  # Initial wait for queries to execute
+      
+      # Check if any panels have data by looking for "No data" indicators
+      max_retries = 6
+      retry_count = 0
+      while retry_count < max_retries:
+          no_data_elements = driver.find_elements(By.XPATH, "//*[contains(text(), 'No data')]")
+          if len(no_data_elements) == 0:
+              logging.info(f"Data loaded successfully after {retry_count * 10} seconds")
+              break
+          logging.info(f"Retry {retry_count + 1}/{max_retries}: Waiting for data to load...")
+          time.sleep(10)
+          # Refresh the page to trigger data reload
+          driver.refresh()
+          time.sleep(5)
+          retry_count += 1
+
       # Scroll to the bottom to load entire dashboard
       scroll_body = safe_get_element(By.CLASS_NAME, "scrollbar-view")
       scroll_height = scroll_body.get_property("scrollHeight")
@@ -255,9 +274,18 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
           # Scroll down by a small increment
           driver.execute_script("arguments[0].scrollTop = arguments[1];", scroll_body, scroll_top)
           # Wait for a short time to simulate scrolling
-          time.sleep(0.1)
+          time.sleep(0.2)  # Increased scroll delay
           # Update the current scroll position
-          scroll_top += 10
+          scroll_top += 20  # Larger scroll increments
+
+      # Force refresh dashboard one final time to ensure all data is loaded
+      logging.info("Final dashboard refresh before snapshot...")
+      driver.refresh()
+      time.sleep(10)
+      
+      # Scroll back to top for clean snapshot
+      driver.execute_script("arguments[0].scrollTop = 0;", scroll_body)
+      time.sleep(2)
 
       # Click on Share button
       safe_get_element(By.XPATH, "//button[contains(., 'Share')]").click()
