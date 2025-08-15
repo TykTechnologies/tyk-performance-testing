@@ -274,7 +274,7 @@ jobs:
           fi
 
       - name: Debug Tyk Setup
-        if: always()
+        if: false
         run: |
           echo "=== Tyk Gateway Pod Status ==="
           kubectl get pods -n tyk -l app.kubernetes.io/instance=tyk -o wide | grep gateway || kubectl get pods -n tyk | grep gateway
