@@ -24,7 +24,7 @@ variable "tests_ramping_steps" {
 
 variable "tests_duration" {
   type        = number
-  default     = 15
+  default     = 30
   description = "Test duration in minutes."
 }
 
