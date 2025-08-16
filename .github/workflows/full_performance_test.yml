@@ -168,6 +168,11 @@ jobs:
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
 
+      - name: Show Tyk Gateway logs after tests
+        run: |
+          echo "=== Tyk Gateway Pod Logs After Tests (last 200 lines) ==="
+          kubectl logs -n tyk $(kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway -o jsonpath='{.items[0].metadata.name}') --tail=200 || echo "Failed to get Tyk logs"
+
       - name: Test Grafana Snapshot
         continue-on-error: true
         run: |
