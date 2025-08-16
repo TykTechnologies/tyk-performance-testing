@@ -54,7 +54,7 @@ variable "resources_limits_memory" {
 
 variable "use_config_maps_for_apis" {
   type        = bool
-  default     = false
+  default     = true
   nullable    = false
   description = "Use ConfigMaps for API definitions (plumbed to module.deployments -> module.tyk). Having a default prevents CI prompts."
 }
