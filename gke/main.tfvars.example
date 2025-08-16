@@ -8,7 +8,7 @@ tests_machine_type        = ""
 resources_machine_type    = ""
 dependencies_machine_type = ""
 
-services_nodes_count     = 2
+services_nodes_count     = 3
 upstream_nodes_count     = 1
 tests_nodes_count        = 1
 resource_nodes_count     = 1
