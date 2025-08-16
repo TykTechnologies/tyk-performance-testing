@@ -155,6 +155,11 @@ jobs:
             --auto-approve
           sleep 300
 
+      - name: Show Tyk Gateway logs
+        run: |
+          echo "=== Tyk Gateway Pod Logs (first 200 lines) ==="
+          kubectl logs -n tyk $(kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway -o jsonpath='{.items[0].metadata.name}') --tail=200 || echo "Failed to get Tyk logs"
+
       - name: Run Tests
         run: |
           cd tests

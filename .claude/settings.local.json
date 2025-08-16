@@ -9,7 +9,8 @@
       "Bash(find:*)",
       "Bash(grep:*)",
       "Bash(git checkout:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }
