@@ -68,8 +68,8 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
       { target: rate * 1.67, duration: '2m' },    // Hold at 25k
       { target: rate * 2, duration: '2m' },       // Step 3: 25k -> 30k
       { target: rate * 2, duration: '1m' },       // Hold at 30k
-      { target: 35000, duration: '2m' },          // Step 4: 30k -> 35k (fixed value)
-      { target: 35000, duration: '2m' },          // Hold at 35k
+      { target: Math.round(rate * 2.33), duration: '2m' },    // Step 4: 30k -> 35k
+      { target: Math.round(rate * 2.33), duration: '2m' },    // Hold at 35k
       
       // Scale down phase (20m-30m)
       { target: rate * 2, duration: '1m' },       // Step down: 35k -> 30k
