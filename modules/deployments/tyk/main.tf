@@ -14,6 +14,33 @@ locals {
   pgsql-port = "5432"
   redis-pass = "topsecretpassword"
   redis-port = "6379"
+
+  # Build all Gateway extra envs as a single list to avoid sparse indices
+  tyk_gateway_extra_envs_base = [
+    { name = "GOGC", value = tostring(var.go_gc) },
+    { name = "GOMAXPROCS", value = tostring(var.go_max_procs) },
+    { name = "GOMEMLIMIT", value = var.resources.limits.memory != "0" ? "${var.resources.limits.memory}B" : "" },
+    { name = "TYK_GW_MAXIDLECONNSPERHOST", value = "1000" },
+    { name = "TYK_GW_MAXCONNSPERHOST", value = "10000" },
+    { name = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS", value = "true" },
+    { name = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE", value = "protobuf" },
+    { name = "TYK_GW_STORAGE_MAXACTIVE", value = "10000" },
+    { name = "TYK_GW_OPENTELEMETRY_ENABLED", value = tostring(var.open_telemetry.enabled) },
+    { name = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE", value = "TraceIDRatioBased" },
+    { name = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO", value = tostring(var.open_telemetry.sampling_ratio) },
+    { name = "TYK_GW_OPENTELEMETRY_EXPORTER", value = "grpc" },
+    { name = "TYK_GW_OPENTELEMETRY_ENDPOINT", value = "opentelemetry-collector.dependencies.svc:4317" },
+    { name = "TYK_GW_HTTPPROFILE", value = tostring(var.profiler.enabled) },
+  ]
+
+  tyk_gateway_extra_envs_cfgmap = var.use_config_maps_for_apis ? [
+    { name = "TYK_GW_APPPATH", value = "/opt/tyk-gateway/apps" },
+    { name = "TYK_GW_POLICIES_POLICYPATH", value = "/opt/tyk-gateway/policies" },
+    { name = "TYK_GW_POLICIES_POLICYSOURCE", value = "file" },
+    { name = "TYK_GW_USEDBAPPCONFIGS", value = "false" },
+  ] : []
+
+  tyk_gateway_extra_envs = concat(local.tyk_gateway_extra_envs_base, local.tyk_gateway_extra_envs_cfgmap)
 }
 
 resource "kubernetes_namespace" "tyk" {
@@ -29,6 +56,17 @@ resource "helm_release" "tyk" {
 
   namespace = var.namespace
   atomic    = true
+
+  # Provide extraEnvs as a single list to Helm to avoid null/empty entries
+  values = [
+    yamlencode({
+      "tyk-gateway" = {
+        gateway = {
+          extraEnvs = local.tyk_gateway_extra_envs
+        }
+      }
+    })
+  ]
 
   set {
     name  = "global.adminUser.email"
@@ -140,222 +178,6 @@ resource "helm_release" "tyk" {
     value = var.resources.limits.memory
   }
 
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[0].name"
-    value = "GOGC"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[0].value"
-    type  = "string"
-    value = var.go_gc
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[1].name"
-    value = "GOMAXPROCS"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[1].value"
-    type  = "string"
-    value = var.go_max_procs
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[2].name"
-    value = "GOMEMLIMIT"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[2].value"
-    value = var.resources.limits.memory != "0" ? "${var.resources.limits.memory}B" : ""
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[3].name"
-    value = "TYK_GW_MAXIDLECONNSPERHOST"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[3].value"
-    type  = "string"
-    value = "1000"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[4].name"
-    value = "TYK_GW_MAXCONNSPERHOST"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[4].value"
-    type  = "string"
-    value = "10000"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[5].name"
-    value = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[5].value"
-    type  = "string"
-    value = "true"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[6].name"
-    value = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[6].value"
-    value = "protobuf"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[7].name"
-    value = "TYK_GW_STORAGE_MAXACTIVE"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[7].value"
-    type  = "string"
-    value = "10000"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[8].name"
-    value = "TYK_GW_OPENTELEMETRY_ENABLED"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[8].value"
-    type  = "string"
-    value = var.open_telemetry.enabled
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[9].name"
-    value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[9].value"
-    value = "TraceIDRatioBased"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[10].name"
-    value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[10].value"
-    type  = "string"
-    value = var.open_telemetry.sampling_ratio
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[11].name"
-    value = "TYK_GW_OPENTELEMETRY_EXPORTER"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[11].value"
-    value = "grpc"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[12].name"
-    value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[12].value"
-    value = "opentelemetry-collector.dependencies.svc:4317"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[13].name"
-    value = "TYK_GW_HTTPPROFILE"
-  }
-
-  set {
-    type  = "string"
-    name  = "tyk-gateway.gateway.extraEnvs[13].value"
-    value = var.profiler.enabled
-  }
-
-  # Configure gateway to use file-based API definitions when using ConfigMaps
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[14].name"
-      value = "TYK_GW_APPPATH"
-    }
-  }
-
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[14].value"
-      value = "/opt/tyk-gateway/apps"
-    }
-  }
-
-  # Configure gateway to use file-based policies
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[15].name"
-      value = "TYK_GW_POLICIES_POLICYPATH"
-    }
-  }
-
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[15].value"
-      value = "/opt/tyk-gateway/policies"
-    }
-  }
-
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[16].name"
-      value = "TYK_GW_POLICIES_POLICYSOURCE"
-    }
-  }
-
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[16].value"
-      value = "file"
-    }
-  }
-
-  # Force Tyk to use file-based configs instead of database when using ConfigMaps
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[17].name"
-      value = "TYK_GW_USEDBAPPCONFIGS"
-    }
-  }
-
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[17].value"
-      type  = "string"
-      value = "false"
-    }
-  }
 
   # Mount API definitions ConfigMap
   dynamic "set" {
