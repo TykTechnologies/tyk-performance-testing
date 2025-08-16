@@ -42,7 +42,7 @@ locals {
       }
       proxy = {
         listen_path      = "/api-${i}/"
-        target_url       = "http://upstream.upstream.svc.cluster.local:8080/"
+        target_url       = "http://fortio-${i % var.service.host_count}.tyk-upstream.svc:8080/"
         strip_listen_path = false
       }
       active = true
