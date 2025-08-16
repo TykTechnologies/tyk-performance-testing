@@ -91,7 +91,7 @@ jobs:
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
-            --var="services_nodes_count=2" \
+            --var="services_nodes_count=3" \
             --auto-approve
 
       - name: Connect to AKS cluster
@@ -113,7 +113,7 @@ jobs:
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
-            --var="services_nodes_count=2" \
+            --var="services_nodes_count=3" \
             --auto-approve
 
       - name: Connect to EKS cluster
@@ -134,7 +134,7 @@ jobs:
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
-            --var="services_nodes_count=2" \
+            --var="services_nodes_count=3" \
             --auto-approve
 
       - name: Connect to GKE cluster
