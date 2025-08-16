@@ -185,7 +185,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.extraEnvs[4].name"
-    value = "TYK_GW_MAXIDLECONNSPERHOST"
+    value = "TYK_GW_MAXCONNSPERHOST"
   }
 
   set {
@@ -287,6 +287,172 @@ resource "helm_release" "tyk" {
     type  = "string"
     name  = "tyk-gateway.gateway.extraEnvs[13].value"
     value = var.profiler.enabled
+  }
+
+  # Configure gateway to use file-based API definitions when using ConfigMaps
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[14].name"
+      value = "TYK_GW_APPPATH"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[14].value"
+      value = "/opt/tyk-gateway/apps"
+    }
+  }
+
+  # Configure gateway to use file-based policies
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[15].name"
+      value = "TYK_GW_POLICIES_POLICYPATH"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[15].value"
+      value = "/opt/tyk-gateway/policies"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[16].name"
+      value = "TYK_GW_POLICIES_POLICYSOURCE"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[16].value"
+      value = "file"
+    }
+  }
+
+  # Force Tyk to use file-based configs instead of database when using ConfigMaps
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[17].name"
+      value = "TYK_GW_USEDBAPPCONFIGS"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraEnvs[17].value"
+      type  = "string"
+      value = "false"
+    }
+  }
+
+  # Mount API definitions ConfigMap
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[0].name"
+      value = "api-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[0].configMap.name"
+      value = "tyk-api-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[0].configMap.defaultMode"
+      value = 420
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[0].name"
+      value = "api-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[0].mountPath"
+      value = "/opt/tyk-gateway/apps"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[0].readOnly"
+      value = "true"
+    }
+  }
+
+  # Mount policy definitions ConfigMap if policies are enabled
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[1].name"
+      value = "policy-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[1].configMap.name"
+      value = "tyk-policy-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[1].configMap.defaultMode"
+      value = 420
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[1].name"
+      value = "policy-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[1].mountPath"
+      value = "/opt/tyk-gateway/policies"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumeMounts[1].readOnly"
+      value = "true"
+    }
   }
 
   set {

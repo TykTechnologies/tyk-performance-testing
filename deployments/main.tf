@@ -107,6 +107,9 @@ module "deployments" {
     app_count   = var.service_app_count
     host_count  = var.service_host_count
   }
+  
+  # ConfigMap-based API definitions
+  use_config_maps_for_apis = var.use_config_maps_for_apis
 
   dependencies = {
     grafana = {

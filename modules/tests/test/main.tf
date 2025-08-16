@@ -16,17 +16,89 @@ resource "kubernetes_config_map" "test-configmap" {
   data = {
     "script.js" = <<EOF
 import http from 'k6/http';
+import { check, sleep } from 'k6';
 import { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics } from "/helpers/tests.js";
 import { getScenarios } from "/helpers/scenarios.js";
 import { generateKeys } from "/helpers/auth.js";
 
 const { SCENARIO } = __ENV;
+
 export const options = {
   discardResponseBodies: true,
   insecureSkipTLSVerify: true,
   setupTimeout: '300s',
-  scenarios: { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
+  scenarios: SCENARIO ? { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] } : getScalingScenarios(),
+  thresholds: {
+    'http_req_duration': ['p(95)<2000'],
+    'http_req_failed': ['rate<0.05'],
+  },
 };
+
+function getScalingScenarios() {
+  const baseDuration = ${var.config.duration};
+  const baseRate = ${var.config.rate};
+  const baseVUs = ${var.config.virtual_users};
+  
+  // Autoscaling test: very gradual increase through multiple stages
+  // Phase 1: 5min baseline (20k req/s)
+  // Phase 2: 15min gradual scale-up through multiple stages to 2x (40k req/s)
+  // Phase 3: 10min gradual scale-down to baseline
+  
+  return {
+    baseline_phase: {
+      executor: 'ramping-arrival-rate',
+      startRate: Math.floor(baseRate * 0.5),
+      timeUnit: '1s',
+      preAllocatedVUs: baseVUs,
+      maxVUs: baseVUs * 4,
+      stages: [
+        { target: baseRate, duration: '1m' },           // Ramp up to baseline (20k)
+        { target: baseRate, duration: '4m' },           // Hold baseline for 4 minutes
+      ],
+      exec: 'default',
+      startTime: '0s',
+      tags: { phase: 'baseline' },
+    },
+    scale_up_phase: {
+      executor: 'ramping-arrival-rate',
+      startRate: baseRate,
+      timeUnit: '1s',
+      preAllocatedVUs: baseVUs * 2,
+      maxVUs: baseVUs * 5,
+      stages: [
+        { target: baseRate * 1.25, duration: '2m' },    // Step 1: 20k -> 25k
+        { target: baseRate * 1.25, duration: '2m' },    // Hold at 25k
+        { target: baseRate * 1.5, duration: '2m' },     // Step 2: 25k -> 30k
+        { target: baseRate * 1.5, duration: '2m' },     // Hold at 30k
+        { target: baseRate * 1.75, duration: '2m' },    // Step 3: 30k -> 35k
+        { target: baseRate * 1.75, duration: '1m' },    // Hold at 35k
+        { target: baseRate * 2, duration: '2m' },       // Step 4: 35k -> 40k
+        { target: baseRate * 2, duration: '2m' },       // Hold at 40k
+      ],
+      exec: 'default',
+      startTime: '5m',
+      tags: { phase: 'scale_up' },
+    },
+    scale_down_phase: {
+      executor: 'ramping-arrival-rate',
+      startRate: baseRate * 2,
+      timeUnit: '1s',
+      preAllocatedVUs: baseVUs * 2,
+      maxVUs: baseVUs * 4,
+      stages: [
+        { target: baseRate * 1.75, duration: '1m' },    // Step down: 40k -> 35k
+        { target: baseRate * 1.5, duration: '2m' },     // Step down: 35k -> 30k
+        { target: baseRate * 1.5, duration: '1m' },     // Hold at 30k
+        { target: baseRate * 1.25, duration: '2m' },    // Step down: 30k -> 25k
+        { target: baseRate, duration: '2m' },           // Step down: 25k -> 20k
+        { target: baseRate, duration: '2m' },           // Hold at baseline
+      ],
+      exec: 'default',
+      startTime: '20m',
+      tags: { phase: 'scale_down' },
+    }
+  };
+}
 
 export function setup() {
   addTestInfoMetrics(${jsonencode(var.config)}, ${var.config.auth.key_count});
@@ -56,8 +128,19 @@ export default function (keys) {
     url = "http://${var.service_name}-" + i + ".${var.name}.svc:${var.service_port}/?${var.config.fortio_options}"
   }
 
-  http.get(url, { headers });
+  const response = http.get(url, { headers });
+  check(response, {
+    'status is 200': (r) => r.status === 200,
+  });
 }
+
+
+// Autoscaling is now handled by Kubernetes Cluster Autoscaler
+// Traffic gradually increases to 2x (40k req/s) over 6 minutes, giving time for:
+// 1. HPA to detect CPU increase and add pod replicas
+// 2. Cluster autoscaler to detect pending pods and add nodes (2-5 min)
+// 3. System to stabilize at the new capacity level
+// Traffic then gradually decreases, allowing graceful scale-down.
 EOF
   }
 }

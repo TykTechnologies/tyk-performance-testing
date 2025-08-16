@@ -6,7 +6,7 @@ variable "hpa_enabled" {
 
 variable "hpa_max_replica_count" {
   type        = number
-  default     = 4
+  default     = 12
   description = "Gateways Horizontal Pod Autoscaler max replica count."
 }
 
@@ -18,7 +18,7 @@ variable "hpa_avg_cpu_util_percentage" {
 
 variable "replica_count" {
   type        = number
-  default     = 1
+  default     = 2
   description = "Gateway replica count."
 }
 
@@ -50,4 +50,11 @@ variable "resources_limits_memory" {
   type        = string
   default     = "0"
   description = "Gateway memory requests."
+}
+
+variable "use_config_maps_for_apis" {
+  type        = bool
+  default     = false
+  nullable    = false
+  description = "Use ConfigMaps for API definitions (plumbed to module.deployments -> module.tyk). Having a default prevents CI prompts."
 }
