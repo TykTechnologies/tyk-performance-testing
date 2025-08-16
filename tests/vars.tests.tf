@@ -30,7 +30,7 @@ variable "tests_duration" {
 
 variable "tests_rate" {
   type        = number
-  default     = 20000
+  default     = 15000
   description = "Test RPS, applies for 'constant-arrival-rate' and 'ramping-arrival-rate' executors."
 }
 

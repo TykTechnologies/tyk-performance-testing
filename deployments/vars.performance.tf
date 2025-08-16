@@ -12,7 +12,7 @@ variable "hpa_max_replica_count" {
 
 variable "hpa_avg_cpu_util_percentage" {
   type        = number
-  default     = 60
+  default     = 70
   description = "Gateways Horizontal Pod Autoscaler average CPU utilization percentage for scaling."
 }
 

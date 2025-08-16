@@ -1,6 +1,6 @@
 variable "service_route_count" {
   type        = number
-  default     = 1
+  default     = 10
   description = "Service route count - number of APIs."
 }
 
