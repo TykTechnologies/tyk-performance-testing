@@ -1,0 +1,133 @@
+name: Terraform Reinitialize
+
+on:
+  workflow_dispatch:
+    inputs:
+      cloud:
+        description: 'Choose Cloud Provider'
+        required: true
+        type: choice
+        default: AWS
+        options:
+          - AWS
+          - Azure
+          - GCP
+      component:
+        description: 'Component to reinitialize'
+        required: true
+        type: choice
+        default: all
+        options:
+          - all
+          - cluster
+          - deployments
+          - tests
+
+env:
+  provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
+
+jobs:
+  terraform_reinit:
+    name: "Reinitialize ${{ inputs.cloud }} ${{ inputs.component }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        if: ${{ inputs.cloud == 'AWS' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
+
+      - name: Configure Azure credentials
+        if: ${{ inputs.cloud == 'Azure' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Authenticate into gcloud
+        if: ${{ inputs.cloud == 'GCP' }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Install gcloud CLI
+        if: ${{ inputs.cloud == 'GCP' }}
+        uses: google-github-actions/setup-gcloud@v2.1.0
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_version: "1.8.2"
+
+      - name: Reinitialize Cluster
+        if: ${{ inputs.component == 'all' || inputs.component == 'cluster' }}
+        run: |
+          echo "🔄 Reinitializing ${{ env.provider }} cluster terraform..."
+          cd ${{ env.provider }}
+          
+          # Copy terraform cloud configuration
+          cp terraform.cloud.tf.example terraform.cloud.tf
+          
+          # Remove terraform state files and directories
+          rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
+          
+          # Reinitialize
+          terraform init
+          
+          echo "✅ Cluster terraform reinitialized successfully"
+
+      - name: Reinitialize Deployments
+        if: ${{ inputs.component == 'all' || inputs.component == 'deployments' }}
+        run: |
+          echo "🔄 Reinitializing deployments terraform..."
+          
+          # Copy terraform cloud configuration
+          cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
+          
+          cd deployments
+          
+          # Remove terraform state files and directories
+          rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
+          
+          # Reinitialize
+          terraform init
+          
+          echo "✅ Deployments terraform reinitialized successfully"
+
+      - name: Reinitialize Tests
+        if: ${{ inputs.component == 'all' || inputs.component == 'tests' }}
+        run: |
+          echo "🔄 Reinitializing tests terraform..."
+          
+          # Copy terraform cloud configuration  
+          cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
+          
+          cd tests
+          
+          # Remove terraform state files and directories
+          rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
+          
+          # Reinitialize
+          terraform init
+          
+          echo "✅ Tests terraform reinitialized successfully"
+
+      - name: Output Summary
+        run: |
+          echo "## 🎉 Terraform Reinitialization Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Cloud Provider:** ${{ inputs.cloud }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Component(s):** ${{ inputs.component }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### What was done:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Removed old terraform state and lock files" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Copied fresh terraform cloud configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Reinitialized terraform (HCP Terraform compatible)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "You can now run your normal deployment workflows without terraform init errors!" >> $GITHUB_STEP_SUMMARY
