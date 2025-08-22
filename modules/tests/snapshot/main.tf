@@ -10,7 +10,10 @@ terraform {
 locals {
   buffer    = var.duration <= 20 ? 4 : 10
   delay     = (var.duration + local.buffer) * 60
-  timeout   = (var.duration + local.buffer) * 2
+  # Timeout needs to cover: delay time + snapshot generation time + buffer
+  # delay is in seconds, but timeout is in minutes
+  # So: (duration + buffer) for the delay, plus 20 minutes for snapshot generation
+  timeout   = (var.duration + local.buffer + 20)
   timestamp = formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())
 }
 
