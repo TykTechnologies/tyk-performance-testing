@@ -51,34 +51,64 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
   },
   "autoscaling-gradual": {
     // Single ramping scenario that covers baseline, scale-up, and scale-down phases
+    // Dynamically scales stages based on total duration
     executor: 'ramping-arrival-rate',
     startRate: Math.floor(rate * 0.5),
     timeUnit: '1s',
     preAllocatedVUs: virtual_users * 2,
     maxVUs: virtual_users * 5,
-    stages: [
-      // Baseline phase (0-5m)
-      { target: rate, duration: '1m' },           // Ramp up to baseline (15k)
-      { target: rate, duration: '4m' },           // Hold baseline for 4 minutes
+    stages: (() => {
+      // Calculate phase durations as percentages of total duration
+      const totalMinutes = duration;
+      const baselinePercent = 0.17;  // ~17% for baseline
+      const scaleUpPercent = 0.50;   // ~50% for scale up
+      const scaleDownPercent = 0.33; // ~33% for scale down
       
-      // Scale up phase (5m-20m)
-      { target: rate * 1.33, duration: '2m' },    // Step 1: 15k -> 20k
-      { target: rate * 1.33, duration: '2m' },    // Hold at 20k
-      { target: rate * 1.67, duration: '2m' },    // Step 2: 20k -> 25k
-      { target: rate * 1.67, duration: '2m' },    // Hold at 25k
-      { target: rate * 2, duration: '2m' },       // Step 3: 25k -> 30k
-      { target: rate * 2, duration: '1m' },       // Hold at 30k
-      { target: rate * 2.33, duration: '2m' },    // Step 4: 30k -> 35k
-      { target: rate * 2.33, duration: '2m' },    // Hold at 35k
+      // Calculate actual durations in minutes
+      const baselineDuration = Math.floor(totalMinutes * baselinePercent);
+      const scaleUpDuration = Math.floor(totalMinutes * scaleUpPercent);
+      const scaleDownDuration = Math.floor(totalMinutes * scaleDownPercent);
       
-      // Scale down phase (20m-30m)
-      { target: rate * 2, duration: '1m' },       // Step down: 35k -> 30k
-      { target: rate * 1.67, duration: '2m' },    // Step down: 30k -> 25k
-      { target: rate * 1.67, duration: '1m' },    // Hold at 25k
-      { target: rate * 1.33, duration: '2m' },    // Step down: 25k -> 20k
-      { target: rate, duration: '2m' },           // Step down: 20k -> 15k
-      { target: rate, duration: '2m' },           // Hold at baseline (15k)
-    ],
+      // For short tests (< 30 min), use simpler staging
+      if (totalMinutes < 30) {
+        return [
+          { target: rate, duration: Math.floor(totalMinutes * 0.1) + 'm' },
+          { target: rate, duration: Math.floor(totalMinutes * 0.2) + 'm' },
+          { target: rate * 2.33, duration: Math.floor(totalMinutes * 0.4) + 'm' },
+          { target: rate, duration: Math.floor(totalMinutes * 0.3) + 'm' },
+        ];
+      }
+      
+      // Calculate step durations for each phase
+      const rampUpTime = Math.max(1, Math.floor(baselineDuration * 0.2));
+      const baselineHoldTime = baselineDuration - rampUpTime;
+      const scaleUpStepTime = Math.floor(scaleUpDuration / 8); // 4 steps up, each with hold
+      const scaleDownStepTime = Math.floor(scaleDownDuration / 6); // Fewer steps down
+      
+      return [
+        // Baseline phase
+        { target: rate, duration: rampUpTime + 'm' },           // Ramp up to baseline
+        { target: rate, duration: baselineHoldTime + 'm' },     // Hold baseline
+        
+        // Scale up phase - 4 steps
+        { target: rate * 1.33, duration: scaleUpStepTime + 'm' },    // Step 1: -> 20k
+        { target: rate * 1.33, duration: scaleUpStepTime + 'm' },    // Hold at 20k
+        { target: rate * 1.67, duration: scaleUpStepTime + 'm' },    // Step 2: -> 25k
+        { target: rate * 1.67, duration: scaleUpStepTime + 'm' },    // Hold at 25k
+        { target: rate * 2, duration: scaleUpStepTime + 'm' },       // Step 3: -> 30k
+        { target: rate * 2, duration: scaleUpStepTime + 'm' },       // Hold at 30k
+        { target: rate * 2.33, duration: scaleUpStepTime + 'm' },    // Step 4: -> 35k
+        { target: rate * 2.33, duration: scaleUpStepTime + 'm' },    // Hold at peak
+        
+        // Scale down phase
+        { target: rate * 2, duration: scaleDownStepTime + 'm' },     // Step down: -> 30k
+        { target: rate * 1.67, duration: scaleDownStepTime + 'm' },  // Step down: -> 25k
+        { target: rate * 1.67, duration: scaleDownStepTime + 'm' },  // Hold at 25k
+        { target: rate * 1.33, duration: scaleDownStepTime + 'm' },  // Step down: -> 20k
+        { target: rate, duration: scaleDownStepTime + 'm' },         // Step down: -> 15k
+        { target: rate, duration: scaleDownStepTime + 'm' },         // Hold at baseline
+      ];
+    })(),
   },
 });
 

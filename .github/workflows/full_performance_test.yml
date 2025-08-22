@@ -31,6 +31,11 @@ on:
         required: false
         type: number
         default: 10
+      test_duration_minutes:
+        description: 'Test duration in minutes (30-360)'
+        required: false
+        type: number
+        default: 30
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
@@ -166,7 +171,15 @@ jobs:
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
             --auto-approve
-          sleep 300
+          
+          # Calculate stabilization wait time based on test duration
+          # Minimum 5 minutes, maximum 15 minutes, scales with duration
+          STABILIZATION_MINUTES=$(( ${{ inputs.test_duration_minutes }} >= 60 ? 10 : 5 ))
+          if [[ ${{ inputs.test_duration_minutes }} -ge 180 ]]; then
+            STABILIZATION_MINUTES=15
+          fi
+          echo "Waiting ${STABILIZATION_MINUTES} minutes for deployment to stabilize..."
+          sleep $((STABILIZATION_MINUTES * 60))
 
       - name: Show Tyk Gateway logs
         run: |
@@ -262,6 +275,7 @@ jobs:
           terraform init
           terraform apply \
             --var="kubernetes_config_context=performance-testing" \
+            --var="tests_duration=${{ inputs.test_duration_minutes }}" \
             --auto-approve
 
       - name: Show Tyk Gateway logs after tests

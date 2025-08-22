@@ -23,10 +23,13 @@ import { generateKeys } from "/helpers/auth.js";
 
 const { SCENARIO } = __ENV;
 
+// Calculate setup timeout based on test duration (minimum 300s, scales with duration)
+const setupTimeoutSeconds = Math.max(300, ${var.config.duration} * 60 * 0.1); // 10% of test duration or 300s minimum
+
 export const options = {
   discardResponseBodies: true,
   insecureSkipTLSVerify: true,
-  setupTimeout: '300s',
+  setupTimeout: setupTimeoutSeconds + 's',
   scenarios: { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
   thresholds: {
     'http_req_duration': ['p(95)<2000'],
