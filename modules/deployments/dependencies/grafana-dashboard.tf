@@ -7374,7 +7374,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_deletion_timestamp{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"})",
+          "expr": "count(kube_pod_deletion_timestamp{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"} > 0)",
           "hide": false,
           "instant": false,
           "legendFormat": "Terminating",
@@ -7400,12 +7400,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(increase(kube_pod_created{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}[2m]))",
+          "expr": "rate(kube_pod_created{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}[2m]) * 120",
           "hide": false,
           "instant": false,
           "legendFormat": "New Pods Created",
           "range": true,
           "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "count(kube_pod_status_reason{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",reason=\"Evicted\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Evicted",
+          "range": true,
+          "refId": "G"
         }
       ],
       "title": "Pod Disruption Events",
@@ -7500,7 +7513,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "disableTextWrap": false,
           "editorMode": "code",
           "exemplar": true,
-          "expr": "count(kube_node_info{node=~\".*tyk-np.*\"}) OR count(kube_node_status_condition{node=~\".*tyk-np.*\", condition=\"Ready\", status=\"true\"})",
+          "expr": "count(kube_node_status_condition{node=~\".*-tyk-np-.*\", condition=\"Ready\", status=\"true\"})",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -7516,7 +7529,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_node_info{node=~\".*kong-np.*\"})",
+          "expr": "count(kube_node_status_condition{node=~\".*-kong-np-.*\", condition=\"Ready\", status=\"true\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Kong Nodes",
@@ -7529,7 +7542,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_node_info{node=~\".*gravitee-np.*\"})",
+          "expr": "count(kube_node_status_condition{node=~\".*-gravitee-np-.*\", condition=\"Ready\", status=\"true\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Gravitee Nodes",
@@ -7542,7 +7555,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_node_info{node=~\".*traefik-np.*\"})",
+          "expr": "count(kube_node_status_condition{node=~\".*-traefik-np-.*\", condition=\"Ready\", status=\"true\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Traefik Nodes",
