@@ -21,6 +21,16 @@ on:
         required: true
         type: boolean
         default: false
+      simulate_node_failure:
+        description: 'Simulate node failure during test'
+        required: false
+        type: boolean
+        default: false
+      node_failure_delay_minutes:
+        description: 'Minutes to wait before simulating node failure'
+        required: false
+        type: number
+        default: 10
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
@@ -165,6 +175,89 @@ jobs:
 
       - name: Run Tests
         run: |
+          # Start node failure simulation in background if enabled
+          if [[ "${{ inputs.simulate_node_failure }}" == "true" ]]; then
+            echo "Node failure simulation enabled - will terminate a node after ${{ inputs.node_failure_delay_minutes }} minutes"
+            
+            (
+              # Wait for specified delay
+              sleep $((${{ inputs.node_failure_delay_minutes }} * 60))
+              
+              echo "=== Starting node failure simulation ==="
+              
+              # Get nodes running gateway pods
+              GATEWAY_NODES=$(kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort -u)
+              NODE_TO_TERMINATE=$(echo "$GATEWAY_NODES" | head -n 1)
+              
+              if [[ -z "$NODE_TO_TERMINATE" ]]; then
+                echo "No gateway nodes found to terminate"
+                exit 0
+              fi
+              
+              echo "Selected node for termination: $NODE_TO_TERMINATE"
+              
+              # Cloud-specific node termination
+              if [[ "${{ inputs.cloud }}" == "Azure" ]]; then
+                # Get VMSS instance ID from node name
+                VMSS_NAME=$(az vmss list --resource-group "pt-${{ vars.AZURE_CLUSTER_LOCATION }}" --query "[0].name" -o tsv)
+                INSTANCE_ID=$(az vmss list-instances --resource-group "pt-${{ vars.AZURE_CLUSTER_LOCATION }}" --name "$VMSS_NAME" --query "[?osProfile.computerName=='$NODE_TO_TERMINATE'].instanceId" -o tsv)
+                
+                if [[ -n "$INSTANCE_ID" ]]; then
+                  echo "Terminating Azure VMSS instance: $INSTANCE_ID"
+                  az vmss delete-instances \
+                    --resource-group "pt-${{ vars.AZURE_CLUSTER_LOCATION }}" \
+                    --name "$VMSS_NAME" \
+                    --instance-ids "$INSTANCE_ID" \
+                    --no-wait
+                  echo "Azure node termination initiated"
+                else
+                  echo "Could not find Azure VMSS instance for node: $NODE_TO_TERMINATE"
+                fi
+                
+              elif [[ "${{ inputs.cloud }}" == "AWS" ]]; then
+                # Get EC2 instance ID from node provider ID
+                INSTANCE_ID=$(kubectl get node "$NODE_TO_TERMINATE" -o jsonpath='{.spec.providerID}' | cut -d'/' -f5)
+                
+                if [[ -n "$INSTANCE_ID" ]]; then
+                  echo "Terminating AWS EC2 instance: $INSTANCE_ID"
+                  aws ec2 terminate-instances \
+                    --instance-ids "$INSTANCE_ID" \
+                    --region "${{ vars.AWS_CLUSTER_LOCATION }}"
+                  echo "AWS node termination initiated"
+                else
+                  echo "Could not find AWS instance ID for node: $NODE_TO_TERMINATE"
+                fi
+                
+              elif [[ "${{ inputs.cloud }}" == "GCP" ]]; then
+                # Get instance name and zone from node provider ID
+                PROVIDER_ID=$(kubectl get node "$NODE_TO_TERMINATE" -o jsonpath='{.spec.providerID}')
+                INSTANCE_NAME=$(echo "$PROVIDER_ID" | cut -d'/' -f5)
+                
+                if [[ -n "$INSTANCE_NAME" ]]; then
+                  echo "Terminating GCP instance: $INSTANCE_NAME"
+                  gcloud compute instances delete "$INSTANCE_NAME" \
+                    --zone "${{ vars.GCP_CLUSTER_LOCATION }}" \
+                    --quiet
+                  echo "GCP node termination initiated"
+                else
+                  echo "Could not find GCP instance for node: $NODE_TO_TERMINATE"
+                fi
+              fi
+              
+              echo "=== Node failure simulation completed ==="
+              
+              # Show cluster status after termination
+              sleep 30
+              echo "=== Cluster status after node termination ==="
+              kubectl get nodes
+              echo "=== Gateway pods status ==="
+              kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway
+            ) &
+            
+            echo "Node failure simulation scheduled in background"
+          fi
+          
+          # Run the actual tests
           cd tests
           terraform init
           terraform apply \
