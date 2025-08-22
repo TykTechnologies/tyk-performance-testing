@@ -199,7 +199,7 @@ jobs:
               echo "=== Starting node failure simulation ==="
               
               # Get nodes running gateway pods
-              GATEWAY_NODES=$(kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort -u)
+              GATEWAY_NODES=$(kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort -u)
               NODE_TO_TERMINATE=$(echo "$GATEWAY_NODES" | head -n 1)
               
               if [[ -z "$NODE_TO_TERMINATE" ]]; then
@@ -264,7 +264,7 @@ jobs:
               echo "=== Cluster status after node termination ==="
               kubectl get nodes
               echo "=== Gateway pods status ==="
-              kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway
+              kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway
             ) &
             
             echo "Node failure simulation scheduled in background"
