@@ -7332,7 +7332,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "disableTextWrap": false,
           "editorMode": "code",
           "exemplar": true,
-          "expr": "count(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Pending\"}) OR on() vector(0)",
+          "expr": "count(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Pending\"})",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -7348,7 +7348,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_container_status_waiting_reason{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",reason=\"ContainerCreating\"}) OR on() vector(0)",
+          "expr": "count(kube_pod_container_status_waiting_reason{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",reason=\"ContainerCreating\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "ContainerCreating",
@@ -7361,7 +7361,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Failed\"}) OR on() vector(0)",
+          "expr": "count(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Failed\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Failed",
@@ -7374,7 +7374,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_deletion_timestamp{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}) OR on() vector(0)",
+          "expr": "count(kube_pod_deletion_timestamp{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Terminating",
@@ -7387,12 +7387,25 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(kube_pod_container_status_restarts_total{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}[2m]) * 120) OR on() vector(0)",
+          "expr": "sum(rate(kube_pod_container_status_restarts_total{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}[2m]) * 120)",
           "hide": false,
           "instant": false,
           "legendFormat": "Restarts",
           "range": true,
           "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(kube_pod_created{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}[2m]))",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "New Pods Created",
+          "range": true,
+          "refId": "F"
         }
       ],
       "title": "Pod Disruption Events",
@@ -7487,7 +7500,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "disableTextWrap": false,
           "editorMode": "code",
           "exemplar": true,
-          "expr": "count(kube_node_info{node=~\".*tyk-np.*\"})",
+          "expr": "count(kube_node_info{node=~\".*tyk-np.*\"}) OR count(kube_node_status_condition{node=~\".*tyk-np.*\", condition=\"Ready\", status=\"true\"})",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
