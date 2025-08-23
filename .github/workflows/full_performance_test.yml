@@ -31,6 +31,11 @@ on:
         required: false
         type: number
         default: 10
+      node_downtime_minutes:
+        description: 'Minutes to keep the node down during failure simulation'
+        required: false
+        type: number
+        default: 5
       test_duration_minutes:
         description: 'Test duration in minutes (30-360)'
         required: false
@@ -342,32 +347,54 @@ jobs:
                     kubectl uncordon $node || true
                   done
                   
-                  # STEP 2: Now resize the node pool to restore capacity
-                  # This ensures GKE creates a new node instead of just auto-healing
-                  echo "=== RESIZING node pool to restore capacity ==="
+                  # STEP 2: Resize node pool down to prevent auto-healing
+                  echo "=== RESIZING node pool down to prevent recovery ==="
                   NEW_SIZE=$((CURRENT_SIZE - 1))
-                  echo "Resizing node pool from $CURRENT_SIZE to $NEW_SIZE (temporary)..."
+                  echo "Resizing node pool from $CURRENT_SIZE to $NEW_SIZE..."
                   gcloud container clusters resize "$CLUSTER_NAME" \
                     --node-pool="$NODE_POOL" \
                     --num-nodes="$NEW_SIZE" \
                     --zone="$ZONE" \
                     --quiet
                   
-                  sleep 10
+                  # STEP 3: Keep the node down for configured duration
+                  DOWNTIME_MINUTES=${{ inputs.node_downtime_minutes }}
+                  echo "=== Keeping node down for $DOWNTIME_MINUTES minutes to observe impact ==="
+                  echo "Node will remain down from $(date '+%H:%M:%S') for $DOWNTIME_MINUTES minutes..."
                   
-                  echo "Resizing back to original size $CURRENT_SIZE..."
+                  for minute in $(seq 1 $DOWNTIME_MINUTES); do
+                    echo ""
+                    echo "[Minute $minute/$DOWNTIME_MINUTES] Node still down - monitoring impact..."
+                    echo "  Active nodes: $(kubectl get nodes --no-headers | grep -v NotReady | wc -l) / $NEW_SIZE"
+                    echo "  Gateway pods Running: $(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep Running | wc -l)"
+                    echo "  Gateway pods NotReady: $(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep -v Running | wc -l)"
+                    
+                    # Check endpoints every 30 seconds
+                    for half in {1..2}; do
+                      sleep 30
+                      echo "    [${minute}m $((half*30))s] Endpoints ready: $(kubectl get endpoints -n tyk gateway-tyk-svc-tyk-gateway -o json 2>/dev/null | jq -r '.subsets[0].addresses | length' 2>/dev/null || echo '0')"
+                    done
+                  done
+                  
+                  # STEP 4: Restore node pool to original size
+                  echo ""
+                  echo "=== RESTORING node pool to original size ==="
+                  echo "Resizing back to $CURRENT_SIZE nodes at $(date '+%H:%M:%S')..."
                   gcloud container clusters resize "$CLUSTER_NAME" \
                     --node-pool="$NODE_POOL" \
                     --num-nodes="$CURRENT_SIZE" \
                     --zone="$ZONE" \
                     --quiet
                   
-                  echo "Resize initiated. Monitoring recovery for 30 seconds..."
-                  for i in {1..6}; do
+                  echo "Recovery initiated. Monitoring restoration for 2 minutes..."
+                  for i in {1..24}; do
                     sleep 5
-                    echo "[$((i*5))s] Recovery state:"
-                    echo "  Nodes: $(kubectl get nodes --no-headers | wc -l) / $CURRENT_SIZE"
-                    kubectl get pods -n tyk | grep -vE "Running|Completed" | wc -l
+                    if [[ $((i % 3)) -eq 0 ]]; then
+                      echo "[$((i*5))s] Recovery state:"
+                      echo "  Nodes ready: $(kubectl get nodes --no-headers | grep -v NotReady | wc -l) / $CURRENT_SIZE"
+                      echo "  Pods pending/not ready: $(kubectl get pods -n tyk | grep -vE "Running|Completed" | wc -l)"
+                      echo "  Endpoints ready: $(kubectl get endpoints -n tyk gateway-tyk-svc-tyk-gateway -o json 2>/dev/null | jq -r '.subsets[0].addresses | length' 2>/dev/null || echo '0')"
+                    fi
                   done
                 else
                   echo "Could not find GCP instance for node: $NODE_TO_TERMINATE"
