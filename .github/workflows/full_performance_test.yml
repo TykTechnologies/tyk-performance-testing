@@ -305,7 +305,21 @@ jobs:
                     kubectl cordon $node
                   done
                   
-                  # STEP 1: Force delete the instance immediately (causes abrupt failure)
+                  # STEP 1: First, force delete all pods on this node WITHOUT grace period
+                  echo "=== FORCEFULLY DELETING all pods on node $NODE_TO_TERMINATE ==="
+                  PODS_ON_NODE=$(kubectl get pods --all-namespaces --field-selector spec.nodeName=$NODE_TO_TERMINATE -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"')
+                  
+                  for pod in $PODS_ON_NODE; do
+                    namespace=$(echo $pod | cut -d'/' -f1)
+                    podname=$(echo $pod | cut -d'/' -f2)
+                    echo "Force deleting pod: $podname in namespace: $namespace"
+                    kubectl delete pod $podname -n $namespace --grace-period=0 --force &
+                  done
+                  
+                  # Give it a second for pod deletions to register
+                  sleep 2
+                  
+                  # STEP 2: Now force delete the GCP instance itself
                   echo "=== FORCE DELETING GCP instance: $INSTANCE_NAME ==="
                   gcloud compute instances delete "$INSTANCE_NAME" \
                     --zone "$ZONE" \
@@ -327,6 +341,9 @@ jobs:
                     echo "  Pod states in tyk namespace:"
                     kubectl get pods -n tyk --no-headers | awk '{print $3}' | sort | uniq -c
                     
+                    echo "  Pod details (gateway pods):"
+                    kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway -o wide --no-headers | awk '{print "    "$1": "$3" on "$7}' || true
+                    
                     echo "  Available services:"
                     kubectl get svc -n tyk --no-headers | awk '{print $1}'
                     
@@ -347,7 +364,7 @@ jobs:
                     kubectl uncordon $node || true
                   done
                   
-                  # STEP 2: Resize node pool down to prevent auto-healing
+                  # STEP 3: Resize node pool down to prevent auto-healing
                   echo "=== RESIZING node pool down to prevent recovery ==="
                   NEW_SIZE=$((CURRENT_SIZE - 1))
                   echo "Resizing node pool from $CURRENT_SIZE to $NEW_SIZE..."
@@ -357,7 +374,7 @@ jobs:
                     --zone="$ZONE" \
                     --quiet
                   
-                  # STEP 3: Keep the node down for configured duration
+                  # STEP 4: Keep the node down for configured duration
                   DOWNTIME_MINUTES=${{ inputs.node_downtime_minutes }}
                   echo "=== Keeping node down for $DOWNTIME_MINUTES minutes to observe impact ==="
                   echo "Node will remain down from $(date '+%H:%M:%S') for $DOWNTIME_MINUTES minutes..."
@@ -366,8 +383,9 @@ jobs:
                     echo ""
                     echo "[Minute $minute/$DOWNTIME_MINUTES] Node still down - monitoring impact..."
                     echo "  Active nodes: $(kubectl get nodes --no-headers | grep -v NotReady | wc -l) / $NEW_SIZE"
-                    echo "  Gateway pods Running: $(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep Running | wc -l)"
-                    echo "  Gateway pods NotReady: $(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep -v Running | wc -l)"
+                    echo "  Gateway pod states:"
+                    kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | awk '{print $3}' | sort | uniq -c | awk '{print "    "$2": "$1}'
+                    echo "  Total pods: Running=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep Running | wc -l), Other=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep -v Running | wc -l)"
                     
                     # Check endpoints every 30 seconds
                     for half in {1..2}; do
@@ -376,7 +394,7 @@ jobs:
                     done
                   done
                   
-                  # STEP 4: Restore node pool to original size
+                  # STEP 5: Restore node pool to original size
                   echo ""
                   echo "=== RESTORING node pool to original size ==="
                   echo "Resizing back to $CURRENT_SIZE nodes at $(date '+%H:%M:%S')..."
