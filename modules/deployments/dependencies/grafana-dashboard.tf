@@ -7332,7 +7332,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "disableTextWrap": false,
           "editorMode": "code",
           "exemplar": true,
-          "expr": "count(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Pending\"})",
+          "expr": "sum(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Pending\"})",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -7348,7 +7348,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_container_status_waiting_reason{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",reason=\"ContainerCreating\"})",
+          "expr": "sum(kube_pod_container_status_waiting_reason{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",reason=\"ContainerCreating\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "ContainerCreating",
@@ -7361,7 +7361,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Failed\"})",
+          "expr": "sum(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Failed\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Failed",
@@ -7374,7 +7374,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_deletion_timestamp{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"} > 0)",
+          "expr": "sum(kube_pod_deletion_timestamp{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"} > 0)",
           "hide": false,
           "instant": false,
           "legendFormat": "Terminating",
@@ -7387,10 +7387,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(kube_pod_container_status_restarts_total{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}[2m]) * 120)",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}[5m]))",
           "hide": false,
           "instant": false,
-          "legendFormat": "Restarts",
+          "legendFormat": "Restarts (5m)",
           "range": true,
           "refId": "E"
         },
@@ -7400,10 +7400,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(kube_pod_created{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}[2m]) * 120",
+          "expr": "sum(kube_pod_status_unschedulable{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "New Pods Created",
+          "legendFormat": "Unschedulable",
           "range": true,
           "refId": "F"
         },
@@ -7413,12 +7413,90 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_status_reason{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",reason=\"Evicted\"})",
+          "expr": "sum(kube_pod_status_reason{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",reason=\"Evicted\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Evicted",
           "range": true,
           "refId": "G"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Running\"} * on (namespace,pod) kube_pod_status_ready{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",condition=\"false\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Running but NotReady",
+          "range": true,
+          "refId": "H"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_endpoint_address{namespace=\"tyk\",endpoint=~\"gateway-tyk-svc-tyk-gateway\",ready=\"false\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Endpoints Not Ready",
+          "range": true,
+          "refId": "I"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",phase=\"Running\"}) - sum(kube_endpoint_address{namespace=\"tyk\",endpoint=~\"gateway-tyk-svc-tyk-gateway\",ready=\"true\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Running Pods w/o Ready Endpoint",
+          "range": true,
+          "refId": "J"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_container_status_waiting_reason{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",reason=\"CrashLoopBackOff\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "CrashLoopBackOff",
+          "range": true,
+          "refId": "K"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_container_status_waiting_reason{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\",reason=~\"ImagePullBackOff|ErrImagePull\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "ImagePullBackOff",
+          "range": true,
+          "refId": "L"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "sum((time() - kube_pod_deletion_timestamp{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway.*\"}) > 30)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Terminating > 30s",
+          "range": true,
+          "refId": "M"
         }
       ],
       "title": "Pod Disruption Events",
