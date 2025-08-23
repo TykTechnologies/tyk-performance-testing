@@ -268,7 +268,15 @@ jobs:
                 echo "Pods running on node $INSTANCE_NAME:"
                 kubectl get pods --all-namespaces --field-selector spec.nodeName=$INSTANCE_NAME -o wide
                 POD_COUNT=$(kubectl get pods --all-namespaces --field-selector spec.nodeName=$INSTANCE_NAME --no-headers | wc -l)
-                echo "Total pods on node: $POD_COUNT"
+                GATEWAY_POD_COUNT=$(kubectl get pods -n tyk --field-selector spec.nodeName=$INSTANCE_NAME --selector=app=gateway-tyk-tyk-gateway --no-headers | wc -l)
+                echo "Total pods on node: $POD_COUNT (Gateway pods: $GATEWAY_POD_COUNT)"
+                
+                # Check pod distribution across all nodes
+                echo "Pod distribution before deletion:"
+                for node in $(kubectl get nodes -o name | cut -d/ -f2); do
+                  count=$(kubectl get pods -n tyk --field-selector spec.nodeName=$node --no-headers | wc -l)
+                  echo "  $node: $count pods"
+                done
                 
                 if [[ -n "$INSTANCE_NAME" ]]; then
                   # Get current node pool size before deletion
@@ -277,6 +285,13 @@ jobs:
                     --zone="$ZONE" \
                     --format="value(initialNodeCount)" 2>/dev/null || echo "4")
                   echo "Current node pool size: $CURRENT_SIZE"
+                  
+                  # OPTIONAL: Cordon other nodes to prevent pod scheduling (more chaos)
+                  echo "=== CORDONING other nodes to prevent rescheduling ==="
+                  for node in $(kubectl get nodes -o name | cut -d/ -f2 | grep -v "$INSTANCE_NAME"); do
+                    echo "Cordoning node: $node"
+                    kubectl cordon $node
+                  done
                   
                   # STEP 1: Force delete the instance immediately (causes abrupt failure)
                   echo "=== FORCE DELETING GCP instance: $INSTANCE_NAME ==="
@@ -299,6 +314,12 @@ jobs:
                     echo "  Pods in abnormal state:"
                     kubectl get pods -n tyk --no-headers | grep -vE "Running|Completed" | wc -l
                     kubectl get pods -n tyk | grep -vE "Running|Completed" | head -5 || echo "    All pods normal"
+                  done
+                  
+                  # Uncordon nodes to allow scheduling again
+                  echo "=== UNCORDONING nodes to allow rescheduling ==="
+                  for node in $(kubectl get nodes -o name | cut -d/ -f2); do
+                    kubectl uncordon $node || true
                   done
                   
                   # STEP 2: Now resize the node pool to restore capacity
