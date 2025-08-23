@@ -199,7 +199,14 @@ jobs:
               echo "=== Starting node failure simulation ==="
               
               # Get nodes running gateway pods
-              GATEWAY_NODES=$(kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort -u)
+              echo "Finding nodes with gateway pods..."
+              GATEWAY_NODES=$(kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort -u)
+              
+              if [[ -z "$GATEWAY_NODES" ]]; then
+                echo "No nodes found with gateway pods, trying to find any pod with 'gateway' in name..."
+                GATEWAY_NODES=$(kubectl get pods -n tyk --no-headers | grep gateway | awk '{print $1}' | head -1 | xargs -I {} kubectl get pod {} -n tyk -o jsonpath='{.spec.nodeName}')
+              fi
+              
               NODE_TO_TERMINATE=$(echo "$GATEWAY_NODES" | head -n 1)
               
               if [[ -z "$NODE_TO_TERMINATE" ]]; then
@@ -315,14 +322,18 @@ jobs:
                     echo "  Pod states in tyk namespace:"
                     kubectl get pods -n tyk --no-headers | awk '{print $3}' | sort | uniq -c
                     
+                    echo "  Available services:"
+                    kubectl get svc -n tyk --no-headers | awk '{print $1}'
+                    
                     echo "  Endpoints for gateway service:"
-                    kubectl get endpoints -n tyk gateway-tyk-svc-tyk-gateway -o jsonpath='{.subsets[*].addresses[*].ip}' | wc -w
+                    ENDPOINT_COUNT=$(kubectl get endpoints -n tyk --no-headers | grep gateway | head -1 | awk '{print $2}' | tr ',' '\n' | wc -l)
+                    echo "    Ready endpoints: ${ENDPOINT_COUNT:-0}"
                     
                     echo "  Pods NOT ready:"
                     kubectl get pods -n tyk --no-headers | grep -v "1/1" | wc -l
                     
-                    echo "  Service endpoint details:"
-                    kubectl get endpoints -n tyk gateway-tyk-svc-tyk-gateway -o yaml | grep -A2 "notReadyAddresses:" || echo "    No not-ready addresses"
+                    echo "  Pod ready status:"
+                    kubectl get pods -n tyk -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,STATUS:.status.phase --no-headers | grep gateway || true
                   done
                   
                   # Uncordon nodes to allow scheduling again
