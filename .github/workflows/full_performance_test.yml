@@ -271,24 +271,62 @@ jobs:
                 echo "Total pods on node: $POD_COUNT"
                 
                 if [[ -n "$INSTANCE_NAME" ]]; then
-                  echo "Hard-deleting GCP instance: $INSTANCE_NAME"
-                  # Use --delete-disks=all to ensure complete deletion
+                  # Get current node pool size before deletion
+                  CURRENT_SIZE=$(gcloud container node-pools describe "$NODE_POOL" \
+                    --cluster="$CLUSTER_NAME" \
+                    --zone="$ZONE" \
+                    --format="value(initialNodeCount)" 2>/dev/null || echo "4")
+                  echo "Current node pool size: $CURRENT_SIZE"
+                  
+                  # STEP 1: Force delete the instance immediately (causes abrupt failure)
+                  echo "=== FORCE DELETING GCP instance: $INSTANCE_NAME ==="
                   gcloud compute instances delete "$INSTANCE_NAME" \
                     --zone "$ZONE" \
-                    --delete-disks=all \
                     --quiet &
+                  DELETE_PID=$!
                   
-                  # Don't wait for deletion to complete - let it happen in background
-                  echo "GCP node termination initiated (non-blocking)"
+                  echo "Force deletion initiated, waiting for completion..."
+                  wait $DELETE_PID
+                  echo "Instance $INSTANCE_NAME has been forcefully deleted!"
                   
-                  # Monitor the impact for 30 seconds
-                  echo "Monitoring impact..."
+                  # Monitor immediate impact
+                  echo "Monitoring immediate impact for 30 seconds..."
                   for i in {1..6}; do
                     sleep 5
-                    echo "[$((i*5))s] Node status:"
+                    echo "[$((i*5))s] Cluster state after deletion:"
+                    echo "  Nodes: $(kubectl get nodes --no-headers | wc -l) (was $CURRENT_SIZE)"
                     kubectl get nodes | grep -E "NAME|NotReady|$INSTANCE_NAME" || true
-                    echo "Pods in abnormal state:"
-                    kubectl get pods -n tyk | grep -vE "Running|Completed" | head -5 || true
+                    echo "  Pods in abnormal state:"
+                    kubectl get pods -n tyk --no-headers | grep -vE "Running|Completed" | wc -l
+                    kubectl get pods -n tyk | grep -vE "Running|Completed" | head -5 || echo "    All pods normal"
+                  done
+                  
+                  # STEP 2: Now resize the node pool to restore capacity
+                  # This ensures GKE creates a new node instead of just auto-healing
+                  echo "=== RESIZING node pool to restore capacity ==="
+                  NEW_SIZE=$((CURRENT_SIZE - 1))
+                  echo "Resizing node pool from $CURRENT_SIZE to $NEW_SIZE (temporary)..."
+                  gcloud container clusters resize "$CLUSTER_NAME" \
+                    --node-pool="$NODE_POOL" \
+                    --num-nodes="$NEW_SIZE" \
+                    --zone="$ZONE" \
+                    --quiet
+                  
+                  sleep 10
+                  
+                  echo "Resizing back to original size $CURRENT_SIZE..."
+                  gcloud container clusters resize "$CLUSTER_NAME" \
+                    --node-pool="$NODE_POOL" \
+                    --num-nodes="$CURRENT_SIZE" \
+                    --zone="$ZONE" \
+                    --quiet
+                  
+                  echo "Resize initiated. Monitoring recovery for 30 seconds..."
+                  for i in {1..6}; do
+                    sleep 5
+                    echo "[$((i*5))s] Recovery state:"
+                    echo "  Nodes: $(kubectl get nodes --no-headers | wc -l) / $CURRENT_SIZE"
+                    kubectl get pods -n tyk | grep -vE "Running|Completed" | wc -l
                   done
                 else
                   echo "Could not find GCP instance for node: $NODE_TO_TERMINATE"
