@@ -242,16 +242,54 @@ jobs:
                 fi
                 
               elif [[ "${{ inputs.cloud }}" == "GCP" ]]; then
-                # Get instance name and zone from node provider ID
-                PROVIDER_ID=$(kubectl get node "$NODE_TO_TERMINATE" -o jsonpath='{.spec.providerID}')
-                INSTANCE_NAME=$(echo "$PROVIDER_ID" | cut -d'/' -f5)
+                # Get instance name and zone from node
+                INSTANCE_NAME="$NODE_TO_TERMINATE"
+                ZONE="${{ vars.GCP_CLUSTER_LOCATION }}"
+                CLUSTER_NAME="pt-${ZONE}"
+                
+                # Get the node pool name from the node labels
+                NODE_POOL=$(kubectl get node "$NODE_TO_TERMINATE" -o jsonpath='{.metadata.labels.cloud\.google\.com/gke-nodepool}')
+                
+                echo "Node details:"
+                echo "  Instance: $INSTANCE_NAME"
+                echo "  Zone: $ZONE"
+                echo "  Node Pool: $NODE_POOL"
+                echo "  Cluster: $CLUSTER_NAME"
+                
+                # First, disable auto-repair for the node pool to prevent automatic recovery
+                echo "Disabling auto-repair for node pool: $NODE_POOL"
+                gcloud container node-pools update "$NODE_POOL" \
+                  --cluster="$CLUSTER_NAME" \
+                  --zone="$ZONE" \
+                  --no-enable-autorepair \
+                  --quiet || echo "Warning: Failed to disable auto-repair"
+                
+                # Count pods on the node before deletion
+                echo "Pods running on node $INSTANCE_NAME:"
+                kubectl get pods --all-namespaces --field-selector spec.nodeName=$INSTANCE_NAME -o wide
+                POD_COUNT=$(kubectl get pods --all-namespaces --field-selector spec.nodeName=$INSTANCE_NAME --no-headers | wc -l)
+                echo "Total pods on node: $POD_COUNT"
                 
                 if [[ -n "$INSTANCE_NAME" ]]; then
-                  echo "Terminating GCP instance: $INSTANCE_NAME"
+                  echo "Hard-deleting GCP instance: $INSTANCE_NAME"
+                  # Use --delete-disks=all to ensure complete deletion
                   gcloud compute instances delete "$INSTANCE_NAME" \
-                    --zone "${{ vars.GCP_CLUSTER_LOCATION }}" \
-                    --quiet
-                  echo "GCP node termination initiated"
+                    --zone "$ZONE" \
+                    --delete-disks=all \
+                    --quiet &
+                  
+                  # Don't wait for deletion to complete - let it happen in background
+                  echo "GCP node termination initiated (non-blocking)"
+                  
+                  # Monitor the impact for 30 seconds
+                  echo "Monitoring impact..."
+                  for i in {1..6}; do
+                    sleep 5
+                    echo "[$((i*5))s] Node status:"
+                    kubectl get nodes | grep -E "NAME|NotReady|$INSTANCE_NAME" || true
+                    echo "Pods in abnormal state:"
+                    kubectl get pods -n tyk | grep -vE "Running|Completed" | head -5 || true
+                  done
                 else
                   echo "Could not find GCP instance for node: $NODE_TO_TERMINATE"
                 fi
