@@ -36,6 +36,11 @@ on:
         required: false
         type: number
         default: 5
+      guarantee_errors:
+        description: 'Use iptables to guarantee connection errors during node failure'
+        required: false
+        type: boolean
+        default: false
       test_duration_minutes:
         description: 'Test duration in minutes (30-360)'
         required: false
@@ -255,169 +260,96 @@ jobs:
                 fi
                 
               elif [[ "${{ inputs.cloud }}" == "GCP" ]]; then
-                # Get instance name and zone from node
+                # === CATASTROPHIC NODE FAILURE (GKE, with auto-repair kept on) ===
                 INSTANCE_NAME="$NODE_TO_TERMINATE"
                 ZONE="${{ vars.GCP_CLUSTER_LOCATION }}"
                 CLUSTER_NAME="pt-${ZONE}"
                 
-                # Get the node pool name from the node labels
-                NODE_POOL=$(kubectl get node "$NODE_TO_TERMINATE" -o jsonpath='{.metadata.labels.cloud\.google\.com/gke-nodepool}')
-                
                 echo "Node details:"
                 echo "  Instance: $INSTANCE_NAME"
                 echo "  Zone: $ZONE"
-                echo "  Node Pool: $NODE_POOL"
                 echo "  Cluster: $CLUSTER_NAME"
                 
-                # First, disable auto-repair for the node pool to prevent automatic recovery
-                echo "Disabling auto-repair for node pool: $NODE_POOL"
-                gcloud container node-pools update "$NODE_POOL" \
-                  --cluster="$CLUSTER_NAME" \
-                  --zone="$ZONE" \
-                  --no-enable-autorepair \
-                  --quiet || echo "Warning: Failed to disable auto-repair"
-                
                 # Count pods on the node before deletion
-                echo "Pods running on node $INSTANCE_NAME:"
+                echo "Pods running on node $INSTANCE_NAME before failure:"
                 kubectl get pods --all-namespaces --field-selector spec.nodeName=$INSTANCE_NAME -o wide
                 POD_COUNT=$(kubectl get pods --all-namespaces --field-selector spec.nodeName=$INSTANCE_NAME --no-headers | wc -l)
                 GATEWAY_POD_COUNT=$(kubectl get pods -n tyk --field-selector spec.nodeName=$INSTANCE_NAME --selector=app=gateway-tyk-tyk-gateway --no-headers | wc -l)
                 echo "Total pods on node: $POD_COUNT (Gateway pods: $GATEWAY_POD_COUNT)"
                 
+                # Get Pod IPs that were on the doomed node (for optional iptables trick)
+                POD_IPS=$(kubectl get pods -A -o wide --field-selector spec.nodeName=$INSTANCE_NAME --no-headers | awk '{print $6}' | tr '\n' ' ')
+                echo "Pod IPs on node: $POD_IPS"
+                
                 # Check pod distribution across all nodes
-                echo "Pod distribution before deletion:"
+                echo "Pod distribution before failure:"
                 for node in $(kubectl get nodes -o name | cut -d/ -f2); do
                   count=$(kubectl get pods -n tyk --field-selector spec.nodeName=$node --no-headers | wc -l)
                   echo "  $node: $count pods"
                 done
                 
                 if [[ -n "$INSTANCE_NAME" ]]; then
-                  # Get current node pool size before deletion
-                  CURRENT_SIZE=$(gcloud container node-pools describe "$NODE_POOL" \
-                    --cluster="$CLUSTER_NAME" \
-                    --zone="$ZONE" \
-                    --format="value(initialNodeCount)" 2>/dev/null || echo "4")
-                  echo "Current node pool size: $CURRENT_SIZE"
+                  # Don't delete pods from the API. We want Kubernetes to see a node loss.
                   
-                  # OPTIONAL: Cordon other nodes to prevent pod scheduling (more chaos)
-                  echo "=== CORDONING other nodes to prevent rescheduling ==="
-                  for node in $(kubectl get nodes -o name | cut -d/ -f2 | grep -v "$INSTANCE_NAME"); do
-                    echo "Cordoning node: $node"
-                    kubectl cordon $node
-                  done
+                  # Resolve the MIG that owns this instance (created-by metadata has the URL)
+                  MIG_URL=$(gcloud compute instances describe "$INSTANCE_NAME" \
+                    --zone "$ZONE" --format='get(metadata.items[created-by])')
+                  MIG_NAME=$(basename "$MIG_URL")
                   
-                  # STEP 1: Simultaneously force delete pods AND instance for catastrophic failure
-                  echo "=== CATASTROPHIC NODE FAILURE at $(date '+%H:%M:%S') ==="
-                  echo "Simultaneously force deleting all pods and the GCP instance..."
+                  echo "=== NODE FAILURE at $(date '+%H:%M:%S') ==="
+                  echo "Forcing immediate replacement of $INSTANCE_NAME in MIG $MIG_NAME (keeps target size)"
                   
-                  # Get list of pods to delete
-                  PODS_ON_NODE=$(kubectl get pods --all-namespaces --field-selector spec.nodeName=$NODE_TO_TERMINATE -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"')
-                  echo "Found $(echo "$PODS_ON_NODE" | wc -l) pods on node $NODE_TO_TERMINATE"
-                  
-                  # Start instance deletion in background
-                  echo "Starting GCP instance deletion: $INSTANCE_NAME"
-                  gcloud compute instances delete "$INSTANCE_NAME" \
-                    --zone "$ZONE" \
-                    --quiet &
-                  DELETE_PID=$!
-                  
-                  # Immediately start force deleting all pods (also in background)
-                  echo "Force deleting all pods on the node..."
-                  for pod in $PODS_ON_NODE; do
-                    namespace=$(echo $pod | cut -d'/' -f1)
-                    podname=$(echo $pod | cut -d'/' -f2)
-                    kubectl delete pod $podname -n $namespace --grace-period=0 --force &
-                  done
-                  
-                  # Wait for instance deletion to complete
-                  echo "Waiting for instance deletion to complete..."
-                  wait $DELETE_PID
-                  echo "Instance $INSTANCE_NAME has been forcefully deleted at $(date '+%H:%M:%S')!"
-                  
-                  # Monitor immediate impact
-                  echo "Monitoring immediate impact for 60 seconds..."
-                  for i in {1..12}; do
-                    sleep 5
-                    echo "[$((i*5))s] Cluster state after deletion:"
-                    echo "  Nodes: $(kubectl get nodes --no-headers | wc -l) (was $CURRENT_SIZE)"
-                    kubectl get nodes | grep -E "NAME|NotReady" || true
-                    
-                    echo "  Pod states in tyk namespace:"
-                    kubectl get pods -n tyk --no-headers | awk '{print $3}' | sort | uniq -c
-                    
-                    echo "  Pod details (gateway pods):"
-                    kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway -o wide --no-headers | awk '{print "    "$1": "$3" on "$7}' || true
-                    
-                    echo "  Available services:"
-                    kubectl get svc -n tyk --no-headers | awk '{print $1}'
-                    
-                    echo "  Endpoints for gateway service:"
-                    ENDPOINT_COUNT=$(kubectl get endpoints -n tyk --no-headers | grep gateway | head -1 | awk '{print $2}' | tr ',' '\n' | wc -l)
-                    echo "    Ready endpoints: ${ENDPOINT_COUNT:-0}"
-                    
-                    echo "  Pods NOT ready:"
-                    kubectl get pods -n tyk --no-headers | grep -v "1/1" | wc -l
-                    
-                    echo "  Pod ready status:"
-                    kubectl get pods -n tyk -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,STATUS:.status.phase --no-headers | grep gateway || true
-                  done
-                  
-                  # Uncordon nodes to allow scheduling again
-                  echo "=== UNCORDONING nodes to allow rescheduling ==="
-                  for node in $(kubectl get nodes -o name | cut -d/ -f2); do
-                    kubectl uncordon $node || true
-                  done
-                  
-                  # STEP 2: Resize node pool down to prevent auto-healing
-                  echo "=== RESIZING node pool down to prevent recovery ==="
-                  NEW_SIZE=$((CURRENT_SIZE - 1))
-                  echo "Resizing node pool from $CURRENT_SIZE to $NEW_SIZE..."
-                  gcloud container clusters resize "$CLUSTER_NAME" \
-                    --node-pool="$NODE_POOL" \
-                    --num-nodes="$NEW_SIZE" \
+                  # This deletes the VM and immediately creates a replacement (no target size decrease)
+                  gcloud compute instance-groups managed recreate-instances "$MIG_NAME" \
+                    --instances="$INSTANCE_NAME" \
                     --zone="$ZONE" \
                     --quiet
                   
-                  # STEP 3: Keep the node down for configured duration
-                  DOWNTIME_MINUTES=${{ inputs.node_downtime_minutes }}
-                  echo "=== Keeping node down for $DOWNTIME_MINUTES minutes to observe impact ==="
-                  echo "Node will remain down from $(date '+%H:%M:%S') for $DOWNTIME_MINUTES minutes..."
+                  echo "Node loss triggered - auto-repair will bring up replacement"
+                  echo "Observing impact during auto-heal (MIG keeps target size; new node will come up)..."
                   
-                  for minute in $(seq 1 $DOWNTIME_MINUTES); do
-                    echo ""
-                    echo "[Minute $minute/$DOWNTIME_MINUTES] Node still down - monitoring impact..."
-                    echo "  Active nodes: $(kubectl get nodes --no-headers | grep -v NotReady | wc -l) / $NEW_SIZE"
-                    echo "  Gateway pod states:"
-                    kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | awk '{print $3}' | sort | uniq -c | awk '{print "    "$2": "$1}'
-                    echo "  Total pods: Running=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep Running | wc -l), Other=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep -v Running | wc -l)"
-                    
-                    # Check endpoints every 30 seconds
-                    for half in {1..2}; do
-                      sleep 30
-                      echo "    [${minute}m $((half*30))s] Endpoints ready: $(kubectl get endpoints -n tyk gateway-tyk-svc-tyk-gateway -o json 2>/dev/null | jq -r '.subsets[0].addresses | length' 2>/dev/null || echo '0')"
+                  # Optional: Add iptables REJECT rules for guaranteed errors (30-60s)
+                  if [[ "${{ inputs.guarantee_errors }}" == "true" ]]; then
+                    echo "=== Adding iptables REJECT rules for immediate failures ==="
+                    for n in $(kubectl get nodes -o name | cut -d/ -f2 | grep -v "$INSTANCE_NAME"); do
+                      echo "Adding REJECT rules on node $n for IPs: $POD_IPS"
+                      kubectl debug node/$n --profile=sysadmin --image=nicolaka/netshoot -- \
+                        bash -c "for ip in $POD_IPS; do iptables -I OUTPUT -d \$ip -p tcp -j REJECT --reject-with tcp-reset; done; sleep 60; for ip in $POD_IPS; do iptables -D OUTPUT -d \$ip -p tcp -j REJECT --reject-with tcp-reset; done" &
                     done
-                  done
+                  fi
                   
-                  # STEP 4: Restore node pool to original size
-                  echo ""
-                  echo "=== RESTORING node pool to original size ==="
-                  echo "Resizing back to $CURRENT_SIZE nodes at $(date '+%H:%M:%S')..."
-                  gcloud container clusters resize "$CLUSTER_NAME" \
-                    --node-pool="$NODE_POOL" \
-                    --num-nodes="$CURRENT_SIZE" \
-                    --zone="$ZONE" \
-                    --quiet
-                  
-                  echo "Recovery initiated. Monitoring restoration for 2 minutes..."
-                  for i in {1..24}; do
+                  # Monitor for 90 seconds to capture the brief error window
+                  for i in {1..18}; do
                     sleep 5
-                    if [[ $((i % 3)) -eq 0 ]]; then
-                      echo "[$((i*5))s] Recovery state:"
-                      echo "  Nodes ready: $(kubectl get nodes --no-headers | grep -v NotReady | wc -l) / $CURRENT_SIZE"
-                      echo "  Pods pending/not ready: $(kubectl get pods -n tyk | grep -vE "Running|Completed" | wc -l)"
-                      echo "  Endpoints ready: $(kubectl get endpoints -n tyk gateway-tyk-svc-tyk-gateway -o json 2>/dev/null | jq -r '.subsets[0].addresses | length' 2>/dev/null || echo '0')"
+                    echo ""
+                    echo "[$((i*5))s] Impact monitoring:"
+                    echo "  Nodes NotReady:"
+                    kubectl get nodes | grep -E "NAME|NotReady" || echo "    All nodes ready"
+                    
+                    echo "  Gateway endpoints ready:"
+                    ENDPOINT_COUNT=$(kubectl get endpoints -n tyk gateway-tyk-svc-tyk-gateway -o json 2>/dev/null \
+                      | jq -r '.subsets[0].addresses | length' 2>/dev/null || echo "0")
+                    echo "    $ENDPOINT_COUNT endpoints"
+                    
+                    echo "  Gateway pod phases:"
+                    kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers \
+                      | awk '{print $3}' | sort | uniq -c | awk '{print "    "$2": "$1}'
+                    
+                    # Show any pods that are not Running
+                    NOT_RUNNING=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep -v "Running" | wc -l)
+                    if [[ $NOT_RUNNING -gt 0 ]]; then
+                      echo "  Non-running gateway pods:"
+                      kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep -v "Running" | awk '{print "    "$1": "$3}'
                     fi
+                    
+                    # Check HPA status
+                    echo "  HPA status:"
+                    kubectl get hpa -n tyk --no-headers | awk '{print "    "$1": current="$2"/"$3", CPU="$4}'
                   done
+                  
+                  echo ""
+                  echo "Auto-repair will continue bringing the new node online"
+                  echo "Keep monitoring errors/latency in Grafana dashboard"
                 else
                   echo "Could not find GCP instance for node: $NODE_TO_TERMINATE"
                 fi
