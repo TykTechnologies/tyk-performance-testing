@@ -306,32 +306,33 @@ jobs:
                     kubectl cordon $node
                   done
                   
-                  # STEP 1: First, force delete all pods on this node WITHOUT grace period
-                  echo "=== FORCEFULLY DELETING all pods on node $NODE_TO_TERMINATE at $(date '+%H:%M:%S') ==="
+                  # STEP 1: Simultaneously force delete pods AND instance for catastrophic failure
+                  echo "=== CATASTROPHIC NODE FAILURE at $(date '+%H:%M:%S') ==="
+                  echo "Simultaneously force deleting all pods and the GCP instance..."
+                  
+                  # Get list of pods to delete
                   PODS_ON_NODE=$(kubectl get pods --all-namespaces --field-selector spec.nodeName=$NODE_TO_TERMINATE -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"')
+                  echo "Found $(echo "$PODS_ON_NODE" | wc -l) pods on node $NODE_TO_TERMINATE"
                   
-                  echo "Found $(echo "$PODS_ON_NODE" | wc -l) pods to force delete"
-                  for pod in $PODS_ON_NODE; do
-                    namespace=$(echo $pod | cut -d'/' -f1)
-                    podname=$(echo $pod | cut -d'/' -f2)
-                    echo "  Force deleting: $namespace/$podname"
-                    kubectl delete pod $podname -n $namespace --grace-period=0 --force &
-                  done
-                  
-                  # Wait for all background pod deletions to complete
-                  wait
-                  echo "All pods force deleted at $(date '+%H:%M:%S')"
-                  
-                  # STEP 2: Now force delete the GCP instance itself
-                  echo "=== FORCE DELETING GCP instance: $INSTANCE_NAME at $(date '+%H:%M:%S') ==="
+                  # Start instance deletion in background
+                  echo "Starting GCP instance deletion: $INSTANCE_NAME"
                   gcloud compute instances delete "$INSTANCE_NAME" \
                     --zone "$ZONE" \
                     --quiet &
                   DELETE_PID=$!
                   
-                  echo "Force deletion initiated, waiting for completion..."
+                  # Immediately start force deleting all pods (also in background)
+                  echo "Force deleting all pods on the node..."
+                  for pod in $PODS_ON_NODE; do
+                    namespace=$(echo $pod | cut -d'/' -f1)
+                    podname=$(echo $pod | cut -d'/' -f2)
+                    kubectl delete pod $podname -n $namespace --grace-period=0 --force &
+                  done
+                  
+                  # Wait for instance deletion to complete
+                  echo "Waiting for instance deletion to complete..."
                   wait $DELETE_PID
-                  echo "Instance $INSTANCE_NAME has been forcefully deleted!"
+                  echo "Instance $INSTANCE_NAME has been forcefully deleted at $(date '+%H:%M:%S')!"
                   
                   # Monitor immediate impact
                   echo "Monitoring immediate impact for 60 seconds..."
@@ -367,7 +368,7 @@ jobs:
                     kubectl uncordon $node || true
                   done
                   
-                  # STEP 3: Resize node pool down to prevent auto-healing
+                  # STEP 2: Resize node pool down to prevent auto-healing
                   echo "=== RESIZING node pool down to prevent recovery ==="
                   NEW_SIZE=$((CURRENT_SIZE - 1))
                   echo "Resizing node pool from $CURRENT_SIZE to $NEW_SIZE..."
@@ -377,7 +378,7 @@ jobs:
                     --zone="$ZONE" \
                     --quiet
                   
-                  # STEP 4: Keep the node down for configured duration
+                  # STEP 3: Keep the node down for configured duration
                   DOWNTIME_MINUTES=${{ inputs.node_downtime_minutes }}
                   echo "=== Keeping node down for $DOWNTIME_MINUTES minutes to observe impact ==="
                   echo "Node will remain down from $(date '+%H:%M:%S') for $DOWNTIME_MINUTES minutes..."
@@ -397,7 +398,7 @@ jobs:
                     done
                   done
                   
-                  # STEP 5: Restore node pool to original size
+                  # STEP 4: Restore node pool to original size
                   echo ""
                   echo "=== RESTORING node pool to original size ==="
                   echo "Resizing back to $CURRENT_SIZE nodes at $(date '+%H:%M:%S')..."
