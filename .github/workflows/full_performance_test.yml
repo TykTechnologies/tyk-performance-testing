@@ -260,7 +260,7 @@ jobs:
                 fi
                 
               elif [[ "${{ inputs.cloud }}" == "GCP" ]]; then
-                # === CATASTROPHIC NODE FAILURE (GKE, with auto-repair kept on) ===
+                # === NODE FAILURE (GKE, with visible node count reduction) ===
                 INSTANCE_NAME="$NODE_TO_TERMINATE"
                 ZONE="${{ vars.GCP_CLUSTER_LOCATION }}"
                 CLUSTER_NAME="pt-${ZONE}"
@@ -277,10 +277,6 @@ jobs:
                 GATEWAY_POD_COUNT=$(kubectl get pods -n tyk --field-selector spec.nodeName=$INSTANCE_NAME --selector=app=gateway-tyk-tyk-gateway --no-headers | wc -l)
                 echo "Total pods on node: $POD_COUNT (Gateway pods: $GATEWAY_POD_COUNT)"
                 
-                # Get Pod IPs that were on the doomed node (for optional iptables trick)
-                POD_IPS=$(kubectl get pods -A -o wide --field-selector spec.nodeName=$INSTANCE_NAME --no-headers | awk '{print $6}' | tr '\n' ' ')
-                echo "Pod IPs on node: $POD_IPS"
-                
                 # Check pod distribution across all nodes
                 echo "Pod distribution before failure:"
                 for node in $(kubectl get nodes -o name | cut -d/ -f2); do
@@ -289,41 +285,57 @@ jobs:
                 done
                 
                 if [[ -n "$INSTANCE_NAME" ]]; then
-                  # Don't delete pods from the API. We want Kubernetes to see a node loss.
-                  
-                  # Resolve the MIG that owns this instance (created-by metadata has the URL)
+                  # Resolve the MIG that owns this instance
                   MIG_URL=$(gcloud compute instances describe "$INSTANCE_NAME" \
                     --zone "$ZONE" --format='get(metadata.items[created-by])')
                   MIG_NAME=$(basename "$MIG_URL")
+                  MIG_SIZE=$(gcloud compute instance-groups managed describe "$MIG_NAME" \
+                    --zone "$ZONE" --format='get(targetSize)')
                   
                   echo "=== NODE FAILURE at $(date '+%H:%M:%S') ==="
-                  echo "Forcing immediate replacement of $INSTANCE_NAME in MIG $MIG_NAME (keeps target size)"
+                  echo "Simulating hard failure of $INSTANCE_NAME in MIG $MIG_NAME (drop target size from $MIG_SIZE to $((MIG_SIZE-1)))"
                   
-                  # This deletes the VM and immediately creates a replacement (no target size decrease)
-                  gcloud compute instance-groups managed recreate-instances "$MIG_NAME" \
-                    --instances="$INSTANCE_NAME" \
-                    --zone="$ZONE" \
-                    --quiet
+                  # Identify gateway pods on the soon-to-fail node and remove them fast from endpoints
+                  GATEWAY_PODS_ON_NODE=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway -o wide \
+                    --field-selector spec.nodeName="$INSTANCE_NAME" --no-headers | awk '{print $1}')
+                  POD_IPS=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway -o wide \
+                    --field-selector spec.nodeName="$INSTANCE_NAME" -o jsonpath='{.items[*].status.podIP}')
                   
-                  echo "Node loss triggered - auto-repair will bring up replacement"
-                  echo "Observing impact during auto-heal (MIG keeps target size; new node will come up)..."
+                  if [[ -n "$GATEWAY_PODS_ON_NODE" ]]; then
+                    echo "Force-deleting pods scheduled on $INSTANCE_NAME to drop endpoints immediately:"
+                    echo "$GATEWAY_PODS_ON_NODE" | xargs -r -n1 -I{} \
+                      kubectl delete pod -n tyk {} --force --grace-period=0 --wait=false
+                  else
+                    echo "No gateway pods found on $INSTANCE_NAME"
+                  fi
+                  
+                  # Delete the instance and reduce MIG target size by 1 (visible node count goes 4 -> 3)
+                  gcloud compute instance-groups managed delete-instances "$MIG_NAME" \
+                    --instances="$INSTANCE_NAME" --zone="$ZONE" --quiet
+                  echo "Deleted instance $INSTANCE_NAME; MIG target size reduced from $MIG_SIZE to $((MIG_SIZE-1))"
+                  
+                  # Immediately remove the Node object so 'kubectl get nodes' shows 3, not 3+NotReady
+                  kubectl delete node "$INSTANCE_NAME" --ignore-not-found=true || true
+                  
+                  echo "Node loss triggered - observing brief impact; will resize MIG back to $MIG_SIZE shortly..."
                   
                   # Optional: Add iptables REJECT rules for guaranteed errors (30-60s)
                   if [[ "${{ inputs.guarantee_errors }}" == "true" ]]; then
                     echo "=== Adding iptables REJECT rules for immediate failures ==="
+                    # Restrict the REJECTs strictly to IPs of pods that were on the failed node
                     for n in $(kubectl get nodes -o name | cut -d/ -f2 | grep -v "$INSTANCE_NAME"); do
-                      echo "Adding REJECT rules on node $n for IPs: $POD_IPS"
+                      echo "Adding REJECT rules on node $n for failed-node pod IPs: $POD_IPS"
                       kubectl debug node/$n --profile=sysadmin --image=nicolaka/netshoot -- \
                         bash -c "for ip in $POD_IPS; do iptables -I OUTPUT -d \$ip -p tcp -j REJECT --reject-with tcp-reset; done; sleep 60; for ip in $POD_IPS; do iptables -D OUTPUT -d \$ip -p tcp -j REJECT --reject-with tcp-reset; done" &
                     done
                   fi
                   
-                  # Monitor for 90 seconds to capture the brief error window
-                  for i in {1..18}; do
+                  # Monitor for 30 seconds to capture the brief error window
+                  for i in {1..6}; do
                     sleep 5
                     echo ""
                     echo "[$((i*5))s] Impact monitoring:"
-                    echo "  Nodes NotReady:"
+                    echo "  Node count: $(kubectl get nodes --no-headers | wc -l) (was $MIG_SIZE)"
                     kubectl get nodes | grep -E "NAME|NotReady" || echo "    All nodes ready"
                     
                     echo "  Gateway endpoints ready:"
@@ -348,8 +360,9 @@ jobs:
                   done
                   
                   echo ""
-                  echo "Auto-repair will continue bringing the new node online"
-                  echo "Keep monitoring errors/latency in Grafana dashboard"
+                  echo "Resizing MIG $MIG_NAME back to $MIG_SIZE..."
+                  gcloud compute instance-groups managed resize "$MIG_NAME" --size="$MIG_SIZE" --zone="$ZONE" --quiet
+                  echo "MIG resized back to $MIG_SIZE - new node will be provisioned"
                 else
                   echo "Could not find GCP instance for node: $NODE_TO_TERMINATE"
                 fi

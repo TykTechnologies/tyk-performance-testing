@@ -3845,7 +3845,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(testid) (k6_http_reqs_total{group!=\"::setup\"}) - sum by(testid) (k6_http_reqs_total{group!=\"::setup\",status=~\"2..\"})",
+          "expr": "sum by(testid) (k6_http_reqs_total{group!=\"::setup\",expected_response=\"false\"})",
           "format": "time_series",
           "hide": false,
           "instant": false,

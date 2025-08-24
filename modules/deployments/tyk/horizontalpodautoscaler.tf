@@ -35,6 +35,17 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "tyk-hpa" {
           period_seconds = 5
         }
       }
+      
+      scale_down {
+        # Avoid runaway oscillations during transient dips caused by node loss
+        stabilization_window_seconds = 15
+        select_policy = "Min"
+        policy {
+          type           = "Pods"
+          value          = 1
+          period_seconds = 10
+        }
+      }
     }
   }
 
