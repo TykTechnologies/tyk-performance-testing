@@ -198,10 +198,11 @@ jobs:
             echo "Node failure simulation enabled - will terminate a node after ${{ inputs.node_failure_delay_minutes }} minutes"
             
             (
-              # Wait for specified delay
+              # Wait for specified delay FIRST
+              echo "Waiting ${{ inputs.node_failure_delay_minutes }} minutes before simulating node failure..."
               sleep $((${{ inputs.node_failure_delay_minutes }} * 60))
               
-              echo "=== Starting node failure simulation ==="
+              echo "=== Starting node failure simulation at $(date '+%H:%M:%S') ==="
               
               # Get nodes running gateway pods
               echo "Finding nodes with gateway pods..."
@@ -306,21 +307,23 @@ jobs:
                   done
                   
                   # STEP 1: First, force delete all pods on this node WITHOUT grace period
-                  echo "=== FORCEFULLY DELETING all pods on node $NODE_TO_TERMINATE ==="
+                  echo "=== FORCEFULLY DELETING all pods on node $NODE_TO_TERMINATE at $(date '+%H:%M:%S') ==="
                   PODS_ON_NODE=$(kubectl get pods --all-namespaces --field-selector spec.nodeName=$NODE_TO_TERMINATE -o json | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"')
                   
+                  echo "Found $(echo "$PODS_ON_NODE" | wc -l) pods to force delete"
                   for pod in $PODS_ON_NODE; do
                     namespace=$(echo $pod | cut -d'/' -f1)
                     podname=$(echo $pod | cut -d'/' -f2)
-                    echo "Force deleting pod: $podname in namespace: $namespace"
+                    echo "  Force deleting: $namespace/$podname"
                     kubectl delete pod $podname -n $namespace --grace-period=0 --force &
                   done
                   
-                  # Give it a second for pod deletions to register
-                  sleep 2
+                  # Wait for all background pod deletions to complete
+                  wait
+                  echo "All pods force deleted at $(date '+%H:%M:%S')"
                   
                   # STEP 2: Now force delete the GCP instance itself
-                  echo "=== FORCE DELETING GCP instance: $INSTANCE_NAME ==="
+                  echo "=== FORCE DELETING GCP instance: $INSTANCE_NAME at $(date '+%H:%M:%S') ==="
                   gcloud compute instances delete "$INSTANCE_NAME" \
                     --zone "$ZONE" \
                     --quiet &
