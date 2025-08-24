@@ -35,7 +35,7 @@ locals {
     { name = "TYK_GW_HTTPSERVEROPTIONS_READTIMEOUT", value = "5" },
     { name = "TYK_GW_HTTPSERVEROPTIONS_WRITETIMEOUT", value = "5" },
     { name = "TYK_GW_PROXYDEFAULTTIMEOUT", value = "5" },
-    { name = "TYK_GW_PROXYCLOSECONNECTIONS", value = "true" },
+    { name = "TYK_GW_PROXYCLOSECONNECTIONS", value = "false" },
   ]
 
   tyk_gateway_extra_envs_cfgmap = var.use_config_maps_for_apis ? [
