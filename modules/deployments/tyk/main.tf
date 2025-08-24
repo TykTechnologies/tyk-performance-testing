@@ -31,6 +31,11 @@ locals {
     { name = "TYK_GW_OPENTELEMETRY_EXPORTER", value = "grpc" },
     { name = "TYK_GW_OPENTELEMETRY_ENDPOINT", value = "opentelemetry-collector.dependencies.svc:4317" },
     { name = "TYK_GW_HTTPPROFILE", value = tostring(var.profiler.enabled) },
+    # Aggressive timeouts for fast failure during node outages
+    { name = "TYK_GW_HTTPSERVEROPTIONS_READTIMEOUT", value = "5" },
+    { name = "TYK_GW_HTTPSERVEROPTIONS_WRITETIMEOUT", value = "5" },
+    { name = "TYK_GW_PROXYDEFAULTTIMEOUT", value = "5" },
+    { name = "TYK_GW_PROXYCLOSECONNECTIONS", value = "true" },
   ]
 
   tyk_gateway_extra_envs_cfgmap = var.use_config_maps_for_apis ? [

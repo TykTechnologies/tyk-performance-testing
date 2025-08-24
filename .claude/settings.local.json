@@ -16,7 +16,8 @@
       "Bash(Required value\" error.\n\nSolution (from BigBrain analysis):\n- Moved all extraEnvs to locals as a single list\n- Use yamlencode with values block instead of indexed set blocks\n- Ensures every env entry has both name and value properties\n- Eliminates sparse array issues that Helm creates with indexed writes\n\nThis follows Helm best practices for passing structured data and prevents\nnull placeholders in the final rendered container env list.\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "mcp__big-brain__ask_big_brain",
       "mcp__code-search__search_code",
-      "mcp__code-search__extract_code"
+      "mcp__code-search__extract_code",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }
