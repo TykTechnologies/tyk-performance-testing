@@ -14,6 +14,9 @@ locals {
   pgsql-port = "5432"
   redis-pass = "topsecretpassword"
   redis-port = "6379"
+  
+  # Ensure LoadBalancer type when using Local traffic policy
+  actual_service_type = var.external_traffic_policy == "Local" ? "LoadBalancer" : var.service_type
 
   # Build all Gateway extra envs as a single list to avoid sparse indices
   tyk_gateway_extra_envs_base = [
@@ -150,7 +153,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.service.type"
-    value = var.service_type
+    value = local.actual_service_type
   }
 
   set {

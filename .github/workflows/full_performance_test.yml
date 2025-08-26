@@ -330,11 +330,15 @@ jobs:
                     done
                   fi
                   
-                  # Monitor for 30 seconds to capture the brief error window
-                  for i in {1..6}; do
+                  # Monitor for the configured downtime duration
+                  DOWNTIME_MINUTES=${{ inputs.node_downtime_minutes }}
+                  ITERATIONS=$(( DOWNTIME_MINUTES * 60 / 5 ))
+                  echo "Monitoring impact for $DOWNTIME_MINUTES minutes ($ITERATIONS checks)..."
+                  
+                  for i in $(seq 1 $ITERATIONS); do
                     sleep 5
                     echo ""
-                    echo "[$((i*5))s] Impact monitoring:"
+                    echo "[$((i*5))s / $(( DOWNTIME_MINUTES * 60 ))s] Impact monitoring:"
                     echo "  Node count: $(kubectl get nodes --no-headers | wc -l) (was $MIG_SIZE)"
                     kubectl get nodes | grep -E "NAME|NotReady" || echo "    All nodes ready"
                     
