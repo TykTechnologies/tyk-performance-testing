@@ -64,9 +64,9 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
       // Prefer env if present; fallback to existing 'duration' var or 60
       const totalMinutes = Number(__ENV?.DURATION_MINUTES ?? duration ?? 60);
       if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) {
-        throw new Error(\`Invalid totalMinutes: \${totalMinutes}\`);
+        throw new Error('Invalid totalMinutes: ' + totalMinutes);
       }
-      console.log(\`[autoscaling-gradual] totalMinutes=\${totalMinutes}\`);
+      console.log('[autoscaling-gradual] totalMinutes=' + totalMinutes);
       const baselinePercent = 0.17;  // ~17% for baseline
       const scaleUpPercent = 0.50;   // ~50% for scale up
       const scaleDownPercent = 0.33; // ~33% for scale down
