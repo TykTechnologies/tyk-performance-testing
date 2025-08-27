@@ -36,7 +36,9 @@ locals {
     { name = "TYK_GW_HTTPPROFILE", value = tostring(var.profiler.enabled) },
     # Aggressive timeouts for fast failure during node outages
     { name = "TYK_GW_HTTPSERVEROPTIONS_READTIMEOUT", value = "5" },
-    { name = "TYK_GW_HTTPSERVEROPTIONS_WRITETIMEOUT", value = "5" },
+    # Per Tyk guidance, write_timeout should exceed proxy_default_timeout by >=1s
+    # to avoid client-visible stalls when upstreams are unreachable
+    { name = "TYK_GW_HTTPSERVEROPTIONS_WRITETIMEOUT", value = "6" },
     { name = "TYK_GW_PROXYDEFAULTTIMEOUT", value = "5" },
     { name = "TYK_GW_PROXYCLOSECONNECTIONS", value = "false" },  # Keep connection reuse enabled
   ]
@@ -293,6 +295,47 @@ resource "helm_release" "tyk" {
   set {
     name  = "tyk-dashboard.dashboard.nodeSelector.node"
     value = var.resources-label
+  }
+
+  # Add tolerations for faster pod eviction during node failures (30s instead of 300s default)
+  set {
+    name  = "tyk-gateway.gateway.tolerations[0].key"
+    value = "node.kubernetes.io/not-ready"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[0].operator"
+    value = "Exists"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[0].effect"
+    value = "NoExecute"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[0].tolerationSeconds"
+    value = "30"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[1].key"
+    value = "node.kubernetes.io/unreachable"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[1].operator"
+    value = "Exists"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[1].effect"
+    value = "NoExecute"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[1].tolerationSeconds"
+    value = "30"
   }
 
   set {

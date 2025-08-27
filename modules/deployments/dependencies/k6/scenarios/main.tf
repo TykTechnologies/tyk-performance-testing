@@ -27,6 +27,7 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
     rate: rate,
     timeUnit: '1s',
     preAllocatedVUs: virtual_users,
+    gracefulStop: '2m',  // Allow time for clean shutdown and metric flush
   },
   "ramping-arrival-rate": {
     executor: 'ramping-arrival-rate',

@@ -5,7 +5,8 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "tyk-hpa" {
   }
 
   spec {
-    min_replicas = var.replica_count
+    # Fail-safe: never permit scale-to-zero even if replica_count changes
+    min_replicas = max(2, var.replica_count)
     max_replicas = var.hpa.max_replica_count
 
     scale_target_ref {

@@ -86,8 +86,11 @@ spec:
   separate: false
   quiet: "false"
   cleanup: "post"
+  # Add activeDeadlineSeconds to ensure job can run for full duration
+  activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
   arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor}
   initializer:
+    activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # Prevent 90m cutoff
     metadata:
       labels:
         initializer: "k6"
@@ -131,9 +134,12 @@ spec:
               values:
               - "true"
   starter:
+    activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # Prevent 90m cutoff
     nodeSelector:
       node: ${var.name}-tests
   runner:
+    # Ensure runner pods don't timeout
+    activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
     volumes:
     - name: tests
       configMap:
@@ -161,6 +167,10 @@ spec:
       value: http://prometheus-server.dependencies.svc:80/api/v1/write
     - name: K6_PROMETHEUS_RW_TREND_STATS
       value: p(75),p(90),p(95),p(99)
+    - name: K6_PROMETHEUS_RW_STALE_MARKERS
+      value: "false"  # Don't mark metrics as stale to prevent gaps
+    - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
+      value: "10s"  # Push metrics more frequently
   script:
     configMap:
       name: test-${var.name}-configmap
