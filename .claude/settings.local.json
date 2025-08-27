@@ -17,7 +17,9 @@
       "mcp__big-brain__ask_big_brain",
       "mcp__code-search__search_code",
       "mcp__code-search__extract_code",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(kubectl get configmap:*)",
+      "WebSearch"
     ],
     "deny": []
   }
