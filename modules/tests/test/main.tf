@@ -89,15 +89,9 @@ spec:
   # Add activeDeadlineSeconds to ensure job can run for full duration
   activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
   # IMPORTANT: pass duration to BOTH initializer (inspect) and runner (run)
-  # Re-enable console logs from k6 (operator defaults to --log-output=none)
-  arguments: --out experimental-prometheus-rw --log-output=stdout --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${var.config.duration}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${var.config.duration}
   initializer:
     activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # Prevent 90m cutoff
-    # CRITICAL: Ensure initializer (k6 inspect) sees DURATION_MINUTES env
-    # Otherwise __ENV.DURATION_MINUTES is undefined during planning phase
-    env:
-    - name: DURATION_MINUTES
-      value: "${var.config.duration}"
     metadata:
       labels:
         initializer: "k6"

@@ -509,6 +509,36 @@ jobs:
           echo "=== Tyk Gateway Pod Logs After Tests (last 200 lines) ==="
           kubectl logs -n tyk $(kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway -o jsonpath='{.items[0].metadata.name}') --tail=200 || echo "Failed to get Tyk logs"
 
+      - name: Show k6 Test Status and Logs
+        continue-on-error: true
+        run: |
+          echo "=== k6 Test Resources Status ==="
+          kubectl get k6 -A || echo "No k6 resources found"
+          
+          echo ""
+          echo "=== k6 Test Pods Status ==="
+          kubectl get pods -A -l "k6_cr" || echo "No k6 pods found"
+          
+          echo ""
+          echo "=== k6 Runner Pod Logs (last 100 lines) ==="
+          K6_RUNNER=$(kubectl get pods -A -l "k6_cr,runner=true" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+          K6_NAMESPACE=$(kubectl get pods -A -l "k6_cr,runner=true" -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || echo "")
+          if [[ -n "$K6_RUNNER" && -n "$K6_NAMESPACE" ]]; then
+            kubectl logs -n "$K6_NAMESPACE" "$K6_RUNNER" --tail=100 || echo "Failed to get k6 runner logs"
+          else
+            echo "No k6 runner pods found"
+          fi
+          
+          echo ""
+          echo "=== k6 Initializer Pod Logs (last 50 lines) ==="
+          K6_INIT=$(kubectl get pods -A -l "k6_cr,initializer=k6" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+          K6_INIT_NS=$(kubectl get pods -A -l "k6_cr,initializer=k6" -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || echo "")
+          if [[ -n "$K6_INIT" && -n "$K6_INIT_NS" ]]; then
+            kubectl logs -n "$K6_INIT_NS" "$K6_INIT" --tail=50 || echo "Failed to get k6 initializer logs"
+          else
+            echo "No k6 initializer pods found"
+          fi
+
       - name: Test Grafana Snapshot
         continue-on-error: true
         run: |
