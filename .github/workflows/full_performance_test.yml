@@ -1,4 +1,4 @@
-name: Full Performance Test
+vim name: Full Performance Test
 on:
   workflow_dispatch:
     inputs:
@@ -41,6 +41,11 @@ on:
         required: false
         type: boolean
         default: false
+      use_terraform_cloud:
+        description: 'Use Terraform Cloud for remote state (default: true, set false for local state)'
+        required: false
+        type: boolean
+        default: true
       test_duration_minutes:
         description: 'Test duration in minutes (30-360)'
         required: false
@@ -51,7 +56,8 @@ env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
 
 concurrency:
-  group: ${{ inputs.cloud }}
+  group: ${{ inputs.use_terraform_cloud && inputs.cloud || format('{0}-local-{1}', inputs.cloud, github.run_id) }}
+  cancel-in-progress: ${{ inputs.use_terraform_cloud }}
 
 jobs:
   performance_test:
@@ -97,14 +103,64 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3.1.1
         with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          cli_config_credentials_token: ${{ inputs.use_terraform_cloud && secrets.TF_API_TOKEN || '' }}
           terraform_version: "1.8.2"
 
-      - name: Create Terraform Cloud descriptors
+      - name: Configure Terraform Backend
         run: |
-          cp ${{ env.provider }}/terraform.cloud.tf.example ${{ env.provider }}/terraform.cloud.tf
-          cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
-          cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
+          if [[ "${{ inputs.use_terraform_cloud }}" == "true" ]]; then
+            echo "🔄 Setting up Terraform Cloud backend configuration..."
+            cp ${{ env.provider }}/terraform.cloud.tf.example ${{ env.provider }}/terraform.cloud.tf
+            cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
+            cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
+            echo "✅ Terraform Cloud backend configured"
+          else
+            echo "🔄 Setting up local Terraform backend (removing cloud configurations)..."
+            # Remove any existing backend configuration files to ensure local state
+            rm -f ${{ env.provider }}/terraform.cloud.tf
+            rm -f deployments/terraform.cloud.tf
+            rm -f tests/terraform.cloud.tf
+            echo "✅ Local backend configured (cloud configurations removed)"
+          fi
+
+      - name: Check for Orphaned Resources
+        if: ${{ !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for existing resources that might conflict..."
+          
+          if [[ "${{ inputs.cloud }}" == "Azure" ]]; then
+            echo "Checking for existing Azure resources..."
+            RESOURCE_GROUP="pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
+            if az group show --name "$RESOURCE_GROUP" &>/dev/null; then
+              echo "⚠️  WARNING: Resource group '$RESOURCE_GROUP' already exists!"
+              echo "This may indicate orphaned resources from a previous run."
+              echo "Consider running the cleanup workflow if tests fail."
+              az resource list --resource-group "$RESOURCE_GROUP" --query '[].{Name:name, Type:type, Location:location}' --output table || true
+            else
+              echo "✅ No conflicting Azure resource group found"
+            fi
+            
+          elif [[ "${{ inputs.cloud }}" == "AWS" ]]; then
+            echo "Checking for existing AWS EKS clusters..."
+            if aws eks describe-cluster --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}" --region "${{ vars.AWS_CLUSTER_LOCATION }}" &>/dev/null; then
+              echo "⚠️  WARNING: EKS cluster 'pt-${{ vars.AWS_CLUSTER_LOCATION }}' already exists!"
+              echo "This may indicate orphaned resources from a previous run."
+              echo "Consider running the cleanup workflow if tests fail."
+            else
+              echo "✅ No conflicting AWS EKS cluster found"
+            fi
+            
+          elif [[ "${{ inputs.cloud }}" == "GCP" ]]; then
+            echo "Checking for existing GCP GKE clusters..."
+            if gcloud container clusters describe "pt-${{ vars.GCP_CLUSTER_LOCATION }}" --zone "${{ vars.GCP_CLUSTER_LOCATION }}" --project "${{ secrets.GCP_PROJECT }}" &>/dev/null; then
+              echo "⚠️  WARNING: GKE cluster 'pt-${{ vars.GCP_CLUSTER_LOCATION }}' already exists!"
+              echo "This may indicate orphaned resources from a previous run."
+              echo "Consider running the cleanup workflow if tests fail."
+            else
+              echo "✅ No conflicting GCP GKE cluster found"
+            fi
+          fi
 
       - name: Stand up AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
@@ -118,6 +174,17 @@ jobs:
             --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
             --var="services_nodes_count=4" \
             --auto-approve
+
+      - name: Backup AKS Terraform State
+        if: ${{ inputs.cloud == 'Azure' && !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: aks-cluster-terraform-state-${{ github.run_id }}
+          path: |
+            aks/terraform.tfstate
+            aks/.terraform.lock.hcl
+          retention-days: 1
 
       - name: Connect to AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
@@ -141,6 +208,17 @@ jobs:
             --var="services_nodes_count=4" \
             --auto-approve
 
+      - name: Backup EKS Terraform State
+        if: ${{ inputs.cloud == 'AWS' && !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: eks-cluster-terraform-state-${{ github.run_id }}
+          path: |
+            eks/terraform.tfstate
+            eks/.terraform.lock.hcl
+          retention-days: 1
+
       - name: Connect to EKS cluster
         if: ${{ inputs.cloud == 'AWS' }}
         run: |
@@ -161,6 +239,17 @@ jobs:
             --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
             --var="services_nodes_count=4" \
             --auto-approve
+
+      - name: Backup GKE Terraform State
+        if: ${{ inputs.cloud == 'GCP' && !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: gke-cluster-terraform-state-${{ github.run_id }}
+          path: |
+            gke/terraform.tfstate
+            gke/.terraform.lock.hcl
+          retention-days: 1
 
       - name: Connect to GKE cluster
         if: ${{ inputs.cloud == 'GCP' }}
@@ -190,6 +279,17 @@ jobs:
           fi
           echo "Waiting ${STABILIZATION_MINUTES} minutes for deployment to stabilize..."
           sleep $((STABILIZATION_MINUTES * 60))
+
+      - name: Backup Deployments Terraform State
+        if: ${{ !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.provider }}-deployments-terraform-state-${{ github.run_id }}
+          path: |
+            deployments/terraform.tfstate
+            deployments/.terraform.lock.hcl
+          retention-days: 1
 
       - name: Show Tyk Gateway logs
         run: |
@@ -393,6 +493,17 @@ jobs:
             --var="tests_duration=${{ inputs.test_duration_minutes }}" \
             --auto-approve
 
+      - name: Backup Tests Terraform State
+        if: ${{ !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.provider }}-tests-terraform-state-${{ github.run_id }}
+          path: |
+            tests/terraform.tfstate
+            tests/.terraform.lock.hcl
+          retention-days: 1
+
       - name: Show Tyk Gateway logs after tests
         run: |
           echo "=== Tyk Gateway Pod Logs After Tests (last 200 lines) ==="
@@ -424,28 +535,87 @@ jobs:
           path: ./profiles
           if-no-files-found: warn
 
+      - name: Recover Tests Terraform State
+        if: always() && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.provider }}-tests-terraform-state-${{ github.run_id }}
+          path: tests/
+
       - name: Destroy Tests
         if: always()
         run: |
           cd tests
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for tests destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for tests - they may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for tests destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
+
+      - name: Recover Deployments Terraform State
+        if: always() && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.provider }}-deployments-terraform-state-${{ github.run_id }}
+          path: deployments/
 
       - name: Destroy testing resources
         if: always()
         run: |
           cd deployments
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for deployments destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for deployments - they may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for deployments destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --auto-approve
 
+      - name: Recover AKS Terraform State
+        if: always() && inputs.cloud == 'Azure' && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: aks-cluster-terraform-state-${{ github.run_id }}
+          path: aks/
+
       - name: Destroy AKS cluster
         if: always() && inputs.cloud == 'Azure'
         run: |
           cd aks
-          terraform init
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for AKS cluster destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for AKS cluster - it may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for AKS cluster destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
@@ -453,11 +623,30 @@ jobs:
             --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
+      - name: Recover EKS Terraform State
+        if: always() && inputs.cloud == 'AWS' && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: eks-cluster-terraform-state-${{ github.run_id }}
+          path: eks/
+
       - name: Destroy EKS cluster
         if: always() && inputs.cloud == 'AWS'
         run: |
           cd eks
-          terraform init
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for EKS cluster destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for EKS cluster - it may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for EKS cluster destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
@@ -465,11 +654,30 @@ jobs:
             --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
+      - name: Recover GKE Terraform State
+        if: always() && inputs.cloud == 'GCP' && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: gke-cluster-terraform-state-${{ github.run_id }}
+          path: gke/
+
       - name: Destroy GKE cluster
         if: always() && inputs.cloud == 'GCP'
         run: |
           cd gke
-          terraform init
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for GKE cluster destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for GKE cluster - it may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for GKE cluster destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \

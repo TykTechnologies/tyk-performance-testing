@@ -1,0 +1,241 @@
+name: Cleanup Orphaned Resources
+
+on:
+  schedule:
+    # Run every 12 hours
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
+    inputs:
+      cloud:
+        description: 'Cloud provider to clean up'
+        required: false
+        type: choice
+        options:
+          - all
+          - Azure
+          - AWS
+          - GCP
+        default: all
+      dry_run:
+        description: 'Dry run mode (list resources without deleting)'
+        required: false
+        type: boolean
+        default: true
+      max_age_hours:
+        description: 'Maximum age of resources to keep (in hours)'
+        required: false
+        type: number
+        default: 12
+
+env:
+  # Set max age threshold (default 12 hours)
+  MAX_AGE_HOURS: ${{ inputs.max_age_hours || 12 }}
+
+jobs:
+  cleanup_orphaned_resources:
+    name: "Cleanup Orphaned Resources"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure Azure credentials
+        if: ${{ (inputs.cloud == 'Azure' || inputs.cloud == 'all' || !inputs.cloud) }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure AWS credentials
+        if: ${{ (inputs.cloud == 'AWS' || inputs.cloud == 'all' || !inputs.cloud) }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
+
+      - name: Authenticate into gcloud
+        if: ${{ (inputs.cloud == 'GCP' || inputs.cloud == 'all' || !inputs.cloud) }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Install gcloud CLI
+        if: ${{ (inputs.cloud == 'GCP' || inputs.cloud == 'all' || !inputs.cloud) }}
+        uses: google-github-actions/setup-gcloud@v2.1.0
+
+      - name: Cleanup Orphaned Azure Resources
+        if: ${{ (inputs.cloud == 'Azure' || inputs.cloud == 'all' || !inputs.cloud) }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Scanning for orphaned Azure resources older than ${MAX_AGE_HOURS} hours..."
+          
+          # Calculate cutoff time
+          CUTOFF_TIME=$(date -u -d "${MAX_AGE_HOURS} hours ago" '+%Y-%m-%dT%H:%M:%SZ')
+          echo "Resources created before $CUTOFF_TIME will be considered for cleanup"
+          
+          # Find resource groups matching our pattern
+          RESOURCE_GROUPS=$(az group list --query "[?starts_with(name, 'pt-')].{name:name, createdTime:tags.CreatedTime}" -o tsv 2>/dev/null || true)
+          
+          if [[ -z "$RESOURCE_GROUPS" ]]; then
+            echo "✅ No Azure resource groups with 'pt-' prefix found"
+          else
+            echo "Found resource groups:"
+            echo "$RESOURCE_GROUPS"
+            echo ""
+            
+            # Process each resource group
+            while IFS=$'\t' read -r rg_name created_time; do
+              if [[ -z "$rg_name" ]]; then continue; fi
+              
+              echo "Checking resource group: $rg_name"
+              
+              # Get creation time of the resource group
+              RG_CREATION_TIME=$(az group show --name "$rg_name" --query "tags.CreatedTime" -o tsv 2>/dev/null || echo "")
+              
+              # If no creation time tag, use current time as fallback (safer approach)
+              if [[ -z "$RG_CREATION_TIME" ]] || [[ "$RG_CREATION_TIME" == "null" ]]; then
+                # Try to get the creation time from any resource in the group
+                RG_CREATION_TIME=$(az resource list --resource-group "$rg_name" --query "max([].createdTime)" -o tsv 2>/dev/null || date -u '+%Y-%m-%dT%H:%M:%SZ')
+              fi
+              
+              # Check if resource group is old enough
+              if [[ "$RG_CREATION_TIME" < "$CUTOFF_TIME" ]]; then
+                echo "🗑️  Resource group '$rg_name' is older than ${MAX_AGE_HOURS} hours (created: $RG_CREATION_TIME)"
+                
+                if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+                  echo "   [DRY RUN] Would delete resource group: $rg_name"
+                  az resource list --resource-group "$rg_name" --query '[].{Name:name, Type:type, Location:location}' --output table || true
+                else
+                  echo "   Deleting resource group: $rg_name"
+                  az group delete --name "$rg_name" --yes --no-wait
+                  echo "   ✅ Deletion initiated for: $rg_name"
+                fi
+              else
+                echo "   ℹ️  Resource group '$rg_name' is still recent (created: $RG_CREATION_TIME), skipping"
+              fi
+              echo ""
+            done <<< "$RESOURCE_GROUPS"
+          fi
+
+      - name: Cleanup Orphaned AWS Resources
+        if: ${{ (inputs.cloud == 'AWS' || inputs.cloud == 'all' || !inputs.cloud) }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Scanning for orphaned AWS resources older than ${MAX_AGE_HOURS} hours..."
+          
+          # Calculate cutoff time in epoch format
+          CUTOFF_EPOCH=$(date -d "${MAX_AGE_HOURS} hours ago" +%s)
+          echo "Resources created before $(date -d "@$CUTOFF_EPOCH") will be considered for cleanup"
+          
+          # Find EKS clusters matching our pattern
+          EKS_CLUSTERS=$(aws eks list-clusters --region "${{ vars.AWS_CLUSTER_LOCATION }}" --query "clusters[?starts_with(@, 'pt-')]" --output text 2>/dev/null || true)
+          
+          if [[ -z "$EKS_CLUSTERS" ]]; then
+            echo "✅ No AWS EKS clusters with 'pt-' prefix found"
+          else
+            echo "Found EKS clusters: $EKS_CLUSTERS"
+            echo ""
+            
+            for cluster_name in $EKS_CLUSTERS; do
+              echo "Checking EKS cluster: $cluster_name"
+              
+              # Get cluster creation time
+              CLUSTER_CREATION_TIME=$(aws eks describe-cluster --name "$cluster_name" --region "${{ vars.AWS_CLUSTER_LOCATION }}" --query "cluster.createdAt" --output text 2>/dev/null || echo "")
+              
+              if [[ -n "$CLUSTER_CREATION_TIME" ]]; then
+                # Convert to epoch time (AWS returns ISO format)
+                CLUSTER_EPOCH=$(date -d "$CLUSTER_CREATION_TIME" +%s 2>/dev/null || echo "$CUTOFF_EPOCH")
+                
+                if [[ "$CLUSTER_EPOCH" -lt "$CUTOFF_EPOCH" ]]; then
+                  echo "🗑️  EKS cluster '$cluster_name' is older than ${MAX_AGE_HOURS} hours (created: $CLUSTER_CREATION_TIME)"
+                  
+                  if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+                    echo "   [DRY RUN] Would delete EKS cluster: $cluster_name"
+                    aws eks describe-cluster --name "$cluster_name" --region "${{ vars.AWS_CLUSTER_LOCATION }}" --query "cluster.{Name:name, Status:status, Version:version, CreatedAt:createdAt}" --output table || true
+                  else
+                    echo "   Deleting EKS cluster: $cluster_name"
+                    aws eks delete-cluster --name "$cluster_name" --region "${{ vars.AWS_CLUSTER_LOCATION }}"
+                    echo "   ✅ Deletion initiated for: $cluster_name"
+                  fi
+                else
+                  echo "   ℹ️  EKS cluster '$cluster_name' is still recent (created: $CLUSTER_CREATION_TIME), skipping"
+                fi
+              else
+                echo "   ⚠️  Could not determine creation time for cluster: $cluster_name"
+              fi
+              echo ""
+            done
+          fi
+
+      - name: Cleanup Orphaned GCP Resources
+        if: ${{ (inputs.cloud == 'GCP' || inputs.cloud == 'all' || !inputs.cloud) }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Scanning for orphaned GCP resources older than ${MAX_AGE_HOURS} hours..."
+          
+          # Calculate cutoff time in RFC3339 format
+          CUTOFF_TIME=$(date -u -d "${MAX_AGE_HOURS} hours ago" '+%Y-%m-%dT%H:%M:%SZ')
+          echo "Resources created before $CUTOFF_TIME will be considered for cleanup"
+          
+          # Find GKE clusters matching our pattern
+          GKE_CLUSTERS=$(gcloud container clusters list --project "${{ secrets.GCP_PROJECT }}" --filter="name~pt-" --format="value(name,zone,createTime)" 2>/dev/null || true)
+          
+          if [[ -z "$GKE_CLUSTERS" ]]; then
+            echo "✅ No GCP GKE clusters with 'pt-' prefix found"
+          else
+            echo "Found GKE clusters:"
+            echo "$GKE_CLUSTERS"
+            echo ""
+            
+            while IFS=$'\t' read -r cluster_name zone creation_time; do
+              if [[ -z "$cluster_name" ]]; then continue; fi
+              
+              echo "Checking GKE cluster: $cluster_name in $zone"
+              
+              # Compare creation time with cutoff
+              if [[ "$creation_time" < "$CUTOFF_TIME" ]]; then
+                echo "🗑️  GKE cluster '$cluster_name' is older than ${MAX_AGE_HOURS} hours (created: $creation_time)"
+                
+                if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+                  echo "   [DRY RUN] Would delete GKE cluster: $cluster_name in zone $zone"
+                  gcloud container clusters describe "$cluster_name" --zone "$zone" --project "${{ secrets.GCP_PROJECT }}" --format="table(name,status,currentMasterVersion,createTime)" || true
+                else
+                  echo "   Deleting GKE cluster: $cluster_name in zone $zone"
+                  gcloud container clusters delete "$cluster_name" --zone "$zone" --project "${{ secrets.GCP_PROJECT }}" --quiet
+                  echo "   ✅ Deletion initiated for: $cluster_name"
+                fi
+              else
+                echo "   ℹ️  GKE cluster '$cluster_name' is still recent (created: $creation_time), skipping"
+              fi
+              echo ""
+            done <<< "$GKE_CLUSTERS"
+          fi
+
+      - name: Create Summary Report
+        if: always()
+        run: |
+          echo "## 🧹 Orphaned Resources Cleanup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** ${{ inputs.dry_run == 'true' && 'DRY RUN (no resources deleted)' || 'LIVE CLEANUP' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Cloud Provider(s):** ${{ inputs.cloud || 'all' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Maximum Age:** ${MAX_AGE_HOURS} hours" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name == 'schedule' && 'Scheduled' || 'Manual' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            echo "### 🔍 Resources Found (Not Deleted)" >> $GITHUB_STEP_SUMMARY
+            echo "This was a dry run. No resources were actually deleted." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To actually clean up resources, run this workflow again with **dry_run: false**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ Cleanup Actions Taken" >> $GITHUB_STEP_SUMMARY
+            echo "Resources older than ${MAX_AGE_HOURS} hours have been deleted." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Note:** Some cloud resources may take several minutes to fully delete." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Check cloud provider consoles to verify cleanup completion" >> $GITHUB_STEP_SUMMARY
+          echo "- Review this workflow's logs for any warnings or errors" >> $GITHUB_STEP_SUMMARY
+          echo "- Consider adjusting the **max_age_hours** parameter if needed" >> $GITHUB_STEP_SUMMARY
