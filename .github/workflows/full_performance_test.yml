@@ -42,10 +42,10 @@ on:
         type: boolean
         default: false
       use_terraform_cloud:
-        description: 'Use Terraform Cloud for remote state (default: true, set false for local state)'
+        description: 'Use Terraform Cloud for remote state (default: false for local state, set true for cloud)'
         required: false
         type: boolean
-        default: true
+        default: false
       test_duration_minutes:
         description: 'Test duration in minutes (30-360)'
         required: false
