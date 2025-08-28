@@ -50,7 +50,7 @@ on:
         description: 'Test duration in minutes (30-360)'
         required: false
         type: number
-        default: 30
+        default: 300
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
