@@ -1,4 +1,4 @@
-vim name: Full Performance Test
+name: Full Performance Test
 on:
   workflow_dispatch:
     inputs:
