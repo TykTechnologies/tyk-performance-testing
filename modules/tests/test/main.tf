@@ -92,6 +92,10 @@ spec:
   arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${var.config.duration}
   initializer:
     activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # Prevent 90m cutoff
+    # Ensure initializer sees DURATION_MINUTES for proper test duration planning
+    env:
+    - name: DURATION_MINUTES
+      value: "${var.config.duration}"
     metadata:
       labels:
         initializer: "k6"
