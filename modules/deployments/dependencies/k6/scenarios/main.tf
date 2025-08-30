@@ -84,7 +84,7 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
     maxVUs: virtual_users * 5,
     gracefulStop: '2m',
     // Cap overall time above planned stages to avoid the 1h default limit
-    maxDuration: ((__resolveTotalMinutes(duration) + 5) + 'm'),
+    maxDuration: ((duration + 5) + 'm'),
     stages: (() => {
       // Calculate phase durations as percentages of total duration
       // Debug: log all available information
