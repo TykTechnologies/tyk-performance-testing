@@ -6,6 +6,26 @@ resource "kubernetes_config_map" "scenarios-configmap" {
 
   data = {
     "scenarios.js" = <<EOF
+// Helper utilities: robust minutes parsing + resolution
+const __parseMinutes = (val) => {
+  if (val === undefined || val === null) return NaN;
+  const n = Number(String(val).replace(/[^0-9.]/g, ''));
+  return Number.isFinite(n) ? n : NaN;
+};
+
+// Prefer templated param (stable for initializer), then ENV (runner/initializer), else fail
+const __resolveTotalMinutes = (paramDuration) => {
+  const fromParam = __parseMinutes(paramDuration);
+  const fromEnv = (typeof __ENV !== 'undefined') ? __parseMinutes(__ENV.DURATION_MINUTES) : NaN;
+  const total = (Number.isFinite(fromParam) && fromParam > 0) ? fromParam
+    : (Number.isFinite(fromEnv) && fromEnv > 0) ? fromEnv : NaN;
+  if (!Number.isFinite(total) || total <= 0) {
+    throw new Error('[autoscaling-gradual] Unable to resolve totalMinutes; param='
+      + String(paramDuration) + ' env='
+      + (typeof __ENV !== 'undefined' ? String(__ENV.DURATION_MINUTES) : '(undefined)'));
+  }
+  return total;
+};
 const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
   "constant-vus": {
     executor: 'constant-vus',
@@ -28,12 +48,16 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
     timeUnit: '1s',
     preAllocatedVUs: virtual_users,
     gracefulStop: '2m',  // Allow time for clean shutdown and metric flush
+    // Ensure long tests aren't cut by executor default maxDuration (1h)
+    maxDuration: (duration + 5) + "m",
   },
   "ramping-arrival-rate": {
     executor: 'ramping-arrival-rate',
     startRate: 1000,
     timeUnit: '1s',
     preAllocatedVUs: virtual_users,
+    // Ensure long tests aren't cut by executor default maxDuration (1h)
+    maxDuration: (duration + 5) + "m",
     stages: [ ...([...Array(ramping_steps)].map((_, i) =>
       ({
         target: rate * ((i + 1) / ramping_steps),
@@ -59,25 +83,19 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
     preAllocatedVUs: virtual_users * 2,
     maxVUs: virtual_users * 5,
     gracefulStop: '2m',
+    // Cap overall time above planned stages to avoid the 1h default limit
+    maxDuration: ((__resolveTotalMinutes(duration) + 5) + 'm'),
     stages: (() => {
       // Calculate phase durations as percentages of total duration
-      // Debug: log all available information  
-      // Note: initializer may not see env unless spec.initializer.env is set
+      // Debug: log all available information
+      // Note: initializer must see env *or* we use templated param; otherwise we fail fast
       const hasEnv = (typeof __ENV !== 'undefined') && typeof __ENV.DURATION_MINUTES !== 'undefined';
       console.log('[autoscaling-gradual] __ENV.DURATION_MINUTES:', hasEnv ? __ENV.DURATION_MINUTES : '(undefined)');
       console.log('[autoscaling-gradual] duration parameter (if templated):', (typeof duration !== 'undefined') ? duration : '(undefined)');
       console.log('[autoscaling-gradual] __ENV keys:', Object.keys(__ENV || {}));
 
-      // Prefer env if present; fallback to injected 'duration' variable; final fallback 60
-      const fromEnv = hasEnv ? Number(__ENV.DURATION_MINUTES) : NaN;
-      const fromParam = (typeof duration !== 'undefined') ? Number(duration) : NaN;
-      const totalMinutes = (
-        Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv :
-        Number.isFinite(fromParam) && fromParam > 0 ? fromParam : 60
-      );
-      if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) {
-        throw new Error('Invalid totalMinutes: ' + totalMinutes);
-      }
+      // Resolve totalMinutes robustly and reject unknown values (no silent 60m fallback)
+      const totalMinutes = __resolveTotalMinutes(duration);
       console.log('[autoscaling-gradual] FINAL totalMinutes=' + totalMinutes);
       const baselinePercent = 0.17;  // ~17% for baseline
       const scaleUpPercent = 0.50;   // ~50% for scale up
