@@ -48,16 +48,12 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
     timeUnit: '1s',
     preAllocatedVUs: virtual_users,
     gracefulStop: '2m',  // Allow time for clean shutdown and metric flush
-    // Ensure long tests aren't cut by executor default maxDuration (1h)
-    maxDuration: (duration + 5) + "m",
   },
   "ramping-arrival-rate": {
     executor: 'ramping-arrival-rate',
     startRate: 1000,
     timeUnit: '1s',
     preAllocatedVUs: virtual_users,
-    // Ensure long tests aren't cut by executor default maxDuration (1h)
-    maxDuration: (duration + 5) + "m",
     stages: [ ...([...Array(ramping_steps)].map((_, i) =>
       ({
         target: rate * ((i + 1) / ramping_steps),
@@ -83,8 +79,6 @@ const getScenarios = ({ ramping_steps, duration, rate, virtual_users }) => ({
     preAllocatedVUs: virtual_users * 2,
     maxVUs: virtual_users * 5,
     gracefulStop: '2m',
-    // Cap overall time above planned stages to avoid the 1h default limit
-    maxDuration: ((duration + 5) + 'm'),
     stages: (() => {
       // Calculate phase durations as percentages of total duration
       // Debug: log all available information
