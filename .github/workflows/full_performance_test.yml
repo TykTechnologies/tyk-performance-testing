@@ -298,6 +298,80 @@ jobs:
 
       - name: Run Tests
         run: |
+          # Start k6 pod monitoring in background to capture logs during execution
+          (
+            echo "Starting k6 pod monitoring in background..."
+            sleep 30  # Give tests time to start
+            
+            LAST_INITIALIZER_LOG_LINE=0
+            LAST_RUNNER_LOG_LINE=0
+            
+            while true; do
+              # Check for k6 initializer pods (these run first and set up the test)
+              K6_INITIALIZERS=$(kubectl get pods -A -l "k6_cr,job-name" -o json 2>/dev/null | jq -r '.items[] | select(.metadata.labels["job-name"] | contains("initializer")) | "\(.metadata.namespace)/\(.metadata.name)"' || echo "")
+              
+              if [[ -n "$K6_INITIALIZERS" ]]; then
+                echo ""
+                echo "=== k6 Initializer Pod Logs at $(date '+%H:%M:%S') ==="
+                for initializer in $K6_INITIALIZERS; do
+                  NS=$(echo $initializer | cut -d'/' -f1)
+                  POD=$(echo $initializer | cut -d'/' -f2)
+                  
+                  # Get initializer logs focusing on duration setup
+                  echo "Initializer $POD logs (duration setup):"
+                  kubectl logs -n "$NS" "$POD" 2>/dev/null | grep -E "autoscaling-gradual|totalMinutes|DURATION|stages|parse|resolve|environment" | tail -20 || echo "  No duration-related logs yet"
+                done
+              fi
+              
+              # Check for k6 runner pods
+              K6_RUNNERS=$(kubectl get pods -A -l "k6_cr,runner=true" -o json 2>/dev/null | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"' || echo "")
+              
+              if [[ -n "$K6_RUNNERS" ]]; then
+                echo ""
+                echo "=== k6 Runner Pod Status at $(date '+%H:%M:%S') ==="
+                for runner in $K6_RUNNERS; do
+                  NS=$(echo $runner | cut -d'/' -f1)
+                  POD=$(echo $runner | cut -d'/' -f2)
+                  
+                  # Get pod status
+                  STATUS=$(kubectl get pod -n "$NS" "$POD" -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
+                  READY=$(kubectl get pod -n "$NS" "$POD" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "Unknown")
+                  echo "Pod: $POD - Status: $STATUS, Ready: $READY"
+                  
+                  # Get recent execution logs
+                  echo "Recent execution logs from $POD:"
+                  kubectl logs -n "$NS" "$POD" --tail=30 2>/dev/null | grep -E "scenario:|executor:|iteration|data_received|data_sent|http_req_duration|http_reqs|vus:|teardown|setup" || echo "  No execution logs yet"
+                  
+                  # Check for any errors or warnings
+                  echo "Checking for errors/warnings:"
+                  kubectl logs -n "$NS" "$POD" --tail=100 2>/dev/null | grep -iE "error|warn|fail|exception|panic" | head -5 || echo "  No errors found"
+                done
+              fi
+              
+              # Check for k6 test resources and their status
+              K6_TESTS=$(kubectl get k6 -A --no-headers 2>/dev/null)
+              if [[ -n "$K6_TESTS" ]]; then
+                echo ""
+                echo "=== k6 Test Resources at $(date '+%H:%M:%S') ==="
+                kubectl get k6 -A
+                
+                # Check if tests are still running
+                RUNNING_TESTS=$(echo "$K6_TESTS" | grep -v "finished" | wc -l)
+                if [[ "$RUNNING_TESTS" -eq 0 ]]; then
+                  echo "All k6 tests have finished. Stopping monitoring."
+                  break
+                fi
+              fi
+              
+              # Sleep for 2 minutes before next check (more frequent for better visibility)
+              sleep 120
+            done
+            
+            echo "k6 monitoring completed at $(date '+%H:%M:%S')"
+          ) &
+          K6_MONITOR_PID=$!
+          echo "k6 monitoring started with PID: $K6_MONITOR_PID"
+          
           # Start node failure simulation in background if enabled
           if [[ "${{ inputs.simulate_node_failure }}" == "true" ]]; then
             echo "Node failure simulation enabled - will terminate a node after ${{ inputs.node_failure_delay_minutes }} minutes"
@@ -492,6 +566,12 @@ jobs:
             --var="kubernetes_config_context=performance-testing" \
             --var="tests_duration=${{ inputs.test_duration_minutes }}" \
             --auto-approve
+          
+          # Stop the k6 monitoring process
+          if [[ -n "$K6_MONITOR_PID" ]]; then
+            echo "Stopping k6 monitoring process (PID: $K6_MONITOR_PID)"
+            kill $K6_MONITOR_PID 2>/dev/null || true
+          fi
 
       - name: Backup Tests Terraform State
         if: ${{ !inputs.use_terraform_cloud }}
