@@ -173,7 +173,7 @@ spec:
     - name: K6_PROMETHEUS_RW_TREND_STATS
       value: p(75),p(90),p(95),p(99)
     - name: K6_PROMETHEUS_RW_STALE_MARKERS
-      value: "true"  # Mark metrics as stale at end of test for clean graphs
+      value: "false"  # Disable stale markers for long-running tests (was causing 1-hour limit)
     - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
       value: "10s"  # Push metrics more frequently
     - name: DURATION_MINUTES
