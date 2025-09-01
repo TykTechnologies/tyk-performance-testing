@@ -89,7 +89,7 @@ spec:
   # Add activeDeadlineSeconds to ensure job can run for full duration
   activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
   # IMPORTANT: pass duration to BOTH initializer (inspect) and runner (run)
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${var.config.duration}
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${var.config.duration} --no-thresholds --no-summary
   initializer:
     activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # Prevent 90m cutoff
     # Ensure initializer sees DURATION_MINUTES for proper test duration planning
@@ -173,7 +173,7 @@ spec:
     - name: K6_PROMETHEUS_RW_TREND_STATS
       value: p(75),p(90),p(95),p(99)
     - name: K6_PROMETHEUS_RW_STALE_MARKERS
-      value: "true"  # Mark metrics as stale at end of test for clean graphs
+      value: "false"  # Disable stale markers for long-running tests
     - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
       value: "10s"  # Push metrics more frequently
     - name: DURATION_MINUTES
