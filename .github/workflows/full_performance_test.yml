@@ -162,6 +162,25 @@ jobs:
             fi
           fi
 
+      - name: Check and cleanup existing AKS cluster
+        if: ${{ inputs.cloud == 'Azure' }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for existing AKS cluster..."
+          CLUSTER_NAME="pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
+          RESOURCE_GROUP="pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
+          
+          if az aks show --name "$CLUSTER_NAME" --resource-group "$RESOURCE_GROUP" >/dev/null 2>&1; then
+            echo "⚠️  Found existing AKS cluster: $CLUSTER_NAME"
+            echo "🗑️  Destroying existing cluster to prevent conflicts..."
+            az aks delete --name "$CLUSTER_NAME" --resource-group "$RESOURCE_GROUP" --yes --no-wait
+            echo "🕐 Waiting for cluster deletion to complete..."
+            az aks wait --name "$CLUSTER_NAME" --resource-group "$RESOURCE_GROUP" --deleted --timeout 900 || echo "⚠️  Timeout waiting for deletion, continuing..."
+            echo "✅ Existing AKS cluster cleanup completed"
+          else
+            echo "✅ No existing AKS cluster found"
+          fi
+
       - name: Stand up AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
         run: |
@@ -195,6 +214,25 @@ jobs:
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
+      - name: Check and cleanup existing EKS cluster
+        if: ${{ inputs.cloud == 'AWS' }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for existing EKS cluster..."
+          CLUSTER_NAME="pt-${{ vars.AWS_CLUSTER_LOCATION }}"
+          REGION="${{ vars.AWS_CLUSTER_LOCATION }}"
+          
+          if aws eks describe-cluster --name "$CLUSTER_NAME" --region "$REGION" >/dev/null 2>&1; then
+            echo "⚠️  Found existing EKS cluster: $CLUSTER_NAME"
+            echo "🗑️  Destroying existing cluster to prevent conflicts..."
+            aws eks delete-cluster --name "$CLUSTER_NAME" --region "$REGION"
+            echo "🕐 Waiting for cluster deletion to complete..."
+            aws eks wait cluster-deleted --name "$CLUSTER_NAME" --region "$REGION" || echo "⚠️  Timeout waiting for deletion, continuing..."
+            echo "✅ Existing EKS cluster cleanup completed"
+          else
+            echo "✅ No existing EKS cluster found"
+          fi
+
       - name: Stand up EKS cluster
         if: ${{ inputs.cloud == 'AWS' }}
         run: |
@@ -225,6 +263,24 @@ jobs:
           aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Check and cleanup existing GKE cluster  
+        if: ${{ inputs.cloud == 'GCP' }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for existing GKE cluster..."
+          CLUSTER_NAME="pt-${{ vars.GCP_CLUSTER_LOCATION }}"
+          ZONE="${{ vars.GCP_CLUSTER_LOCATION }}"
+          PROJECT="${{ secrets.GCP_PROJECT }}"
+          
+          if gcloud container clusters describe "$CLUSTER_NAME" --zone="$ZONE" --project="$PROJECT" >/dev/null 2>&1; then
+            echo "⚠️  Found existing GKE cluster: $CLUSTER_NAME"
+            echo "🗑️  Destroying existing cluster to prevent conflicts..."
+            gcloud container clusters delete "$CLUSTER_NAME" --zone="$ZONE" --project="$PROJECT" --quiet
+            echo "✅ Existing GKE cluster cleanup completed"
+          else
+            echo "✅ No existing GKE cluster found"
+          fi
 
       - name: Stand up GKE cluster
         if: ${{ inputs.cloud == 'GCP' }}
