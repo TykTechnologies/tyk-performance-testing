@@ -592,12 +592,41 @@ jobs:
           
           # === Attempt to extend Job-level ADS for runner Jobs (workaround for hidden 1h default) ===
           echo ""
-          echo "=== Patching k6 Job activeDeadlineSeconds to support long-duration tests ==="
-          DESIRED_ADS=$(( ${{ inputs.test_duration_minutes }} * 60 + 1800 ))
-          echo "Desired activeDeadlineSeconds: $DESIRED_ADS seconds ($(( ${{ inputs.test_duration_minutes }} + 30 )) minutes)"
+          echo "=== Checking k6 Job activeDeadlineSeconds BEFORE patching ==="
           
           # Wait a moment for Jobs to be created
           sleep 10
+          
+          # First, show current Job ADS values to confirm the issue
+          echo "Current k6 Job activeDeadlineSeconds:"
+          echo "Runner Jobs:"
+          kubectl get jobs -A -l "k6_cr,runner=true" -o json 2>/dev/null \
+            | jq -r '.items[] | "  \(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "not set")"' \
+            || echo "  No runner jobs found"
+          
+          echo "Initializer Jobs:"
+          kubectl get jobs -A -l "k6_cr,job-name" -o json 2>/dev/null \
+            | jq -r '.items[] | select(.metadata.labels["job-name"] | contains("initializer")) | "  \(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "not set")"' \
+            || echo "  No initializer jobs found"
+          
+          echo "Starter Jobs:"
+          kubectl get jobs -A -l "k6_cr" -o json 2>/dev/null \
+            | jq -r '.items[] | select(.metadata.labels["job-name"] | contains("starter")) | "  \(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "not set")"' \
+            || echo "  No starter jobs found"
+          
+          # Check if we found the 3600s issue
+          RUNNER_ADS=$(kubectl get jobs -A -l "k6_cr,runner=true" -o json 2>/dev/null \
+            | jq -r '.items[] | .spec.activeDeadlineSeconds // 0' | sort -u)
+          if echo "$RUNNER_ADS" | grep -q "^3600$"; then
+            echo ""
+            echo "⚠️  CONFIRMED: k6-operator sets Job activeDeadlineSeconds=3600 (1 hour) by default!"
+            echo "⚠️  This is why tests stop at exactly 60 minutes."
+            echo ""
+          fi
+          
+          echo "=== Starting patch process ==="
+          DESIRED_ADS=$(( ${{ inputs.test_duration_minutes }} * 60 + 1800 ))
+          echo "Desired activeDeadlineSeconds: $DESIRED_ADS seconds ($(( ${{ inputs.test_duration_minutes }} + 30 )) minutes)"
           
           # Patch runner Jobs
           echo "Looking for runner Jobs to patch..."
@@ -638,6 +667,24 @@ jobs:
           done
           
           echo "=== Job patching complete ==="
+          
+          # Verify the patches were applied
+          echo ""
+          echo "=== Verifying k6 Job activeDeadlineSeconds AFTER patching ==="
+          echo "Runner Jobs:"
+          kubectl get jobs -A -l "k6_cr,runner=true" -o json 2>/dev/null \
+            | jq -r '.items[] | "  \(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "not set")"' \
+            || echo "  No runner jobs found"
+          
+          # Check if any runner jobs still have 3600s limit
+          RUNNER_ADS_AFTER=$(kubectl get jobs -A -l "k6_cr,runner=true" -o json 2>/dev/null \
+            | jq -r '.items[] | .spec.activeDeadlineSeconds // 0' | sort -u)
+          if echo "$RUNNER_ADS_AFTER" | grep -q "^3600$"; then
+            echo "⚠️  ERROR: Some Jobs still have 3600s limit! Patching may have failed."
+            echo "⚠️  Tests will likely stop at 1 hour."
+          else
+            echo "✅ SUCCESS: All Jobs have been patched to support long-duration testing!"
+          fi
           echo ""
           
           # Stop the k6 monitoring process
