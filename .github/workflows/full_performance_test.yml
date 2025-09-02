@@ -650,8 +650,17 @@ jobs:
           echo ""
           echo "=== Checking k6 Job activeDeadlineSeconds BEFORE patching ==="
           
-          # Wait a moment for Jobs to be created
-          sleep 10
+          # Wait for Jobs to be created with retries
+          echo "Waiting for k6 Jobs to be created..."
+          for i in {1..30}; do
+            JOB_COUNT=$(kubectl get jobs -A -l "k6_cr" --no-headers 2>/dev/null | wc -l)
+            if [[ $JOB_COUNT -gt 0 ]]; then
+              echo "Found $JOB_COUNT k6 Jobs after $i attempts"
+              break
+            fi
+            echo "  Attempt $i: No Jobs yet, waiting..."
+            sleep 2
+          done
           
           # First, show current Job ADS values to confirm the issue
           echo "Current k6 Job activeDeadlineSeconds:"
@@ -732,14 +741,37 @@ jobs:
             | jq -r '.items[] | "  \(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "not set")"' \
             || echo "  No runner jobs found"
           
-          # Check if any runner jobs still have 3600s limit
+          # Check if any runner jobs still have wrong limits
           RUNNER_ADS_AFTER=$(kubectl get jobs -A -l "k6_cr,runner=true" -o json 2>/dev/null \
             | jq -r '.items[] | .spec.activeDeadlineSeconds // 0' | sort -u)
+          
+          # Check for common problematic values
+          PROBLEM_FOUND=false
           if echo "$RUNNER_ADS_AFTER" | grep -q "^3600$"; then
-            echo "⚠️  ERROR: Some Jobs still have 3600s limit! Patching may have failed."
-            echo "⚠️  Tests will likely stop at 1 hour."
-          else
+            echo "⚠️  ERROR: Some Jobs still have 3600s (1 hour) limit! Patching may have failed."
+            PROBLEM_FOUND=true
+          fi
+          if echo "$RUNNER_ADS_AFTER" | grep -q "^5400$"; then
+            echo "⚠️  ERROR: Some Jobs have 5400s (90 minute) limit! This is another k6-operator default."
+            PROBLEM_FOUND=true
+          fi
+          
+          # Check if the value is less than what we expect
+          for ads in $RUNNER_ADS_AFTER; do
+            if [[ $ads -lt $DESIRED_ADS ]] && [[ $ads -ne 0 ]]; then
+              echo "⚠️  ERROR: Found Job with ADS=$ads which is less than desired $DESIRED_ADS"
+              echo "⚠️  Test will likely stop at $(( $ads / 60 )) minutes instead of ${{ inputs.test_duration_minutes }} minutes"
+              PROBLEM_FOUND=true
+            fi
+          done
+          
+          if [[ "$PROBLEM_FOUND" == "false" ]]; then
             echo "✅ SUCCESS: All Jobs have been patched to support long-duration testing!"
+            echo "✅ All Jobs have activeDeadlineSeconds >= $DESIRED_ADS seconds"
+          else
+            echo ""
+            echo "⚠️⚠️⚠️ WARNING: Job patching may have failed! ⚠️⚠️⚠️"
+            echo "The test may terminate early. Check the Job ADS values above."
           fi
           echo ""
           
