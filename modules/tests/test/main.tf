@@ -89,7 +89,7 @@ spec:
   # Add activeDeadlineSeconds to ensure job can run for full duration
   activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
   # IMPORTANT: pass duration to BOTH initializer (inspect) and runner (run)
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${var.config.duration} --no-thresholds --no-summary
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --no-thresholds --no-summary
   initializer:
     activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # Prevent 90m cutoff
     # Ensure initializer sees DURATION_MINUTES for proper test duration planning
@@ -179,7 +179,7 @@ spec:
     - name: K6_PROMETHEUS_RW_INSECURE_SKIP_TLS_VERIFY
       value: "true"
     - name: K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM
-      value: "false"  # Use traditional histograms for better Grafana compatibility
+      value: "true"  # Use native histograms for better long-duration support
     - name: DURATION_MINUTES
       value: "${var.config.duration}"
   script:
