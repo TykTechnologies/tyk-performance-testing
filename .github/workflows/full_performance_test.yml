@@ -642,58 +642,71 @@ jobs:
           cd tests
           terraform init
           
-          # Calculate number of 60-minute segments needed
+          # Calculate number of 60-minute segments needed with overlap
           TOTAL_DURATION=${{ inputs.test_duration_minutes }}
           SEGMENT_DURATION=60
+          OVERLAP_MINUTES=2  # 2-minute overlap to maintain continuity
+          WARMUP_MINUTES=1   # 1-minute warmup period
           NUM_SEGMENTS=$(( (TOTAL_DURATION + SEGMENT_DURATION - 1) / SEGMENT_DURATION ))
           
           echo "=== Test Segmentation Plan ==="
           echo "Total test duration: ${TOTAL_DURATION} minutes"
           echo "Segment duration: ${SEGMENT_DURATION} minutes"
           echo "Number of segments: ${NUM_SEGMENTS}"
+          echo "Overlap between segments: ${OVERLAP_MINUTES} minutes"
+          echo "Warmup period: ${WARMUP_MINUTES} minutes"
           
-          # Run tests in segments
+          # Run tests in segments with overlap for continuity
           for SEGMENT in $(seq 1 $NUM_SEGMENTS); do
-            # Calculate duration for this segment (last segment might be shorter)
+            # Calculate duration for this segment
             REMAINING_DURATION=$(( TOTAL_DURATION - (SEGMENT - 1) * SEGMENT_DURATION ))
-            if [[ $REMAINING_DURATION -gt $SEGMENT_DURATION ]]; then
-              CURRENT_DURATION=$SEGMENT_DURATION
+            
+            # Add overlap for all segments except the last
+            if [[ $SEGMENT -lt $NUM_SEGMENTS ]]; then
+              # Not the last segment - add overlap
+              CURRENT_DURATION=$(( SEGMENT_DURATION + OVERLAP_MINUTES ))
+              ACTUAL_RUN_TIME=$SEGMENT_DURATION  # Time before starting next segment
             else
+              # Last segment - no overlap needed
               CURRENT_DURATION=$REMAINING_DURATION
+              ACTUAL_RUN_TIME=$REMAINING_DURATION
             fi
             
             echo ""
             echo "=== Running Test Segment ${SEGMENT}/${NUM_SEGMENTS} ==="
-            echo "Segment duration: ${CURRENT_DURATION} minutes"
+            echo "Segment duration: ${CURRENT_DURATION} minutes (includes ${OVERLAP_MINUTES}min overlap)"
             echo "Time elapsed: $(( (SEGMENT - 1) * SEGMENT_DURATION )) minutes"
             echo "Time remaining: ${REMAINING_DURATION} minutes"
+            echo "Warmup period: ${WARMUP_MINUTES} minutes"
             
-            # Apply terraform with segment-specific variables
+            # Apply terraform with segment-specific variables including warmup
             terraform apply \
               --var="kubernetes_config_context=performance-testing" \
               --var="tests_duration=${CURRENT_DURATION}" \
               --var="test_segment=${SEGMENT}" \
               --var="total_segments=${NUM_SEGMENTS}" \
+              --var="warmup_minutes=${WARMUP_MINUTES}" \
               --auto-approve
             
-            # Wait for test to complete and collect metrics
-            echo "Waiting for segment ${SEGMENT} to complete..."
-            sleep 30  # Brief pause to ensure metrics are flushed
+            # For segments other than the last, start next segment before current ends
+            if [[ $SEGMENT -lt $NUM_SEGMENTS ]]; then
+              # Wait for most of the segment to complete (leaving overlap time)
+              WAIT_TIME=$(( ACTUAL_RUN_TIME * 60 - OVERLAP_MINUTES * 60 ))
+              echo "Running segment ${SEGMENT} for ${ACTUAL_RUN_TIME} minutes before starting next..."
+              sleep $WAIT_TIME
+              
+              # Start next segment while current is still running (overlap period)
+              echo "Starting overlapping segment $(( SEGMENT + 1 )) while segment ${SEGMENT} completes..."
+            else
+              # Last segment - wait for full completion
+              echo "Waiting for final segment ${SEGMENT} to complete..."
+              WAIT_TIME=$(( ACTUAL_RUN_TIME * 60 ))
+              sleep $WAIT_TIME
+            fi
             
             # Show k6 test status for this segment
             echo "=== Segment ${SEGMENT} Test Status ==="
             kubectl get k6 -A || echo "No k6 resources found"
-            
-            # Destroy test resources before next segment (but keep deployments)
-            if [[ $SEGMENT -lt $NUM_SEGMENTS ]]; then
-              echo "Cleaning up test resources before next segment..."
-              terraform destroy \
-                --var="kubernetes_config_context=performance-testing" \
-                --var="tests_duration=${CURRENT_DURATION}" \
-                --auto-approve \
-                --target=kubectl_manifest.test || true
-              sleep 10
-            fi
           done
           
           echo ""
