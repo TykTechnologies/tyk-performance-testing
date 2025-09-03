@@ -366,18 +366,15 @@ jobs:
               # === Show Job-level activeDeadlineSeconds for k6 initializer/runner/starter Jobs ===
               echo ""
               echo "=== k6 Job activeDeadlineSeconds (snapshot) at $(date '+%H:%M:%S') ==="
-              # Initializer jobs
-              kubectl get jobs -A -l "k6_cr,job-name" -o json 2>/dev/null \
-                | jq -r '.items[] | select(.metadata.labels["job-name"] | contains("initializer")) | "\(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "none")"' \
-                || echo "  (no initializer jobs found)"
-              # Runner jobs
-              kubectl get jobs -A -l "k6_cr,runner=true" -o json 2>/dev/null \
-                | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "none")"' \
-                || echo "  (no runner jobs found)"
-              # Starter jobs
-              kubectl get jobs -A -l "k6_cr" -o json 2>/dev/null \
-                | jq -r '.items[] | select(.metadata.labels["job-name"] | contains("starter")) | "\(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "none")"' \
-                || echo "  (no starter jobs found)"
+              # Show k6 Jobs with their activeDeadlineSeconds
+              echo "Initializer jobs:"
+              kubectl get jobs -A -l "k6_cr" -o json 2>/dev/null | jq -r '.items[] | select(.metadata.labels["job-name"] // "" | contains("initializer")) | "\(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "none")"' || echo "  (none)"
+              
+              echo "Runner jobs:"
+              kubectl get jobs -A -l "k6_cr,runner=true" -o json 2>/dev/null | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "none")"' || echo "  (none)"
+              
+              echo "Starter jobs:"
+              kubectl get jobs -A -l "k6_cr" -o json 2>/dev/null | jq -r '.items[] | select(.metadata.labels["job-name"] // "" | contains("starter")) | "\(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "none")"' || echo "  (none)"
 
               # Optional: warn loudly if any runner job is pinned to 3600s
               RUNNER_ADS=$(kubectl get jobs -A -l "k6_cr,runner=true" -o json 2>/dev/null \
@@ -387,7 +384,7 @@ jobs:
               fi
 
               # Check for k6 initializer pods (these run first and set up the test)
-              K6_INITIALIZERS=$(kubectl get pods -A -l "k6_cr,job-name" -o json 2>/dev/null | jq -r '.items[] | select(.metadata.labels["job-name"] | contains("initializer")) | "\(.metadata.namespace)/\(.metadata.name)"' || echo "")
+              K6_INITIALIZERS=$(kubectl get pods -A -l "k6_cr" -o json 2>/dev/null | jq -r '.items[] | select(.metadata.labels["job-name"] // "" | contains("initializer")) | "\(.metadata.namespace)/\(.metadata.name)"' || echo "")
               
               if [[ -n "$K6_INITIALIZERS" ]]; then
                 echo ""
@@ -722,13 +719,13 @@ jobs:
             || echo "  No runner jobs found"
           
           echo "Initializer Jobs:"
-          kubectl get jobs -A -l "k6_cr,job-name" -o json 2>/dev/null \
-            | jq -r '.items[] | select(.metadata.labels["job-name"] | contains("initializer")) | "  \(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "not set")"' \
+          kubectl get jobs -A -l "k6_cr" -o json 2>/dev/null \
+            | jq -r '.items[] | select(.metadata.labels["job-name"] // "" | contains("initializer")) | "  \(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "not set")"' \
             || echo "  No initializer jobs found"
           
           echo "Starter Jobs:"
           kubectl get jobs -A -l "k6_cr" -o json 2>/dev/null \
-            | jq -r '.items[] | select(.metadata.labels["job-name"] | contains("starter")) | "  \(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "not set")"' \
+            | jq -r '.items[] | select(.metadata.labels["job-name"] // "" | contains("starter")) | "  \(.metadata.namespace)/\(.metadata.name): ADS=\(.spec.activeDeadlineSeconds // "not set")"' \
             || echo "  No starter jobs found"
           
           # Check if we found the 3600s issue
