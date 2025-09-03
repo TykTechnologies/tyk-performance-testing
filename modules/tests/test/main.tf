@@ -173,9 +173,9 @@ spec:
     - name: K6_PROMETHEUS_RW_TREND_STATS
       value: p(75),p(90),p(95),p(99)
     - name: K6_PROMETHEUS_RW_STALE_MARKERS
-      value: "false"  # Disable stale markers for long-running tests
+      value: "false"  # Disable stale markers to prevent 1-hour cutoff
     - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
-      value: "10s"  # Push metrics more frequently
+      value: "5s"  # Push metrics more frequently to prevent gaps
     - name: K6_PROMETHEUS_RW_INSECURE_SKIP_TLS_VERIFY
       value: "true"
     - name: K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM
