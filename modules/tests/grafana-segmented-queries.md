@@ -1,6 +1,6 @@
-# Grafana Queries for Segmented Tests with Overlap
+# Grafana Queries for Segmented Tests
 
-When tests run in 60-minute segments with 2-minute overlap to avoid k6 Prometheus timeout issues while maintaining continuity, use these queries to aggregate metrics across all segments.
+When tests run in 60-minute segments to avoid k6 Prometheus timeout issues (GitHub issue #3498), use these queries to aggregate metrics across all segments.
 
 ## RPS (Requests Per Second) - Aggregated Across Segments
 
@@ -100,22 +100,19 @@ Add these variables to your Grafana dashboard:
 1. **Segment Tags**: Each segment is tagged with `segment=1`, `segment=2`, etc.
 2. **Time Range**: Set dashboard time range to cover all segments (e.g., 5+ hours for a 300-minute test)
 3. **Refresh Rate**: Set to 5-10 seconds during active tests
-4. **Overlap Handling**: 2-minute overlap between segments ensures continuity
-5. **Warmup Period**: Each segment includes a 1-minute warmup period
+4. **Sequential Execution**: Segments run sequentially without overlap to avoid complexity
 
 ## Example Test Execution
 
-For a 300-minute test with overlapping segments:
-- Segment 1: Minutes 0-62 (segment=1, 60min + 2min overlap)
-- Segment 2: Minutes 58-122 (segment=2, starts at 58min, 60min + 2min overlap)
-- Segment 3: Minutes 118-182 (segment=3, starts at 118min, 60min + 2min overlap)
-- Segment 4: Minutes 178-242 (segment=4, starts at 178min, 60min + 2min overlap)
-- Segment 5: Minutes 238-300 (segment=5, starts at 238min, final segment)
+For a 300-minute test with sequential segments:
+- Segment 1: Minutes 0-60 (segment=1, 60min)
+- Segment 2: Minutes 60-120 (segment=2, 60min)
+- Segment 3: Minutes 120-180 (segment=3, 60min)
+- Segment 4: Minutes 180-240 (segment=4, 60min)
+- Segment 5: Minutes 240-300 (segment=5, 60min)
 
-**Overlap periods**:
-- Minutes 58-62: Segments 1 & 2 running concurrently
-- Minutes 118-122: Segments 2 & 3 running concurrently
-- Minutes 178-182: Segments 3 & 4 running concurrently
-- Minutes 238-242: Segments 4 & 5 running concurrently
+Each segment runs to completion before the next begins, providing clean metric separation and avoiding the k6 Prometheus timeout issue where:
+- Counter metrics (RPS) stop being exported after 60 minutes
+- Gauge metrics (latency percentiles) stop being exported after 90 minutes
 
-This ensures continuous metrics without gaps while avoiding k6 Prometheus timeout issues.
+This sequential approach is simpler and avoids metric deduplication issues.

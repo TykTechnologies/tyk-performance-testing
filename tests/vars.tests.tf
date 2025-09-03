@@ -57,9 +57,3 @@ variable "total_segments" {
   default     = 1
   description = "Total number of test segments"
 }
-
-variable "warmup_minutes" {
-  type        = number
-  default     = 1
-  description = "Warmup period in minutes for each test segment"
-}

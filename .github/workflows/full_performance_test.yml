@@ -642,67 +642,52 @@ jobs:
           cd tests
           terraform init
           
-          # Calculate number of 60-minute segments needed with overlap
+          # Calculate number of 60-minute segments needed
           TOTAL_DURATION=${{ inputs.test_duration_minutes }}
           SEGMENT_DURATION=60
-          OVERLAP_MINUTES=2  # 2-minute overlap to maintain continuity
-          WARMUP_MINUTES=1   # 1-minute warmup period
-          NUM_SEGMENTS=$(( (TOTAL_DURATION + SEGMENT_DURATION - 1) / SEGMENT_DURATION ))
           
-          echo "=== Test Segmentation Plan ==="
-          echo "Total test duration: ${TOTAL_DURATION} minutes"
-          echo "Segment duration: ${SEGMENT_DURATION} minutes"
-          echo "Number of segments: ${NUM_SEGMENTS}"
-          echo "Overlap between segments: ${OVERLAP_MINUTES} minutes"
-          echo "Warmup period: ${WARMUP_MINUTES} minutes"
+          # Only use segmentation for tests > 60 minutes
+          if [[ $TOTAL_DURATION -le $SEGMENT_DURATION ]]; then
+            echo "Test duration (${TOTAL_DURATION} min) <= 60 min, running without segmentation"
+            NUM_SEGMENTS=1
+          else
+            NUM_SEGMENTS=$(( (TOTAL_DURATION + SEGMENT_DURATION - 1) / SEGMENT_DURATION ))
+            echo "=== Test Segmentation Plan ==="
+            echo "Total test duration: ${TOTAL_DURATION} minutes"
+            echo "Segment duration: ${SEGMENT_DURATION} minutes"  
+            echo "Number of segments: ${NUM_SEGMENTS}"
+            echo "Note: Sequential segments to avoid k6 Prometheus timeout (GitHub issue #3498)"
+          fi
           
-          # Run tests in segments with overlap for continuity
+          # Run tests in sequential segments
           for SEGMENT in $(seq 1 $NUM_SEGMENTS); do
             # Calculate duration for this segment
             REMAINING_DURATION=$(( TOTAL_DURATION - (SEGMENT - 1) * SEGMENT_DURATION ))
             
-            # Add overlap for all segments except the last
-            if [[ $SEGMENT -lt $NUM_SEGMENTS ]]; then
-              # Not the last segment - add overlap
-              CURRENT_DURATION=$(( SEGMENT_DURATION + OVERLAP_MINUTES ))
-              ACTUAL_RUN_TIME=$SEGMENT_DURATION  # Time before starting next segment
-            else
-              # Last segment - no overlap needed
+            if [[ $REMAINING_DURATION -lt $SEGMENT_DURATION ]]; then
+              # Last segment might be shorter
               CURRENT_DURATION=$REMAINING_DURATION
-              ACTUAL_RUN_TIME=$REMAINING_DURATION
+            else
+              CURRENT_DURATION=$SEGMENT_DURATION
             fi
             
             echo ""
             echo "=== Running Test Segment ${SEGMENT}/${NUM_SEGMENTS} ==="
-            echo "Segment duration: ${CURRENT_DURATION} minutes (includes ${OVERLAP_MINUTES}min overlap)"
+            echo "Segment duration: ${CURRENT_DURATION} minutes"
             echo "Time elapsed: $(( (SEGMENT - 1) * SEGMENT_DURATION )) minutes"
             echo "Time remaining: ${REMAINING_DURATION} minutes"
-            echo "Warmup period: ${WARMUP_MINUTES} minutes"
             
-            # Apply terraform with segment-specific variables including warmup
+            # Apply terraform with segment-specific variables
             terraform apply \
               --var="kubernetes_config_context=performance-testing" \
               --var="tests_duration=${CURRENT_DURATION}" \
               --var="test_segment=${SEGMENT}" \
               --var="total_segments=${NUM_SEGMENTS}" \
-              --var="warmup_minutes=${WARMUP_MINUTES}" \
               --auto-approve
             
-            # For segments other than the last, start next segment before current ends
-            if [[ $SEGMENT -lt $NUM_SEGMENTS ]]; then
-              # Wait for most of the segment to complete (leaving overlap time)
-              WAIT_TIME=$(( ACTUAL_RUN_TIME * 60 - OVERLAP_MINUTES * 60 ))
-              echo "Running segment ${SEGMENT} for ${ACTUAL_RUN_TIME} minutes before starting next..."
-              sleep $WAIT_TIME
-              
-              # Start next segment while current is still running (overlap period)
-              echo "Starting overlapping segment $(( SEGMENT + 1 )) while segment ${SEGMENT} completes..."
-            else
-              # Last segment - wait for full completion
-              echo "Waiting for final segment ${SEGMENT} to complete..."
-              WAIT_TIME=$(( ACTUAL_RUN_TIME * 60 ))
-              sleep $WAIT_TIME
-            fi
+            # Wait for segment to complete
+            echo "Waiting for segment ${SEGMENT} to complete (${CURRENT_DURATION} minutes)..."
+            sleep $(( CURRENT_DURATION * 60 ))
             
             # Show k6 test status for this segment
             echo "=== Segment ${SEGMENT} Test Status ==="
