@@ -119,116 +119,186 @@ start_node_failure_simulation() {
     echo "Node failure simulation enabled - will terminate a node after ${NODE_FAILURE_DELAY_MINUTES} minutes"
     
     (
+      # Wait for specified delay FIRST
       echo "Waiting ${NODE_FAILURE_DELAY_MINUTES} minutes before simulating node failure..."
       sleep $((NODE_FAILURE_DELAY_MINUTES * 60))
       
-      echo ""
-      echo "=== Starting Node Failure Simulation at $(date '+%H:%M:%S') ==="
+      echo "=== Starting node failure simulation at $(date '+%H:%M:%S') ==="
       
-      # Get list of worker nodes (exclude master nodes)
-      WORKER_NODES=$(kubectl get nodes --no-headers | grep -v "master\|control-plane" | awk '{print $1}')
+      # Get nodes running gateway pods
+      echo "Finding nodes with gateway pods..."
+      GATEWAY_NODES=$(kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort -u)
       
-      if [[ -z "$WORKER_NODES" ]]; then
-        echo "❌ No worker nodes found for termination"
-        exit 1
+      if [[ -z "$GATEWAY_NODES" ]]; then
+        echo "No nodes found with gateway pods, trying to find any pod with 'gateway' in name..."
+        GATEWAY_NODES=$(kubectl get pods -n tyk --no-headers | grep gateway | awk '{print $1}' | head -1 | xargs -I {} kubectl get pod {} -n tyk -o jsonpath='{.spec.nodeName}')
       fi
       
-      # Select a random worker node for termination
-      NODE_TO_TERMINATE=$(echo "$WORKER_NODES" | shuf -n 1)
-      echo "🎯 Selected node for termination: $NODE_TO_TERMINATE"
+      NODE_TO_TERMINATE=$(echo "$GATEWAY_NODES" | head -n 1)
       
-      # Show current k6 pod distribution before failure
-      echo ""
-      echo "Pod distribution before node failure:"
-      kubectl get pods -A -o wide | grep k6 || echo "No k6 pods found"
+      if [[ -z "$NODE_TO_TERMINATE" ]]; then
+        echo "No gateway nodes found to terminate"
+        exit 0
+      fi
       
-      # Terminate the node based on cloud provider
+      echo "Selected node for termination: $NODE_TO_TERMINATE"
+      
+      # Cloud-specific node termination
       if [[ "${CLOUD:-}" == "Azure" ]]; then
-        echo "Terminating Azure VMSS instance for node: $NODE_TO_TERMINATE"
+        # Get VMSS instance ID from node name
         VMSS_NAME=$(az vmss list --resource-group "pt-${AZURE_CLUSTER_LOCATION}" --query "[0].name" -o tsv)
         INSTANCE_ID=$(az vmss list-instances --resource-group "pt-${AZURE_CLUSTER_LOCATION}" --name "$VMSS_NAME" --query "[?osProfile.computerName=='$NODE_TO_TERMINATE'].instanceId" -o tsv)
         
         if [[ -n "$INSTANCE_ID" ]]; then
+          echo "Terminating Azure VMSS instance: $INSTANCE_ID"
           az vmss delete-instances \
             --resource-group "pt-${AZURE_CLUSTER_LOCATION}" \
             --name "$VMSS_NAME" \
             --instance-ids "$INSTANCE_ID" \
             --no-wait
-          echo "✅ Azure VMSS instance $INSTANCE_ID terminated"
+          echo "Azure node termination initiated"
         else
-          echo "❌ Could not find Azure VMSS instance for node $NODE_TO_TERMINATE"
+          echo "Could not find Azure VMSS instance for node: $NODE_TO_TERMINATE"
         fi
+        
       elif [[ "${CLOUD:-}" == "AWS" ]]; then
-        echo "Terminating AWS EC2 instance for node: $NODE_TO_TERMINATE"
-        # Get the instance ID from the node's provider ID
-        INSTANCE_ID=$(kubectl get node "$NODE_TO_TERMINATE" -o jsonpath='{.spec.providerID}' | sed 's/.*\///')
+        # Get EC2 instance ID from node provider ID
+        INSTANCE_ID=$(kubectl get node "$NODE_TO_TERMINATE" -o jsonpath='{.spec.providerID}' | cut -d'/' -f5)
         
         if [[ -n "$INSTANCE_ID" ]]; then
+          echo "Terminating AWS EC2 instance: $INSTANCE_ID"
           aws ec2 terminate-instances \
             --instance-ids "$INSTANCE_ID" \
             --region "${AWS_CLUSTER_LOCATION}"
-          echo "✅ AWS EC2 instance $INSTANCE_ID terminated"
+          echo "AWS node termination initiated"
         else
-          echo "❌ Could not find AWS EC2 instance for node $NODE_TO_TERMINATE"
+          echo "Could not find AWS instance ID for node: $NODE_TO_TERMINATE"
         fi
-      elif [[ "${CLOUD:-}" == "GCP" ]]; then
-        echo "Terminating GCP instance for node: $NODE_TO_TERMINATE"
-        INSTANCE_NAME=$(echo "$NODE_TO_TERMINATE" | sed 's/gke-.*//' | sed 's/-[^-]*$//')
-        ZONE="${GCP_CLUSTER_LOCATION}"
         
-        gcloud compute instances delete "$INSTANCE_NAME" \
-          --zone="$ZONE" \
-          --quiet
-        echo "✅ GCP instance $INSTANCE_NAME terminated"
-      else
-        echo "❌ Unknown cloud provider for node termination"
+      elif [[ "${CLOUD:-}" == "GCP" ]]; then
+        # === NODE FAILURE (GKE, with visible node count reduction) ===
+        INSTANCE_NAME="$NODE_TO_TERMINATE"
+        ZONE="${GCP_CLUSTER_LOCATION}"
+        CLUSTER_NAME="pt-${ZONE}"
+        
+        echo "Node details:"
+        echo "  Instance: $INSTANCE_NAME"
+        echo "  Zone: $ZONE"
+        echo "  Cluster: $CLUSTER_NAME"
+        
+        # Count pods on the node before deletion
+        echo "Pods running on node $INSTANCE_NAME before failure:"
+        kubectl get pods --all-namespaces --field-selector spec.nodeName=$INSTANCE_NAME -o wide
+        POD_COUNT=$(kubectl get pods --all-namespaces --field-selector spec.nodeName=$INSTANCE_NAME --no-headers | wc -l)
+        GATEWAY_POD_COUNT=$(kubectl get pods -n tyk --field-selector spec.nodeName=$INSTANCE_NAME --selector=app=gateway-tyk-tyk-gateway --no-headers | wc -l)
+        echo "Total pods on node: $POD_COUNT (Gateway pods: $GATEWAY_POD_COUNT)"
+        
+        # Check pod distribution across all nodes
+        echo "Pod distribution before failure:"
+        for node in $(kubectl get nodes -o name | cut -d/ -f2); do
+          count=$(kubectl get pods -n tyk --field-selector spec.nodeName=$node --no-headers | wc -l)
+          echo "  $node: $count pods"
+        done
+        
+        if [[ -n "$INSTANCE_NAME" ]]; then
+          # Resolve the MIG that owns this instance
+          MIG_URL=$(gcloud compute instances describe "$INSTANCE_NAME" \
+            --zone "$ZONE" --format='get(metadata.items[created-by])')
+          MIG_NAME=$(basename "$MIG_URL")
+          MIG_SIZE=$(gcloud compute instance-groups managed describe "$MIG_NAME" \
+            --zone "$ZONE" --format='get(targetSize)')
+          
+          echo "=== NODE FAILURE at $(date '+%H:%M:%S') ==="
+          echo "Simulating hard failure of $INSTANCE_NAME in MIG $MIG_NAME (drop target size from $MIG_SIZE to $((MIG_SIZE-1)))"
+          
+          # Identify gateway pods on the soon-to-fail node and remove them fast from endpoints
+          GATEWAY_PODS_ON_NODE=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway -o wide \
+            --field-selector spec.nodeName="$INSTANCE_NAME" --no-headers | awk '{print $1}')
+          POD_IPS=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway -o wide \
+            --field-selector spec.nodeName="$INSTANCE_NAME" -o jsonpath='{.items[*].status.podIP}')
+          
+          if [[ -n "$GATEWAY_PODS_ON_NODE" ]]; then
+            echo "Force-deleting pods scheduled on $INSTANCE_NAME to drop endpoints immediately:"
+            echo "$GATEWAY_PODS_ON_NODE" | xargs -r -n1 -I{} \
+              kubectl delete pod -n tyk {} --force --grace-period=0 --wait=false
+          else
+            echo "No gateway pods found on $INSTANCE_NAME"
+          fi
+          
+          # Delete the instance and reduce MIG target size by 1 (visible node count goes 4 -> 3)
+          gcloud compute instance-groups managed delete-instances "$MIG_NAME" \
+            --instances="$INSTANCE_NAME" --zone="$ZONE" --quiet
+          echo "Deleted instance $INSTANCE_NAME; MIG target size reduced from $MIG_SIZE to $((MIG_SIZE-1))"
+          
+          # Immediately remove the Node object so 'kubectl get nodes' shows 3, not 3+NotReady
+          kubectl delete node "$INSTANCE_NAME" --ignore-not-found=true || true
+          
+          echo "Node loss triggered - observing brief impact; will resize MIG back to $MIG_SIZE shortly..."
+          
+          # Optional: Add iptables REJECT rules for guaranteed errors (30-60s)
+          if [[ "$GUARANTEE_ERRORS" == "true" ]]; then
+            echo "=== Adding iptables REJECT rules for immediate failures ==="
+            # Restrict the REJECTs strictly to IPs of pods that were on the failed node
+            for n in $(kubectl get nodes -o name | cut -d/ -f2 | grep -v "$INSTANCE_NAME"); do
+              echo "Adding REJECT rules on node $n for failed-node pod IPs: $POD_IPS"
+              kubectl debug node/$n --profile=sysadmin --image=nicolaka/netshoot -- \
+                bash -c "for ip in $POD_IPS; do iptables -I OUTPUT -d \$ip -p tcp -j REJECT --reject-with tcp-reset; done; sleep 60; for ip in $POD_IPS; do iptables -D OUTPUT -d \$ip -p tcp -j REJECT --reject-with tcp-reset; done" &
+            done
+          fi
+          
+          # Monitor for the configured downtime duration
+          DOWNTIME_MINUTES=$NODE_DOWNTIME_MINUTES
+          ITERATIONS=$(( DOWNTIME_MINUTES * 60 / 5 ))
+          echo "Monitoring impact for $DOWNTIME_MINUTES minutes ($ITERATIONS checks)..."
+          
+          for i in $(seq 1 $ITERATIONS); do
+            sleep 5
+            echo ""
+            echo "[$((i*5))s / $(( DOWNTIME_MINUTES * 60 ))s] Impact monitoring:"
+            echo "  Node count: $(kubectl get nodes --no-headers | wc -l) (was $MIG_SIZE)"
+            kubectl get nodes | grep -E "NAME|NotReady" || echo "    All nodes ready"
+            
+            echo "  Gateway endpoints ready:"
+            ENDPOINT_COUNT=$(kubectl get endpoints -n tyk gateway-tyk-svc-tyk-gateway -o json 2>/dev/null \
+              | jq -r '.subsets[0].addresses | length' 2>/dev/null || echo "0")
+            echo "    $ENDPOINT_COUNT endpoints"
+            
+            echo "  Gateway pod phases:"
+            kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers \
+              | awk '{print $3}' | sort | uniq -c | awk '{print "    "$2": "$1}'
+            
+            # Show any pods that are not Running
+            NOT_RUNNING=$(kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep -v "Running" | wc -l)
+            if [[ $NOT_RUNNING -gt 0 ]]; then
+              echo "  Non-running gateway pods:"
+              kubectl get pods -n tyk -l app=gateway-tyk-tyk-gateway --no-headers | grep -v "Running" | awk '{print "    "$1": "$3}'
+            fi
+            
+            # Check HPA status
+            echo "  HPA status:"
+            kubectl get hpa -n tyk --no-headers | awk '{print "    "$1": current="$2"/"$3", CPU="$4}'
+          done
+          
+          echo ""
+          echo "Resizing MIG $MIG_NAME back to $MIG_SIZE..."
+          gcloud compute instance-groups managed resize "$MIG_NAME" --size="$MIG_SIZE" --zone="$ZONE" --quiet
+          echo "MIG resized back to $MIG_SIZE - new node will be provisioned"
+        else
+          echo "Could not find GCP instance for node: $NODE_TO_TERMINATE"
+        fi
       fi
       
-      echo ""
-      echo "Node $NODE_TO_TERMINATE termination initiated at $(date '+%H:%M:%S')"
-      echo "Monitoring cluster recovery..."
+      echo "=== Node failure simulation completed ==="
       
-      # Wait and monitor the recovery
-      for i in {1..60}; do  # Monitor for up to 10 minutes
-        sleep 10
-        
-        # Check node status
-        NODE_STATUS=$(kubectl get node "$NODE_TO_TERMINATE" --no-headers 2>/dev/null | awk '{print $2}' || echo "NotFound")
-        
-        # Check if k6 pods are still running
-        K6_PODS=$(kubectl get pods -A --no-headers | grep k6 | wc -l)
-        RUNNING_K6_PODS=$(kubectl get pods -A --no-headers | grep k6 | grep Running | wc -l)
-        
-        echo "Recovery check $i/60: Node: $NODE_STATUS, k6 pods: $RUNNING_K6_PODS/$K6_PODS running"
-        
-        # If guarantee_errors is enabled, look for specific error conditions
-        if [[ "$GUARANTEE_ERRORS" == "true" ]]; then
-          # Check for any failed HTTP requests in k6 logs
-          K6_ERRORS=$(kubectl logs -l k6_cr=tyk-test --tail=100 | grep -i "request_failed\|connection.*refused\|timeout" | wc -l 2>/dev/null || echo "0")
-          if [[ "$K6_ERRORS" -gt 0 ]]; then
-            echo "✅ Detected $K6_ERRORS error conditions - node failure impact confirmed"
-            break
-          fi
-        fi
-        
-        # Stop monitoring after specified downtime
-        if [[ $i -ge $((NODE_DOWNTIME_MINUTES * 6)) ]]; then  # 6 checks per minute
-          break
-        fi
-      done
-      
-      # Final status
-      echo ""
-      echo "=== Node Failure Simulation Completed at $(date '+%H:%M:%S') ==="
-      echo "Final cluster state:"
-      kubectl get nodes --no-headers | grep -v "master\|control-plane" || echo "No worker nodes found"
-      
-      FINAL_K6_PODS=$(kubectl get pods -A --no-headers | grep k6 | grep Running | wc -l)
-      echo "Final k6 pods running: $FINAL_K6_PODS"
-      
+      # Show cluster status after termination
+      sleep 30
+      echo "=== Cluster status after node termination ==="
+      kubectl get nodes
+      echo "=== Gateway pods status ==="
+      kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway
     ) &
-    NODE_FAILURE_PID=$!
-    echo "Node failure simulation scheduled with PID: $NODE_FAILURE_PID"
+    
+    echo "Node failure simulation scheduled in background"
   fi
 }
 
