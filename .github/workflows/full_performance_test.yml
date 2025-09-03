@@ -638,13 +638,67 @@ jobs:
             echo "Node failure simulation scheduled in background"
           fi
           
-          # Run the actual tests
+          # Run the actual tests in 60-minute segments to avoid k6 Prometheus timeout issues
           cd tests
           terraform init
-          terraform apply \
-            --var="kubernetes_config_context=performance-testing" \
-            --var="tests_duration=${{ inputs.test_duration_minutes }}" \
-            --auto-approve
+          
+          # Calculate number of 60-minute segments needed
+          TOTAL_DURATION=${{ inputs.test_duration_minutes }}
+          SEGMENT_DURATION=60
+          NUM_SEGMENTS=$(( (TOTAL_DURATION + SEGMENT_DURATION - 1) / SEGMENT_DURATION ))
+          
+          echo "=== Test Segmentation Plan ==="
+          echo "Total test duration: ${TOTAL_DURATION} minutes"
+          echo "Segment duration: ${SEGMENT_DURATION} minutes"
+          echo "Number of segments: ${NUM_SEGMENTS}"
+          
+          # Run tests in segments
+          for SEGMENT in $(seq 1 $NUM_SEGMENTS); do
+            # Calculate duration for this segment (last segment might be shorter)
+            REMAINING_DURATION=$(( TOTAL_DURATION - (SEGMENT - 1) * SEGMENT_DURATION ))
+            if [[ $REMAINING_DURATION -gt $SEGMENT_DURATION ]]; then
+              CURRENT_DURATION=$SEGMENT_DURATION
+            else
+              CURRENT_DURATION=$REMAINING_DURATION
+            fi
+            
+            echo ""
+            echo "=== Running Test Segment ${SEGMENT}/${NUM_SEGMENTS} ==="
+            echo "Segment duration: ${CURRENT_DURATION} minutes"
+            echo "Time elapsed: $(( (SEGMENT - 1) * SEGMENT_DURATION )) minutes"
+            echo "Time remaining: ${REMAINING_DURATION} minutes"
+            
+            # Apply terraform with segment-specific variables
+            terraform apply \
+              --var="kubernetes_config_context=performance-testing" \
+              --var="tests_duration=${CURRENT_DURATION}" \
+              --var="test_segment=${SEGMENT}" \
+              --var="total_segments=${NUM_SEGMENTS}" \
+              --auto-approve
+            
+            # Wait for test to complete and collect metrics
+            echo "Waiting for segment ${SEGMENT} to complete..."
+            sleep 30  # Brief pause to ensure metrics are flushed
+            
+            # Show k6 test status for this segment
+            echo "=== Segment ${SEGMENT} Test Status ==="
+            kubectl get k6 -A || echo "No k6 resources found"
+            
+            # Destroy test resources before next segment (but keep deployments)
+            if [[ $SEGMENT -lt $NUM_SEGMENTS ]]; then
+              echo "Cleaning up test resources before next segment..."
+              terraform destroy \
+                --var="kubernetes_config_context=performance-testing" \
+                --var="tests_duration=${CURRENT_DURATION}" \
+                --auto-approve \
+                --target=kubectl_manifest.test || true
+              sleep 10
+            fi
+          done
+          
+          echo ""
+          echo "=== All Test Segments Completed ==="
+          echo "Total test time: ${TOTAL_DURATION} minutes across ${NUM_SEGMENTS} segments"
           
           # === Attempt to extend Job-level ADS for runner Jobs (workaround for hidden 1h default) ===
           echo ""

@@ -45,3 +45,15 @@ variable "tests_parallelism" {
   default     = 1
   description = "Number of workers for the tests."
 }
+
+variable "test_segment" {
+  type        = number
+  default     = 1
+  description = "Current test segment number (for segmented long tests)"
+}
+
+variable "total_segments" {
+  type        = number
+  default     = 1
+  description = "Total number of test segments"
+}

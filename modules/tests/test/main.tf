@@ -89,7 +89,7 @@ spec:
   # Add activeDeadlineSeconds to ensure job can run for full duration
   activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
   # IMPORTANT: pass duration to BOTH initializer (inspect) and runner (run)
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${var.config.duration} --no-thresholds --no-summary
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --tag segment=${var.config.segment} --tag total_segments=${var.config.total_segments} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${var.config.duration} --no-thresholds --no-summary
   initializer:
     activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # Prevent 90m cutoff
     # Ensure initializer sees DURATION_MINUTES for proper test duration planning
