@@ -180,6 +180,13 @@ spec:
       value: "true"
     - name: K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM
       value: "false"  # Use traditional histograms for better Grafana compatibility
+    # Additional settings to prevent metric timeouts in long tests
+    - name: K6_PROMETHEUS_RW_MAX_SAMPLES_PER_SEND
+      value: "1000"  # Reduce batch size to prevent timeouts
+    - name: K6_PROMETHEUS_RW_TIMEOUT
+      value: "30s"  # Explicit timeout per remote write request
+    - name: K6_LOG_LEVEL
+      value: "info"  # Enable logging to debug metric issues
     - name: DURATION_MINUTES
       value: "${var.config.duration}"
   script:
