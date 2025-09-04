@@ -19,6 +19,8 @@ variable "config" {
     rate           = number
     virtual_users  = number
     parallelism    = number
+    segment        = number
+    total_segments = number
 
     auth = object({
       key_count = number
