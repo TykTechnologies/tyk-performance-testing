@@ -302,6 +302,54 @@ start_node_failure_simulation() {
   fi
 }
 
+# Actively wait for a k6 segment CR to finish.
+# - Finds the CR by name across all namespaces (field-selector)
+# - Polls .status.stage until "finished" (success) or "error" (fail)
+# - When cleanup: post is enabled, optionally waits for CR deletion
+# Args:
+#   $1 - CR name (e.g., test-s1)
+#   $2 - timeout in minutes (total wall-clock budget for this segment)
+wait_for_k6_segment() {
+  local name="$1"
+  local timeout_min="$2"
+  local deadline=$(( $(date +%s) + timeout_min*60 ))
+  local ns="" stage=""
+
+  echo "Waiting for k6 segment CR '${name}' (timeout: ${timeout_min}m)..."
+  while (( $(date +%s) < deadline )); do
+    # Determine namespace and stage (try K6 first, then TestRun)
+    ns="$(kubectl get k6 -A --field-selector=metadata.name=${name} -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || true)"
+    if [[ -n "${ns}" ]]; then
+      stage="$(kubectl get k6 ${name} -n ${ns} -o jsonpath='{.status.stage}' 2>/dev/null || true)"
+    else
+      ns="$(kubectl get testrun -A --field-selector=metadata.name=${name} -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || true)"
+      [[ -n "${ns}" ]] && stage="$(kubectl get testrun ${name} -n ${ns} -o jsonpath='{.status.stage}' 2>/dev/null || true)"
+    fi
+
+    if [[ "${stage}" == "finished" ]]; then
+      echo "CR '${name}' finished in namespace '${ns}'. Waiting for cleanup (if enabled)..."
+      # If cleanup: post is enabled, the operator deletes the CR; tolerate either behavior
+      kubectl wait --for=delete k6/${name} -n "${ns}" --timeout=10m 2>/dev/null || \
+      kubectl wait --for=delete testrun/${name} -n "${ns}" --timeout=10m 2>/dev/null || true
+      return 0
+    fi
+    if [[ "${stage}" == "error" ]]; then
+      echo "CR '${name}' reported stage=error. Describing resource:"
+      kubectl describe k6 ${name} -n "${ns}" 2>/dev/null || kubectl describe testrun ${name} -n "${ns}" 2>/dev/null || true
+      return 1
+    fi
+    
+    # Show current status every few polls
+    if (( $(date +%s) % 60 < 15 )); then  # Show status roughly once per minute
+      echo "  Current status: namespace='${ns}', stage='${stage}' ($(( (deadline - $(date +%s)) / 60 ))m remaining)"
+    fi
+    
+    sleep 15
+  done
+  echo "Timed out waiting for CR '${name}' (last known ns='${ns}', stage='${stage}')."
+  return 1
+}
+
 # Run segmented tests
 run_segmented_tests() {
   # Run the actual tests in 60-minute segments to avoid k6 Prometheus timeout issues
@@ -342,6 +390,7 @@ run_segmented_tests() {
     echo "Segment duration: ${CURRENT_DURATION} minutes"
     echo "Time elapsed: $(( (SEGMENT - 1) * SEGMENT_DURATION )) minutes"
     echo "Time remaining: ${REMAINING_DURATION} minutes"
+    K6_NAME="test-s${SEGMENT}"   # must match metadata.name in the Terraform manifest
     
     # Apply terraform with segment-specific variables
     terraform apply \
@@ -351,9 +400,15 @@ run_segmented_tests() {
       --var="total_segments=${NUM_SEGMENTS}" \
       --auto-approve
     
-    # Wait for segment to complete
-    echo "Waiting for segment ${SEGMENT} to complete (${CURRENT_DURATION} minutes)..."
-    sleep $(( CURRENT_DURATION * 60 ))
+    # Actively wait for segment completion instead of sleeping the nominal duration.
+    # Give each segment a buffer for init/ramp/cleanup; override via BUFFER_MINUTES if needed.
+    BUFFER_MINUTES="${BUFFER_MINUTES:-15}"
+    SEGMENT_TIMEOUT_MIN=$(( CURRENT_DURATION + BUFFER_MINUTES ))
+    echo "Waiting for segment ${SEGMENT} (${K6_NAME}) with timeout ${SEGMENT_TIMEOUT_MIN} minutes..."
+    if ! wait_for_k6_segment "${K6_NAME}" "${SEGMENT_TIMEOUT_MIN}"; then
+      echo "Segment ${SEGMENT} failed or timed out."
+      exit 1
+    fi
     
     # Show k6 test status for this segment
     echo "=== Segment ${SEGMENT} Test Status ==="

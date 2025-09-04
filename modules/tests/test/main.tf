@@ -79,8 +79,15 @@ resource "kubectl_manifest" "test" {
 apiVersion: k6.io/v1alpha1
 kind: K6
 metadata:
-  name: test
+  # Make the CR name unique per segment so segments cannot patch each other.
+  # Example: test-s1, test-s2, ...
+  name: test-s${var.config.segment}
   namespace: ${var.name}
+  labels:
+    app.kubernetes.io/part-of: "k6"
+    app.kubernetes.io/name: "k6-segment"
+    segment: "${var.config.segment}"
+    total_segments: "${var.config.total_segments}"
 spec:
   parallelism: ${var.config.parallelism}
   separate: false
