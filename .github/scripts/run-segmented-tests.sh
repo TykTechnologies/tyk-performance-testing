@@ -318,11 +318,12 @@ wait_for_k6_segment() {
   echo "Waiting for k6 segment CR '${name}' (timeout: ${timeout_min}m)..."
   while (( $(date +%s) < deadline )); do
     # Determine namespace and stage (try K6 first, then TestRun)
-    ns="$(kubectl get k6 -A --field-selector=metadata.name=${name} -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || true)"
+    # Note: field-selector doesn't work reliably with CRDs, using grep instead
+    ns="$(kubectl get k6 -A -o json 2>/dev/null | jq -r --arg name "${name}" '.items[] | select(.metadata.name == $name) | .metadata.namespace' | head -1 || true)"
     if [[ -n "${ns}" ]]; then
       stage="$(kubectl get k6 ${name} -n ${ns} -o jsonpath='{.status.stage}' 2>/dev/null || true)"
     else
-      ns="$(kubectl get testrun -A --field-selector=metadata.name=${name} -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || true)"
+      ns="$(kubectl get testrun -A -o json 2>/dev/null | jq -r --arg name "${name}" '.items[] | select(.metadata.name == $name) | .metadata.namespace' | head -1 || true)"
       [[ -n "${ns}" ]] && stage="$(kubectl get testrun ${name} -n ${ns} -o jsonpath='{.status.stage}' 2>/dev/null || true)"
     fi
 
@@ -341,7 +342,12 @@ wait_for_k6_segment() {
     
     # Show current status every few polls
     if (( $(date +%s) % 60 < 15 )); then  # Show status roughly once per minute
-      echo "  Current status: namespace='${ns}', stage='${stage}' ($(( (deadline - $(date +%s)) / 60 ))m remaining)"
+      if [[ -z "${ns}" ]]; then
+        echo "  CR '${name}' not found yet. Checking all namespaces... ($(( (deadline - $(date +%s)) / 60 ))m remaining)"
+        kubectl get k6 -A 2>/dev/null | grep "${name}" || echo "    No k6 CR matching '${name}' found"
+      else
+        echo "  Current status: namespace='${ns}', stage='${stage}' ($(( (deadline - $(date +%s)) / 60 ))m remaining)"
+      fi
     fi
     
     sleep 15
