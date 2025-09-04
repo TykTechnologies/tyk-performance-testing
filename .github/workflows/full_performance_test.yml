@@ -56,8 +56,8 @@ env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
 
 concurrency:
-  group: ${{ inputs.use_terraform_cloud && inputs.cloud || format('{0}-local-{1}', inputs.cloud, github.run_id) }}
-  cancel-in-progress: ${{ inputs.use_terraform_cloud }}
+  group: full-performance-test-${{ inputs.cloud }}
+  cancel-in-progress: false
 
 jobs:
   performance_test:
