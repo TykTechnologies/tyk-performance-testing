@@ -22,6 +22,8 @@ resource "kubernetes_job" "snapshot_job" {
     name      = "snapshot-job-${var.name}-${local.timestamp}"
     namespace = "dependencies"
   }
+  
+  wait_for_completion = false  # Don't block terraform - run snapshot job in background
 
   spec {
     template {
@@ -70,7 +72,5 @@ resource "kubernetes_job" "snapshot_job" {
     }
   }
 
-  timeouts {
-    create = "${local.timeout}m"
-  }
+  # No timeout needed since we don't wait for completion
 }
