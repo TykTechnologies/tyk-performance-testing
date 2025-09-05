@@ -275,6 +275,22 @@ jobs:
           
           if gcloud container clusters describe "$CLUSTER_NAME" --zone="$ZONE" --project="$PROJECT" >/dev/null 2>&1; then
             echo "⚠️  Found existing GKE cluster: $CLUSTER_NAME"
+            
+            # Check for running operations that might block deletion
+            echo "🔍 Checking for running operations on cluster..."
+            OPERATIONS=$(gcloud container operations list --filter="zone=$ZONE AND targetLink~$CLUSTER_NAME AND status=RUNNING" --format="value(name)" --project="$PROJECT" 2>/dev/null || true)
+            
+            if [[ -n "$OPERATIONS" ]]; then
+              echo "⏳ Found running operations. Waiting for completion..."
+              echo "$OPERATIONS" | while read -r op; do
+                if [[ -n "$op" ]]; then
+                  echo "  Waiting for operation: $op"
+                  gcloud container operations wait "$op" --zone="$ZONE" --project="$PROJECT" --timeout=600 || true
+                fi
+              done
+              echo "✅ All operations completed"
+            fi
+            
             echo "🗑️  Destroying existing cluster to prevent conflicts..."
             gcloud container clusters delete "$CLUSTER_NAME" --zone="$ZONE" --project="$PROJECT" --quiet
             echo "✅ Existing GKE cluster cleanup completed"
