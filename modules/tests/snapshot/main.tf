@@ -9,11 +9,14 @@ terraform {
 
 locals {
   buffer    = var.duration <= 20 ? 4 : 10
-  delay     = (var.duration + local.buffer) * 60
+  # For segmented tests (duration > 60), add extra time for segments to complete sequentially
+  # Each 60-min segment takes ~75 min (with overhead), so total time is roughly duration * 1.25
+  actual_runtime = var.duration > 60 ? ceil(var.duration * 1.25) : var.duration
+  delay     = (local.actual_runtime + local.buffer) * 60
   # Timeout needs to cover: delay time + snapshot generation time + buffer
   # delay is in seconds, but timeout is in minutes
-  # So: (duration + buffer) for the delay, plus 20 minutes for snapshot generation
-  timeout   = (var.duration + local.buffer + 20)
+  # So: (actual_runtime + buffer) for the delay, plus 20 minutes for snapshot generation
+  timeout   = (local.actual_runtime + local.buffer + 20)
   timestamp = formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())
 }
 
