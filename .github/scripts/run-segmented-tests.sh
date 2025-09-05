@@ -313,10 +313,13 @@ wait_for_k6_segment() {
   local name="$1"
   local timeout_min="$2"
   local deadline=$(( $(date +%s) + timeout_min*60 ))
-  local ns="" stage=""
+  local ns="" stage="" prev_stage=""
 
   echo "Waiting for k6 segment CR '${name}' (timeout: ${timeout_min}m)..."
   while (( $(date +%s) < deadline )); do
+    # Remember previous state
+    local prev_ns="${ns}" prev_stage_saved="${stage}"
+    
     # Determine namespace and stage (try K6 first, then TestRun)
     # Note: field-selector doesn't work reliably with CRDs, using grep instead
     ns="$(kubectl get k6 -A -o json 2>/dev/null | jq -r --arg name "${name}" '.items[] | select(.metadata.name == $name) | .metadata.namespace' | head -1 || true)"
@@ -325,6 +328,12 @@ wait_for_k6_segment() {
     else
       ns="$(kubectl get testrun -A -o json 2>/dev/null | jq -r --arg name "${name}" '.items[] | select(.metadata.name == $name) | .metadata.namespace' | head -1 || true)"
       [[ -n "${ns}" ]] && stage="$(kubectl get testrun ${name} -n ${ns} -o jsonpath='{.status.stage}' 2>/dev/null || true)"
+    fi
+    
+    # If CR disappeared but was previously found with 'started' stage, it likely finished
+    if [[ -z "${ns}" && -n "${prev_ns}" && "${prev_stage_saved}" == "started" ]]; then
+      echo "CR '${name}' disappeared after being in 'started' stage - likely finished and cleaned up by k6-operator"
+      return 0
     fi
 
     if [[ "${stage}" == "finished" ]]; then
@@ -345,6 +354,7 @@ wait_for_k6_segment() {
       if [[ -z "${ns}" ]]; then
         echo "  CR '${name}' not found yet. Checking all namespaces... ($(( (deadline - $(date +%s)) / 60 ))m remaining)"
         kubectl get k6 -A 2>/dev/null | grep "${name}" || echo "    No k6 CR matching '${name}' found"
+        
       else
         echo "  Current status: namespace='${ns}', stage='${stage}' ($(( (deadline - $(date +%s)) / 60 ))m remaining)"
       fi
