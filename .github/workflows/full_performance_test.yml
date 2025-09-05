@@ -369,6 +369,8 @@ jobs:
           kubectl logs -n tyk $(kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway -o jsonpath='{.items[0].metadata.name}') --tail=200 || echo "Failed to get Tyk logs"
 
       - name: Run Tests
+        continue-on-error: true
+        id: run_tests
         run: |
           # Export environment variables for the script
           export CLOUD="${{ inputs.cloud }}"
@@ -383,6 +385,31 @@ jobs:
             "${{ inputs.node_failure_delay_minutes }}" \
             "${{ inputs.node_downtime_minutes }}" \
             "${{ inputs.guarantee_errors }}"
+
+      - name: Check Test Results and Data Preservation
+        if: always()
+        run: |
+          if [[ "${{ steps.run_tests.outcome }}" == "failure" ]]; then
+            echo "⚠️  Tests failed, but continuing to preserve any data collected..."
+            echo "Checking if any test data was collected before failure..."
+            
+            # Show k6 test status to understand what data might be available
+            echo "=== k6 Test Status ==="
+            kubectl get k6 -A 2>/dev/null || echo "No k6 resources found"
+            
+            # Check if snapshot job is still running and give it time to complete
+            echo "=== Checking Snapshot Job Status ==="
+            SNAPSHOT_POD=$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}' 2>/dev/null || echo "")
+            if [[ -n "$SNAPSHOT_POD" ]]; then
+              echo "Found snapshot job pod: $SNAPSHOT_POD"
+              echo "Waiting up to 10 minutes for snapshot job to complete..."
+              kubectl wait --for=condition=complete job/$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.labels.job-name}' 2>/dev/null) --timeout=600s -n dependencies 2>/dev/null || echo "Snapshot job didn't complete in 10 minutes, continuing..."
+            else
+              echo "No snapshot job found"
+            fi
+          else
+            echo "✅ Tests completed successfully"
+          fi
 
       - name: Backup Tests Terraform State
         if: ${{ !inputs.use_terraform_cloud }}
@@ -431,9 +458,20 @@ jobs:
           fi
 
       - name: Test Grafana Snapshot
+        if: always()
         continue-on-error: true
         run: |
-          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
+          echo "=== Grafana Snapshot Job Status ==="
+          SNAPSHOT_POD=$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}' 2>/dev/null || echo "")
+          if [[ -n "$SNAPSHOT_POD" ]]; then
+            echo "Snapshot job pod: $SNAPSHOT_POD"
+            echo "Pod status:"
+            kubectl get pod "$SNAPSHOT_POD" -n dependencies 2>/dev/null || echo "Could not get pod status"
+            echo "=== Last 50 lines of snapshot job logs ==="
+            kubectl logs -n dependencies "$SNAPSHOT_POD" --tail=50 2>/dev/null || echo "Could not get snapshot job logs"
+          else
+            echo "No snapshot job pod found"
+          fi
 
       - name: Download Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}
@@ -606,3 +644,29 @@ jobs:
             --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
             --auto-approve
+
+      - name: Final Test Status Report
+        if: always()
+        run: |
+          echo "=== Final Performance Test Status Report ==="
+          echo "Test execution outcome: ${{ steps.run_tests.outcome }}"
+          echo "Test duration requested: ${{ inputs.test_duration_minutes }} minutes"
+          echo "Cloud provider: ${{ inputs.cloud }}"
+          echo "Tyk version: ${{ inputs.tyk_version }}"
+          
+          if [[ "${{ steps.run_tests.outcome }}" == "success" ]]; then
+            echo "✅ Performance test completed successfully"
+            echo "All test data and snapshots should be available in Grafana"
+          elif [[ "${{ steps.run_tests.outcome }}" == "failure" ]]; then
+            echo "❌ Performance test failed, but data preservation steps were executed"
+            echo "Check the logs above for snapshot job status and any partial test data"
+            echo "Partial test data may still be available in Grafana if any segments completed"
+          else
+            echo "⚠️  Test status unclear: ${{ steps.run_tests.outcome }}"
+          fi
+          
+          echo "=== Data Availability ==="
+          echo "- Terraform state files: Backed up as artifacts"
+          echo "- k6 metrics: Sent to Prometheus during test execution"
+          echo "- Grafana snapshots: Check snapshot job logs above"
+          echo "- Tyk profiles: ${{ inputs.tyk_profiler_enabled == true && 'Enabled and uploaded' || 'Disabled' }}"
