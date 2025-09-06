@@ -477,8 +477,10 @@ jobs:
             kubectl logs -n dependencies "$IMMEDIATE_POD" --tail=100 2>/dev/null || echo "Could not get immediate snapshot logs"
             
             # Check if it contains the snapshot URL
-            if kubectl logs -n dependencies "$IMMEDIATE_POD" 2>/dev/null | grep -E "https://snapshots\.raintank\.io" | tail -1; then
+            SNAPSHOT_URL=$(kubectl logs -n dependencies "$IMMEDIATE_POD" 2>/dev/null | grep -E "https://snapshots\.raintank\.io" | tail -1 || echo "")
+            if [[ -n "$SNAPSHOT_URL" ]]; then
               echo "✅ SNAPSHOT URL FOUND IN IMMEDIATE JOB!"
+              echo "🔗 Snapshot URL: $SNAPSHOT_URL"
             else
               echo "⚠️  Immediate snapshot job hasn't produced URL yet, checking timed job..."
             fi
@@ -498,8 +500,10 @@ jobs:
             kubectl logs -n dependencies "$SNAPSHOT_POD" --tail=50 2>/dev/null || echo "Could not get timed snapshot job logs"
             
             # Check if it contains the snapshot URL
-            if kubectl logs -n dependencies "$SNAPSHOT_POD" 2>/dev/null | grep -E "https://snapshots\.raintank\.io" | tail -1; then
+            TIMED_URL=$(kubectl logs -n dependencies "$SNAPSHOT_POD" 2>/dev/null | grep -E "https://snapshots\.raintank\.io" | tail -1 || echo "")
+            if [[ -n "$TIMED_URL" ]]; then
               echo "✅ SNAPSHOT URL FOUND IN TIMED JOB!"
+              echo "🔗 Snapshot URL: $TIMED_URL"
             fi
           else
             echo "No timed snapshot job pod found"

@@ -467,6 +467,31 @@ run_segmented_tests() {
     }' 2>/dev/null && \
     echo "✅ Immediate snapshot job '${JOB_NAME}' created successfully" || \
     echo "⚠️  Failed to create immediate snapshot job, will rely on timed snapshot job"
+  
+  # Wait for immediate snapshot to complete and show the URL
+  if kubectl get pod "${JOB_NAME}" -n dependencies 2>/dev/null; then
+    echo "⏳ Waiting for immediate snapshot to complete (up to 5 minutes)..."
+    
+    # Wait for pod to complete or timeout after 5 minutes
+    kubectl wait --for=condition=Completed pod/"${JOB_NAME}" -n dependencies --timeout=300s 2>/dev/null || \
+      kubectl wait --for=condition=ContainersReady pod/"${JOB_NAME}" -n dependencies --timeout=300s 2>/dev/null || true
+    
+    echo "=== Immediate Snapshot Result ==="
+    # Get the full logs to find the URL
+    FULL_LOGS=$(kubectl logs -n dependencies "${JOB_NAME}" 2>/dev/null || echo "")
+    
+    # Extract and display the snapshot URL
+    SNAPSHOT_URL=$(echo "$FULL_LOGS" | grep -E "https://snapshots\.raintank\.io[^[:space:]]*" | tail -1 || echo "")
+    
+    if [[ -n "$SNAPSHOT_URL" ]]; then
+      echo "✅ GRAFANA SNAPSHOT SUCCESSFULLY GENERATED!"
+      echo "🔗 SNAPSHOT URL: $SNAPSHOT_URL"
+      echo "📊 Use this link to view your test results in Grafana"
+    else
+      echo "⚠️  Snapshot job completed but no URL found. Checking logs for errors..."
+      echo "$FULL_LOGS" | tail -20
+    fi
+  fi
 }
 
 # Patch Job activeDeadlineSeconds
