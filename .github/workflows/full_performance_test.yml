@@ -465,7 +465,7 @@ jobs:
           
           # Check for immediate snapshot jobs first (triggered after test completion)
           echo "Checking for immediate snapshot jobs..."
-          IMMEDIATE_PODS=$(kubectl get pods -n dependencies -l run --no-headers 2>/dev/null | grep snapshot-immediate || echo "")
+          IMMEDIATE_PODS=$(kubectl get pods -n dependencies --no-headers 2>/dev/null | grep "snapshot-immediate" || echo "")
           if [[ -n "$IMMEDIATE_PODS" ]]; then
             echo "Found immediate snapshot pod(s):"
             echo "$IMMEDIATE_PODS"

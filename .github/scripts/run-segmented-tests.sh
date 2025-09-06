@@ -472,9 +472,20 @@ run_segmented_tests() {
   if kubectl get pod "${JOB_NAME}" -n dependencies 2>/dev/null; then
     echo "⏳ Waiting for immediate snapshot to complete (up to 5 minutes)..."
     
-    # Wait for pod to complete or timeout after 5 minutes
-    kubectl wait --for=condition=Completed pod/"${JOB_NAME}" -n dependencies --timeout=300s 2>/dev/null || \
-      kubectl wait --for=condition=ContainersReady pod/"${JOB_NAME}" -n dependencies --timeout=300s 2>/dev/null || true
+    # Wait for pod to either succeed or fail (up to 5 minutes)
+    WAIT_TIME=0
+    while [[ $WAIT_TIME -lt 300 ]]; do
+      POD_STATUS=$(kubectl get pod "${JOB_NAME}" -n dependencies -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
+      echo "  Pod status: $POD_STATUS (waited ${WAIT_TIME}s)"
+      
+      if [[ "$POD_STATUS" == "Succeeded" ]] || [[ "$POD_STATUS" == "Failed" ]] || [[ "$POD_STATUS" == "Completed" ]]; then
+        echo "  Pod finished with status: $POD_STATUS"
+        break
+      fi
+      
+      sleep 10
+      WAIT_TIME=$((WAIT_TIME + 10))
+    done
     
     echo "=== Immediate Snapshot Result ==="
     # Get the full logs to find the URL
@@ -485,11 +496,21 @@ run_segmented_tests() {
     
     if [[ -n "$SNAPSHOT_URL" ]]; then
       echo "✅ GRAFANA SNAPSHOT SUCCESSFULLY GENERATED!"
+      echo "================================================"
       echo "🔗 SNAPSHOT URL: $SNAPSHOT_URL"
+      echo "================================================"
       echo "📊 Use this link to view your test results in Grafana"
     else
       echo "⚠️  Snapshot job completed but no URL found. Checking logs for errors..."
-      echo "$FULL_LOGS" | tail -20
+      echo "Full pod logs:"
+      echo "$FULL_LOGS"
+      
+      # Check if there's an error message
+      if echo "$FULL_LOGS" | grep -i "error\|exception\|failed"; then
+        echo "❌ Snapshot generation failed with errors above"
+      else
+        echo "⚠️  Snapshot may still be processing, check 'Test Grafana Snapshot' step later"
+      fi
     fi
   fi
 }

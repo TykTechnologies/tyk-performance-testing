@@ -271,10 +271,26 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
       safe_get_element(By.XPATH, "//button[contains(., 'Publish to snapshots.raintank.io')]").click()
       logging.info("Generating raintank URL...")
 
-      # Publish on Snapshot
-      snapshot = safe_get_element(By.ID, "snapshot-url-input").get_attribute("value")
-
-      print(snapshot)
+      # Wait for the URL to be generated (it takes a few seconds)
+      time.sleep(5)
+      
+      # Get the snapshot URL - retry a few times if needed
+      snapshot = ""
+      for retry in range(10):
+          snapshot_input = safe_get_element(By.ID, "snapshot-url-input")
+          snapshot = snapshot_input.get_attribute("value")
+          if snapshot and "snapshots.raintank.io" in snapshot:
+              break
+          logging.info(f"Waiting for URL... attempt {retry+1}/10")
+          time.sleep(2)
+      
+      if snapshot:
+          logging.info(f"Snapshot URL generated: {snapshot}")
+          print(snapshot)
+      else:
+          logging.error("Failed to get snapshot URL after 10 attempts")
+          print("ERROR: No snapshot URL generated")
+      
       driver.quit()
     EOF
   }
