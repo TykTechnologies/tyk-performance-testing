@@ -462,15 +462,47 @@ jobs:
         continue-on-error: true
         run: |
           echo "=== Grafana Snapshot Job Status ==="
+          
+          # Check for immediate snapshot jobs first (triggered after test completion)
+          echo "Checking for immediate snapshot jobs..."
+          IMMEDIATE_PODS=$(kubectl get pods -n dependencies -l run --no-headers 2>/dev/null | grep snapshot-immediate || echo "")
+          if [[ -n "$IMMEDIATE_PODS" ]]; then
+            echo "Found immediate snapshot pod(s):"
+            echo "$IMMEDIATE_PODS"
+            
+            # Get the most recent immediate snapshot pod
+            IMMEDIATE_POD=$(echo "$IMMEDIATE_PODS" | tail -1 | awk '{print $1}')
+            echo "=== Immediate Snapshot Pod Logs ==="
+            echo "Pod: $IMMEDIATE_POD"
+            kubectl logs -n dependencies "$IMMEDIATE_POD" --tail=100 2>/dev/null || echo "Could not get immediate snapshot logs"
+            
+            # Check if it contains the snapshot URL
+            if kubectl logs -n dependencies "$IMMEDIATE_POD" 2>/dev/null | grep -E "https://snapshots\.raintank\.io" | tail -1; then
+              echo "✅ SNAPSHOT URL FOUND IN IMMEDIATE JOB!"
+            else
+              echo "⚠️  Immediate snapshot job hasn't produced URL yet, checking timed job..."
+            fi
+          else
+            echo "No immediate snapshot jobs found, checking timed snapshot job..."
+          fi
+          
+          # Check timed snapshot job (the original background job)
+          echo ""
+          echo "=== Timed Snapshot Job Status ==="
           SNAPSHOT_POD=$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}' 2>/dev/null || echo "")
           if [[ -n "$SNAPSHOT_POD" ]]; then
-            echo "Snapshot job pod: $SNAPSHOT_POD"
+            echo "Timed snapshot job pod: $SNAPSHOT_POD"
             echo "Pod status:"
             kubectl get pod "$SNAPSHOT_POD" -n dependencies 2>/dev/null || echo "Could not get pod status"
-            echo "=== Last 50 lines of snapshot job logs ==="
-            kubectl logs -n dependencies "$SNAPSHOT_POD" --tail=50 2>/dev/null || echo "Could not get snapshot job logs"
+            echo "=== Last 50 lines of timed snapshot job logs ==="
+            kubectl logs -n dependencies "$SNAPSHOT_POD" --tail=50 2>/dev/null || echo "Could not get timed snapshot job logs"
+            
+            # Check if it contains the snapshot URL
+            if kubectl logs -n dependencies "$SNAPSHOT_POD" 2>/dev/null | grep -E "https://snapshots\.raintank\.io" | tail -1; then
+              echo "✅ SNAPSHOT URL FOUND IN TIMED JOB!"
+            fi
           else
-            echo "No snapshot job pod found"
+            echo "No timed snapshot job pod found"
           fi
 
       - name: Download Profiles

@@ -434,6 +434,39 @@ run_segmented_tests() {
   echo ""
   echo "=== All Test Segments Completed ==="
   echo "Total test time: ${TOTAL_DURATION} minutes across ${NUM_SEGMENTS} segments"
+  
+  # GUARANTEED SNAPSHOT GENERATION - trigger immediate snapshot now that all tests are done
+  echo ""
+  echo "=== Triggering Immediate Grafana Snapshot ==="
+  echo "All test segments completed, generating snapshot with all collected data..."
+  
+  # Create a simple immediate snapshot job using kubectl run
+  JOB_NAME="snapshot-immediate-$(date +%s)"
+  echo "Creating immediate snapshot job: ${JOB_NAME}"
+  
+  kubectl run "${JOB_NAME}" -n dependencies \
+    --image=python:3.9 \
+    --restart=Never \
+    --rm=false \
+    --overrides='{
+      "spec": {
+        "nodeSelector": {"node": "dependencies"},
+        "containers": [{
+          "name": "snapshot",
+          "image": "python:3.9",
+          "command": ["bash", "-c"],
+          "args": ["pip install selenium && python /scripts/snapshot.py"],
+          "env": [{"name": "TEST_DURATION", "value": "'${TOTAL_DURATION}'"}],
+          "volumeMounts": [{"name": "script-volume", "mountPath": "/scripts"}]
+        }],
+        "volumes": [{
+          "name": "script-volume",
+          "configMap": {"name": "snapshot-script-configmap"}
+        }]
+      }
+    }' 2>/dev/null && \
+    echo "✅ Immediate snapshot job '${JOB_NAME}' created successfully" || \
+    echo "⚠️  Failed to create immediate snapshot job, will rely on timed snapshot job"
 }
 
 # Patch Job activeDeadlineSeconds
