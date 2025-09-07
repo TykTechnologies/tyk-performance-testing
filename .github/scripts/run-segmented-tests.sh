@@ -416,14 +416,22 @@ run_segmented_tests() {
       --var="total_segments=${NUM_SEGMENTS}" \
       --auto-approve
     
-    # Actively wait for segment completion instead of sleeping the nominal duration.
-    # Give each segment a buffer for init/ramp/cleanup; override via BUFFER_MINUTES if needed.
-    BUFFER_MINUTES="${BUFFER_MINUTES:-15}"
-    SEGMENT_TIMEOUT_MIN=$(( CURRENT_DURATION + BUFFER_MINUTES ))
-    echo "Waiting for segment ${SEGMENT} (${K6_NAME}) with timeout ${SEGMENT_TIMEOUT_MIN} minutes..."
-    if ! wait_for_k6_segment "${K6_NAME}" "${SEGMENT_TIMEOUT_MIN}"; then
-      echo "Segment ${SEGMENT} failed or timed out."
-      exit 1
+    # Sleep for segment duration minus 5 minutes to create overlap
+    # This starts the next segment while current one is still running
+    if [[ $SEGMENT -lt $NUM_SEGMENTS ]]; then
+      # Not the last segment - start next one early for overlap
+      SLEEP_MINUTES=$(( CURRENT_DURATION - 5 ))
+      echo "Sleeping ${SLEEP_MINUTES} minutes before starting next segment (5-minute overlap)..."
+      sleep $(( SLEEP_MINUTES * 60 ))
+    else
+      # Last segment - wait for full completion
+      BUFFER_MINUTES="${BUFFER_MINUTES:-15}"
+      SEGMENT_TIMEOUT_MIN=$(( CURRENT_DURATION + BUFFER_MINUTES ))
+      echo "Last segment - waiting for full completion with timeout ${SEGMENT_TIMEOUT_MIN} minutes..."
+      if ! wait_for_k6_segment "${K6_NAME}" "${SEGMENT_TIMEOUT_MIN}"; then
+        echo "Segment ${SEGMENT} failed or timed out."
+        exit 1
+      fi
     fi
     
     # Show k6 test status for this segment
