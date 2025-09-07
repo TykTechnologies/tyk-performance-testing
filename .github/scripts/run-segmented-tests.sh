@@ -119,8 +119,12 @@ start_node_failure_simulation() {
     echo "Node failure simulation enabled - will terminate a node after ${NODE_FAILURE_DELAY_MINUTES} minutes"
     
     (
+      # Run in isolated subshell to protect from parent process changes
+      set +e  # Don't exit on error
+      trap '' HUP  # Ignore hangup signal
+      
       # Wait for specified delay FIRST
-      echo "Waiting ${NODE_FAILURE_DELAY_MINUTES} minutes before simulating node failure..."
+      echo "[NODE_FAILURE_BG] Waiting ${NODE_FAILURE_DELAY_MINUTES} minutes before simulating node failure..."
       sleep $((NODE_FAILURE_DELAY_MINUTES * 60))
       
       echo "=== Starting node failure simulation at $(date '+%H:%M:%S') ==="
@@ -280,23 +284,39 @@ start_node_failure_simulation() {
           done
           
           echo ""
+          echo "=== NODE RECOVERY at $(date '+%H:%M:%S') ==="
           echo "Resizing MIG $MIG_NAME back to $MIG_SIZE..."
           gcloud compute instance-groups managed resize "$MIG_NAME" --size="$MIG_SIZE" --zone="$ZONE" --quiet
           echo "MIG resized back to $MIG_SIZE - new node will be provisioned"
+          
+          # Wait a bit and verify the resize worked
+          sleep 10
+          NEW_SIZE=$(gcloud compute instance-groups managed describe "$MIG_NAME" \
+            --zone "$ZONE" --format='get(targetSize)')
+          if [[ "$NEW_SIZE" == "$MIG_SIZE" ]]; then
+            echo "✅ MIG successfully resized to $MIG_SIZE"
+          else
+            echo "❌ ERROR: MIG resize failed! Current size: $NEW_SIZE, expected: $MIG_SIZE"
+          fi
         else
           echo "Could not find GCP instance for node: $NODE_TO_TERMINATE"
         fi
       fi
       
-      echo "=== Node failure simulation completed ==="
+      echo "=== Node failure simulation completed at $(date '+%H:%M:%S') ==="
       
-      # Show cluster status after termination
+      # Show cluster status after recovery
       sleep 30
-      echo "=== Cluster status after node termination ==="
+      echo "=== Cluster status after recovery ==="
       kubectl get nodes
-      echo "=== Gateway pods status ==="
+      NODE_COUNT=$(kubectl get nodes --no-headers | wc -l)
+      echo "Current node count: $NODE_COUNT"
+      
+      echo "=== Gateway pods status after recovery ==="
       kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway
-    ) &
+      
+      echo "[NODE_FAILURE_BG] Background process completed successfully"
+    ) 2>&1 | sed 's/^/[NODE_FAILURE] /' &
     
     echo "Node failure simulation scheduled in background"
   fi
