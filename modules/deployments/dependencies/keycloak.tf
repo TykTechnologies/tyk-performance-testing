@@ -6826,6 +6826,7 @@ resource "helm_release" "keycloak-pgsql" {
 
   namespace = var.namespace
   atomic    = true
+  timeout   = 600  # 10 minutes timeout for PostgreSQL deployment
 
   set {
     name  = "auth.database"
@@ -6872,6 +6873,7 @@ resource "helm_release" "keycloak-pgsql" {
     value = var.label
   }
 
+  count      = var.keycloak.enabled ? 1 : 0
   depends_on = [kubernetes_namespace.dependencies]
 }
 
