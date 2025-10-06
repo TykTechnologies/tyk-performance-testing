@@ -6,6 +6,7 @@ resource "helm_release" "tyk-pgsql" {
 
   namespace = var.namespace
   atomic    = true
+  timeout   = 900  # 15 minutes timeout for PostgreSQL deployment
 
   set {
     name  = "auth.database"
