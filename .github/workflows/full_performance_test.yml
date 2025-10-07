@@ -329,8 +329,28 @@ jobs:
           gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_LOCATION }}" \
             --zone "${{ vars.GCP_CLUSTER_LOCATION }}" \
             --project "${{ secrets.GCP_PROJECT }}"
-          
+
           kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Create Docker Hub credentials for Kubernetes
+        run: |
+          echo "📝 Creating Docker Hub image pull secrets for Kubernetes nodes..."
+
+          # Create secrets in both tyk and dependencies namespaces
+          for NS in tyk dependencies; do
+            kubectl create namespace $NS 2>/dev/null || echo "Namespace $NS already exists"
+
+            kubectl create secret docker-registry dockerhub-secret \
+              --docker-server=https://index.docker.io/v1/ \
+              --docker-username="${{ secrets.DOCKER_USERNAME }}" \
+              --docker-password="${{ secrets.DOCKER_PASSWORD }}" \
+              --namespace=$NS \
+              --dry-run=client -o yaml | kubectl apply -f -
+
+            echo "✅ Docker Hub secret created in namespace: $NS"
+          done
+
+          echo "✅ Kubernetes nodes can now pull images with increased Docker Hub rate limits"
 
       - name: Deploy testing resources
         run: |

@@ -43,5 +43,11 @@ resource "helm_release" "tyk-redis" {
     value = "bitnamilegacy/redis-cluster"
   }
 
+  # Use Docker Hub credentials to bypass rate limits
+  set {
+    name  = "image.pullSecrets[0]"
+    value = "dockerhub-secret"
+  }
+
   depends_on = [kubernetes_namespace.tyk, kubernetes_namespace.tyk]
 }

@@ -6879,6 +6879,12 @@ resource "helm_release" "keycloak-pgsql" {
     value = "bitnamilegacy/postgresql"
   }
 
+  # Use Docker Hub credentials to bypass rate limits
+  set {
+    name  = "image.pullSecrets[0]"
+    value = "dockerhub-secret"
+  }
+
   count      = var.keycloak.enabled ? 1 : 0
   depends_on = [kubernetes_namespace.dependencies]
 }
