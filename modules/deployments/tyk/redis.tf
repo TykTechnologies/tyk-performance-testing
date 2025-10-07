@@ -4,8 +4,8 @@ resource "helm_release" "tyk-redis" {
   chart      = "redis-cluster"
   version    = "10.2.0"
 
-  # Adjust default value to 15 minutes allow for all Redis containers to come up
-  timeout = 900
+  # Adjust default value to 20 minutes - Bitnami redis-cluster with volume permissions takes time
+  timeout = 1200
 
   namespace = var.namespace
   atomic    = true

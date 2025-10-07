@@ -6,7 +6,7 @@ resource "helm_release" "tyk-pgsql" {
 
   namespace = var.namespace
   atomic    = true
-  timeout   = 900  # 15 minutes timeout for PostgreSQL deployment
+  timeout   = 1200  # 20 minutes - Bitnami PostgreSQL with 20GB volumes and replicas takes time
 
   set {
     name  = "auth.database"

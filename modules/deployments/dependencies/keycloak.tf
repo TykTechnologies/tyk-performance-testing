@@ -6826,7 +6826,7 @@ resource "helm_release" "keycloak-pgsql" {
 
   namespace = var.namespace
   atomic    = true
-  timeout   = 600  # 10 minutes timeout for PostgreSQL deployment
+  timeout   = 1200  # 20 minutes - Bitnami PostgreSQL can take time to provision volumes
 
   set {
     name  = "auth.database"
