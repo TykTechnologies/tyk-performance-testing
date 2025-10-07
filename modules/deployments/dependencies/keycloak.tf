@@ -6825,8 +6825,8 @@ resource "helm_release" "keycloak-pgsql" {
   version    = "11.9.7"
 
   namespace = var.namespace
-  atomic    = true
-  timeout   = 1200  # 20 minutes - Bitnami PostgreSQL can take time to provision volumes
+  atomic    = false  # Disabled: keep resources on timeout to allow debugging
+  timeout   = 1800  # 30 minutes - bitnamilegacy pulls + volume provisioning can be slow
 
   set {
     name  = "auth.database"
