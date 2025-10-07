@@ -58,5 +58,11 @@ resource "helm_release" "tyk-pgsql" {
     value = var.resources-label
   }
 
+  # Bitnami deprecated free images on Aug 28, 2025 - use legacy repository
+  set {
+    name  = "image.repository"
+    value = "bitnamilegacy/postgresql"
+  }
+
   depends_on = [kubernetes_namespace.tyk, kubernetes_namespace.tyk]
 }

@@ -6873,6 +6873,12 @@ resource "helm_release" "keycloak-pgsql" {
     value = var.label
   }
 
+  # Bitnami deprecated free images on Aug 28, 2025 - use legacy repository
+  set {
+    name  = "image.repository"
+    value = "bitnamilegacy/postgresql"
+  }
+
   count      = var.keycloak.enabled ? 1 : 0
   depends_on = [kubernetes_namespace.dependencies]
 }

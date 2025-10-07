@@ -35,5 +35,11 @@ resource "helm_release" "tyk-redis" {
     value = "none"
   }
 
+  # Bitnami deprecated free images on Aug 28, 2025 - use legacy repository
+  set {
+    name  = "image.repository"
+    value = "bitnamilegacy/redis-cluster"
+  }
+
   depends_on = [kubernetes_namespace.tyk, kubernetes_namespace.tyk]
 }
