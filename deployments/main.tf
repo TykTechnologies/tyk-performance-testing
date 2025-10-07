@@ -111,6 +111,9 @@ module "deployments" {
   # ConfigMap-based API definitions
   use_config_maps_for_apis = var.use_config_maps_for_apis
 
+  dockerhub_username = var.dockerhub_username
+  dockerhub_password = var.dockerhub_password
+
   dependencies = {
     grafana = {
       service = {
