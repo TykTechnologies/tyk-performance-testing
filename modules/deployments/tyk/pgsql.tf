@@ -66,7 +66,7 @@ resource "helm_release" "tyk-pgsql" {
 
   # Use Docker Hub credentials to bypass rate limits
   set {
-    name  = "image.pullSecrets[0]"
+    name  = "global.imagePullSecrets[0]"
     value = "dockerhub-secret"
   }
 
