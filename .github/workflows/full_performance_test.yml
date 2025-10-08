@@ -333,6 +333,8 @@ jobs:
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
       - name: Deploy testing resources
+        id: deploy_resources
+        continue-on-error: true
         env:
           TF_VAR_dockerhub_username: ${{ secrets.DOCKER_USERNAME }}
           TF_VAR_dockerhub_password: ${{ secrets.DOCKER_PASSWORD }}
@@ -345,7 +347,61 @@ jobs:
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
             --auto-approve
-          
+
+      - name: Debug Redis Deployment Failure
+        if: failure() || steps.deploy_resources.outcome == 'failure'
+        run: |
+          echo "================================"
+          echo "🔍 DEBUGGING REDIS DEPLOYMENT FAILURE"
+          echo "================================"
+
+          echo ""
+          echo "=== Helm Release Status ==="
+          helm list -n tyk -a || true
+
+          echo ""
+          echo "=== Redis Pods Status ==="
+          kubectl get pods -n tyk -l app.kubernetes.io/name=redis-cluster -o wide || true
+
+          echo ""
+          echo "=== Redis Pod Details ==="
+          for pod in $(kubectl get pods -n tyk -l app.kubernetes.io/name=redis-cluster -o jsonpath='{.items[*].metadata.name}'); do
+            echo ""
+            echo "--- Pod: $pod ---"
+            kubectl describe pod -n tyk $pod || true
+          done
+
+          echo ""
+          echo "=== Redis Pod Logs (last 100 lines each) ==="
+          for pod in $(kubectl get pods -n tyk -l app.kubernetes.io/name=redis-cluster -o jsonpath='{.items[*].metadata.name}'); do
+            echo ""
+            echo "--- Logs for: $pod ---"
+            kubectl logs -n tyk $pod --tail=100 --all-containers=true || true
+          done
+
+          echo ""
+          echo "=== Redis Events ==="
+          kubectl get events -n tyk --sort-by='.lastTimestamp' | grep -i redis || true
+
+          echo ""
+          echo "=== PersistentVolumeClaims ==="
+          kubectl get pvc -n tyk || true
+
+          echo ""
+          echo "=== ImagePullSecrets Check ==="
+          kubectl get secret dockerhub-secret -n tyk -o yaml || echo "dockerhub-secret not found!"
+
+          echo ""
+          echo "================================"
+          echo "End of debug output"
+          echo "================================"
+
+          # Exit with failure to stop the workflow
+          exit 1
+
+      - name: Wait for deployment stabilization
+        if: steps.deploy_resources.outcome == 'success'
+        run: |
           # Calculate stabilization wait time based on test duration
           # Minimum 5 minutes, maximum 15 minutes, scales with duration
           STABILIZATION_MINUTES=$(( ${{ inputs.test_duration_minutes }} >= 60 ? 10 : 5 ))

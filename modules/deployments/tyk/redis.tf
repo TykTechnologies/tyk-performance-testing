@@ -19,7 +19,7 @@ resource "helm_release" "tyk-redis" {
 
   set {
     name  = "volumePermissions.enabled"
-    value = true
+    value = false  # Disabled - GKE handles PVC permissions, init containers cause 30min timeout
   }
 
   set {
