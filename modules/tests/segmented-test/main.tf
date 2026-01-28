@@ -30,7 +30,7 @@ spec:
   quiet: "false"
   cleanup: "post"
   activeDeadlineSeconds: ${(local.segment_duration * 60) + 600}  # segment duration + 10 min buffer
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-seg${count.index} --tag segment=${count.index} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${local.segment_duration} --no-thresholds --no-summary
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name}-seg${count.index} --tag segment=${count.index} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${local.segment_duration} --no-thresholds --summary-mode=disabled
   # Add start delay for sequential execution
   startAfter: ${count.index * local.segment_duration * 60}  # Start each segment after previous completes
   runner:
