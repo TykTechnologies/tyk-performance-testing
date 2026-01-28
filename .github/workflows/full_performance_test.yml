@@ -516,6 +516,41 @@ jobs:
             echo "No k6 initializer pods found"
           fi
 
+      - name: Debug k6 Operator (on test failure)
+        if: failure() || steps.run_tests.outcome == 'failure'
+        continue-on-error: true
+        run: |
+          echo "=== k6 CRs ==="
+          kubectl get k6 -A -o wide || true
+          
+          echo ""
+          echo "=== k6 CR Details ==="
+          for ns in $(kubectl get k6 -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\n"}{end}' 2>/dev/null | sort -u); do
+            for name in $(kubectl get k6 -n "$ns" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null); do
+              echo "--- k6 ${ns}/${name} ---"
+              kubectl describe k6 "$name" -n "$ns" || true
+            done
+          done
+          
+          echo ""
+          echo "=== k6 Operator Pods (dependencies) ==="
+          kubectl get pods -n dependencies -l app.kubernetes.io/name=k6-operator -o wide || true
+          
+          echo ""
+          echo "=== k6 Operator Logs (dependencies) ==="
+          for pod in $(kubectl get pods -n dependencies -l app.kubernetes.io/name=k6-operator -o jsonpath='{.items[*].metadata.name}' 2>/dev/null); do
+            echo "--- logs for $pod ---"
+            kubectl logs -n dependencies "$pod" --tail=200 || true
+          done
+          
+          echo ""
+          echo "=== Recent Events (tyk) ==="
+          kubectl get events -n tyk --sort-by=.lastTimestamp | tail -100 || true
+          
+          echo ""
+          echo "=== Recent Events (dependencies) ==="
+          kubectl get events -n dependencies --sort-by=.lastTimestamp | tail -100 || true
+
       - name: Test Grafana Snapshot
         if: always()
         continue-on-error: true

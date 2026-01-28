@@ -12,6 +12,7 @@ SIMULATE_NODE_FAILURE="${2:-false}"
 NODE_FAILURE_DELAY_MINUTES="${3:-60}"
 NODE_DOWNTIME_MINUTES="${4:-5}"
 GUARANTEE_ERRORS="${5:-false}"
+FAST_FAIL_INIT_MINUTES="${FAST_FAIL_INIT_MINUTES:-10}"
 
 echo "=== Segmented k6 Test Runner Started ==="
 echo "Total test duration: ${TEST_DURATION_MINUTES} minutes"
@@ -334,9 +335,12 @@ wait_for_k6_segment() {
   local timeout_min="$2"
   local deadline=$(( $(date +%s) + timeout_min*60 ))
   local ns="" stage="" prev_stage=""
+  local init_seen_at=0
 
   echo "Waiting for k6 segment CR '${name}' (timeout: ${timeout_min}m)..."
   while (( $(date +%s) < deadline )); do
+    local now_ts
+    now_ts=$(date +%s)
     # Remember previous state
     local prev_ns="${ns}" prev_stage_saved="${stage}"
     
@@ -368,9 +372,31 @@ wait_for_k6_segment() {
       kubectl describe k6 ${name} -n "${ns}" 2>/dev/null || kubectl describe testrun ${name} -n "${ns}" 2>/dev/null || true
       return 1
     fi
-    
+
+    # Fast-fail: initialization stuck with initializer completed and no runner/starter jobs.
+    if [[ "${stage}" == "initialization" ]]; then
+      if (( init_seen_at == 0 )); then
+        init_seen_at="${now_ts}"
+      fi
+      if (( now_ts - init_seen_at > FAST_FAIL_INIT_MINUTES * 60 )); then
+        local init_status="" runner_jobs=0 runner_pods=0 starter_jobs=0
+        if [[ -n "${ns}" ]]; then
+          init_status=$(kubectl get pods -n "${ns}" -l "k6_cr,initializer=k6" --no-headers 2>/dev/null | awk -v n="${name}-initializer" '$1 ~ n {print $3}' | head -1 || true)
+          runner_jobs=$(kubectl get jobs -n "${ns}" -l "k6_cr,runner=true" --no-headers 2>/dev/null | wc -l | tr -d ' ' || echo 0)
+          runner_pods=$(kubectl get pods -n "${ns}" -l "k6_cr,runner=true" --no-headers 2>/dev/null | wc -l | tr -d ' ' || echo 0)
+          starter_jobs=$(kubectl get jobs -n "${ns}" -l "k6_cr" --no-headers 2>/dev/null | grep -c "starter" || true)
+        fi
+        if [[ "${init_status}" == "Completed" || "${init_status}" == "Succeeded" ]] \
+          && [[ "${runner_jobs}" == "0" ]] && [[ "${runner_pods}" == "0" ]] && [[ "${starter_jobs}" == "0" ]]; then
+          echo "Fast-fail: CR '${name}' stuck in initialization for >${FAST_FAIL_INIT_MINUTES}m; initializer completed but no runner/starter jobs."
+          kubectl describe k6 ${name} -n "${ns}" 2>/dev/null || true
+          return 1
+        fi
+      fi
+    fi
+
     # Show current status every few polls
-    if (( $(date +%s) % 60 < 15 )); then  # Show status roughly once per minute
+    if (( now_ts % 60 < 15 )); then  # Show status roughly once per minute
       if [[ -z "${ns}" ]]; then
         echo "  CR '${name}' not found yet. Checking all namespaces... ($(( (deadline - $(date +%s)) / 60 ))m remaining)"
         kubectl get k6 -A 2>/dev/null | grep "${name}" || echo "    No k6 CR matching '${name}' found"
