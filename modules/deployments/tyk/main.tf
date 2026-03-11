@@ -494,6 +494,30 @@ resource "helm_release" "tyk" {
     }
   }
 
+  # OTel Metrics
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[18].name"
+    value = "TYK_GW_OPENTELEMETRY_METRICS_ENABLED"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[18].value"
+    type  = "string"
+    value = tostring(var.open_telemetry.metrics_enabled)
+  }
+
+  # OTel Runtime Metrics
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[19].name"
+    value = "TYK_GW_OPENTELEMETRY_METRICS_RUNTIMEMETRICS"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.extraEnvs[19].value"
+    type  = "string"
+    value = tostring(var.open_telemetry.runtime_metrics)
+  }
+
   # --- Node placement: choose the correct label key per provider ---
   # GKE: cloud.google.com/gke-nodepool (only when strategy is 'strict')
   dynamic "set" {

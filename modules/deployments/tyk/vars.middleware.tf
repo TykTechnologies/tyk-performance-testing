@@ -34,8 +34,10 @@ variable "rate_limit" {
 
 variable "open_telemetry" {
   type = object({
-    enabled        = bool
-    sampling_ratio = string
+    enabled         = bool
+    sampling_ratio  = string
+    metrics_enabled = bool
+    runtime_metrics = bool
   })
 }
 

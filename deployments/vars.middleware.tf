@@ -70,6 +70,18 @@ variable "open_telemetry_sampling_ratio" {
   description = "Open Telemetry sampling ration 0 to 1.0 range."
 }
 
+variable "open_telemetry_metrics_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable OpenTelemetry metrics collection on gateway services."
+}
+
+variable "open_telemetry_metrics_runtime_metrics" {
+  type        = bool
+  default     = false
+  description = "Enable Go runtime metrics (goroutines, heap, GC) via OpenTelemetry."
+}
+
 variable "header_injection_req_enabled" {
   type        = bool
   default     = false

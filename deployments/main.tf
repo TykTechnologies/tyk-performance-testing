@@ -33,8 +33,10 @@ module "deployments" {
   }
 
   open_telemetry = {
-    enabled        = var.open_telemetry_enabled
-    sampling_ratio = var.open_telemetry_sampling_ratio
+    enabled         = var.open_telemetry_enabled
+    sampling_ratio  = var.open_telemetry_sampling_ratio
+    metrics_enabled = var.open_telemetry_metrics_enabled
+    runtime_metrics = var.open_telemetry_metrics_runtime_metrics
   }
 
   header_injection = {
