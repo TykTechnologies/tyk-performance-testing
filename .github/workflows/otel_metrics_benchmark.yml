@@ -42,6 +42,9 @@ jobs:
           - tyk-otel-metrics-runtime
           - tyk-otel-metrics-tracing
           - tyk-otel-metrics-tracing-full
+          - tyk-analytics-database
+          - tyk-analytics-prometheus
+          - tyk-otel-metrics-vs-analytics
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
