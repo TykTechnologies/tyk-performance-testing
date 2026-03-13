@@ -21,84 +21,21 @@ import { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, 
 import { getScenarios } from "/helpers/scenarios.js";
 import { generateKeys } from "/helpers/auth.js";
 
-const { SCENARIO, SCALING_ENABLED } = __ENV;
+const { SCENARIO } = __ENV;
+
+// Calculate setup timeout based on test duration (minimum 300s, scales with duration)
+const setupTimeoutSeconds = Math.max(300, ${var.config.duration} * 60 * 0.1); // 10% of test duration or 300s minimum
 
 export const options = {
   discardResponseBodies: true,
   insecureSkipTLSVerify: true,
-  setupTimeout: '300s',
-  scenarios: SCALING_ENABLED === "true" ? getScalingScenarios() : { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
+  setupTimeout: setupTimeoutSeconds + 's',
+  scenarios: { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
   thresholds: {
     'http_req_duration': ['p(95)<2000'],
     'http_req_failed': ['rate<0.05'],
   },
 };
-
-function getScalingScenarios() {
-  const baseDuration = ${var.config.duration};
-  const baseRate = ${var.config.rate};
-  const baseVUs = ${var.config.virtual_users};
-  
-  // Autoscaling test: very gradual increase through multiple stages
-  // Phase 1: 5min baseline (20k req/s)
-  // Phase 2: 15min gradual scale-up through multiple stages to 2x (40k req/s)
-  // Phase 3: 10min gradual scale-down to baseline
-  
-  return {
-    baseline_phase: {
-      executor: 'ramping-arrival-rate',
-      startRate: Math.floor(baseRate * 0.5),
-      timeUnit: '1s',
-      preAllocatedVUs: baseVUs,
-      maxVUs: baseVUs * 4,
-      stages: [
-        { target: baseRate, duration: '1m' },           // Ramp up to baseline (20k)
-        { target: baseRate, duration: '4m' },           // Hold baseline for 4 minutes
-      ],
-      exec: 'loadTest',
-      startTime: '0s',
-      tags: { phase: 'baseline' },
-    },
-    scale_up_phase: {
-      executor: 'ramping-arrival-rate',
-      startRate: baseRate,
-      timeUnit: '1s',
-      preAllocatedVUs: baseVUs * 2,
-      maxVUs: baseVUs * 5,
-      stages: [
-        { target: baseRate * 1.25, duration: '2m' },    // Step 1: 20k -> 25k
-        { target: baseRate * 1.25, duration: '2m' },    // Hold at 25k
-        { target: baseRate * 1.5, duration: '2m' },     // Step 2: 25k -> 30k
-        { target: baseRate * 1.5, duration: '2m' },     // Hold at 30k
-        { target: baseRate * 1.75, duration: '2m' },    // Step 3: 30k -> 35k
-        { target: baseRate * 1.75, duration: '1m' },    // Hold at 35k
-        { target: baseRate * 2, duration: '2m' },       // Step 4: 35k -> 40k
-        { target: baseRate * 2, duration: '2m' },       // Hold at 40k
-      ],
-      exec: 'loadTest',
-      startTime: '5m',
-      tags: { phase: 'scale_up' },
-    },
-    scale_down_phase: {
-      executor: 'ramping-arrival-rate',
-      startRate: baseRate * 2,
-      timeUnit: '1s',
-      preAllocatedVUs: baseVUs * 2,
-      maxVUs: baseVUs * 4,
-      stages: [
-        { target: baseRate * 1.75, duration: '1m' },    // Step down: 40k -> 35k
-        { target: baseRate * 1.5, duration: '2m' },     // Step down: 35k -> 30k
-        { target: baseRate * 1.5, duration: '1m' },     // Hold at 30k
-        { target: baseRate * 1.25, duration: '2m' },    // Step down: 30k -> 25k
-        { target: baseRate, duration: '2m' },           // Step down: 25k -> 20k
-        { target: baseRate, duration: '2m' },           // Hold at baseline
-      ],
-      exec: 'loadTest',
-      startTime: '20m',
-      tags: { phase: 'scale_down' },
-    }
-  };
-}
 
 export function setup() {
   addTestInfoMetrics(${jsonencode(var.config)}, ${var.config.auth.key_count});
@@ -114,10 +51,6 @@ export function setup() {
 }
 
 export default function (keys) {
-  loadTest(keys);
-}
-
-export function loadTest(keys) {
   const routeCount = getRouteCount();
   let i = Math.floor(Math.random() * routeCount);
 
@@ -137,13 +70,6 @@ export function loadTest(keys) {
     'status is 200': (r) => r.status === 200,
   });
 }
-
-// Autoscaling is now handled by Kubernetes Cluster Autoscaler
-// Traffic gradually increases to 2x (40k req/s) over 6 minutes, giving time for:
-// 1. HPA to detect CPU increase and add pod replicas
-// 2. Cluster autoscaler to detect pending pods and add nodes (2-5 min)
-// 3. System to stabilize at the new capacity level
-// Traffic then gradually decreases, allowing graceful scale-down.
 EOF
   }
 }
@@ -153,15 +79,30 @@ resource "kubectl_manifest" "test" {
 apiVersion: k6.io/v1alpha1
 kind: K6
 metadata:
-  name: test
+  # Make the CR name unique per segment so segments cannot patch each other.
+  # Example: test-s1, test-s2, ...
+  name: test-s${var.config.segment}
   namespace: ${var.name}
+  labels:
+    app.kubernetes.io/part-of: "k6"
+    app.kubernetes.io/name: "k6-segment"
+    segment: "${var.config.segment}"
+    total_segments: "${var.config.total_segments}"
 spec:
   parallelism: ${var.config.parallelism}
   separate: false
   quiet: "false"
   cleanup: "post"
-  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env SCALING_ENABLED=${var.scaling_enabled} --env CLUSTER_TYPE=${var.cluster_type}
+  # Add activeDeadlineSeconds to ensure job can run for full duration
+  activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
+  # IMPORTANT: pass duration to BOTH initializer (inspect) and runner (run)
+  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --tag segment=${var.config.segment} --tag total_segments=${var.config.total_segments} --env SCENARIO=${var.config.executor} --env DURATION_MINUTES=${var.config.duration} --no-thresholds --summary-mode=disabled
   initializer:
+    activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # Prevent 90m cutoff
+    # Ensure initializer sees DURATION_MINUTES for proper test duration planning
+    env:
+    - name: DURATION_MINUTES
+      value: "${var.config.duration}"
     metadata:
       labels:
         initializer: "k6"
@@ -205,9 +146,12 @@ spec:
               values:
               - "true"
   starter:
+    activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # Prevent 90m cutoff
     nodeSelector:
       node: ${var.name}-tests
   runner:
+    # Ensure runner pods don't timeout
+    activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
     volumes:
     - name: tests
       configMap:
@@ -235,6 +179,23 @@ spec:
       value: http://prometheus-server.dependencies.svc:80/api/v1/write
     - name: K6_PROMETHEUS_RW_TREND_STATS
       value: p(75),p(90),p(95),p(99)
+    - name: K6_PROMETHEUS_RW_STALE_MARKERS
+      value: "false"  # Disable stale markers to prevent 1-hour cutoff
+    - name: K6_PROMETHEUS_RW_PUSH_INTERVAL
+      value: "5s"  # Push metrics more frequently to prevent gaps
+    - name: K6_PROMETHEUS_RW_INSECURE_SKIP_TLS_VERIFY
+      value: "true"
+    - name: K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM
+      value: "false"  # Use traditional histograms for better Grafana compatibility
+    # Additional settings to prevent metric timeouts in long tests
+    - name: K6_PROMETHEUS_RW_MAX_SAMPLES_PER_SEND
+      value: "1000"  # Reduce batch size to prevent timeouts
+    - name: K6_PROMETHEUS_RW_TIMEOUT
+      value: "30s"  # Explicit timeout per remote write request
+    - name: K6_LOG_LEVEL
+      value: "info"  # Enable logging to debug metric issues
+    - name: DURATION_MINUTES
+      value: "${var.config.duration}"
   script:
     configMap:
       name: test-${var.name}-configmap

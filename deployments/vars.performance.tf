@@ -12,7 +12,7 @@ variable "hpa_max_replica_count" {
 
 variable "hpa_avg_cpu_util_percentage" {
   type        = number
-  default     = 80
+  default     = 70
   description = "Gateways Horizontal Pod Autoscaler average CPU utilization percentage for scaling."
 }
 
@@ -30,13 +30,13 @@ variable "external_traffic_policy" {
 
 variable "resources_requests_cpu" {
   type        = string
-  default     = "1000m"
+  default     = "500m"
   description = "Gateway CPU requests."
 }
 
 variable "resources_requests_memory" {
   type        = string
-  default     = "1Gi"
+  default     = "512Mi"
   description = "Gateway memory requests."
 }
 
@@ -50,4 +50,11 @@ variable "resources_limits_memory" {
   type        = string
   default     = "2Gi"
   description = "Gateway memory limits."
+}
+
+variable "use_config_maps_for_apis" {
+  type        = bool
+  default     = true
+  nullable    = false
+  description = "Use ConfigMaps for API definitions (plumbed to module.deployments -> module.tyk). Having a default prevents CI prompts."
 }

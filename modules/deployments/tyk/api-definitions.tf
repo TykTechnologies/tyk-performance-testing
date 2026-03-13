@@ -107,3 +107,7 @@ resource "kubernetes_config_map" "policy-definitions" {
 
   depends_on = [kubernetes_namespace.tyk]
 }
+
+# Note: Shared storage resources removed - using ConfigMaps instead
+# ConfigMaps provide a simpler, more reliable solution for mounting
+# API definitions to all pods without requiring special storage classes

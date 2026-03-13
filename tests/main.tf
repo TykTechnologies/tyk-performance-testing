@@ -29,6 +29,8 @@ module "tests" {
     rate           = var.tests_rate
     virtual_users  = var.tests_virtual_users
     parallelism    = var.tests_parallelism
+    segment        = var.test_segment
+    total_segments = var.total_segments
 
     auth = {
       key_count = var.tests_auth_key_count

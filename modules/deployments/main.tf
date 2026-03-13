@@ -12,6 +12,9 @@ module "dependencies" {
   keycloak         = {
     enabled = var.auth.enabled && var.auth.type == "JWT-RSA" ? true : false
   }
+
+  dockerhub_username = var.dockerhub_username
+  dockerhub_password = var.dockerhub_password
 }
 
 module "tyk-upstream" {
@@ -90,6 +93,9 @@ module "tyk" {
   
   # ConfigMap-based API definitions
   use_config_maps_for_apis = var.use_config_maps_for_apis
+
+  dockerhub_username = var.dockerhub_username
+  dockerhub_password = var.dockerhub_password
 
   count = var.enable_tyk ? 1 : 0
   depends_on = [module.dependencies]

@@ -6825,8 +6825,8 @@ resource "helm_release" "keycloak-pgsql" {
   version    = "11.9.7"
 
   namespace = var.namespace
-  atomic    = true
-  timeout   = 1200  # 20 minutes for AWS EKS compatibility
+  atomic    = false  # Disabled: keep resources on timeout to allow debugging
+  timeout   = 1800  # 30 minutes - bitnamilegacy pulls + volume provisioning can be slow
 
   set {
     name  = "auth.database"
@@ -6873,27 +6873,19 @@ resource "helm_release" "keycloak-pgsql" {
     value = var.label
   }
 
-  # Add resource limits for AWS EKS compatibility
+  # Bitnami deprecated free images on Aug 28, 2025 - use legacy repository
   set {
-    name  = "primary.resources.requests.cpu"
-    value = "100m"
+    name  = "image.repository"
+    value = "bitnamilegacy/postgresql"
   }
 
+  # Use Docker Hub credentials to bypass rate limits
   set {
-    name  = "primary.resources.requests.memory"
-    value = "128Mi"
+    name  = "global.imagePullSecrets[0]"
+    value = "dockerhub-secret"
   }
 
-  set {
-    name  = "primary.resources.limits.cpu"
-    value = "300m"
-  }
-
-  set {
-    name  = "primary.resources.limits.memory"
-    value = "256Mi"
-  }
-
+  count      = var.keycloak.enabled ? 1 : 0
   depends_on = [kubernetes_namespace.dependencies]
 }
 

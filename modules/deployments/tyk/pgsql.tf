@@ -5,7 +5,8 @@ resource "helm_release" "tyk-pgsql" {
   version    = "11.9.7"
 
   namespace = var.namespace
-  atomic    = true
+  atomic    = false  # Disabled: keep resources on timeout to allow debugging
+  timeout   = 1800  # 30 minutes - bitnamilegacy pulls + 20GB volume provisioning can be slow
 
   set {
     name  = "auth.database"
@@ -55,6 +56,18 @@ resource "helm_release" "tyk-pgsql" {
   set {
     name  = "readReplicas.nodeSelector.node"
     value = var.resources_label
+  }
+
+  # Bitnami deprecated free images on Aug 28, 2025 - use legacy repository
+  set {
+    name  = "image.repository"
+    value = "bitnamilegacy/postgresql"
+  }
+
+  # Use Docker Hub credentials to bypass rate limits
+  set {
+    name  = "global.imagePullSecrets[0]"
+    value = "dockerhub-secret"
   }
 
   depends_on = [kubernetes_namespace.tyk, kubernetes_namespace.tyk]

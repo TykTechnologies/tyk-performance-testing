@@ -7,6 +7,8 @@ variable "tests" {
     rate           = number
     virtual_users  = number
     parallelism    = number
+    segment        = optional(number, 1)
+    total_segments = optional(number, 1)
 
     auth = object({
       key_count = number

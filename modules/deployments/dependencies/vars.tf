@@ -33,20 +33,15 @@ variable "keycloak" {
   })
 }
 
-variable "scaling_webhook" {
-  type = object({
-    enabled      = bool
-    cluster_type = string
-    aws_region   = string
-    gcp_region   = string
-  })
-  
-  default = {
-    enabled      = false
-    cluster_type = "eks"
-    aws_region   = "us-west-2"
-    gcp_region   = "us-central1-a"
-  }
-  
-  description = "Scaling webhook configuration for dynamic node scaling"
+variable "dockerhub_username" {
+  type        = string
+  description = "Docker Hub username for authenticated image pulls"
+  default     = ""
+}
+
+variable "dockerhub_password" {
+  type        = string
+  description = "Docker Hub password for authenticated image pulls"
+  sensitive   = true
+  default     = ""
 }

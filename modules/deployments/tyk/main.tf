@@ -14,6 +14,45 @@ locals {
   pgsql-port = "5432"
   redis-pass = "topsecretpassword"
   redis-port = "6379"
+
+  # Ensure LoadBalancer type when using Local traffic policy
+  actual_service_type = var.external_traffic_policy == "Local" ? "LoadBalancer" : var.service_type
+
+  # Build all Gateway extra envs as a single list to avoid sparse indices
+  tyk_gateway_extra_envs_base = [
+    { name = "GOGC", value = tostring(var.go_gc) },
+    { name = "GOMAXPROCS", value = tostring(var.go_max_procs) },
+    { name = "GOMEMLIMIT", value = var.resources.limits.memory != "0" ? "${var.resources.limits.memory}B" : "" },
+    { name = "TYK_GW_MAXIDLECONNSPERHOST", value = "1000" },
+    { name = "TYK_GW_MAXCONNSPERHOST", value = "10000" },
+    { name = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS", value = "true" },
+    { name = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE", value = "protobuf" },
+    { name = "TYK_GW_STORAGE_MAXACTIVE", value = "10000" },
+    { name = "TYK_GW_OPENTELEMETRY_ENABLED", value = tostring(var.open_telemetry.enabled) },
+    { name = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE", value = "TraceIDRatioBased" },
+    { name = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO", value = tostring(var.open_telemetry.sampling_ratio) },
+    { name = "TYK_GW_OPENTELEMETRY_EXPORTER", value = "grpc" },
+    { name = "TYK_GW_OPENTELEMETRY_ENDPOINT", value = "opentelemetry-collector.dependencies.svc:4317" },
+    { name = "TYK_GW_OPENTELEMETRY_METRICS_ENABLED", value = tostring(var.open_telemetry.metrics_enabled) },
+    { name = "TYK_GW_OPENTELEMETRY_METRICS_RUNTIMEMETRICS", value = tostring(var.open_telemetry.runtime_metrics) },
+    { name = "TYK_GW_HTTPPROFILE", value = tostring(var.profiler.enabled) },
+    # Aggressive timeouts for fast failure during node outages
+    { name = "TYK_GW_HTTPSERVEROPTIONS_READTIMEOUT", value = "5" },
+    # Per Tyk guidance, write_timeout should exceed proxy_default_timeout by >=1s
+    # to avoid client-visible stalls when upstreams are unreachable
+    { name = "TYK_GW_HTTPSERVEROPTIONS_WRITETIMEOUT", value = "6" },
+    { name = "TYK_GW_PROXYDEFAULTTIMEOUT", value = "5" },
+    { name = "TYK_GW_PROXYCLOSECONNECTIONS", value = "false" },  # Keep connection reuse enabled
+  ]
+
+  tyk_gateway_extra_envs_cfgmap = var.use_config_maps_for_apis ? [
+    { name = "TYK_GW_APPPATH", value = "/opt/tyk-gateway/apps" },
+    { name = "TYK_GW_POLICIES_POLICYPATH", value = "/opt/tyk-gateway/policies" },
+    { name = "TYK_GW_POLICIES_POLICYSOURCE", value = "file" },
+    { name = "TYK_GW_USEDBAPPCONFIGS", value = "false" },
+  ] : []
+
+  tyk_gateway_extra_envs = concat(local.tyk_gateway_extra_envs_base, local.tyk_gateway_extra_envs_cfgmap)
 }
 
 resource "kubernetes_namespace" "tyk" {
@@ -36,6 +75,17 @@ resource "helm_release" "tyk" {
   wait          = true
   wait_for_jobs = true
   timeout       = 1800
+
+  # Provide extraEnvs as a single list to Helm to avoid null/empty entries
+  values = [
+    yamlencode({
+      "tyk-gateway" = {
+        gateway = {
+          extraEnvs = local.tyk_gateway_extra_envs
+        }
+      }
+    })
+  ]
 
   set {
     name  = "global.adminUser.email"
@@ -114,7 +164,7 @@ resource "helm_release" "tyk" {
 
   set {
     name  = "tyk-gateway.gateway.service.type"
-    value = var.service_type
+    value = local.actual_service_type
   }
 
   set {
@@ -203,7 +253,7 @@ resource "helm_release" "tyk" {
     value = "3"
   }
 
-  # Mount API definitions ConfigMap - try a simpler approach with indexed notation
+  # Mount API definitions ConfigMap
   dynamic "set" {
     for_each = var.use_config_maps_for_apis ? [1] : []
     content {
@@ -217,6 +267,14 @@ resource "helm_release" "tyk" {
     content {
       name  = "tyk-gateway.gateway.extraVolumes[0].configMap.name"
       value = "tyk-api-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[0].configMap.defaultMode"
+      value = 420
     }
   }
 
@@ -244,15 +302,6 @@ resource "helm_release" "tyk" {
     }
   }
 
-  # Add defaultMode to ConfigMap volume for proper permissions
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraVolumes[0].configMap.defaultMode"
-      value = 420
-    }
-  }
-
   # Mount policy definitions ConfigMap if policies are enabled
   dynamic "set" {
     for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
@@ -266,7 +315,15 @@ resource "helm_release" "tyk" {
     for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
     content {
       name  = "tyk-gateway.gateway.extraVolumes[1].configMap.name"
-      value = "tyk-policy-definitions"  # Use literal name instead of reference
+      value = "tyk-policy-definitions"
+    }
+  }
+
+  dynamic "set" {
+    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
+    content {
+      name  = "tyk-gateway.gateway.extraVolumes[1].configMap.defaultMode"
+      value = 420
     }
   }
 
@@ -292,230 +349,6 @@ resource "helm_release" "tyk" {
       name  = "tyk-gateway.gateway.extraVolumeMounts[1].readOnly"
       value = "true"
     }
-  }
-
-  # Add defaultMode to policy definitions ConfigMap volume for proper permissions
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraVolumes[1].configMap.defaultMode"
-      value = 420
-    }
-  }
-
-  # Configure gateway to use the shared apps folder
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[0].name"
-    value = "GOGC"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[0].value"
-    type  = "string"
-    value = tostring(var.go_gc)
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[1].name"
-    value = "GOMAXPROCS"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[1].value"
-    type  = "string"
-    value = tostring(var.go_max_procs)
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[2].name"
-    value = "GOMEMLIMIT"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[2].value"
-    value = var.resources.limits.memory != "0" ? "${var.resources.limits.memory}B" : ""
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[3].name"
-    value = "TYK_GW_MAXIDLECONNSPERHOST"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[3].value"
-    type  = "string"
-    value = "10000"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[4].name"
-    value = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[4].value"
-    type  = "string"
-    value = "true"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[5].name"
-    value = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[5].value"
-    value = "protobuf"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[6].name"
-    value = "TYK_GW_STORAGE_MAXACTIVE"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[6].value"
-    type  = "string"
-    value = "10000"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[7].name"
-    value = "TYK_GW_OPENTELEMETRY_ENABLED"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[7].value"
-    type  = "string"
-    value = tostring(var.open_telemetry.enabled)
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[8].name"
-    value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[8].value"
-    value = "TraceIDRatioBased"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[9].name"
-    value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[9].value"
-    type  = "string"
-    value = tostring(var.open_telemetry.sampling_ratio)
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[10].name"
-    value = "TYK_GW_OPENTELEMETRY_EXPORTER"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[10].value"
-    value = "grpc"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[11].name"
-    value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[11].value"
-    value = "opentelemetry-collector.dependencies.svc:4317"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[12].name"
-    value = "TYK_GW_HTTPPROFILE"
-  }
-
-  set {
-    type  = "string"
-    name  = "tyk-gateway.gateway.extraEnvs[12].value"
-    value = tostring(var.profiler.enabled)
-  }
-
-  # Configure gateway to use file-based API definitions
-  # Always set these environment variables for consistent behavior
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[13].name"
-    value = "TYK_GW_APPPATH"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[13].value"
-    value = "/opt/tyk-gateway/apps"
-  }
-
-  # Configure gateway to use file-based policies
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[14].name"
-    value = "TYK_GW_POLICIES_POLICYPATH"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[14].value"
-    value = "/opt/tyk-gateway/policies"
-  }
-
-  # Configure policy source to use files instead of dashboard service
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[16].name"
-    value = "TYK_GW_POLICIES_POLICYSOURCE"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[16].value"
-    value = "file"
-  }
-
-  # Force Tyk to use file-based configs instead of database when using ConfigMaps
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[17].name"
-      value = "TYK_GW_USEDBAPPCONFIGS"
-    }
-  }
-
-  dynamic "set" {
-    for_each = var.use_config_maps_for_apis ? [1] : []
-    content {
-      name  = "tyk-gateway.gateway.extraEnvs[17].value"
-      type  = "string"
-      value = "false"
-    }
-  }
-
-  # OTel Metrics
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[18].name"
-    value = "TYK_GW_OPENTELEMETRY_METRICS_ENABLED"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[18].value"
-    type  = "string"
-    value = tostring(var.open_telemetry.metrics_enabled)
-  }
-
-  # OTel Runtime Metrics
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[19].name"
-    value = "TYK_GW_OPENTELEMETRY_METRICS_RUNTIMEMETRICS"
-  }
-
-  set {
-    name  = "tyk-gateway.gateway.extraEnvs[19].value"
-    type  = "string"
-    value = tostring(var.open_telemetry.runtime_metrics)
   }
 
   # --- Node placement: choose the correct label key per provider ---
@@ -757,6 +590,47 @@ resource "helm_release" "tyk" {
     }
   }
 
+  # Add tolerations for faster pod eviction during node failures (30s instead of 300s default)
+  set {
+    name  = "tyk-gateway.gateway.tolerations[0].key"
+    value = "node.kubernetes.io/not-ready"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[0].operator"
+    value = "Exists"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[0].effect"
+    value = "NoExecute"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[0].tolerationSeconds"
+    value = "30"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[1].key"
+    value = "node.kubernetes.io/unreachable"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[1].operator"
+    value = "Exists"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[1].effect"
+    value = "NoExecute"
+  }
+
+  set {
+    name  = "tyk-gateway.gateway.tolerations[1].tolerationSeconds"
+    value = "30"
+  }
+
   set {
     name  = "global.components.pump"
     value = var.analytics.database.enabled || var.analytics.prometheus.enabled
@@ -802,7 +676,7 @@ resource "helm_release" "tyk" {
     }
   }
 
-  # Prefer pump on the same GKE nodepool in 'prefer' mode  
+  # Prefer pump on the same GKE nodepool in 'prefer' mode
   dynamic "set" {
     for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
     content {
@@ -979,8 +853,8 @@ resource "helm_release" "tyk" {
   }
 
   depends_on = [
-    kubernetes_namespace.tyk, 
-    helm_release.tyk-redis, 
+    kubernetes_namespace.tyk,
+    helm_release.tyk-redis,
     helm_release.tyk-pgsql
   ]
 }

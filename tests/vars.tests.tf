@@ -6,8 +6,8 @@ variable "tests_fortio_options" {
 
 variable "tests_executor" {
   type        = string
-  default     = "constant-arrival-rate"
-  description = "Choose the executor for the test. Options are: 'constant-vus', 'ramping-vus', 'constant-arrival-rate', 'ramping-arrival-rate', 'externally-controlled'."
+  default     = "autoscaling-gradual"
+  description = "Choose the executor for the test. Options are: 'constant-vus', 'ramping-vus', 'constant-arrival-rate', 'ramping-arrival-rate', 'externally-controlled', 'autoscaling-gradual'."
 }
 
 variable "tests_auth_key_count" {
@@ -30,7 +30,7 @@ variable "tests_duration" {
 
 variable "tests_rate" {
   type        = number
-  default     = 20000
+  default     = 15000
   description = "Test RPS, applies for 'constant-arrival-rate' and 'ramping-arrival-rate' executors."
 }
 
@@ -46,14 +46,14 @@ variable "tests_parallelism" {
   description = "Number of workers for the tests."
 }
 
-variable "tests_scaling_enabled" {
-  type        = bool
-  default     = true
-  description = "Enable dynamic node scaling during tests."
+variable "test_segment" {
+  type        = number
+  default     = 1
+  description = "Current test segment number (for segmented long tests)"
 }
 
-variable "tests_cluster_type" {
-  type        = string
-  default     = ""
-  description = "Type of Kubernetes cluster (eks, aks, gke)."
+variable "total_segments" {
+  type        = number
+  default     = 1
+  description = "Total number of test segments"
 }

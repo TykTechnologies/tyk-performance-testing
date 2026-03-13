@@ -23,8 +23,8 @@ variable "tyk_deployment_type" {
 
 variable "tyk_service_type" {
   type        = string
-  default     = "ClusterIP"
-  description = "Tyk Gateway service type."
+  default     = "LoadBalancer"
+  description = "Tyk Gateway service type. LoadBalancer is required when using externalTrafficPolicy: Local."
 }
 
 variable "tyk_go_gc" {

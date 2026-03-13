@@ -31,6 +31,36 @@ on:
           - Kong
           - Gravitee
           - Traefik
+      simulate_node_failure:
+        description: 'Simulate node failure during test'
+        required: false
+        type: boolean
+        default: false
+      node_failure_delay_minutes:
+        description: 'Minutes to wait before simulating node failure'
+        required: false
+        type: number
+        default: 10
+      node_downtime_minutes:
+        description: 'Minutes to keep the node down during failure simulation'
+        required: false
+        type: number
+        default: 5
+      guarantee_errors:
+        description: 'Use iptables to guarantee connection errors during node failure'
+        required: false
+        type: boolean
+        default: false
+      use_terraform_cloud:
+        description: 'Use Terraform Cloud for remote state (default: false for local state, set true for cloud)'
+        required: false
+        type: boolean
+        default: false
+      test_duration_minutes:
+        description: 'Test duration in minutes (30-360)'
+        required: false
+        type: number
+        default: 300
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
@@ -49,7 +79,8 @@ env:
   TF_VAR_use_config_maps_for_apis: 'true'
 
 concurrency:
-  group: ${{ inputs.cloud }}
+  group: full-performance-test-${{ inputs.cloud }}
+  cancel-in-progress: false
 
 jobs:
   performance_test:
@@ -95,14 +126,83 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3.1.1
         with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          cli_config_credentials_token: ${{ inputs.use_terraform_cloud && secrets.TF_API_TOKEN || '' }}
           terraform_version: "1.8.2"
 
-      - name: Create Terraform Cloud descriptors
+      - name: Configure Terraform Backend
         run: |
-          cp ${{ env.provider }}/terraform.cloud.tf.example ${{ env.provider }}/terraform.cloud.tf
-          cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
-          cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
+          if [[ "${{ inputs.use_terraform_cloud }}" == "true" ]]; then
+            echo "🔄 Setting up Terraform Cloud backend configuration..."
+            cp ${{ env.provider }}/terraform.cloud.tf.example ${{ env.provider }}/terraform.cloud.tf
+            cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
+            cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
+            echo "✅ Terraform Cloud backend configured"
+          else
+            echo "🔄 Setting up local Terraform backend (removing cloud configurations)..."
+            # Remove any existing backend configuration files to ensure local state
+            rm -f ${{ env.provider }}/terraform.cloud.tf
+            rm -f deployments/terraform.cloud.tf
+            rm -f tests/terraform.cloud.tf
+            echo "✅ Local backend configured (cloud configurations removed)"
+          fi
+
+      - name: Check for Orphaned Resources
+        if: ${{ !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for existing resources that might conflict..."
+          
+          if [[ "${{ inputs.cloud }}" == "Azure" ]]; then
+            echo "Checking for existing Azure resources..."
+            RESOURCE_GROUP="pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
+            if az group show --name "$RESOURCE_GROUP" &>/dev/null; then
+              echo "⚠️  WARNING: Resource group '$RESOURCE_GROUP' already exists!"
+              echo "This may indicate orphaned resources from a previous run."
+              echo "Consider running the cleanup workflow if tests fail."
+              az resource list --resource-group "$RESOURCE_GROUP" --query '[].{Name:name, Type:type, Location:location}' --output table || true
+            else
+              echo "✅ No conflicting Azure resource group found"
+            fi
+            
+          elif [[ "${{ inputs.cloud }}" == "AWS" ]]; then
+            echo "Checking for existing AWS EKS clusters..."
+            if aws eks describe-cluster --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}" --region "${{ vars.AWS_CLUSTER_LOCATION }}" &>/dev/null; then
+              echo "⚠️  WARNING: EKS cluster 'pt-${{ vars.AWS_CLUSTER_LOCATION }}' already exists!"
+              echo "This may indicate orphaned resources from a previous run."
+              echo "Consider running the cleanup workflow if tests fail."
+            else
+              echo "✅ No conflicting AWS EKS cluster found"
+            fi
+            
+          elif [[ "${{ inputs.cloud }}" == "GCP" ]]; then
+            echo "Checking for existing GCP GKE clusters..."
+            if gcloud container clusters describe "pt-${{ vars.GCP_CLUSTER_LOCATION }}" --zone "${{ vars.GCP_CLUSTER_LOCATION }}" --project "${{ secrets.GCP_PROJECT }}" &>/dev/null; then
+              echo "⚠️  WARNING: GKE cluster 'pt-${{ vars.GCP_CLUSTER_LOCATION }}' already exists!"
+              echo "This may indicate orphaned resources from a previous run."
+              echo "Consider running the cleanup workflow if tests fail."
+            else
+              echo "✅ No conflicting GCP GKE cluster found"
+            fi
+          fi
+
+      - name: Check and cleanup existing AKS cluster
+        if: ${{ inputs.cloud == 'Azure' }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for existing AKS cluster..."
+          CLUSTER_NAME="pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
+          RESOURCE_GROUP="pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
+          
+          if az aks show --name "$CLUSTER_NAME" --resource-group "$RESOURCE_GROUP" >/dev/null 2>&1; then
+            echo "⚠️  Found existing AKS cluster: $CLUSTER_NAME"
+            echo "🗑️  Destroying existing cluster to prevent conflicts..."
+            az aks delete --name "$CLUSTER_NAME" --resource-group "$RESOURCE_GROUP" --yes --no-wait
+            echo "🕐 Waiting for cluster deletion to complete..."
+            az aks wait --name "$CLUSTER_NAME" --resource-group "$RESOURCE_GROUP" --deleted --timeout 900 || echo "⚠️  Timeout waiting for deletion, continuing..."
+            echo "✅ Existing AKS cluster cleanup completed"
+          else
+            echo "✅ No existing AKS cluster found"
+          fi
 
       - name: Stand up AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
@@ -114,12 +214,19 @@ jobs:
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
-            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
-            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
-            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
-            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
-            --var="upstream_enabled=true" \
+            --var="services_nodes_count=4" \
             --auto-approve
+
+      - name: Backup AKS Terraform State
+        if: ${{ inputs.cloud == 'Azure' && !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: aks-cluster-terraform-state-${{ github.run_id }}
+          path: |
+            aks/terraform.tfstate
+            aks/.terraform.lock.hcl
+          retention-days: 1
 
       - name: Connect to AKS cluster
         if: ${{ inputs.cloud == 'Azure' }}
@@ -129,6 +236,25 @@ jobs:
             --name "pt-${{ vars.AZURE_CLUSTER_LOCATION }}"
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Check and cleanup existing EKS cluster
+        if: ${{ inputs.cloud == 'AWS' }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for existing EKS cluster..."
+          CLUSTER_NAME="pt-${{ vars.AWS_CLUSTER_LOCATION }}"
+          REGION="${{ vars.AWS_CLUSTER_LOCATION }}"
+          
+          if aws eks describe-cluster --name "$CLUSTER_NAME" --region "$REGION" >/dev/null 2>&1; then
+            echo "⚠️  Found existing EKS cluster: $CLUSTER_NAME"
+            echo "🗑️  Destroying existing cluster to prevent conflicts..."
+            aws eks delete-cluster --name "$CLUSTER_NAME" --region "$REGION"
+            echo "🕐 Waiting for cluster deletion to complete..."
+            aws eks wait cluster-deleted --name "$CLUSTER_NAME" --region "$REGION" || echo "⚠️  Timeout waiting for deletion, continuing..."
+            echo "✅ Existing EKS cluster cleanup completed"
+          else
+            echo "✅ No existing EKS cluster found"
+          fi
 
       - name: Stand up EKS cluster
         if: ${{ inputs.cloud == 'AWS' }}
@@ -140,12 +266,19 @@ jobs:
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
-            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
-            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
-            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
-            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
-            --var="upstream_enabled=true" \
+            --var="services_nodes_count=4" \
             --auto-approve
+
+      - name: Backup EKS Terraform State
+        if: ${{ inputs.cloud == 'AWS' && !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: eks-cluster-terraform-state-${{ github.run_id }}
+          path: |
+            eks/terraform.tfstate
+            eks/.terraform.lock.hcl
+          retention-days: 1
 
       - name: Connect to EKS cluster
         if: ${{ inputs.cloud == 'AWS' }}
@@ -153,6 +286,40 @@ jobs:
           aws eks --region "${{ vars.AWS_CLUSTER_LOCATION }}" update-kubeconfig --name "pt-${{ vars.AWS_CLUSTER_LOCATION }}"
 
           kubectl config rename-context $(kubectl config current-context) performance-testing
+
+      - name: Check and cleanup existing GKE cluster  
+        if: ${{ inputs.cloud == 'GCP' }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for existing GKE cluster..."
+          CLUSTER_NAME="pt-${{ vars.GCP_CLUSTER_LOCATION }}"
+          ZONE="${{ vars.GCP_CLUSTER_LOCATION }}"
+          PROJECT="${{ secrets.GCP_PROJECT }}"
+          
+          if gcloud container clusters describe "$CLUSTER_NAME" --zone="$ZONE" --project="$PROJECT" >/dev/null 2>&1; then
+            echo "⚠️  Found existing GKE cluster: $CLUSTER_NAME"
+            
+            # Check for running operations that might block deletion
+            echo "🔍 Checking for running operations on cluster..."
+            OPERATIONS=$(gcloud container operations list --filter="zone=$ZONE AND targetLink~$CLUSTER_NAME AND status=RUNNING" --format="value(name)" --project="$PROJECT" 2>/dev/null || true)
+            
+            if [[ -n "$OPERATIONS" ]]; then
+              echo "⏳ Found running operations. Waiting for completion..."
+              echo "$OPERATIONS" | while read -r op; do
+                if [[ -n "$op" ]]; then
+                  echo "  Waiting for operation: $op"
+                  gcloud container operations wait "$op" --zone="$ZONE" --project="$PROJECT" --timeout=600 || true
+                fi
+              done
+              echo "✅ All operations completed"
+            fi
+            
+            echo "🗑️  Destroying existing cluster to prevent conflicts..."
+            gcloud container clusters delete "$CLUSTER_NAME" --zone="$ZONE" --project="$PROJECT" --quiet
+            echo "✅ Existing GKE cluster cleanup completed"
+          else
+            echo "✅ No existing GKE cluster found"
+          fi
 
       - name: Stand up GKE cluster
         if: ${{ inputs.cloud == 'GCP' }}
@@ -165,12 +332,19 @@ jobs:
             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
             --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
-            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
-            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
-            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
-            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
-            --var="upstream_enabled=true" \
+            --var="services_nodes_count=4" \
             --auto-approve
+
+      - name: Backup GKE Terraform State
+        if: ${{ inputs.cloud == 'GCP' && !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: gke-cluster-terraform-state-${{ github.run_id }}
+          path: |
+            gke/terraform.tfstate
+            gke/.terraform.lock.hcl
+          retention-days: 1
 
       - name: Connect to GKE cluster
         if: ${{ inputs.cloud == 'GCP' }}
@@ -178,197 +352,286 @@ jobs:
           gcloud container clusters get-credentials "pt-${{ vars.GCP_CLUSTER_LOCATION }}" \
             --zone "${{ vars.GCP_CLUSTER_LOCATION }}" \
             --project "${{ secrets.GCP_PROJECT }}"
-          
+
           kubectl config rename-context $(kubectl config current-context) performance-testing
 
       - name: Deploy testing resources
+        id: deploy_resources
+        continue-on-error: true
+        env:
+          TF_VAR_dockerhub_username: ${{ secrets.DOCKER_USERNAME }}
+          TF_VAR_dockerhub_password: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           cd deployments
           terraform init -upgrade
-          
-          # Show terraform plan for debugging (non-interactive)
-          echo "=== Terraform Plan Output ==="
-          terraform plan -input=false \
+          terraform apply \
             --var="kubernetes_config_context=performance-testing" \
             --var="cluster_type=${{ env.provider }}" \
             --var="cluster_name=performance-testing" \
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
-            -out=tfplan 2>&1 | tee plan.log
-          
-          echo "=== Checking if ConfigMaps will be created ==="
-          grep -E "kubernetes_config_map|helm_release.tyk|will be created" plan.log | head -50 || true
-          
-          # Avoid terraform console in CI (interactive). Echo the values we pass at plan time instead.
-          echo "=== Debug: variable snapshot (CI env -> Terraform) ==="
-          echo "TF_VAR_enable_tyk=${TF_VAR_enable_tyk}"
-          echo "TF_VAR_enable_kong=${TF_VAR_enable_kong}"
-          echo "TF_VAR_enable_gravitee=${TF_VAR_enable_gravitee}"
-          echo "TF_VAR_enable_traefik=${TF_VAR_enable_traefik}"
-          echo "TF_VAR_enable_upstream=${TF_VAR_enable_upstream}"
-          echo "TF_VAR_use_config_maps_for_apis=${TF_VAR_use_config_maps_for_apis}"
-
-          # If you need to inspect values inside the child module, prefer adding outputs and using `terraform output` after apply.
-          # Example (post-apply): terraform output -json | jq '.deployments_use_config_maps_for_apis'
-          
-          # Start background process to monitor pod status
-          (while true; do 
-            echo "=== Pod Status at $(date) ==="
-            kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded
-            sleep 30
-          done) &
-          MONITOR_PID=$!
-          
-          # Apply with detailed logging
-          echo "=== Starting Terraform Apply ==="
-          terraform apply tfplan 2>&1 | tee terraform-apply.log || (
-            echo "=== Terraform Apply Failed ==="
-            echo "=== Last 200 lines of terraform apply log ==="
-            tail -200 terraform-apply.log
-            echo "=== Checking Terraform State ==="
-            terraform state list || true
-            echo "=== Checking Tyk Module State ==="
-            terraform state show module.tyk[0].helm_release.tyk 2>&1 || true
-            echo "=== Checking ConfigMaps ==="
-            kubectl get configmaps -n tyk || true
-            echo "=== Checking Helm Releases ==="
-            helm list -n tyk || true
-            echo "=== Checking Events in Tyk Namespace ==="
-            kubectl get events -n tyk --sort-by='.lastTimestamp' | tail -50 || true
-            kill $MONITOR_PID
-            exit 1
-          )
-          
-          kill $MONITOR_PID
-          
-          # Post-deployment validation
-          echo "=== Post-Deployment Validation ==="
-          echo "=== Terraform State List ==="
-          terraform state list | grep -E "(tyk|config_map)" || true
-          echo "=== Helm Releases in Tyk Namespace ==="
-          helm list -n tyk || true
-          echo "=== All Resources in Tyk Namespace ==="
-          kubectl get all -n tyk || true
-
-          echo "=== Waiting for Tyk Gateway rollout ==="
-          GATEWAY_RES=$(kubectl -n tyk get deploy,ds -l app.kubernetes.io/instance=tyk -o jsonpath='{range .items[?(@.metadata.name=~".*gateway.*")]}{.kind}{" "}{.metadata.name}{end}' 2>/dev/null || kubectl -n tyk get deploy,ds | grep gateway | head -1 | awk '{print $1}' | sed 's|/| |' || echo "")
-          if [ -z "$GATEWAY_RES" ]; then
-            echo "No Deployment or DaemonSet found for tyk-gateway. Listing resources in tyk namespace:"
-            kubectl -n tyk get all
-          else
-            KIND=$(echo "$GATEWAY_RES" | awk '{print $1}')
-            NAME=$(echo "$GATEWAY_RES" | awk '{print $2}')
-            echo "Found $KIND/$NAME; waiting for rollout..."
-            if [ "$KIND" = "DaemonSet" ]; then
-              kubectl -n tyk rollout status daemonset/$NAME --timeout=15m || true
-              kubectl -n tyk describe daemonset $NAME || true
-            else
-              kubectl -n tyk rollout status deployment/$NAME --timeout=15m || true
-              kubectl -n tyk describe deployment $NAME || true
-            fi
-            echo "=== Gateway pods ==="
-            kubectl -n tyk get pods -l app.kubernetes.io/instance=tyk,app.kubernetes.io/component=gateway -o wide || \
-            kubectl -n tyk get pods -l app.kubernetes.io/instance=tyk -o wide | grep gateway || \
-            kubectl -n tyk get pods | grep gateway || echo "No gateway pods found"
-          fi
-
-      - name: Debug Tyk Setup
-        if: false
-        run: |
-          echo "=== Tyk Gateway Pod Status ==="
-          kubectl get pods -n tyk -l app.kubernetes.io/instance=tyk -o wide | grep gateway || kubectl get pods -n tyk | grep gateway
-          
-          echo "=== Tyk Gateway Pod Logs (last 100 lines) ==="
-          kubectl logs -n tyk $(kubectl get pods -n tyk | grep gateway | head -1 | awk '{print $1}') --tail=100 || echo "Failed to get gateway logs"
-          
-          echo "=== Tyk Gateway Pod Startup Logs (first 1000 lines) ==="
-          POD_NAME=$(kubectl get pods -n tyk | grep gateway | head -1 | awk '{print $1}' || echo "")
-          if [ ! -z "$POD_NAME" ]; then
-            echo "Getting startup logs from pod: $POD_NAME"
-            kubectl logs -n tyk $POD_NAME --tail=-1 | head -1000 || echo "Failed to get startup logs"
-          else
-            echo "No gateway pod found for startup logs"
-          fi
-          
-          if [ "${TF_VAR_use_config_maps_for_apis}" = "true" ]; then
-            echo "=== Check ConfigMap ==="
-            kubectl get configmap -n tyk tyk-api-definitions -o jsonpath='{.data}' | head -c 1000 || true
-          else
-            echo "=== Skipping ConfigMap check (use_config_maps_for_apis=false) ==="
-          fi
-          
-          echo "=== Check Mounted Files in Pod ==="
-          POD=$(kubectl get pods -n tyk | grep gateway | head -1 | awk '{print $1}' || echo "")
-          if [ ! -z "$POD" ]; then
-            echo "Pod: $POD"
-            
-            echo "=== Pod Volume Mounts ==="
-            kubectl describe pod -n tyk $POD | grep -A 10 -B 5 "Mounts:" || echo "No mount info found"
-            
-            echo "=== Pod Volumes ==="
-            kubectl describe pod -n tyk $POD | grep -A 20 -B 5 "Volumes:" || echo "No volume info found"
-            
-            echo "Files in /mnt/tyk-gateway/apps/:"
-            kubectl exec -n tyk $POD -- ls -la /mnt/tyk-gateway/apps/ 2>/dev/null || echo "Directory not found or not mounted"
-            
-            echo "Files in /opt/tyk-gateway/apps/:"
-            kubectl exec -n tyk $POD -- ls -la /opt/tyk-gateway/apps/ 2>/dev/null || echo "Directory not found"
-            
-            echo "=== Check /mnt directory structure ==="
-            kubectl exec -n tyk $POD -- ls -la /mnt/ 2>/dev/null || echo "Cannot access /mnt directory"
-            
-            echo "=== Pod Image and Command ==="
-            kubectl get pod $POD -n tyk -o jsonpath='{.spec.containers[0].image}' && echo ""
-            kubectl get pod $POD -n tyk -o jsonpath='{.spec.containers[0].command[*]} {.spec.containers[0].args[*]}' && echo ""
-            
-            echo "=== Environment Variables (from pod spec) ==="
-            kubectl get pod $POD -n tyk -o json | jq -r '.spec.containers[0].env[] | select(.name | test("TYK_GW_APPPATH|TYK_GW_POLICIES|TYK_GW_USEDBAPPCONFIGS")) | "\(.name)=\(.value)"' || echo "No relevant env vars found in spec"
-            
-            echo "=== Container Status ==="
-            kubectl get pod $POD -n tyk -o jsonpath='{.status.containerStatuses[0]}' | jq '.' || echo "Cannot get container status"
-            
-            echo "=== Trigger Tyk Reload ==="
-            kubectl exec -n tyk $POD -- curl -H "x-tyk-authorization: foo" http://localhost:8080/tyk/reload 2>/dev/null || echo "Reload failed (curl not available in distroless)"
-            
-            echo "=== Check Loaded APIs ==="
-            kubectl exec -n tyk $POD -- curl -H "x-tyk-authorization: foo" http://localhost:8080/tyk/apis 2>/dev/null || echo "Failed to get APIs (curl not available in distroless)"
-            
-            echo "=== Port Forward Test (alternative to curl) ==="
-            echo "Testing connectivity via port-forward..."
-            timeout 10s kubectl port-forward -n tyk $POD 8080:8080 &
-            PF_PID=$!
-            sleep 2
-            curl -s -H "x-tyk-authorization: foo" http://localhost:8080/tyk/apis 2>/dev/null | head -200 || echo "Port-forward test failed"
-            kill $PF_PID 2>/dev/null || true
-          fi
-
-      - name: Run Tests
-        run: |
-          cd tests
-          terraform init -upgrade
-          terraform apply \
-            --var="kubernetes_config_context=performance-testing" \
+            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
+            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
+            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
+            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
+            --var="upstream_enabled=true" \
             --auto-approve
 
-      - name: Test Grafana Snapshot
+      - name: Debug Redis Deployment Failure
+        if: failure() || steps.deploy_resources.outcome == 'failure'
+        run: |
+          echo "================================"
+          echo "🔍 DEBUGGING REDIS DEPLOYMENT FAILURE"
+          echo "================================"
+
+          echo ""
+          echo "=== Helm Release Status ==="
+          helm list -n tyk -a || true
+
+          echo ""
+          echo "=== Redis Pods Status ==="
+          kubectl get pods -n tyk -l app.kubernetes.io/name=redis-cluster -o wide || true
+
+          echo ""
+          echo "=== Redis Pod Details ==="
+          for pod in $(kubectl get pods -n tyk -l app.kubernetes.io/name=redis-cluster -o jsonpath='{.items[*].metadata.name}'); do
+            echo ""
+            echo "--- Pod: $pod ---"
+            kubectl describe pod -n tyk $pod || true
+          done
+
+          echo ""
+          echo "=== Redis Pod Logs (last 100 lines each) ==="
+          for pod in $(kubectl get pods -n tyk -l app.kubernetes.io/name=redis-cluster -o jsonpath='{.items[*].metadata.name}'); do
+            echo ""
+            echo "--- Logs for: $pod ---"
+            kubectl logs -n tyk $pod --tail=100 --all-containers=true || true
+          done
+
+          echo ""
+          echo "=== Redis Events ==="
+          kubectl get events -n tyk --sort-by='.lastTimestamp' | grep -i redis || true
+
+          echo ""
+          echo "=== PersistentVolumeClaims ==="
+          kubectl get pvc -n tyk || true
+
+          echo ""
+          echo "=== ImagePullSecrets Check ==="
+          kubectl get secret dockerhub-secret -n tyk -o yaml || echo "dockerhub-secret not found!"
+
+          echo ""
+          echo "================================"
+          echo "End of debug output"
+          echo "================================"
+
+          # Exit with failure to stop the workflow
+          exit 1
+
+      - name: Wait for deployment stabilization
+        if: steps.deploy_resources.outcome == 'success'
+        run: |
+          # Calculate stabilization wait time based on test duration
+          # Minimum 5 minutes, maximum 15 minutes, scales with duration
+          STABILIZATION_MINUTES=$(( ${{ inputs.test_duration_minutes }} >= 60 ? 10 : 5 ))
+          if [[ ${{ inputs.test_duration_minutes }} -ge 180 ]]; then
+            STABILIZATION_MINUTES=15
+          fi
+          echo "Waiting ${STABILIZATION_MINUTES} minutes for deployment to stabilize..."
+          sleep $((STABILIZATION_MINUTES * 60))
+
+      - name: Backup Deployments Terraform State
+        if: ${{ !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.provider }}-deployments-terraform-state-${{ github.run_id }}
+          path: |
+            deployments/terraform.tfstate
+            deployments/.terraform.lock.hcl
+          retention-days: 1
+
+      - name: Show Tyk Gateway logs
+        run: |
+          echo "=== Tyk Gateway Pod Logs (first 200 lines) ==="
+          kubectl logs -n tyk $(kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway -o jsonpath='{.items[0].metadata.name}') --tail=200 || echo "Failed to get Tyk logs"
+
+      - name: Run Tests
+        continue-on-error: true
+        id: run_tests
+        run: |
+          # Export environment variables for the script
+          export CLOUD="${{ inputs.cloud }}"
+          export AZURE_CLUSTER_LOCATION="${{ vars.AZURE_CLUSTER_LOCATION }}"
+          export AWS_CLUSTER_LOCATION="${{ vars.AWS_CLUSTER_LOCATION }}"
+          export GCP_CLUSTER_LOCATION="${{ vars.GCP_CLUSTER_LOCATION }}"
+          
+          # Run segmented tests using external script
+          .github/scripts/run-segmented-tests.sh \
+            "${{ inputs.test_duration_minutes }}" \
+            "${{ inputs.simulate_node_failure }}" \
+            "${{ inputs.node_failure_delay_minutes }}" \
+            "${{ inputs.node_downtime_minutes }}" \
+            "${{ inputs.guarantee_errors }}"
+
+      - name: Check Test Results and Data Preservation
+        if: always()
+        run: |
+          if [[ "${{ steps.run_tests.outcome }}" == "failure" ]]; then
+            echo "⚠️  Tests failed, but continuing to preserve any data collected..."
+            echo "Checking if any test data was collected before failure..."
+            
+            # Show k6 test status to understand what data might be available
+            echo "=== k6 Test Status ==="
+            kubectl get k6 -A 2>/dev/null || echo "No k6 resources found"
+            
+            # Check if snapshot job is still running and give it time to complete
+            echo "=== Checking Snapshot Job Status ==="
+            SNAPSHOT_POD=$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}' 2>/dev/null || echo "")
+            if [[ -n "$SNAPSHOT_POD" ]]; then
+              echo "Found snapshot job pod: $SNAPSHOT_POD"
+              echo "Waiting up to 10 minutes for snapshot job to complete..."
+              kubectl wait --for=condition=complete job/$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.labels.job-name}' 2>/dev/null) --timeout=600s -n dependencies 2>/dev/null || echo "Snapshot job didn't complete in 10 minutes, continuing..."
+            else
+              echo "No snapshot job found"
+            fi
+          else
+            echo "✅ Tests completed successfully"
+          fi
+
+      - name: Backup Tests Terraform State
+        if: ${{ !inputs.use_terraform_cloud }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.provider }}-tests-terraform-state-${{ github.run_id }}
+          path: |
+            tests/terraform.tfstate
+            tests/.terraform.lock.hcl
+          retention-days: 1
+
+      - name: Show Tyk Gateway logs after tests
+        run: |
+          echo "=== Tyk Gateway Pod Logs After Tests (last 200 lines) ==="
+          kubectl logs -n tyk $(kubectl get pods -n tyk --selector=app=gateway-tyk-tyk-gateway -o jsonpath='{.items[0].metadata.name}') --tail=200 || echo "Failed to get Tyk logs"
+
+      - name: Show k6 Test Status and Logs
         continue-on-error: true
         run: |
-          echo "=== Snapshot Job Pod Status ==="
-          kubectl get pods -n dependencies -l app=snapshot-job -o wide
+          echo "=== k6 Test Resources Status ==="
+          kubectl get k6 -A || echo "No k6 resources found"
+          
           echo ""
-          echo "=== Snapshot Job Full Logs ==="
-          SNAPSHOT_POD=$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}' 2>/dev/null || echo "")
-          if [ ! -z "$SNAPSHOT_POD" ]; then
-            echo "Getting logs from pod: $SNAPSHOT_POD"
-            kubectl logs -n dependencies $SNAPSHOT_POD || echo "Failed to get snapshot logs"
+          echo "=== k6 Test Pods Status ==="
+          kubectl get pods -A -l "k6_cr" || echo "No k6 pods found"
+          
+          echo ""
+          echo "=== k6 Runner Pod Logs (last 100 lines) ==="
+          K6_RUNNER=$(kubectl get pods -A -l "k6_cr,runner=true" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+          K6_NAMESPACE=$(kubectl get pods -A -l "k6_cr,runner=true" -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || echo "")
+          if [[ -n "$K6_RUNNER" && -n "$K6_NAMESPACE" ]]; then
+            kubectl logs -n "$K6_NAMESPACE" "$K6_RUNNER" --tail=100 || echo "Failed to get k6 runner logs"
           else
-            echo "No snapshot job pod found"
+            echo "No k6 runner pods found"
           fi
+          
           echo ""
-          echo "=== Grafana Service Status ==="
-          kubectl get svc -n dependencies | grep grafana || echo "No Grafana service found"
-      
+          echo "=== k6 Initializer Pod Logs (last 50 lines) ==="
+          K6_INIT=$(kubectl get pods -A -l "k6_cr,initializer=k6" -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+          K6_INIT_NS=$(kubectl get pods -A -l "k6_cr,initializer=k6" -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || echo "")
+          if [[ -n "$K6_INIT" && -n "$K6_INIT_NS" ]]; then
+            kubectl logs -n "$K6_INIT_NS" "$K6_INIT" --tail=50 || echo "Failed to get k6 initializer logs"
+          else
+            echo "No k6 initializer pods found"
+          fi
+
+      - name: Debug k6 Operator (on test failure)
+        if: failure() || steps.run_tests.outcome == 'failure'
+        continue-on-error: true
+        run: |
+          echo "=== k6 CRs ==="
+          kubectl get k6 -A -o wide || true
+          
+          echo ""
+          echo "=== k6 CR Details ==="
+          for ns in $(kubectl get k6 -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\n"}{end}' 2>/dev/null | sort -u); do
+            for name in $(kubectl get k6 -n "$ns" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null); do
+              echo "--- k6 ${ns}/${name} ---"
+              kubectl describe k6 "$name" -n "$ns" || true
+            done
+          done
+          
+          echo ""
+          echo "=== k6 Operator Pods (dependencies) ==="
+          kubectl get pods -n dependencies -l app.kubernetes.io/name=k6-operator -o wide || true
+          
+          echo ""
+          echo "=== k6 Operator Logs (dependencies) ==="
+          for pod in $(kubectl get pods -n dependencies -l app.kubernetes.io/name=k6-operator -o jsonpath='{.items[*].metadata.name}' 2>/dev/null); do
+            echo "--- logs for $pod ---"
+            kubectl logs -n dependencies "$pod" --tail=200 || true
+          done
+          
+          echo ""
+          echo "=== Recent Events (tyk) ==="
+          kubectl get events -n tyk --sort-by=.lastTimestamp | tail -100 || true
+          
+          echo ""
+          echo "=== Recent Events (dependencies) ==="
+          kubectl get events -n dependencies --sort-by=.lastTimestamp | tail -100 || true
+
+      - name: Test Grafana Snapshot
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "=== Grafana Snapshot Job Status ==="
+          
+          # Check for immediate snapshot jobs first (triggered after test completion)
+          echo "Checking for immediate snapshot jobs..."
+          IMMEDIATE_PODS=$(kubectl get pods -n dependencies --no-headers 2>/dev/null | grep "snapshot-immediate" || echo "")
+          if [[ -n "$IMMEDIATE_PODS" ]]; then
+            echo "Found immediate snapshot pod(s):"
+            echo "$IMMEDIATE_PODS"
+            
+            # Get the most recent immediate snapshot pod
+            IMMEDIATE_POD=$(echo "$IMMEDIATE_PODS" | tail -1 | awk '{print $1}')
+            echo "=== Immediate Snapshot Pod Logs ==="
+            echo "Pod: $IMMEDIATE_POD"
+            kubectl logs -n dependencies "$IMMEDIATE_POD" --tail=100 2>/dev/null || echo "Could not get immediate snapshot logs"
+            
+            # Check if it contains the snapshot URL
+            SNAPSHOT_URL=$(kubectl logs -n dependencies "$IMMEDIATE_POD" 2>/dev/null | grep -E "https://snapshots\.raintank\.io" | tail -1 || echo "")
+            if [[ -n "$SNAPSHOT_URL" ]]; then
+              echo "✅ SNAPSHOT URL FOUND IN IMMEDIATE JOB!"
+              echo "🔗 Snapshot URL: $SNAPSHOT_URL"
+            else
+              echo "⚠️  Immediate snapshot job hasn't produced URL yet, checking timed job..."
+            fi
+          else
+            echo "No immediate snapshot jobs found, checking timed snapshot job..."
+          fi
+          
+          # Check timed snapshot job (the original background job)
+          echo ""
+          echo "=== Timed Snapshot Job Status ==="
+          SNAPSHOT_POD=$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}' 2>/dev/null || echo "")
+          if [[ -n "$SNAPSHOT_POD" ]]; then
+            echo "Timed snapshot job pod: $SNAPSHOT_POD"
+            echo "Pod status:"
+            kubectl get pod "$SNAPSHOT_POD" -n dependencies 2>/dev/null || echo "Could not get pod status"
+            echo "=== Last 50 lines of timed snapshot job logs ==="
+            kubectl logs -n dependencies "$SNAPSHOT_POD" --tail=50 2>/dev/null || echo "Could not get timed snapshot job logs"
+            
+            # Check if it contains the snapshot URL
+            TIMED_URL=$(kubectl logs -n dependencies "$SNAPSHOT_POD" 2>/dev/null | grep -E "https://snapshots\.raintank\.io" | tail -1 || echo "")
+            if [[ -n "$TIMED_URL" ]]; then
+              echo "✅ SNAPSHOT URL FOUND IN TIMED JOB!"
+              echo "🔗 Snapshot URL: $TIMED_URL"
+            fi
+          else
+            echo "No timed snapshot job pod found"
+          fi
 
       - name: Download Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}
@@ -391,31 +654,94 @@ jobs:
           path: ./profiles
           if-no-files-found: warn
 
+      - name: Recover Tests Terraform State
+        if: always() && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.provider }}-tests-terraform-state-${{ github.run_id }}
+          path: tests/
+
       - name: Destroy Tests
         if: always()
         run: |
           cd tests
-          terraform init -upgrade
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for tests destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for tests - they may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for tests destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
+
+      - name: Recover Deployments Terraform State
+        if: always() && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.provider }}-deployments-terraform-state-${{ github.run_id }}
+          path: deployments/
 
       - name: Destroy testing resources
         if: always()
         run: |
           cd deployments
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for deployments destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for deployments - they may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for deployments destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
             --var="cluster_type=${{ env.provider }}" \
             --var="cluster_name=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
+            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
+            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
+            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
+            --var="upstream_enabled=true" \
             --auto-approve
+
+      - name: Recover AKS Terraform State
+        if: always() && inputs.cloud == 'Azure' && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: aks-cluster-terraform-state-${{ github.run_id }}
+          path: aks/
 
       - name: Destroy AKS cluster
         if: always() && inputs.cloud == 'Azure'
         run: |
           cd aks
-          terraform init -upgrade
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for AKS cluster destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for AKS cluster - it may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for AKS cluster destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
@@ -423,11 +749,30 @@ jobs:
             --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
+      - name: Recover EKS Terraform State
+        if: always() && inputs.cloud == 'AWS' && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: eks-cluster-terraform-state-${{ github.run_id }}
+          path: eks/
+
       - name: Destroy EKS cluster
         if: always() && inputs.cloud == 'AWS'
         run: |
           cd eks
-          terraform init -upgrade
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for EKS cluster destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for EKS cluster - it may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for EKS cluster destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
@@ -435,11 +780,30 @@ jobs:
             --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
             --auto-approve
 
+      - name: Recover GKE Terraform State
+        if: always() && inputs.cloud == 'GCP' && !inputs.use_terraform_cloud
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: gke-cluster-terraform-state-${{ github.run_id }}
+          path: gke/
+
       - name: Destroy GKE cluster
         if: always() && inputs.cloud == 'GCP'
         run: |
           cd gke
-          terraform init -upgrade
+          # Initialize terraform (required for both local and cloud backends)
+          if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
+            echo "🔄 Using local state for GKE cluster destruction..."
+            # Ensure we have the state file
+            if [[ ! -f terraform.tfstate ]]; then
+              echo "⚠️  No terraform state found for GKE cluster - it may have already been destroyed"
+            fi
+          else
+            echo "🔄 Using Terraform Cloud state for GKE cluster destruction..."
+            terraform init
+          fi
+          
           terraform destroy \
             --var="project=${{ secrets.GCP_PROJECT }}" \
             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
@@ -447,3 +811,29 @@ jobs:
             --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
             --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
             --auto-approve
+
+      - name: Final Test Status Report
+        if: always()
+        run: |
+          echo "=== Final Performance Test Status Report ==="
+          echo "Test execution outcome: ${{ steps.run_tests.outcome }}"
+          echo "Test duration requested: ${{ inputs.test_duration_minutes }} minutes"
+          echo "Cloud provider: ${{ inputs.cloud }}"
+          echo "Tyk version: ${{ inputs.tyk_version }}"
+          
+          if [[ "${{ steps.run_tests.outcome }}" == "success" ]]; then
+            echo "✅ Performance test completed successfully"
+            echo "All test data and snapshots should be available in Grafana"
+          elif [[ "${{ steps.run_tests.outcome }}" == "failure" ]]; then
+            echo "❌ Performance test failed, but data preservation steps were executed"
+            echo "Check the logs above for snapshot job status and any partial test data"
+            echo "Partial test data may still be available in Grafana if any segments completed"
+          else
+            echo "⚠️  Test status unclear: ${{ steps.run_tests.outcome }}"
+          fi
+          
+          echo "=== Data Availability ==="
+          echo "- Terraform state files: Backed up as artifacts"
+          echo "- k6 metrics: Sent to Prometheus during test execution"
+          echo "- Grafana snapshots: Check snapshot job logs above"
+          echo "- Tyk profiles: ${{ inputs.tyk_profiler_enabled == true && 'Enabled and uploaded' || 'Disabled' }}"

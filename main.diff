@@ -1,0 +1,4805 @@
+diff --git a/.claude/settings.local.json b/.claude/settings.local.json
+index f7f1a57..6f60b47 100644
+--- a/.claude/settings.local.json
++++ b/.claude/settings.local.json
+@@ -7,8 +7,23 @@
+       "Bash(git push:*)",
+       "Bash(gh run view:*)",
+       "Bash(find:*)",
+-      "Bash(grep:*)"
++      "Bash(grep:*)",
++      "WebFetch(domain:github.com)",
++      "Bash(docker run:*)",
++      "Bash(sed:*)",
++      "Bash(mkdir:*)",
++      "Bash(mv:*)",
++      "WebSearch",
++      "WebFetch(domain:developer.hashicorp.com)",
++      "Bash(git log:*)",
++      "mcp__big-brain__ask_big_brain",
++      "Bash(terraform plan:*)",
++      "Bash(gh run list:*)",
++      "Bash(echo:*)",
++      "Bash(gh workflow run:*)",
++      "Bash(terraform fmt:*)"
+     ],
+-    "deny": []
++    "deny": [],
++    "defaultMode": "acceptEdits"
+   }
+ }
+\ No newline at end of file
+diff --git a/.github/workflows/AKS.yml b/.github/workflows/AKS.yml
+index 46b4ed5..15bf351 100644
+--- a/.github/workflows/AKS.yml
++++ b/.github/workflows/AKS.yml
+@@ -63,6 +63,7 @@ jobs:
+             --var-file=main.tfvars \
+             --var="kubernetes_config_context=performance-testing" \
+             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
++            --var="cluster_type=aks" \
+             --auto-approve
+ 
+       - name: Run Tests
+@@ -80,6 +81,7 @@ jobs:
+       - name: Destroy Tests
+         run: |
+           cd tests
++          terraform init
+           terraform destroy \
+             --var-file=main.tfvars \
+             --var="kubernetes_config_context=performance-testing" \
+diff --git a/.github/workflows/EKS.yml b/.github/workflows/EKS.yml
+index fd37f90..5d38d29 100644
+--- a/.github/workflows/EKS.yml
++++ b/.github/workflows/EKS.yml
+@@ -63,6 +63,7 @@ jobs:
+             --var-file=main.tfvars \
+             --var="kubernetes_config_context=performance-testing" \
+             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
++            --var="aws_region=${{ vars.AWS_CLUSTER_LOCATION }}" \
+             --auto-approve
+ 
+       - name: Run Tests
+@@ -81,6 +82,7 @@ jobs:
+       - name: Destroy Tests
+         run: |
+           cd tests
++          terraform init
+           terraform destroy \
+             --var-file=main.tfvars \
+             --var="kubernetes_config_context=performance-testing" \
+@@ -93,6 +95,7 @@ jobs:
+             --var-file=main.tfvars \
+             --var="kubernetes_config_context=performance-testing" \
+             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
++            --var="aws_region=${{ vars.AWS_CLUSTER_LOCATION }}" \
+             --auto-approve
+ 
+       - name: Destroy EKS cluster
+diff --git a/.github/workflows/GKE.yml b/.github/workflows/GKE.yml
+index b9d3a9a..3e03611 100644
+--- a/.github/workflows/GKE.yml
++++ b/.github/workflows/GKE.yml
+@@ -70,6 +70,7 @@ jobs:
+             --var-file=main.tfvars \
+             --var="kubernetes_config_context=performance-testing" \
+             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
++            --var="cluster_type=gke" \
+             --auto-approve
+ 
+       - name: Run Tests
+@@ -88,6 +89,7 @@ jobs:
+       - name: Destroy Tests
+         run: |
+           cd tests
++          terraform init
+           terraform destroy \
+             --var-file=main.tfvars \
+             --var="kubernetes_config_context=performance-testing" \
+diff --git a/.github/workflows/custom_performance_test.yml b/.github/workflows/custom_performance_test.yml
+index 8dff887..5f035e4 100644
+--- a/.github/workflows/custom_performance_test.yml
++++ b/.github/workflows/custom_performance_test.yml
+@@ -179,6 +179,7 @@ jobs:
+       - name: Destroy Tests
+         run: |
+           cd tests
++          terraform init
+           terraform destroy \
+             --var="kubernetes_config_context=performance-testing" \
+             --var-file=main.tfvars \
+diff --git a/.github/workflows/full.yml.debug b/.github/workflows/full.yml.debug
+new file mode 100644
+index 0000000..61597cd
+--- /dev/null
++++ b/.github/workflows/full.yml.debug
+@@ -0,0 +1,29 @@
++      - name: Export Tyk Pod Logs
++        if: always()
++        run: |
++          echo "=== Tyk Gateway Pod Logs ==="
++          kubectl logs -n tyk -l app.kubernetes.io/name=tyk-gateway --tail=100 || true
++          
++          echo "=== Tyk Pod Details ==="
++          kubectl describe pods -n tyk -l app.kubernetes.io/name=tyk-gateway || true
++          
++          echo "=== ConfigMap Contents ==="
++          kubectl get configmap -n tyk tyk-api-definitions -o yaml || true
++          
++          echo "=== Check Mounted Files ==="
++          POD=$(kubectl get pods -n tyk -l app.kubernetes.io/name=tyk-gateway -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
++          if [ ! -z "$POD" ]; then
++            echo "Checking files in pod $POD:"
++            kubectl exec -n tyk $POD -- ls -la /mnt/tyk-gateway/apps/ 2>/dev/null || true
++            echo "First API definition content:"
++            kubectl exec -n tyk $POD -- cat /mnt/tyk-gateway/apps/api-0.json 2>/dev/null || true
++          fi
++
++      - name: Upload Debug Logs
++        if: always()
++        uses: actions/upload-artifact@v3
++        with:
++          name: tyk-debug-logs
++          path: |
++            tyk-logs.txt
++          retention-days: 7
+\ No newline at end of file
+diff --git a/.github/workflows/full_performance_test.yml b/.github/workflows/full_performance_test.yml
+index a67963c..15ee9e9 100644
+--- a/.github/workflows/full_performance_test.yml
++++ b/.github/workflows/full_performance_test.yml
+@@ -21,9 +21,32 @@ on:
+         required: true
+         type: boolean
+         default: false
++      gateway:
++        description: 'Gateway to deploy'
++        required: true
++        type: choice
++        default: Tyk
++        options:
++          - Tyk
++          - Kong
++          - Gravitee
++          - Traefik
+ 
+ env:
+   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
++  # Ensure Terraform always has concrete values for these, across plan/apply/destroy/console
++  TF_VAR_cluster_type: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
++  TF_VAR_cluster_name: performance-testing
++  # Make the gateway toggles explicit and known at plan time
++  TF_VAR_enable_tyk: ${{ inputs.gateway == 'Tyk' && 'true' || 'false' }}
++  TF_VAR_enable_kong: ${{ inputs.gateway == 'Kong' && 'true' || 'false' }}
++  TF_VAR_enable_gravitee: ${{ inputs.gateway == 'Gravitee' && 'true' || 'false' }}
++  TF_VAR_enable_traefik: ${{ inputs.gateway == 'Traefik' && 'true' || 'false' }}
++  TF_VAR_enable_upstream: 'true'
++  # Make Terraform strictly non-interactive and give use_config_maps_for_apis a safe default
++  TF_INPUT: 'false'
++  TF_IN_AUTOMATION: 'true'
++  TF_VAR_use_config_maps_for_apis: 'true'
+ 
+ concurrency:
+   group: ${{ inputs.cloud }}
+@@ -85,12 +108,17 @@ jobs:
+         if: ${{ inputs.cloud == 'Azure' }}
+         run: |
+           cd aks
+-          terraform init
++          terraform init -upgrade
+           terraform apply \
+             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
+             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+             --var="upstream_machine_type=${{ vars.AZURE_UPSTREAM_MACHINE_TYPE }}" \
+             --var="tests_machine_type=${{ vars.AZURE_TEST_MACHINE_TYPE }}" \
++            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
++            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
++            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
++            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
++            --var="upstream_enabled=true" \
+             --auto-approve
+ 
+       - name: Connect to AKS cluster
+@@ -106,12 +134,17 @@ jobs:
+         if: ${{ inputs.cloud == 'AWS' }}
+         run: |
+           cd eks
+-          terraform init
++          terraform init -upgrade
+           terraform apply \
+             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
+             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+             --var="upstream_machine_type=${{ vars.AWS_UPSTREAM_MACHINE_TYPE }}" \
+             --var="tests_machine_type=${{ vars.AWS_TEST_MACHINE_TYPE }}" \
++            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
++            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
++            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
++            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
++            --var="upstream_enabled=true" \
+             --auto-approve
+ 
+       - name: Connect to EKS cluster
+@@ -125,13 +158,18 @@ jobs:
+         if: ${{ inputs.cloud == 'GCP' }}
+         run: |
+           cd gke
+-          terraform init
++          terraform init -upgrade
+           terraform apply \
+             --var="project=${{ secrets.GCP_PROJECT }}" \
+             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+             --var="cluster_machine_type=${{ vars.GCP_CLUSTER_MACHINE_TYPE }}" \
+             --var="upstream_machine_type=${{ vars.GCP_UPSTREAM_MACHINE_TYPE }}" \
+             --var="tests_machine_type=${{ vars.GCP_TEST_MACHINE_TYPE }}" \
++            --var="tyk_enabled=${{ inputs.gateway == 'Tyk' }}" \
++            --var="kong_enabled=${{ inputs.gateway == 'Kong' }}" \
++            --var="gravitee_enabled=${{ inputs.gateway == 'Gravitee' }}" \
++            --var="traefik_enabled=${{ inputs.gateway == 'Traefik' }}" \
++            --var="upstream_enabled=true" \
+             --auto-approve
+ 
+       - name: Connect to GKE cluster
+@@ -146,19 +184,169 @@ jobs:
+       - name: Deploy testing resources
+         run: |
+           cd deployments
+-          terraform init
+-          terraform apply \
++          terraform init -upgrade
++          
++          # Show terraform plan for debugging (non-interactive)
++          echo "=== Terraform Plan Output ==="
++          terraform plan -input=false \
+             --var="kubernetes_config_context=performance-testing" \
++            --var="cluster_type=${{ env.provider }}" \
++            --var="cluster_name=performance-testing" \
+             --var="tyk_version=${{ inputs.tyk_version }}" \
+             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+             --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
+-            --auto-approve
+-          sleep 300
++            -out=tfplan 2>&1 | tee plan.log
++          
++          echo "=== Checking if ConfigMaps will be created ==="
++          grep -E "kubernetes_config_map|helm_release.tyk|will be created" plan.log | head -50 || true
++          
++          # Avoid terraform console in CI (interactive). Echo the values we pass at plan time instead.
++          echo "=== Debug: variable snapshot (CI env -> Terraform) ==="
++          echo "TF_VAR_enable_tyk=${TF_VAR_enable_tyk}"
++          echo "TF_VAR_enable_kong=${TF_VAR_enable_kong}"
++          echo "TF_VAR_enable_gravitee=${TF_VAR_enable_gravitee}"
++          echo "TF_VAR_enable_traefik=${TF_VAR_enable_traefik}"
++          echo "TF_VAR_enable_upstream=${TF_VAR_enable_upstream}"
++          echo "TF_VAR_use_config_maps_for_apis=${TF_VAR_use_config_maps_for_apis}"
++
++          # If you need to inspect values inside the child module, prefer adding outputs and using `terraform output` after apply.
++          # Example (post-apply): terraform output -json | jq '.deployments_use_config_maps_for_apis'
++          
++          # Start background process to monitor pod status
++          (while true; do 
++            echo "=== Pod Status at $(date) ==="
++            kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded
++            sleep 30
++          done) &
++          MONITOR_PID=$!
++          
++          # Apply with detailed logging
++          echo "=== Starting Terraform Apply ==="
++          terraform apply tfplan 2>&1 | tee terraform-apply.log || (
++            echo "=== Terraform Apply Failed ==="
++            echo "=== Last 200 lines of terraform apply log ==="
++            tail -200 terraform-apply.log
++            echo "=== Checking Terraform State ==="
++            terraform state list || true
++            echo "=== Checking Tyk Module State ==="
++            terraform state show module.tyk[0].helm_release.tyk 2>&1 || true
++            echo "=== Checking ConfigMaps ==="
++            kubectl get configmaps -n tyk || true
++            echo "=== Checking Helm Releases ==="
++            helm list -n tyk || true
++            echo "=== Checking Events in Tyk Namespace ==="
++            kubectl get events -n tyk --sort-by='.lastTimestamp' | tail -50 || true
++            kill $MONITOR_PID
++            exit 1
++          )
++          
++          kill $MONITOR_PID
++          
++          # Post-deployment validation
++          echo "=== Post-Deployment Validation ==="
++          echo "=== Terraform State List ==="
++          terraform state list | grep -E "(tyk|config_map)" || true
++          echo "=== Helm Releases in Tyk Namespace ==="
++          helm list -n tyk || true
++          echo "=== All Resources in Tyk Namespace ==="
++          kubectl get all -n tyk || true
++
++          echo "=== Waiting for Tyk Gateway rollout ==="
++          GATEWAY_RES=$(kubectl -n tyk get deploy,ds -l app.kubernetes.io/instance=tyk -o jsonpath='{range .items[?(@.metadata.name=~".*gateway.*")]}{.kind}{" "}{.metadata.name}{end}' 2>/dev/null || kubectl -n tyk get deploy,ds | grep gateway | head -1 | awk '{print $1}' | sed 's|/| |' || echo "")
++          if [ -z "$GATEWAY_RES" ]; then
++            echo "No Deployment or DaemonSet found for tyk-gateway. Listing resources in tyk namespace:"
++            kubectl -n tyk get all
++          else
++            KIND=$(echo "$GATEWAY_RES" | awk '{print $1}')
++            NAME=$(echo "$GATEWAY_RES" | awk '{print $2}')
++            echo "Found $KIND/$NAME; waiting for rollout..."
++            if [ "$KIND" = "DaemonSet" ]; then
++              kubectl -n tyk rollout status daemonset/$NAME --timeout=15m || true
++              kubectl -n tyk describe daemonset $NAME || true
++            else
++              kubectl -n tyk rollout status deployment/$NAME --timeout=15m || true
++              kubectl -n tyk describe deployment $NAME || true
++            fi
++            echo "=== Gateway pods ==="
++            kubectl -n tyk get pods -l app.kubernetes.io/instance=tyk,app.kubernetes.io/component=gateway -o wide || \
++            kubectl -n tyk get pods -l app.kubernetes.io/instance=tyk -o wide | grep gateway || \
++            kubectl -n tyk get pods | grep gateway || echo "No gateway pods found"
++          fi
++
++      - name: Debug Tyk Setup
++        if: always()
++        run: |
++          echo "=== Tyk Gateway Pod Status ==="
++          kubectl get pods -n tyk -l app.kubernetes.io/instance=tyk -o wide | grep gateway || kubectl get pods -n tyk | grep gateway
++          
++          echo "=== Tyk Gateway Pod Logs (last 100 lines) ==="
++          kubectl logs -n tyk $(kubectl get pods -n tyk | grep gateway | head -1 | awk '{print $1}') --tail=100 || echo "Failed to get gateway logs"
++          
++          echo "=== Tyk Gateway Pod Startup Logs (first 1000 lines) ==="
++          POD_NAME=$(kubectl get pods -n tyk | grep gateway | head -1 | awk '{print $1}' || echo "")
++          if [ ! -z "$POD_NAME" ]; then
++            echo "Getting startup logs from pod: $POD_NAME"
++            kubectl logs -n tyk $POD_NAME --tail=-1 | head -1000 || echo "Failed to get startup logs"
++          else
++            echo "No gateway pod found for startup logs"
++          fi
++          
++          if [ "${TF_VAR_use_config_maps_for_apis}" = "true" ]; then
++            echo "=== Check ConfigMap ==="
++            kubectl get configmap -n tyk tyk-api-definitions -o jsonpath='{.data}' | head -c 1000 || true
++          else
++            echo "=== Skipping ConfigMap check (use_config_maps_for_apis=false) ==="
++          fi
++          
++          echo "=== Check Mounted Files in Pod ==="
++          POD=$(kubectl get pods -n tyk | grep gateway | head -1 | awk '{print $1}' || echo "")
++          if [ ! -z "$POD" ]; then
++            echo "Pod: $POD"
++            
++            echo "=== Pod Volume Mounts ==="
++            kubectl describe pod -n tyk $POD | grep -A 10 -B 5 "Mounts:" || echo "No mount info found"
++            
++            echo "=== Pod Volumes ==="
++            kubectl describe pod -n tyk $POD | grep -A 20 -B 5 "Volumes:" || echo "No volume info found"
++            
++            echo "Files in /mnt/tyk-gateway/apps/:"
++            kubectl exec -n tyk $POD -- ls -la /mnt/tyk-gateway/apps/ 2>/dev/null || echo "Directory not found or not mounted"
++            
++            echo "Files in /opt/tyk-gateway/apps/:"
++            kubectl exec -n tyk $POD -- ls -la /opt/tyk-gateway/apps/ 2>/dev/null || echo "Directory not found"
++            
++            echo "=== Check /mnt directory structure ==="
++            kubectl exec -n tyk $POD -- ls -la /mnt/ 2>/dev/null || echo "Cannot access /mnt directory"
++            
++            echo "=== Pod Image and Command ==="
++            kubectl get pod $POD -n tyk -o jsonpath='{.spec.containers[0].image}' && echo ""
++            kubectl get pod $POD -n tyk -o jsonpath='{.spec.containers[0].command[*]} {.spec.containers[0].args[*]}' && echo ""
++            
++            echo "=== Environment Variables (from pod spec) ==="
++            kubectl get pod $POD -n tyk -o json | jq -r '.spec.containers[0].env[] | select(.name | test("TYK_GW_APPPATH|TYK_GW_POLICIES|TYK_GW_USEDBAPPCONFIGS")) | "\(.name)=\(.value)"' || echo "No relevant env vars found in spec"
++            
++            echo "=== Container Status ==="
++            kubectl get pod $POD -n tyk -o jsonpath='{.status.containerStatuses[0]}' | jq '.' || echo "Cannot get container status"
++            
++            echo "=== Trigger Tyk Reload ==="
++            kubectl exec -n tyk $POD -- curl -H "x-tyk-authorization: foo" http://localhost:8080/tyk/reload 2>/dev/null || echo "Reload failed (curl not available in distroless)"
++            
++            echo "=== Check Loaded APIs ==="
++            kubectl exec -n tyk $POD -- curl -H "x-tyk-authorization: foo" http://localhost:8080/tyk/apis 2>/dev/null || echo "Failed to get APIs (curl not available in distroless)"
++            
++            echo "=== Port Forward Test (alternative to curl) ==="
++            echo "Testing connectivity via port-forward..."
++            timeout 10s kubectl port-forward -n tyk $POD 8080:8080 &
++            PF_PID=$!
++            sleep 2
++            curl -s -H "x-tyk-authorization: foo" http://localhost:8080/tyk/apis 2>/dev/null | head -200 || echo "Port-forward test failed"
++            kill $PF_PID 2>/dev/null || true
++          fi
+ 
+       - name: Run Tests
+         run: |
+           cd tests
+-          terraform init
++          terraform init -upgrade
+           terraform apply \
+             --var="kubernetes_config_context=performance-testing" \
+             --auto-approve
+@@ -166,7 +354,21 @@ jobs:
+       - name: Test Grafana Snapshot
+         continue-on-error: true
+         run: |
+-          kubectl logs -n dependencies $(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}') --tail=1
++          echo "=== Snapshot Job Pod Status ==="
++          kubectl get pods -n dependencies -l app=snapshot-job -o wide
++          echo ""
++          echo "=== Snapshot Job Full Logs ==="
++          SNAPSHOT_POD=$(kubectl get pods -n dependencies --selector=app=snapshot-job -o jsonpath='{.items[-1].metadata.name}' 2>/dev/null || echo "")
++          if [ ! -z "$SNAPSHOT_POD" ]; then
++            echo "Getting logs from pod: $SNAPSHOT_POD"
++            kubectl logs -n dependencies $SNAPSHOT_POD || echo "Failed to get snapshot logs"
++          else
++            echo "No snapshot job pod found"
++          fi
++          echo ""
++          echo "=== Grafana Service Status ==="
++          kubectl get svc -n dependencies | grep grafana || echo "No Grafana service found"
++      
+ 
+       - name: Download Profiles
+         if: ${{ inputs.tyk_profiler_enabled == true }}
+@@ -193,6 +395,7 @@ jobs:
+         if: always()
+         run: |
+           cd tests
++          terraform init -upgrade
+           terraform destroy \
+             --var="kubernetes_config_context=performance-testing" \
+             --auto-approve
+@@ -203,6 +406,8 @@ jobs:
+           cd deployments
+           terraform destroy \
+             --var="kubernetes_config_context=performance-testing" \
++            --var="cluster_type=${{ env.provider }}" \
++            --var="cluster_name=performance-testing" \
+             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+             --auto-approve
+ 
+@@ -210,7 +415,7 @@ jobs:
+         if: always() && inputs.cloud == 'Azure'
+         run: |
+           cd aks
+-          terraform init
++          terraform init -upgrade
+           terraform destroy \
+             --var="cluster_location=${{ vars.AZURE_CLUSTER_LOCATION }}" \
+             --var="cluster_machine_type=${{ vars.AZURE_CLUSTER_MACHINE_TYPE }}" \
+@@ -222,7 +427,7 @@ jobs:
+         if: always() && inputs.cloud == 'AWS'
+         run: |
+           cd eks
+-          terraform init
++          terraform init -upgrade
+           terraform destroy \
+             --var="cluster_location=${{ vars.AWS_CLUSTER_LOCATION }}" \
+             --var="cluster_machine_type=${{ vars.AWS_CLUSTER_MACHINE_TYPE }}" \
+@@ -234,7 +439,7 @@ jobs:
+         if: always() && inputs.cloud == 'GCP'
+         run: |
+           cd gke
+-          terraform init
++          terraform init -upgrade
+           terraform destroy \
+             --var="project=${{ secrets.GCP_PROJECT }}" \
+             --var="cluster_location=${{ vars.GCP_CLUSTER_LOCATION }}" \
+diff --git a/.github/workflows/terraform_reinit.yml b/.github/workflows/terraform_reinit.yml
+new file mode 100644
+index 0000000..27f5ed0
+--- /dev/null
++++ b/.github/workflows/terraform_reinit.yml
+@@ -0,0 +1,133 @@
++name: Terraform Reinitialize
++
++on:
++  workflow_dispatch:
++    inputs:
++      cloud:
++        description: 'Choose Cloud Provider'
++        required: true
++        type: choice
++        default: AWS
++        options:
++          - AWS
++          - Azure
++          - GCP
++      component:
++        description: 'Component to reinitialize'
++        required: true
++        type: choice
++        default: all
++        options:
++          - all
++          - cluster
++          - deployments
++          - tests
++
++env:
++  provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
++
++jobs:
++  terraform_reinit:
++    name: "Reinitialize ${{ inputs.cloud }} ${{ inputs.component }}"
++    runs-on: ubuntu-latest
++    steps:
++      - name: Checkout Repository
++        uses: actions/checkout@v4
++
++      - name: Configure AWS credentials
++        if: ${{ inputs.cloud == 'AWS' }}
++        uses: aws-actions/configure-aws-credentials@v4
++        with:
++          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
++          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
++          aws-region: ${{ vars.AWS_CLUSTER_LOCATION }}
++
++      - name: Configure Azure credentials
++        if: ${{ inputs.cloud == 'Azure' }}
++        uses: azure/login@v2
++        with:
++          creds: ${{ secrets.AZURE_CREDENTIALS }}
++
++      - name: Authenticate into gcloud
++        if: ${{ inputs.cloud == 'GCP' }}
++        uses: google-github-actions/auth@v2
++        with:
++          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
++
++      - name: Install gcloud CLI
++        if: ${{ inputs.cloud == 'GCP' }}
++        uses: google-github-actions/setup-gcloud@v2.1.0
++
++      - name: Install Terraform
++        uses: hashicorp/setup-terraform@v3.1.1
++        with:
++          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
++          terraform_version: "1.8.2"
++
++      - name: Reinitialize Cluster
++        if: ${{ inputs.component == 'all' || inputs.component == 'cluster' }}
++        run: |
++          echo "🔄 Reinitializing ${{ env.provider }} cluster terraform..."
++          cd ${{ env.provider }}
++          
++          # Copy terraform cloud configuration
++          cp terraform.cloud.tf.example terraform.cloud.tf
++          
++          # Remove terraform state files and directories
++          rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
++          
++          # Reinitialize
++          terraform init
++          
++          echo "✅ Cluster terraform reinitialized successfully"
++
++      - name: Reinitialize Deployments
++        if: ${{ inputs.component == 'all' || inputs.component == 'deployments' }}
++        run: |
++          echo "🔄 Reinitializing deployments terraform..."
++          
++          # Copy terraform cloud configuration
++          cp .github/${{ env.provider }}/deployments.tf deployments/terraform.cloud.tf
++          
++          cd deployments
++          
++          # Remove terraform state files and directories
++          rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
++          
++          # Reinitialize
++          terraform init
++          
++          echo "✅ Deployments terraform reinitialized successfully"
++
++      - name: Reinitialize Tests
++        if: ${{ inputs.component == 'all' || inputs.component == 'tests' }}
++        run: |
++          echo "🔄 Reinitializing tests terraform..."
++          
++          # Copy terraform cloud configuration  
++          cp .github/${{ env.provider }}/tests.tf tests/terraform.cloud.tf
++          
++          cd tests
++          
++          # Remove terraform state files and directories
++          rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup
++          
++          # Reinitialize
++          terraform init
++          
++          echo "✅ Tests terraform reinitialized successfully"
++
++      - name: Output Summary
++        run: |
++          echo "## 🎉 Terraform Reinitialization Complete!" >> $GITHUB_STEP_SUMMARY
++          echo "" >> $GITHUB_STEP_SUMMARY
++          echo "**Cloud Provider:** ${{ inputs.cloud }}" >> $GITHUB_STEP_SUMMARY
++          echo "**Component(s):** ${{ inputs.component }}" >> $GITHUB_STEP_SUMMARY
++          echo "" >> $GITHUB_STEP_SUMMARY
++          echo "### What was done:" >> $GITHUB_STEP_SUMMARY
++          echo "- ✅ Removed old terraform state and lock files" >> $GITHUB_STEP_SUMMARY
++          echo "- ✅ Copied fresh terraform cloud configuration" >> $GITHUB_STEP_SUMMARY
++          echo "- ✅ Reinitialized terraform (HCP Terraform compatible)" >> $GITHUB_STEP_SUMMARY
++          echo "" >> $GITHUB_STEP_SUMMARY
++          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
++          echo "You can now run your normal deployment workflows without terraform init errors!" >> $GITHUB_STEP_SUMMARY
+\ No newline at end of file
+diff --git a/.github/workflows/terraform_unlock.yml b/.github/workflows/terraform_unlock.yml
+new file mode 100644
+index 0000000..d98a8fc
+--- /dev/null
++++ b/.github/workflows/terraform_unlock.yml
+@@ -0,0 +1,169 @@
++name: Force Unlock Terraform Workspace
++
++on:
++  workflow_dispatch:
++    inputs:
++      workspace:
++        description: 'Workspace to unlock'
++        required: true
++        type: choice
++        options:
++          - gke-cluster
++          - eks-cluster
++          - aks-cluster
++          - gke-deployments
++          - eks-deployments
++          - aks-deployments
++          - gke-tests
++          - eks-tests
++          - aks-tests
++        default: gke-cluster
++      lock_id:
++        description: 'Lock ID (optional - if provided, will verify before unlocking)'
++        required: false
++        type: string
++
++jobs:
++  unlock:
++    name: Force Unlock Terraform Workspace
++    runs-on: ubuntu-latest
++    
++    steps:
++      - name: Checkout code
++        uses: actions/checkout@v4
++
++      - name: Setup Terraform
++        uses: hashicorp/setup-terraform@v3
++        with:
++          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
++
++      - name: Get Workspace Info
++        id: workspace_info
++        env:
++          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
++        run: |
++          # Get organization and workspace details
++          ORG_NAME="tyk-performance-testing"  # Update if different
++          WORKSPACE_NAME="${{ github.event.inputs.workspace }}"
++          
++          echo "Fetching workspace ID for $ORG_NAME/$WORKSPACE_NAME..."
++          
++          # Get workspace ID
++          WORKSPACE_RESPONSE=$(curl -s \
++            --header "Authorization: Bearer $TF_TOKEN" \
++            --header "Content-Type: application/vnd.api+json" \
++            "https://app.terraform.io/api/v2/organizations/$ORG_NAME/workspaces/$WORKSPACE_NAME")
++          
++          WORKSPACE_ID=$(echo $WORKSPACE_RESPONSE | jq -r '.data.id')
++          
++          if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
++            echo "Error: Could not find workspace $WORKSPACE_NAME"
++            echo "Response: $WORKSPACE_RESPONSE"
++            exit 1
++          fi
++          
++          echo "workspace_id=$WORKSPACE_ID" >> $GITHUB_OUTPUT
++          echo "Found workspace ID: $WORKSPACE_ID"
++          
++          # Check if workspace is locked
++          IS_LOCKED=$(echo $WORKSPACE_RESPONSE | jq -r '.data.attributes.locked')
++          echo "Workspace locked status: $IS_LOCKED"
++          
++          if [ "$IS_LOCKED" == "true" ]; then
++            LOCK_USER=$(echo $WORKSPACE_RESPONSE | jq -r '.data.relationships."locked-by".data.id // "unknown"')
++            echo "Workspace is locked by: $LOCK_USER"
++          else
++            echo "⚠️ Workspace is not currently locked!"
++          fi
++
++      - name: Check Current Runs
++        env:
++          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
++        run: |
++          WORKSPACE_ID="${{ steps.workspace_info.outputs.workspace_id }}"
++          
++          echo "Checking for active runs..."
++          
++          # Get current runs
++          RUNS_RESPONSE=$(curl -s \
++            --header "Authorization: Bearer $TF_TOKEN" \
++            --header "Content-Type: application/vnd.api+json" \
++            "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/runs?filter%5Bstatus%5D=pending,plan_queued,planning,cost_estimating,policy_checking,policy_override,confirmed,apply_queued,applying")
++          
++          ACTIVE_RUNS=$(echo $RUNS_RESPONSE | jq -r '.data | length')
++          
++          if [ "$ACTIVE_RUNS" -gt 0 ]; then
++            echo "⚠️ Found $ACTIVE_RUNS active run(s):"
++            echo $RUNS_RESPONSE | jq -r '.data[] | "- Run ID: \(.id), Status: \(.attributes.status), Created: \(.attributes."created-at")"'
++            
++            echo ""
++            echo "Consider canceling these runs first before force unlocking."
++          else
++            echo "No active runs found."
++          fi
++
++      - name: Force Unlock Workspace
++        env:
++          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
++        run: |
++          WORKSPACE_ID="${{ steps.workspace_info.outputs.workspace_id }}"
++          LOCK_ID="${{ github.event.inputs.lock_id }}"
++          
++          echo "Attempting to force unlock workspace..."
++          echo "Force unlocking workspace ID: $WORKSPACE_ID"
++          
++          # Force unlock using POST request as per API docs
++          RESPONSE=$(curl -s -w "\n%{http_code}" \
++            --header "Authorization: Bearer $TF_TOKEN" \
++            --header "Content-Type: application/vnd.api+json" \
++            --request POST \
++            "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/actions/force-unlock")
++          
++          # Alternative: try with empty data body if above doesn't work
++          if [ "$(echo "$RESPONSE" | tail -n 1)" == "404" ] || [ "$(echo "$RESPONSE" | tail -n 1)" == "400" ]; then
++            echo "Trying with empty JSON data body..."
++            RESPONSE=$(curl -s -w "\n%{http_code}" \
++              --header "Authorization: Bearer $TF_TOKEN" \
++              --header "Content-Type: application/vnd.api+json" \
++              --request POST \
++              --data '{}' \
++              "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/actions/force-unlock")
++          fi
++          
++          # Extract HTTP status code
++          HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
++          BODY=$(echo "$RESPONSE" | head -n -1)
++          
++          if [ "$HTTP_CODE" == "204" ] || [ "$HTTP_CODE" == "200" ]; then
++            echo "✅ Successfully unlocked workspace!"
++          elif [ "$HTTP_CODE" == "409" ]; then
++            echo "⚠️ Workspace was not locked or lock ID mismatch"
++            echo "Response: $BODY"
++          else
++            echo "❌ Failed to unlock workspace (HTTP $HTTP_CODE)"
++            echo "Response: $BODY"
++            exit 1
++          fi
++
++      - name: Verify Unlock
++        env:
++          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
++        run: |
++          WORKSPACE_ID="${{ steps.workspace_info.outputs.workspace_id }}"
++          
++          echo "Verifying workspace is unlocked..."
++          sleep 2
++          
++          # Check workspace status again
++          WORKSPACE_RESPONSE=$(curl -s \
++            --header "Authorization: Bearer $TF_TOKEN" \
++            --header "Content-Type: application/vnd.api+json" \
++            "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID")
++          
++          IS_LOCKED=$(echo $WORKSPACE_RESPONSE | jq -r '.data.attributes.locked')
++          
++          if [ "$IS_LOCKED" == "false" ]; then
++            echo "✅ Workspace is now unlocked and ready for use!"
++          else
++            echo "⚠️ Workspace still appears to be locked. You may need to wait or check Terraform Cloud UI."
++          fi
+\ No newline at end of file
+diff --git a/.github/workflows/terraform_unlock_all.yml b/.github/workflows/terraform_unlock_all.yml
+new file mode 100644
+index 0000000..ff2e55f
+--- /dev/null
++++ b/.github/workflows/terraform_unlock_all.yml
+@@ -0,0 +1,150 @@
++name: Force Unlock All Terraform Workspaces
++
++on:
++  workflow_dispatch:
++    inputs:
++      provider:
++        description: 'Cloud provider workspaces to unlock'
++        required: true
++        type: choice
++        options:
++          - gke
++          - eks
++          - aks
++          - all
++        default: all
++
++jobs:
++  unlock_all:
++    name: Force Unlock All Related Workspaces
++    runs-on: ubuntu-latest
++    
++    steps:
++      - name: Checkout code
++        uses: actions/checkout@v4
++
++      - name: Unlock All Workspaces
++        env:
++          TF_TOKEN: ${{ secrets.TF_API_TOKEN }}
++        run: |
++          ORG_NAME="tyk-performance-testing"
++          
++          # Define workspaces based on provider selection
++          if [ "${{ github.event.inputs.provider }}" == "all" ]; then
++            WORKSPACES=("gke-cluster" "gke-deployments" "gke-tests" \
++                       "eks-cluster" "eks-deployments" "eks-tests" \
++                       "aks-cluster" "aks-deployments" "aks-tests")
++          else
++            PROVIDER="${{ github.event.inputs.provider }}"
++            WORKSPACES=("${PROVIDER}-cluster" "${PROVIDER}-deployments" "${PROVIDER}-tests")
++          fi
++          
++          echo "Will attempt to unlock the following workspaces:"
++          printf '%s\n' "${WORKSPACES[@]}"
++          echo ""
++          
++          # Function to unlock a workspace
++          unlock_workspace() {
++            local WORKSPACE_NAME=$1
++            echo "========================================="
++            echo "Processing workspace: $WORKSPACE_NAME"
++            echo "========================================="
++            
++            # Get workspace info
++            WORKSPACE_RESPONSE=$(curl -s \
++              --header "Authorization: Bearer $TF_TOKEN" \
++              --header "Content-Type: application/vnd.api+json" \
++              "https://app.terraform.io/api/v2/organizations/$ORG_NAME/workspaces/$WORKSPACE_NAME")
++            
++            WORKSPACE_ID=$(echo $WORKSPACE_RESPONSE | jq -r '.data.id')
++            
++            if [ "$WORKSPACE_ID" == "null" ] || [ -z "$WORKSPACE_ID" ]; then
++              echo "⚠️  Workspace $WORKSPACE_NAME not found, skipping..."
++              return
++            fi
++            
++            IS_LOCKED=$(echo $WORKSPACE_RESPONSE | jq -r '.data.attributes.locked')
++            
++            if [ "$IS_LOCKED" == "false" ]; then
++              echo "✓ Workspace $WORKSPACE_NAME is not locked"
++              return
++            fi
++            
++            echo "🔒 Workspace $WORKSPACE_NAME is locked, attempting to unlock..."
++            
++            # Check for active runs
++            RUNS_RESPONSE=$(curl -s \
++              --header "Authorization: Bearer $TF_TOKEN" \
++              --header "Content-Type: application/vnd.api+json" \
++              "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/runs?filter%5Bstatus%5D=pending,plan_queued,planning,cost_estimating,policy_checking,policy_override,confirmed,apply_queued,applying")
++            
++            ACTIVE_RUNS=$(echo $RUNS_RESPONSE | jq -r '.data | length')
++            
++            if [ "$ACTIVE_RUNS" -gt 0 ]; then
++              echo "  Found $ACTIVE_RUNS active run(s), will cancel them first..."
++              
++              # Cancel active runs
++              echo $RUNS_RESPONSE | jq -r '.data[].id' | while read RUN_ID; do
++                echo "  Canceling run $RUN_ID..."
++                curl -s \
++                  --header "Authorization: Bearer $TF_TOKEN" \
++                  --header "Content-Type: application/vnd.api+json" \
++                  --request POST \
++                  --data '{"comment":"Canceled by unlock-all workflow"}' \
++                  "https://app.terraform.io/api/v2/runs/$RUN_ID/actions/cancel" > /dev/null
++              done
++              
++              # Wait a bit for cancellations to process
++              sleep 3
++            fi
++            
++            # Force unlock
++            RESPONSE=$(curl -s -w "\n%{http_code}" \
++              --header "Authorization: Bearer $TF_TOKEN" \
++              --header "Content-Type: application/vnd.api+json" \
++              --request POST \
++              "https://app.terraform.io/api/v2/workspaces/$WORKSPACE_ID/actions/force-unlock")
++            
++            HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
++            
++            if [ "$HTTP_CODE" == "204" ] || [ "$HTTP_CODE" == "200" ]; then
++              echo "✅ Successfully unlocked $WORKSPACE_NAME"
++            elif [ "$HTTP_CODE" == "409" ]; then
++              echo "✓ Workspace $WORKSPACE_NAME was already unlocked"
++            else
++              echo "❌ Failed to unlock $WORKSPACE_NAME (HTTP $HTTP_CODE)"
++              echo "Response: $(echo "$RESPONSE" | head -n -1)"
++            fi
++          }
++          
++          # Process each workspace
++          for WORKSPACE in "${WORKSPACES[@]}"; do
++            unlock_workspace "$WORKSPACE"
++            echo ""
++          done
++          
++          echo "========================================="
++          echo "Summary"
++          echo "========================================="
++          echo "Attempted to unlock ${#WORKSPACES[@]} workspace(s)"
++          
++          # Final verification
++          echo ""
++          echo "Final status check:"
++          for WORKSPACE in "${WORKSPACES[@]}"; do
++            WORKSPACE_RESPONSE=$(curl -s \
++              --header "Authorization: Bearer $TF_TOKEN" \
++              --header "Content-Type: application/vnd.api+json" \
++              "https://app.terraform.io/api/v2/organizations/$ORG_NAME/workspaces/$WORKSPACE" 2>/dev/null)
++            
++            if [ $? -eq 0 ]; then
++              IS_LOCKED=$(echo $WORKSPACE_RESPONSE | jq -r '.data.attributes.locked' 2>/dev/null)
++              if [ "$IS_LOCKED" == "false" ]; then
++                echo "✅ $WORKSPACE: unlocked"
++              elif [ "$IS_LOCKED" == "true" ]; then
++                echo "🔒 $WORKSPACE: still locked"
++              else
++                echo "⚠️  $WORKSPACE: not found"
++              fi
++            fi
++          done
+\ No newline at end of file
+diff --git a/AUTOSCALING_GUIDE.md b/AUTOSCALING_GUIDE.md
+new file mode 100644
+index 0000000..1d23288
+--- /dev/null
++++ b/AUTOSCALING_GUIDE.md
+@@ -0,0 +1,123 @@
++# Kubernetes Cluster Autoscaling Guide
++
++## Overview
++This guide explains how to test the native Kubernetes Cluster Autoscaler implementation for automatic node scaling during performance tests.
++
++## Implementation Summary
++- **GKE**: Uses built-in cluster autoscaler (enabled via Terraform autoscaling block)
++- **EKS**: Deploys cluster-autoscaler addon with proper IAM roles and tags
++- **AKS**: Uses built-in autoscaler (enabled via enable_auto_scaling flag)
++
++## Configuration
++### Node Pool Autoscaling Limits
++- Service node pools (tyk, kong, gravitee, traefik): 2-6 nodes
++- Infrastructure node pools: 1-3 nodes
++
++## Testing on GKE
++
++### 1. Deploy Infrastructure
++```bash
++# Navigate to GKE directory
++cd gke
++
++# Initialize Terraform
++terraform init
++
++# Review planned changes
++terraform plan
++
++# Apply configuration
++terraform apply -auto-approve
++```
++
++### 2. Deploy Applications and Dependencies
++```bash
++# Navigate to deployments directory
++cd ../deployments
++
++# Set cluster context for GKE
++gcloud container clusters get-credentials pt-<location> --zone=<location>
++
++# Initialize and apply deployments
++terraform init
++terraform apply -auto-approve \
++  -var="cluster_type=gke" \
++  -var="cluster_name=pt-<location>"
++```
++
++### 3. Run Autoscaling Test
++```bash
++# Navigate to tests directory
++cd ../tests
++
++# Run test with scaling enabled
++terraform init
++terraform apply -auto-approve \
++  -var="scaling_enabled=true" \
++  -var="cluster_type=gke"
++```
++
++### 4. Monitor Autoscaling
++Monitor the autoscaling behavior during the test:
++
++```bash
++# Watch node count changes
++watch -n 5 'kubectl get nodes | grep -E "tyk|kong|gravitee|traefik" | wc -l'
++
++# Check node pool status in GKE
++gcloud container node-pools list --cluster=pt-<location> --zone=<location>
++
++# Monitor pod scheduling and resource pressure
++kubectl top nodes
++kubectl get pods --all-namespaces -o wide | grep Pending
++
++# Check autoscaler events (GKE logs this automatically)
++kubectl get events -n kube-system | grep cluster-autoscaler
++```
++
++### 5. Test Phases
++The K6 test runs three phases when `scaling_enabled=true`:
++
++1. **Baseline Phase (0-10min)**: Normal load, nodes at minimum
++2. **Scale-Up Phase (10-20min)**: 3x traffic, triggers node addition
++3. **Scale-Down Phase (20-30min)**: Back to baseline, triggers node removal
++
++### Expected Behavior
++- During scale-up phase: New nodes should be added within 2-5 minutes when pods can't be scheduled
++- During scale-down phase: Unused nodes should be removed after 10 minutes of low utilization
++- GKE's autoscaler automatically handles all scaling decisions based on pod scheduling pressure
++
++## Troubleshooting
++
++### Check Autoscaler Status (GKE)
++```bash
++# GKE autoscaler is built-in, check node pool configuration
++gcloud container node-pools describe <pool-name> \
++  --cluster=pt-<location> \
++  --zone=<location> \
++  --format="get(autoscaling)"
++```
++
++### View Scaling Events
++```bash
++# Check Kubernetes events
++kubectl get events --all-namespaces --sort-by='.lastTimestamp' | grep -i scale
++```
++
++### Verify Test Configuration
++```bash
++# Check if scaling is enabled in test
++kubectl get configmap test-tyk-configmap -n tyk -o yaml | grep SCALING_ENABLED
++```
++
++## Cleanup
++```bash
++# Destroy test resources
++cd tests && terraform destroy -auto-approve
++
++# Destroy deployments
++cd ../deployments && terraform destroy -auto-approve
++
++# Destroy GKE cluster
++cd ../gke && terraform destroy -auto-approve
++```
+\ No newline at end of file
+diff --git a/AUTOSCALING_TUNING.md b/AUTOSCALING_TUNING.md
+new file mode 100644
+index 0000000..ab7b1c2
+--- /dev/null
++++ b/AUTOSCALING_TUNING.md
+@@ -0,0 +1,110 @@
++# Autoscaling Tuning Guide
++
++## Why Autoscaling Isn't Triggering
++
++The cluster autoscaler adds nodes when pods cannot be scheduled due to insufficient resources. Currently, autoscaling may not trigger because:
++
++1. **No Resource Requests**: Pods have `resources_requests_cpu="0"` and `resources_requests_memory="0"`
++2. **Limited HPA Scaling**: HPA max replicas is set to only 4
++3. **Sufficient Node Capacity**: Existing nodes can handle the 3x traffic increase
++
++## Configuration for Proper Autoscaling
++
++### 1. Set Resource Requests and Limits
++
++In `deployments/main.tfvars` or when running terraform:
++
++```bash
++# Recommended values for autoscaling tests
++resources_requests_cpu      = "500m"    # Request 0.5 CPU cores per pod
++resources_requests_memory   = "512Mi"   # Request 512MB memory per pod
++resources_limits_cpu        = "2000m"   # Limit to 2 CPU cores per pod
++resources_limits_memory     = "2Gi"     # Limit to 2GB memory per pod
++```
++
++### 2. Increase HPA Max Replicas
++
++```bash
++hpa_max_replica_count = 10  # Allow HPA to scale up to 10 replicas
++```
++
++### 3. Run Tests with These Settings
++
++```bash
++cd deployments
++terraform apply -auto-approve \
++  -var="cluster_type=gke" \
++  -var="cluster_name=pt-<location>" \
++  -var="resources_requests_cpu=500m" \
++  -var="resources_requests_memory=512Mi" \
++  -var="resources_limits_cpu=2000m" \
++  -var="resources_limits_memory=2Gi" \
++  -var="hpa_max_replica_count=10"
++```
++
++## How Autoscaling Works
++
++### Pod Autoscaling (HPA)
++1. Traffic increases from 20k to 60k requests/second during scale-up phase
++2. CPU utilization rises above 80% threshold
++3. HPA creates more pod replicas (up to max_replica_count)
++4. Each new pod requests 500m CPU and 512Mi memory
++
++### Node Autoscaling (Cluster Autoscaler)
++1. When HPA tries to create new pods, they request resources
++2. If current nodes don't have enough capacity, pods enter "Pending" state
++3. Cluster autoscaler detects pending pods and adds nodes
++4. New nodes join the cluster (2-5 minutes on GKE)
++5. Pending pods are scheduled on new nodes
++
++### Scale-Down
++1. Traffic decreases back to baseline
++2. HPA removes excess pod replicas
++3. After 10 minutes of low utilization, cluster autoscaler removes unused nodes
++
++## Monitoring Autoscaling
++
++### Watch Pod Scaling
++```bash
++watch -n 2 'kubectl get hpa -A'
++watch -n 2 'kubectl get pods -n tyk | grep gateway'
++```
++
++### Watch Node Scaling
++```bash
++watch -n 5 'kubectl get nodes -o wide | grep tyk'
++```
++
++### Check for Pending Pods
++```bash
++kubectl get pods --all-namespaces | grep Pending
++```
++
++### View Autoscaler Events
++```bash
++kubectl get events -A | grep -E "TriggeredScaleUp|ScaleDown|FailedScheduling"
++```
++
++## Tuning Tips
++
++### If Nodes Don't Scale Up:
++- Increase resource requests per pod
++- Decrease HPA CPU threshold (e.g., 60% instead of 80%)
++- Increase traffic multiplier (e.g., 5x instead of 3x)
++- Verify node pool max size is sufficient
++
++### If Scaling is Too Aggressive:
++- Increase HPA CPU threshold
++- Add pod disruption budgets
++- Increase scale-down delay in cluster autoscaler
++
++### Example: Force Scaling for Testing
++```bash
++# Set high resource requests to force node scaling
++terraform apply -auto-approve \
++  -var="resources_requests_cpu=2000m" \
++  -var="resources_requests_memory=4Gi" \
++  -var="hpa_max_replica_count=20"
++```
++
++This configuration will require significant resources per pod, making it more likely to exceed node capacity and trigger scaling.
+\ No newline at end of file
+diff --git a/aks/main.tf b/aks/main.tf
+index b4cc3b8..d942f4e 100644
+--- a/aks/main.tf
++++ b/aks/main.tf
+@@ -53,8 +53,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
+   name                  = substr(replace(each.key, "-", ""), 0, 12)
+   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
+ 
+-  vm_size    = module.h.machines[each.key]
+-  node_count = each.value
++  vm_size = module.h.machines[each.key]
++  
++  # Enable autoscaling for node pools
++  enable_auto_scaling = true
++  min_count = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 2 : 1
++  max_count = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 6 : 3
++  node_count = each.value  # Initial count
+ 
+   node_labels = {
+     "node": each.key
+diff --git a/aks/main.tfvars.example b/aks/main.tfvars.example
+index 0ae10e3..9a24ece 100644
+--- a/aks/main.tfvars.example
++++ b/aks/main.tfvars.example
+@@ -6,7 +6,7 @@ tests_machine_type        = ""
+ resources_machine_type    = ""
+ dependencies_machine_type = ""
+ 
+-services_nodes_count     = 1
++services_nodes_count     = 2
+ upstream_nodes_count     = 1
+ tests_nodes_count        = 1
+ resource_nodes_count     = 1
+diff --git a/aks/vars.nodes.tf b/aks/vars.nodes.tf
+index 56b589e..fb26d2e 100644
+--- a/aks/vars.nodes.tf
++++ b/aks/vars.nodes.tf
+@@ -36,7 +36,7 @@ variable "dependencies_machine_type" {
+ 
+ variable "services_nodes_count" {
+   type        = number
+-  default     = 1
++  default     = 2
+   description = "Number of nodes for each of the gateway services."
+ }
+ 
+diff --git a/deployments/labels.tf b/deployments/labels.tf
+index 0bb4fbd..6a5abd9 100644
+--- a/deployments/labels.tf
++++ b/deployments/labels.tf
+@@ -9,5 +9,26 @@ module "h" {
+ }
+ 
+ locals {
+-  labels = var.node_labels == null ? module.h.labels : var.node_labels
++  # Use static labels to avoid computed dependency issues
++  labels = var.node_labels == null ? {
++    dependencies       = "dependencies"
++    tyk                = "tyk"
++    tyk-upstream       = "tyk-upstream"
++    tyk-tests          = "tyk-tests"
++    tyk-resources      = "tyk-resources"
++    kong               = "kong"
++    kong-upstream      = "kong-upstream"
++    kong-tests         = "kong-tests"
++    kong-resources     = "kong-resources"
++    gravitee           = "gravitee"
++    gravitee-upstream  = "gravitee-upstream"
++    gravitee-tests     = "gravitee-tests"
++    gravitee-resources = "gravitee-resources"
++    traefik            = "traefik"
++    traefik-upstream   = "traefik-upstream"
++    traefik-tests      = "traefik-tests"
++    traefik-resources  = "traefik-resources"
++    upstream           = "upstream"
++    upstream-tests     = "upstream-tests"
++  } : var.node_labels
+ }
+diff --git a/deployments/main.tf b/deployments/main.tf
+index 307ee0d..dc14443 100644
+--- a/deployments/main.tf
++++ b/deployments/main.tf
+@@ -1,7 +1,10 @@
+ module "deployments" {
+   source = "../modules/deployments"
+ 
+-  labels = local.labels
++  labels       = local.labels
++  cluster_type = var.cluster_type
++  cluster_name = var.cluster_name
++  aws_region   = var.aws_region
+ 
+   analytics = {
+     database = {
+@@ -63,6 +66,13 @@ module "deployments" {
+     }
+   }
+ 
++  # NEW (safe): simple, explicit booleans known at plan time
++  enable_tyk      = var.enable_tyk
++  enable_kong     = var.enable_kong
++  enable_gravitee = var.enable_gravitee
++  enable_traefik  = var.enable_traefik
++  enable_upstream = var.enable_upstream
++
+   tyk = {
+     enabled         = var.tyk_enabled
+     version         = var.tyk_version
+@@ -107,6 +117,9 @@ module "deployments" {
+     app_count   = var.service_app_count
+     host_count  = var.service_host_count
+   }
++  
++  # ConfigMap-based API definitions
++  use_config_maps_for_apis = var.use_config_maps_for_apis
+ 
+   dependencies = {
+     grafana = {
+@@ -114,5 +127,11 @@ module "deployments" {
+         type = var.grafana_service_type
+       }
+     }
++    scaling_webhook = {
++      enabled      = var.scaling_webhook_enabled
++      cluster_type = var.cluster_type
++      aws_region   = var.aws_region
++      gcp_region   = var.gcp_region
++    }
+   }
+ }
+diff --git a/deployments/main.tfvars.example b/deployments/main.tfvars.example
+index 8598421..266b925 100644
+--- a/deployments/main.tfvars.example
++++ b/deployments/main.tfvars.example
+@@ -15,15 +15,15 @@ open_telemetry_sampling_ratio = "0.5"
+ header_injection_req_enabled  = false
+ header_injection_res_enabled  = false
+ 
+-hpa_enabled                 = false
+-hpa_max_replica_count       = 10
+-replica_count               = 1
++hpa_enabled                 = true
++hpa_max_replica_count       = 12
++replica_count               = 2
+ hpa_avg_cpu_util_percentage = 80
+ external_traffic_policy     = "Local"
+-resources_requests_cpu      = "0"
+-resources_requests_memory   = "0"
+-resources_limits_cpu        = "0"
+-resources_limits_memory     = "0"
++resources_requests_cpu      = "1000m"
++resources_requests_memory   = "1Gi"
++resources_limits_cpu        = "2000m"
++resources_limits_memory     = "2Gi"
+ 
+ service_route_count = 1
+ service_app_count   = 1
+@@ -55,4 +55,9 @@ traefik_deployment_type = "Deployment"
+ traefik_service_type    = "ClusterIP"
+ 
+ upstream_enabled     = false
+-grafana_service_type = "ClusterIP"
+\ No newline at end of file
++grafana_service_type = "ClusterIP"
++
++# Scaling Configuration
++scaling_webhook_enabled = false
++cluster_type           = ""
++aws_region            = "us-west-1"
+\ No newline at end of file
+diff --git a/deployments/vars.dependencies.tf b/deployments/vars.dependencies.tf
+index fb2ad6e..7a7852e 100644
+--- a/deployments/vars.dependencies.tf
++++ b/deployments/vars.dependencies.tf
+@@ -8,4 +8,44 @@ variable "upstream_enabled" {
+   type        = bool
+   default     = false
+   description = "Enable Fortio upstream service for baseline testing."
++}
++
++variable "scaling_webhook_enabled" {
++  type        = bool
++  default     = false
++  description = "Enable scaling webhook for dynamic node scaling during tests (deprecated - use native cluster autoscaler instead)."
++}
++
++variable "cluster_type" {
++  type        = string
++  default     = ""
++  description = "Type of Kubernetes cluster (eks, aks, gke)."
++
++  validation {
++    condition     = contains(["eks", "aks", "gke"], var.cluster_type)
++    error_message = "cluster_type must be one of: eks, aks, gke. Provide it via -var or TF_VAR_cluster_type."
++  }
++}
++
++variable "cluster_name" {
++  type        = string
++  default     = ""
++  description = "Name of the Kubernetes cluster."
++
++  validation {
++    condition     = length(trimspace(var.cluster_name)) > 0
++    error_message = "cluster_name must be a non-empty string (e.g., 'performance-testing')."
++  }
++}
++
++variable "aws_region" {
++  type        = string
++  default     = "us-west-2"
++  description = "AWS region for EKS operations."
++}
++
++variable "gcp_region" {
++  type        = string
++  default     = "us-central1-a"
++  description = "GCP region/zone for GKE operations."
+ }
+\ No newline at end of file
+diff --git a/deployments/vars.deployments.tyk.tf b/deployments/vars.deployments.tyk.tf
+index f40e8d4..37b1ef0 100644
+--- a/deployments/vars.deployments.tyk.tf
++++ b/deployments/vars.deployments.tyk.tf
+@@ -44,3 +44,4 @@ variable "tyk_profiler_enabled" {
+   default     = false
+   description = "Enables profiling on the Tyk Gateway."
+ }
++
+diff --git a/deployments/vars.enable.tf b/deployments/vars.enable.tf
+new file mode 100644
+index 0000000..4d56afc
+--- /dev/null
++++ b/deployments/vars.enable.tf
+@@ -0,0 +1,42 @@
++variable "enable_tyk" {
++  type        = bool
++  default     = false
++  description = "Enable Tyk gateway (propagated to modules/deployments). Must be a plan-time boolean; do not derive from resources/data."
++  nullable    = false
++}
++
++variable "enable_kong" {
++  type        = bool
++  default     = false
++  description = "Enable Kong gateway (propagated to modules/deployments). Must be a plan-time boolean; do not derive from resources/data."
++  nullable    = false
++}
++
++variable "enable_gravitee" {
++  type        = bool
++  default     = false
++  description = "Enable Gravitee gateway (propagated to modules/deployments). Must be a plan-time boolean; do not derive from resources/data."
++  nullable    = false
++}
++
++variable "enable_traefik" {
++  type        = bool
++  default     = false
++  description = "Enable Traefik gateway (propagated to modules/deployments). Must be a plan-time boolean; do not derive from resources/data."
++  nullable    = false
++}
++
++# Optional: if you want to drive the shared upstream from root too.
++variable "enable_upstream" {
++  type        = bool
++  default     = false
++  description = "Enable shared upstream (Fortio) baseline services (propagated to modules/deployments). Prefer passing this from the existing upstream_enabled variable."
++  nullable    = false
++}
++
++variable "use_config_maps_for_apis" {
++  type        = bool
++  default     = false
++  nullable    = false
++  description = "Use ConfigMaps for API definitions (plumbed to module.deployments -> module.tyk). Having a default prevents CI prompts."
++}
+\ No newline at end of file
+diff --git a/deployments/vars.performance.tf b/deployments/vars.performance.tf
+index ea9750c..1864f85 100644
+--- a/deployments/vars.performance.tf
++++ b/deployments/vars.performance.tf
+@@ -6,7 +6,7 @@ variable "hpa_enabled" {
+ 
+ variable "hpa_max_replica_count" {
+   type        = number
+-  default     = 4
++  default     = 12
+   description = "Gateways Horizontal Pod Autoscaler max replica count."
+ }
+ 
+@@ -18,7 +18,7 @@ variable "hpa_avg_cpu_util_percentage" {
+ 
+ variable "replica_count" {
+   type        = number
+-  default     = 1
++  default     = 2
+   description = "Gateway replica count."
+ }
+ 
+@@ -30,24 +30,24 @@ variable "external_traffic_policy" {
+ 
+ variable "resources_requests_cpu" {
+   type        = string
+-  default     = "0"
++  default     = "1000m"
+   description = "Gateway CPU requests."
+ }
+ 
+ variable "resources_requests_memory" {
+   type        = string
+-  default     = "0"
++  default     = "1Gi"
+   description = "Gateway memory requests."
+ }
+ 
+ variable "resources_limits_cpu" {
+   type        = string
+-  default     = "0"
+-  description = "Gateway CPU requests."
++  default     = "2000m"
++  description = "Gateway CPU limits."
+ }
+ 
+ variable "resources_limits_memory" {
+   type        = string
+-  default     = "0"
+-  description = "Gateway memory requests."
++  default     = "2Gi"
++  description = "Gateway memory limits."
+ }
+diff --git a/deployments/vars.service.tf b/deployments/vars.service.tf
+index 1791535..0fb8bac 100644
+--- a/deployments/vars.service.tf
++++ b/deployments/vars.service.tf
+@@ -1,12 +1,12 @@
+ variable "service_route_count" {
+   type        = number
+-  default     = 1
++  default     = 10
+   description = "Service route count - number of APIs."
+ }
+ 
+ variable "service_app_count" {
+   type        = number
+-  default     = 1
++  default     = 10
+   description = "Service app count - number of security policies/API product/Apps."
+ }
+ 
+diff --git a/eks/main.tf b/eks/main.tf
+index e2f7850..84b2e80 100644
+--- a/eks/main.tf
++++ b/eks/main.tf
+@@ -81,9 +81,20 @@ module "eks_node_groups" {
+   vpc_security_group_ids            = [module.eks.node_security_group_id]
+   cluster_service_cidr              = module.eks.cluster_service_cidr
+ 
++  # Enable autoscaling for node groups
++  min_size     = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 2 : 1
++  max_size     = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 6 : 3
++  desired_size = each.value
++
+   labels = {
+     "node": each.key
+   }
++
++  # Required tags for cluster autoscaler discovery
++  tags = {
++    "k8s.io/cluster-autoscaler/enabled" = "true"
++    "k8s.io/cluster-autoscaler/${module.eks.cluster_name}" = "owned"
++  }
+ }
+ 
+ module "ebs_csi_controller_role" {
+diff --git a/eks/main.tfvars.example b/eks/main.tfvars.example
+index 411fbf1..02c8bc5 100644
+--- a/eks/main.tfvars.example
++++ b/eks/main.tfvars.example
+@@ -7,7 +7,7 @@ tests_machine_type        = ""
+ resources_machine_type    = ""
+ dependencies_machine_type = ""
+ 
+-services_nodes_count     = 1
++services_nodes_count     = 2
+ upstream_nodes_count     = 1
+ tests_nodes_count        = 1
+ resource_nodes_count     = 1
+diff --git a/eks/vars.nodes.tf b/eks/vars.nodes.tf
+index 89149ad..fbb2659 100644
+--- a/eks/vars.nodes.tf
++++ b/eks/vars.nodes.tf
+@@ -42,7 +42,7 @@ variable "dependencies_machine_type" {
+ 
+ variable "services_nodes_count" {
+   type        = number
+-  default     = 1
++  default     = 2
+   description = "Number of nodes for each of the gateway services."
+ }
+ 
+diff --git a/gke/main.tf b/gke/main.tf
+index 9e23cb4..feeb243 100644
+--- a/gke/main.tf
++++ b/gke/main.tf
+@@ -51,7 +51,15 @@ resource "google_container_node_pool" "this" {
+   cluster    = google_container_cluster.this.name
+   version    = var.gke_version
+   location   = google_container_cluster.this.location
+-  node_count = each.value
++  
++  # Enable autoscaling for service node pools
++  autoscaling {
++    min_node_count = module.h.min_nodes[each.key]
++    max_node_count = contains(["tyk", "kong", "gravitee", "traefik"], each.key) ? 6 : 3
++    location_policy = "BALANCED"
++  }
++  
++  initial_node_count = max(each.value, module.h.min_nodes[each.key])
+ 
+   node_config {
+     machine_type = module.h.machines[each.key]
+diff --git a/gke/main.tfvars.example b/gke/main.tfvars.example
+index 7265b7f..a767afe 100644
+--- a/gke/main.tfvars.example
++++ b/gke/main.tfvars.example
+@@ -8,7 +8,7 @@ tests_machine_type        = ""
+ resources_machine_type    = ""
+ dependencies_machine_type = ""
+ 
+-services_nodes_count     = 1
++services_nodes_count     = 2
+ upstream_nodes_count     = 1
+ tests_nodes_count        = 1
+ resource_nodes_count     = 1
+diff --git a/gke/vars.nodes.tf b/gke/vars.nodes.tf
+index 493c8b1..5487e61 100644
+--- a/gke/vars.nodes.tf
++++ b/gke/vars.nodes.tf
+@@ -36,7 +36,7 @@ variable "dependencies_machine_type" {
+ 
+ variable "services_nodes_count" {
+   type        = number
+-  default     = 1
++  default     = 2
+   description = "Number of nodes for each of the gateway services."
+ }
+ 
+diff --git a/modules/deployments/dependencies/cert-manager.tf b/modules/deployments/dependencies/cert-manager.tf
+index 95020de..1b7d5cd 100644
+--- a/modules/deployments/dependencies/cert-manager.tf
++++ b/modules/deployments/dependencies/cert-manager.tf
+@@ -6,6 +6,7 @@ resource "helm_release" "cert-manager" {
+ 
+   namespace = var.namespace
+   atomic    = true
++  timeout   = 1800  # 30 minutes for AWS EKS compatibility
+ 
+   set {
+     name  = "installCRDs"
+@@ -27,5 +28,66 @@ resource "helm_release" "cert-manager" {
+     value = var.label
+   }
+ 
++  # Reduce resource requirements for better AWS EKS compatibility
++  set {
++    name  = "resources.requests.cpu"
++    value = "50m"
++  }
++
++  set {
++    name  = "resources.requests.memory"
++    value = "64Mi"
++  }
++
++  set {
++    name  = "resources.limits.cpu"
++    value = "200m"
++  }
++
++  set {
++    name  = "resources.limits.memory"
++    value = "128Mi"
++  }
++
++  set {
++    name  = "webhook.resources.requests.cpu"
++    value = "25m"
++  }
++
++  set {
++    name  = "webhook.resources.requests.memory"
++    value = "32Mi"
++  }
++
++  set {
++    name  = "webhook.resources.limits.cpu"
++    value = "100m"
++  }
++
++  set {
++    name  = "webhook.resources.limits.memory"
++    value = "64Mi"
++  }
++
++  set {
++    name  = "cainjector.resources.requests.cpu"
++    value = "25m"
++  }
++
++  set {
++    name  = "cainjector.resources.requests.memory"
++    value = "32Mi"
++  }
++
++  set {
++    name  = "cainjector.resources.limits.cpu"
++    value = "100m"
++  }
++
++  set {
++    name  = "cainjector.resources.limits.memory"
++    value = "64Mi"
++  }
++
+   depends_on = [kubernetes_namespace.dependencies]
+ }
+\ No newline at end of file
+diff --git a/modules/deployments/dependencies/cluster-autoscaler.tf b/modules/deployments/dependencies/cluster-autoscaler.tf
+new file mode 100644
+index 0000000..430a2d0
+--- /dev/null
++++ b/modules/deployments/dependencies/cluster-autoscaler.tf
+@@ -0,0 +1,289 @@
++variable "cluster_type" {
++  type    = string
++  default = ""
++
++  validation {
++    condition     = contains(["eks", "aks", "gke"], var.cluster_type)
++    error_message = "cluster_type must be one of: eks, aks, gke."
++  }
++}
++
++variable "cluster_name" {
++  type    = string
++  default = ""
++
++  validation {
++    condition     = length(trimspace(var.cluster_name)) > 0
++    error_message = "cluster_name must be a non-empty string."
++  }
++}
++
++variable "aws_region" {
++  type    = string
++  default = "us-east-1"
++}
++
++# Deploy Cluster Autoscaler only for EKS (GKE and AKS have it built-in)
++resource "kubernetes_deployment" "cluster_autoscaler" {
++  count = var.cluster_type == "eks" ? 1 : 0
++  
++  metadata {
++    name      = "cluster-autoscaler"
++    namespace = "kube-system"
++    labels = {
++      app = "cluster-autoscaler"
++    }
++  }
++
++  spec {
++    replicas = 1
++    
++    selector {
++      match_labels = {
++        app = "cluster-autoscaler"
++      }
++    }
++    
++    template {
++      metadata {
++        labels = {
++          app = "cluster-autoscaler"
++        }
++        annotations = {
++          "cluster-autoscaler.kubernetes.io/safe-to-evict" = "false"
++          "prometheus.io/scrape" = "true"
++          "prometheus.io/port" = "8085"
++        }
++      }
++      
++      spec {
++        service_account_name = kubernetes_service_account.cluster_autoscaler[0].metadata[0].name
++        
++        container {
++          image = "registry.k8s.io/autoscaling/cluster-autoscaler:v1.28.2"
++          name  = "cluster-autoscaler"
++          
++          command = [
++            "./cluster-autoscaler",
++            "--v=4",
++            "--stderrthreshold=info",
++            "--cloud-provider=aws",
++            "--skip-nodes-with-local-storage=false",
++            "--expander=least-waste",
++            "--node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/${var.cluster_name}",
++            "--balance-similar-node-groups",
++            "--skip-nodes-with-system-pods=false",
++            "--scale-down-delay-after-add=10m",
++            "--scale-down-unneeded-time=10m",
++            "--max-node-provision-time=15m"
++          ]
++          
++          env {
++            name  = "AWS_REGION"
++            value = var.aws_region
++          }
++          
++          resources {
++            limits = {
++              cpu    = "100m"
++              memory = "300Mi"
++            }
++            requests = {
++              cpu    = "100m"
++              memory = "300Mi"
++            }
++          }
++          
++          liveness_probe {
++            http_get {
++              path = "/health-check"
++              port = 8085
++            }
++            initial_delay_seconds = 30
++            period_seconds        = 10
++          }
++        }
++      }
++    }
++  }
++}
++
++# Service account for EKS cluster autoscaler
++resource "kubernetes_service_account" "cluster_autoscaler" {
++  count = var.cluster_type == "eks" ? 1 : 0
++  
++  metadata {
++    name      = "cluster-autoscaler"
++    namespace = "kube-system"
++    labels = {
++      app = "cluster-autoscaler"
++    }
++  }
++}
++
++# ClusterRole for cluster autoscaler
++resource "kubernetes_cluster_role" "cluster_autoscaler" {
++  count = var.cluster_type == "eks" ? 1 : 0
++  
++  metadata {
++    name = "cluster-autoscaler"
++    labels = {
++      app = "cluster-autoscaler"
++    }
++  }
++
++  rule {
++    api_groups = [""]
++    resources  = ["events", "endpoints"]
++    verbs      = ["create", "patch"]
++  }
++
++  rule {
++    api_groups = [""]
++    resources  = ["pods/eviction"]
++    verbs      = ["create"]
++  }
++
++  rule {
++    api_groups = [""]
++    resources  = ["pods/status"]
++    verbs      = ["update"]
++  }
++
++  rule {
++    api_groups = [""]
++    resources  = ["endpoints"]
++    resource_names = ["cluster-autoscaler"]
++    verbs      = ["get", "update"]
++  }
++
++  rule {
++    api_groups = [""]
++    resources  = ["nodes"]
++    verbs      = ["watch", "list", "get", "update"]
++  }
++
++  rule {
++    api_groups = [""]
++    resources  = ["namespaces", "pods", "services", "replicationcontrollers", "persistentvolumeclaims", "persistentvolumes"]
++    verbs      = ["watch", "list", "get"]
++  }
++
++  rule {
++    api_groups = ["apps"]
++    resources  = ["daemonsets", "deployments", "replicasets", "statefulsets"]
++    verbs      = ["watch", "list", "get"]
++  }
++
++  rule {
++    api_groups = ["batch"]
++    resources  = ["cronjobs", "jobs"]
++    verbs      = ["watch", "list", "get"]
++  }
++
++  rule {
++    api_groups = ["policy"]
++    resources  = ["poddisruptionbudgets"]
++    verbs      = ["watch", "list"]
++  }
++
++  rule {
++    api_groups = ["apps.openshift.io"]
++    resources  = ["deploymentconfigs"]
++    verbs      = ["watch", "list", "get"]
++  }
++
++  rule {
++    api_groups = ["storage.k8s.io"]
++    resources  = ["storageclasses", "csinodes", "csidrivers", "csistoragecapacities"]
++    verbs      = ["watch", "list", "get"]
++  }
++
++  rule {
++    api_groups = ["coordination.k8s.io"]
++    resources  = ["leases"]
++    verbs      = ["create"]
++  }
++
++  rule {
++    api_groups = ["coordination.k8s.io"]
++    resource_names = ["cluster-autoscaler"]
++    resources  = ["leases"]
++    verbs      = ["get", "update"]
++  }
++}
++
++# ClusterRoleBinding for cluster autoscaler
++resource "kubernetes_cluster_role_binding" "cluster_autoscaler" {
++  count = var.cluster_type == "eks" ? 1 : 0
++  
++  metadata {
++    name = "cluster-autoscaler"
++    labels = {
++      app = "cluster-autoscaler"
++    }
++  }
++
++  role_ref {
++    api_group = "rbac.authorization.k8s.io"
++    kind      = "ClusterRole"
++    name      = kubernetes_cluster_role.cluster_autoscaler[0].metadata[0].name
++  }
++
++  subject {
++    kind      = "ServiceAccount"
++    name      = kubernetes_service_account.cluster_autoscaler[0].metadata[0].name
++    namespace = "kube-system"
++  }
++}
++
++# Role for cluster autoscaler in kube-system namespace
++resource "kubernetes_role" "cluster_autoscaler" {
++  count = var.cluster_type == "eks" ? 1 : 0
++  
++  metadata {
++    name      = "cluster-autoscaler"
++    namespace = "kube-system"
++    labels = {
++      app = "cluster-autoscaler"
++    }
++  }
++
++  rule {
++    api_groups = [""]
++    resources  = ["configmaps"]
++    verbs      = ["create", "list", "watch"]
++  }
++
++  rule {
++    api_groups = [""]
++    resources  = ["configmaps"]
++    resource_names = ["cluster-autoscaler-status", "cluster-autoscaler-priority-expander"]
++    verbs      = ["delete", "get", "update", "watch"]
++  }
++}
++
++# RoleBinding for cluster autoscaler in kube-system namespace
++resource "kubernetes_role_binding" "cluster_autoscaler" {
++  count = var.cluster_type == "eks" ? 1 : 0
++  
++  metadata {
++    name      = "cluster-autoscaler"
++    namespace = "kube-system"
++    labels = {
++      app = "cluster-autoscaler"
++    }
++  }
++
++  role_ref {
++    api_group = "rbac.authorization.k8s.io"
++    kind      = "Role"
++    name      = kubernetes_role.cluster_autoscaler[0].metadata[0].name
++  }
++
++  subject {
++    kind      = "ServiceAccount"
++    name      = kubernetes_service_account.cluster_autoscaler[0].metadata[0].name
++    namespace = "kube-system"
++  }
++}
+\ No newline at end of file
+diff --git a/modules/deployments/dependencies/grafana-dashboard.tf b/modules/deployments/dependencies/grafana-dashboard.tf
+index 4cafadc..c177d26 100644
+--- a/modules/deployments/dependencies/grafana-dashboard.tf
++++ b/modules/deployments/dependencies/grafana-dashboard.tf
+@@ -7021,6 +7021,117 @@ resource "kubernetes_config_map" "grafana-dashboard" {
+       "title": "Horizontal Scaling",
+       "type": "row"
+     },
++    {
++      "datasource": {
++        "type": "prometheus",
++        "uid": "PBFA97CFB590B2093"
++      },
++      "description": "Shows the number of nodes over time for each gateway type during scaling",
++      "fieldConfig": {
++        "defaults": {
++          "color": {
++            "mode": "palette-classic"
++          },
++          "custom": {
++            "axisBorderShow": false,
++            "axisCenteredZero": false,
++            "axisColorMode": "text",
++            "axisLabel": "Node Count",
++            "axisPlacement": "auto",
++            "barAlignment": 0,
++            "drawStyle": "line",
++            "fillOpacity": 10,
++            "gradientMode": "none",
++            "hideFrom": {
++              "legend": false,
++              "tooltip": false,
++              "viz": false
++            },
++            "insertNulls": false,
++            "lineInterpolation": "stepAfter",
++            "lineWidth": 2,
++            "pointSize": 8,
++            "scaleDistribution": {
++              "type": "linear"
++            },
++            "showPoints": "always",
++            "spanNulls": false,
++            "stacking": {
++              "group": "A",
++              "mode": "none"
++            },
++            "thresholdsStyle": {
++              "mode": "off"
++            }
++          },
++          "decimals": 0,
++          "mappings": [],
++          "min": 0,
++          "thresholds": {
++            "mode": "absolute",
++            "steps": [
++              {
++                "color": "green",
++                "value": null
++              }
++            ]
++          },
++          "unit": "short"
++        },
++        "overrides": [
++          {
++            "matcher": {
++              "id": "byRegexp",
++              "options": "/.*tyk.*/"
++            },
++            "properties": [
++              {
++                "id": "color",
++                "value": {
++                  "fixedColor": "blue",
++                  "mode": "fixed"
++                }
++              }
++            ]
++          }
++        ]
++      },
++      "gridPos": {
++        "h": 8,
++        "w": 12,
++        "x": 0,
++        "y": 79
++      },
++      "id": 301,
++      "options": {
++        "legend": {
++          "calcs": ["last"],
++          "displayMode": "list",
++          "placement": "bottom",
++          "showLegend": true
++        },
++        "tooltip": {
++          "mode": "multi",
++          "sort": "none"
++        }
++      },
++      "targets": [
++        {
++          "datasource": {
++            "type": "prometheus",
++            "uid": "PBFA97CFB590B2093"
++          },
++          "editorMode": "code",
++          "expr": "count by (label_node) (kube_node_labels{label_node=~\"tyk|kong|gravitee|traefik\"})",
++          "instant": false,
++          "legendFormat": "{{label_node}} nodes",
++          "range": true,
++          "refId": "A"
++        }
++      ],
++      "title": "Gateway Nodes Over Time",
++      "type": "timeseries"
++    },
+     {
+       "datasource": {
+         "type": "prometheus",
+@@ -10056,7 +10167,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
+           },
+           "editorMode": "code",
+           "exemplar": false,
+-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"tyk\"})",
++          "expr": "count(kube_node_labels{label_node=\"tyk\"})",
+           "format": "time_series",
+           "hide": false,
+           "instant": false,
+@@ -10071,7 +10182,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
+             "uid": "PBFA97CFB590B2093"
+           },
+           "editorMode": "code",
+-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong\"})",
++          "expr": "count(kube_node_labels{label_node=\"kong\"})",
+           "hide": false,
+           "instant": false,
+           "legendFormat": "__auto",
+@@ -10084,7 +10195,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
+             "uid": "PBFA97CFB590B2093"
+           },
+           "editorMode": "code",
+-          "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee\"})",
++          "expr": "count(kube_node_labels{label_node=\"gravitee\"})",
+           "hide": false,
+           "instant": false,
+           "legendFormat": "__auto",
+diff --git a/modules/deployments/dependencies/grafana.tf b/modules/deployments/dependencies/grafana.tf
+index 9815984..97bbd34 100644
+--- a/modules/deployments/dependencies/grafana.tf
++++ b/modules/deployments/dependencies/grafana.tf
+@@ -13,6 +13,7 @@ resource "helm_release" "grafana" {
+ 
+   namespace = var.namespace
+   atomic    = true
++  timeout   = 1200  # 20 minutes for AWS EKS compatibility
+ 
+   set {
+     name  = "adminPassword"
+@@ -129,6 +130,27 @@ resource "helm_release" "grafana" {
+     value = ""
+   }
+ 
++  # Add resource limits for AWS EKS compatibility
++  set {
++    name  = "resources.requests.cpu"
++    value = "100m"
++  }
++
++  set {
++    name  = "resources.requests.memory"
++    value = "128Mi"
++  }
++
++  set {
++    name  = "resources.limits.cpu"
++    value = "300m"
++  }
++
++  set {
++    name  = "resources.limits.memory"
++    value = "256Mi"
++  }
++
+   depends_on = [kubernetes_namespace.dependencies, kubernetes_config_map.grafana-dashboard]
+ }
+ 
+diff --git a/modules/deployments/dependencies/k6-operator.tf b/modules/deployments/dependencies/k6-operator.tf
+index b53f08c..ca82bb7 100644
+--- a/modules/deployments/dependencies/k6-operator.tf
++++ b/modules/deployments/dependencies/k6-operator.tf
+@@ -6,6 +6,7 @@ resource "helm_release" "k6-operator" {
+ 
+   namespace = var.namespace
+   atomic    = true
++  timeout   = 600  # 10 minutes
+ 
+   set {
+     name  = "namespace.create"
+diff --git a/modules/deployments/dependencies/keycloak.tf b/modules/deployments/dependencies/keycloak.tf
+index caaad4d..9b09f0b 100644
+--- a/modules/deployments/dependencies/keycloak.tf
++++ b/modules/deployments/dependencies/keycloak.tf
+@@ -6826,6 +6826,7 @@ resource "helm_release" "keycloak-pgsql" {
+ 
+   namespace = var.namespace
+   atomic    = true
++  timeout   = 1200  # 20 minutes for AWS EKS compatibility
+ 
+   set {
+     name  = "auth.database"
+@@ -6872,6 +6873,27 @@ resource "helm_release" "keycloak-pgsql" {
+     value = var.label
+   }
+ 
++  # Add resource limits for AWS EKS compatibility
++  set {
++    name  = "primary.resources.requests.cpu"
++    value = "100m"
++  }
++
++  set {
++    name  = "primary.resources.requests.memory"
++    value = "128Mi"
++  }
++
++  set {
++    name  = "primary.resources.limits.cpu"
++    value = "300m"
++  }
++
++  set {
++    name  = "primary.resources.limits.memory"
++    value = "256Mi"
++  }
++
+   depends_on = [kubernetes_namespace.dependencies]
+ }
+ 
+diff --git a/modules/deployments/dependencies/prometheus.tf b/modules/deployments/dependencies/prometheus.tf
+index 3f9918a..38a9a44 100644
+--- a/modules/deployments/dependencies/prometheus.tf
++++ b/modules/deployments/dependencies/prometheus.tf
+@@ -6,6 +6,7 @@ resource "helm_release" "prometheus" {
+ 
+   namespace = var.namespace
+   atomic    = true
++  timeout   = 900  # 15 minutes (increased for AWS EKS)
+ 
+   set {
+     name  = "server.nodeSelector.node"
+@@ -42,5 +43,36 @@ resource "helm_release" "prometheus" {
+     value = "--metric-labels-allowlist=nodes=[*]"
+   }
+ 
++  # Reduce resource requirements for better AWS EKS compatibility
++  set {
++    name  = "server.resources.requests.cpu"
++    value = "100m"
++  }
++
++  set {
++    name  = "server.resources.requests.memory"
++    value = "256Mi"
++  }
++
++  set {
++    name  = "server.resources.limits.cpu"
++    value = "500m"
++  }
++
++  set {
++    name  = "server.resources.limits.memory"
++    value = "512Mi"
++  }
++
++  set {
++    name  = "alertmanager.resources.requests.cpu"
++    value = "50m"
++  }
++
++  set {
++    name  = "alertmanager.resources.requests.memory"
++    value = "64Mi"
++  }
++
+   depends_on = [kubernetes_namespace.dependencies]
+ }
+\ No newline at end of file
+diff --git a/modules/deployments/dependencies/scaling-webhook.tf b/modules/deployments/dependencies/scaling-webhook.tf
+new file mode 100644
+index 0000000..ac8bb66
+--- /dev/null
++++ b/modules/deployments/dependencies/scaling-webhook.tf
+@@ -0,0 +1,534 @@
++resource "kubernetes_deployment" "scaling-webhook" {
++  count = var.scaling_webhook.enabled ? 1 : 0
++  
++  metadata {
++    name      = "scaling-webhook"
++    namespace = "dependencies"
++    labels = {
++      app = "scaling-webhook"
++    }
++  }
++
++  spec {
++    replicas = 1
++
++    selector {
++      match_labels = {
++        app = "scaling-webhook"
++      }
++    }
++
++    template {
++      metadata {
++        labels = {
++          app = "scaling-webhook"
++        }
++      }
++
++      spec {
++        service_account_name            = kubernetes_service_account.scaling-webhook[0].metadata[0].name
++        automount_service_account_token = true
++        
++        container {
++          image = "golang:1.21-alpine"
++          name  = "scaling-webhook"
++          
++          command = ["/bin/sh"]
++          args = ["-c", <<-EOF
++            set -x  # Show commands being executed
++            echo "=== Starting scaling webhook container ==="
++            echo "Installing curl..."
++            apk add --no-cache curl
++            
++            echo "NOTE: Cloud CLIs not installed - webhook will log requests but not actually scale"
++            echo "Checking /app directory contents:"
++            ls -la /app/
++            echo "Checking if go is available:"
++            which go
++            go version
++            echo "Checking Go code syntax:"
++            cd /app
++            cat main.go | head -30
++            echo "Attempting to compile webhook..."
++            go build -v -o webhook main.go 2>&1 || {
++              echo "=== COMPILATION FAILED ==="
++              echo "Error output:"
++              go build -v -o webhook main.go
++              echo "=== Attempting go vet for more details ==="
++              go vet main.go
++              echo "=== Attempting gofmt check ==="
++              gofmt -d main.go
++              exit 1
++            }
++            echo "Compilation successful! Starting webhook server..."
++            echo "Testing webhook binary..."
++            ./webhook &
++            WEBHOOK_PID=$!
++            echo "Webhook started with PID: $WEBHOOK_PID"
++            
++            # Give it a moment to start
++            sleep 2
++            
++            # Check if process is still running
++            if ! kill -0 $WEBHOOK_PID 2>/dev/null; then
++              echo "=== WEBHOOK CRASHED IMMEDIATELY ==="
++              echo "Trying to run with more debugging..."
++              ./webhook || {
++                echo "=== WEBHOOK FAILED TO START ==="
++                echo "Exit code: $?"
++                echo "Checking for missing dependencies..."
++                ldd webhook 2>&1 || echo "ldd not available"
++                echo "File info:"
++                file webhook
++                ls -la webhook
++                echo "Trying with strace if available..."
++                apk add --no-cache strace 2>/dev/null && strace -f ./webhook 2>&1 | head -100
++                exit 1
++              }
++            fi
++            
++            echo "Webhook appears to be running, waiting..."
++            wait $WEBHOOK_PID
++          EOF
++          ]
++
++          port {
++            container_port = 8080
++          }
++
++          env {
++            name = "CLUSTER_TYPE"
++            value = var.scaling_webhook.cluster_type
++          }
++          
++          env {
++            name = "AWS_REGION"
++            value = var.scaling_webhook.aws_region
++          }
++          
++          env {
++            name = "EKS_CLUSTER_NAME"
++            value = "pt-${var.scaling_webhook.aws_region}"
++          }
++          
++          env {
++            name = "GKE_CLUSTER_NAME"
++            value = "pt-${var.scaling_webhook.gcp_region}"
++          }
++          
++          env {
++            name = "GCP_REGION"
++            value = var.scaling_webhook.gcp_region
++          }
++
++          volume_mount {
++            name       = "webhook-code"
++            mount_path = "/app"
++          }
++
++          resources {
++            requests = {
++              cpu    = "50m"
++              memory = "64Mi"
++            }
++            limits = {
++              cpu    = "100m"
++              memory = "128Mi"
++            }
++          }
++          
++# Temporarily disabled health probes to debug startup issues
++          # liveness_probe {
++          #   http_get {
++          #     path = "/health"
++          #     port = 8080
++          #   }
++          #   initial_delay_seconds = 90
++          #   period_seconds        = 10
++          #   timeout_seconds       = 5
++          #   failure_threshold     = 3
++          # }
++          
++          # readiness_probe {
++          #   http_get {
++          #     path = "/health"
++          #     port = 8080
++          #   }
++          #   initial_delay_seconds = 60
++          #   period_seconds        = 10
++          #   timeout_seconds       = 5
++          #   failure_threshold     = 6
++          # }
++        }
++
++        volume {
++          name = "webhook-code"
++          config_map {
++            name = kubernetes_config_map.scaling-webhook-code[0].metadata[0].name
++            default_mode = "0755"
++          }
++        }
++
++        node_selector = {
++          node = "dependencies"
++        }
++      }
++    }
++  }
++
++  depends_on = [
++    kubernetes_config_map.scaling-webhook-code,
++    kubernetes_service_account.scaling-webhook,
++    kubernetes_cluster_role_binding.scaling-webhook
++  ]
++}
++
++resource "kubernetes_service" "scaling-webhook" {
++  count = var.scaling_webhook.enabled ? 1 : 0
++  
++  metadata {
++    name      = "scaling-webhook"
++    namespace = "dependencies"
++  }
++
++  spec {
++    selector = {
++      app = "scaling-webhook"
++    }
++
++    port {
++      port        = 8080
++      target_port = 8080
++      protocol    = "TCP"
++    }
++
++    type = "ClusterIP"
++  }
++  
++  depends_on = [kubernetes_namespace.dependencies]
++}
++
++resource "kubernetes_service_account" "scaling-webhook" {
++  count = var.scaling_webhook.enabled ? 1 : 0
++  
++  metadata {
++    name      = "scaling-webhook"
++    namespace = "dependencies"
++  }
++  
++  depends_on = [kubernetes_namespace.dependencies]
++}
++
++resource "kubernetes_cluster_role" "scaling-webhook" {
++  count = var.scaling_webhook.enabled ? 1 : 0
++  
++  metadata {
++    name = "scaling-webhook"
++  }
++
++  rule {
++    api_groups = [""]
++    resources  = ["nodes"]
++    verbs      = ["get", "list", "watch"]
++  }
++  
++  rule {
++    api_groups = ["apps"]
++    resources  = ["deployments", "daemonsets"]
++    verbs      = ["get", "list", "patch", "update"]
++  }
++}
++
++resource "kubernetes_cluster_role_binding" "scaling-webhook" {
++  count = var.scaling_webhook.enabled ? 1 : 0
++  
++  metadata {
++    name = "scaling-webhook"
++  }
++  
++  role_ref {
++    api_group = "rbac.authorization.k8s.io"
++    kind      = "ClusterRole"
++    name      = kubernetes_cluster_role.scaling-webhook[0].metadata[0].name
++  }
++  
++  subject {
++    kind      = "ServiceAccount"
++    name      = kubernetes_service_account.scaling-webhook[0].metadata[0].name
++    namespace = "dependencies"
++  }
++  
++  depends_on = [
++    kubernetes_namespace.dependencies,
++    kubernetes_service_account.scaling-webhook
++  ]
++}
++
++resource "kubernetes_config_map" "scaling-webhook-code" {
++  count = var.scaling_webhook.enabled ? 1 : 0
++  
++  metadata {
++    name      = "scaling-webhook-code"
++    namespace = "dependencies"
++  }
++  
++  depends_on = [kubernetes_namespace.dependencies]
++
++  data = {
++    "main.go" = <<EOF
++package main
++
++import (
++    "encoding/json"
++    "fmt"
++    "log"
++    "net/http"
++    "os"
++    "os/exec"
++    "strconv"
++    "strings"
++)
++
++type ScaleRequest struct {
++    Action        string `json:"action"`
++    Target        string `json:"target"`
++    NodesToAdd    int    `json:"nodes_to_add,omitempty"`
++    NodesToRemove int    `json:"nodes_to_remove,omitempty"`
++    ClusterType   string `json:"cluster_type"`
++}
++
++type ScaleResponse struct {
++    Status  string `json:"status"`
++    Message string `json:"message"`
++}
++
++func main() {
++    log.Println("=== WEBHOOK STARTING ===")
++    log.Printf("Environment: CLUSTER_TYPE=%s", os.Getenv("CLUSTER_TYPE"))
++    log.Printf("Environment: GKE_CLUSTER_NAME=%s", os.Getenv("GKE_CLUSTER_NAME"))
++    log.Printf("Environment: GCP_REGION=%s", os.Getenv("GCP_REGION"))
++    
++    http.HandleFunc("/scale", handleScale)
++    http.HandleFunc("/health", handleHealth)
++    
++    log.Println("Scaling webhook starting on :8080")
++    log.Println("=== WEBHOOK LISTENING ===")
++    if err := http.ListenAndServe(":8080", nil); err != nil {
++        log.Fatalf("Failed to start server: %v", err)
++    }
++}
++
++func handleHealth(w http.ResponseWriter, r *http.Request) {
++    w.WriteHeader(http.StatusOK)
++    json.NewEncoder(w).Encode(map[string]string{"status": "healthy"})
++}
++
++func handleScale(w http.ResponseWriter, r *http.Request) {
++    log.Printf("=== WEBHOOK CALLED: Method=%s, Path=%s, RemoteAddr=%s ===", r.Method, r.URL.Path, r.RemoteAddr)
++    
++    if r.Method != http.MethodPost {
++        log.Printf("ERROR: Invalid method %s", r.Method)
++        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
++        return
++    }
++
++    var req ScaleRequest
++    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
++        log.Printf("ERROR: Failed to decode JSON: %v", err)
++        http.Error(w, "Invalid JSON", http.StatusBadRequest)
++        return
++    }
++
++    log.Printf("=== SCALING REQUEST RECEIVED ===")
++    log.Printf("Action: %s", req.Action)
++    log.Printf("Target: %s", req.Target)
++    log.Printf("NodesToAdd: %d", req.NodesToAdd)
++    log.Printf("NodesToRemove: %d", req.NodesToRemove)
++    log.Printf("ClusterType: %s", req.ClusterType)
++    log.Printf("================================")
++
++    var err error
++    var message string
++
++    switch req.ClusterType {
++    case "eks":
++        err, message = scaleEKSNodeGroup(req)
++    case "aks":
++        err, message = scaleAKSNodePool(req)
++    case "gke":
++        err, message = scaleGKENodePool(req)
++    default:
++        http.Error(w, "Unsupported cluster type", http.StatusBadRequest)
++        return
++    }
++
++    if err != nil {
++        log.Printf("Scaling failed: %v", err)
++        w.WriteHeader(http.StatusInternalServerError)
++        json.NewEncoder(w).Encode(ScaleResponse{
++            Status:  "error",
++            Message: err.Error(),
++        })
++        return
++    }
++
++    w.WriteHeader(http.StatusAccepted)
++    json.NewEncoder(w).Encode(ScaleResponse{
++        Status:  "accepted",
++        Message: message,
++    })
++}
++
++func scaleEKSNodeGroup(req ScaleRequest) (error, string) {
++    clusterName := os.Getenv("EKS_CLUSTER_NAME")
++    if clusterName == "" {
++        return fmt.Errorf("EKS_CLUSTER_NAME not set"), ""
++    }
++
++    region := os.Getenv("AWS_REGION")
++    if region == "" {
++        region = "us-west-2" // default
++    }
++
++    // Get current node group info
++    nodeGroupName := req.Target + "-np"
++    
++    log.Printf("[EKS] Starting %s operation on cluster=%s, nodegroup=%s, region=%s", 
++        req.Action, clusterName, nodeGroupName, region)
++    
++    var newSize int
++    if req.Action == "scale_up" {
++        log.Printf("[EKS] Getting current node count for %s", nodeGroupName)
++        // Get current desired capacity and add nodes
++        cmd := exec.Command("aws", "eks", "describe-nodegroup",
++            "--cluster-name", clusterName,
++            "--nodegroup-name", nodeGroupName,
++            "--region", region,
++            "--query", "nodegroup.scalingConfig.desiredSize",
++            "--output", "text")
++        
++        output, err := cmd.Output()
++        if err != nil {
++            log.Printf("[EKS] Failed to get current size: %v", err)
++            return err, ""
++        }
++        
++        currentSize, err := strconv.Atoi(strings.TrimSpace(string(output)))
++        if err != nil {
++            log.Printf("[EKS] Failed to parse current size: %v", err)
++            return err, ""
++        }
++        
++        newSize = currentSize + req.NodesToAdd
++        log.Printf("[EKS] Scaling UP %s: %d -> %d nodes (+%d)", nodeGroupName, currentSize, newSize, req.NodesToAdd)
++    } else if req.Action == "scale_down" {
++        // Get current desired capacity and remove nodes
++        cmd := exec.Command("aws", "eks", "describe-nodegroup",
++            "--cluster-name", clusterName,
++            "--nodegroup-name", nodeGroupName,
++            "--region", region,
++            "--query", "nodegroup.scalingConfig.desiredSize",
++            "--output", "text")
++        
++        output, err := cmd.Output()
++        if err != nil {
++            return err, ""
++        }
++        
++        currentSize, err := strconv.Atoi(strings.TrimSpace(string(output)))
++        if err != nil {
++            return err, ""
++        }
++        
++        newSize = currentSize - req.NodesToRemove
++        if newSize < 1 {
++            newSize = 1 // Minimum of 1 node
++        }
++    }
++
++    // Update node group
++    cmd := exec.Command("aws", "eks", "update-nodegroup-config",
++        "--cluster-name", clusterName,
++        "--nodegroup-name", nodeGroupName,
++        "--region", region,
++        "--scaling-config", fmt.Sprintf("desiredSize=%d", newSize))
++
++    if err := cmd.Run(); err != nil {
++        return err, ""
++    }
++
++    return nil, fmt.Sprintf("EKS node group %s scaled to %d nodes", nodeGroupName, newSize)
++}
++
++func scaleAKSNodePool(req ScaleRequest) (error, string) {
++    // Implementation for AKS scaling
++    return fmt.Errorf("AKS scaling not implemented yet"), ""
++}
++
++func scaleGKENodePool(req ScaleRequest) (error, string) {
++    log.Printf("=== GKE SCALING FUNCTION CALLED ===")
++    log.Printf("NOTE: Cloud CLIs not available - simulating scaling operation")
++    
++    clusterName := os.Getenv("GKE_CLUSTER_NAME")
++    if clusterName == "" {
++        log.Printf("WARNING: GKE_CLUSTER_NAME not set, using default")
++        clusterName = "pt-us-west1-a"
++    }
++    
++    location := os.Getenv("GCP_REGION")
++    isZone := false
++    if location == "" {
++        location = os.Getenv("GCP_ZONE")
++        isZone = true
++        if location == "" {
++            location = "us-west1-a" // default zone
++            isZone = true
++        }
++    }
++    
++    // Determine if location is a zone (has a dash followed by a letter)
++    if strings.Count(location, "-") >= 2 && len(location) > 0 && location[len(location)-2] == '-' {
++        isZone = true
++    }
++    
++    nodePoolName := req.Target + "-np"
++    locationFlag := "--zone"
++    if !isZone {
++        locationFlag = "--region"
++    }
++    
++    log.Printf("[GKE] Starting %s operation on cluster=%s, nodepool=%s, location=%s (isZone=%v)", 
++        req.Action, clusterName, nodePoolName, location, isZone)
++    
++    // Simulate current size (can't query without gcloud)
++    currentSize := 2 // Assume default of 2 nodes
++    
++    var newSize int
++    if req.Action == "scale_up" {
++        newSize = currentSize + req.NodesToAdd
++        log.Printf("[GKE] SIMULATED: Scaling UP %s: %d -> %d nodes (+%d)", nodePoolName, currentSize, newSize, req.NodesToAdd)
++        
++    } else if req.Action == "scale_down" {
++        newSize = currentSize - req.NodesToRemove
++        if newSize < 1 {
++            newSize = 1 // Minimum of 1 node
++        }
++        log.Printf("[GKE] SIMULATED: Scaling DOWN %s: %d -> %d nodes (-%d)", nodePoolName, currentSize, newSize, req.NodesToRemove)
++    }
++    
++    // Simulate scaling (cloud CLI not available in container)
++    log.Printf("[GKE] SIMULATED: Would execute: gcloud container clusters resize %s --node-pool %s --num-nodes %d %s %s --quiet",
++        clusterName, nodePoolName, newSize, locationFlag, location)
++    
++    log.Printf("[GKE] SIMULATED: Successfully initiated scaling operation")
++    return nil, fmt.Sprintf("SIMULATED: GKE node pool %s would be scaled to %d nodes", nodePoolName, newSize)
++}
++EOF
++    
++    "go.mod" = <<EOF
++module scaling-webhook
++
++go 1.21
++EOF
++  }
++}
+\ No newline at end of file
+diff --git a/modules/deployments/dependencies/selenium.tf b/modules/deployments/dependencies/selenium.tf
+index 1fa7d98..fc1bbb2 100644
+--- a/modules/deployments/dependencies/selenium.tf
++++ b/modules/deployments/dependencies/selenium.tf
+@@ -247,6 +247,10 @@ resource "kubernetes_config_map" "snapshot-script-configmap" {
+       from_timeframe.send_keys(f'now-{TEST_DURATION}m')
+       safe_get_element(By.XPATH, "//button[contains(., 'Apply time range')]").click()
+ 
++      # Wait for dashboard to load data
++      logging.info("Waiting for dashboard data to load...")
++      time.sleep(60)  # Single longer wait instead of complex retry logic
++
+       # Scroll to the bottom to load entire dashboard
+       scroll_body = safe_get_element(By.CLASS_NAME, "scrollbar-view")
+       scroll_height = scroll_body.get_property("scrollHeight")
+diff --git a/modules/deployments/dependencies/vars.tf b/modules/deployments/dependencies/vars.tf
+index 0ae8fc7..8dd731e 100644
+--- a/modules/deployments/dependencies/vars.tf
++++ b/modules/deployments/dependencies/vars.tf
+@@ -32,3 +32,21 @@ variable "keycloak" {
+     enabled = bool
+   })
+ }
++
++variable "scaling_webhook" {
++  type = object({
++    enabled      = bool
++    cluster_type = string
++    aws_region   = string
++    gcp_region   = string
++  })
++  
++  default = {
++    enabled      = false
++    cluster_type = "eks"
++    aws_region   = "us-west-2"
++    gcp_region   = "us-central1-a"
++  }
++  
++  description = "Scaling webhook configuration for dynamic node scaling"
++}
+diff --git a/modules/deployments/main.tf b/modules/deployments/main.tf
+index 7160ac4..7d49a51 100644
+--- a/modules/deployments/main.tf
++++ b/modules/deployments/main.tf
+@@ -1,48 +1,53 @@
++
+ module "dependencies" {
+   source = "./dependencies"
+ 
+-  label          = var.labels.dependencies
+-  grafana        = var.dependencies.grafana
+-  open_telemetry = var.open_telemetry
+-  keycloak       = {
++  label            = var.labels.dependencies
++  grafana          = var.dependencies.grafana
++  open_telemetry   = var.open_telemetry
++  scaling_webhook  = var.dependencies.scaling_webhook
++  cluster_type     = var.cluster_type
++  cluster_name     = var.cluster_name
++  aws_region       = var.aws_region
++  keycloak         = {
+     enabled = var.auth.enabled && var.auth.type == "JWT-RSA" ? true : false
+   }
+ }
+ 
+ module "tyk-upstream" {
+   source        = "./dependencies/upstream"
+-  label         = var.labels.tyk-upstream
+-  namespace     = var.labels.tyk-upstream
++  label         = var.labels["tyk-upstream"]
++  namespace     = var.labels["tyk-upstream"]
+   service_count = var.service.host_count
+ 
+-  count = var.tyk.enabled == true ? 1 : 0
++  count = var.enable_tyk ? 1 : 0
+ }
+ 
+ module "kong-upstream" {
+   source        = "./dependencies/upstream"
+-  label         = var.labels.kong-upstream
+-  namespace     = var.labels.kong-upstream
++  label         = var.labels["kong-upstream"]
++  namespace     = var.labels["kong-upstream"]
+   service_count = var.service.host_count
+ 
+-  count = var.kong.enabled == true ? 1 : 0
++  count = var.enable_kong ? 1 : 0
+ }
+ 
+ module "gravitee-upstream" {
+   source        = "./dependencies/upstream"
+-  label         = var.labels.gravitee-upstream
+-  namespace     = var.labels.gravitee-upstream
++  label         = var.labels["gravitee-upstream"]
++  namespace     = var.labels["gravitee-upstream"]
+   service_count = var.service.host_count
+ 
+-  count = var.gravitee.enabled == true ? 1 : 0
++  count = var.enable_gravitee ? 1 : 0
+ }
+ 
+ module "traefik-upstream" {
+   source        = "./dependencies/upstream"
+-  label         = var.labels.traefik-upstream
+-  namespace     = var.labels.traefik-upstream
++  label         = var.labels["traefik-upstream"]
++  namespace     = var.labels["traefik-upstream"]
+   service_count = var.service.host_count
+ 
+-  count = var.traefik.enabled == true ? 1 : 0
++  count = var.enable_traefik ? 1 : 0
+ }
+ 
+ module "upstream" {
+@@ -51,14 +56,14 @@ module "upstream" {
+   namespace  = var.labels.upstream
+   service    = var.service
+ 
+-  count = var.upstream.enabled == true ? 1 : 0
++  count = var.enable_upstream ? 1 : 0
+ }
+ 
+ module "tyk" {
+   source = "./tyk"
+ 
+   label           = var.labels.tyk
+-  resources-label = var.labels.tyk-resources
++  resources_label = var.labels["tyk-resources"]
+ 
+   gateway_version = var.tyk.version
+   license         = var.tyk.license
+@@ -72,6 +77,7 @@ module "tyk" {
+   go_gc                   = var.tyk.go_gc
+   go_max_procs            = var.tyk.go_max_procs
+   profiler                = var.tyk.profiler
++  cluster_type            = var.cluster_type
+ 
+   analytics        = var.analytics
+   auth             = var.auth
+@@ -81,15 +87,18 @@ module "tyk" {
+   header_injection = var.header_injection
+ 
+   service = var.service
++  
++  # ConfigMap-based API definitions
++  use_config_maps_for_apis = var.use_config_maps_for_apis
+ 
+-  count = var.tyk.enabled == true ? 1 : 0
++  count = var.enable_tyk ? 1 : 0
+   depends_on = [module.dependencies]
+ }
+ 
+ module "kong" {
+   source          = "./kong"
+   label           = var.labels.kong
+-  resources-label = var.labels.kong-resources
++  resources-label = var.labels["kong-resources"]
+ 
+   gateway_version = var.kong.version
+ 
+@@ -109,14 +118,14 @@ module "kong" {
+ 
+   service = var.service
+ 
+-  count = var.kong.enabled == true ? 1 : 0
++  count = var.enable_kong ? 1 : 0
+   depends_on = [module.dependencies]
+ }
+ 
+ module "gravitee" {
+   source          = "./gravitee"
+   label           = var.labels.gravitee
+-  resources-label = var.labels.gravitee-resources
++  resources-label = var.labels["gravitee-resources"]
+ 
+   gateway_version = var.gravitee.version
+   nginx_enabled   = var.gravitee.nginx_enabled
+@@ -137,14 +146,14 @@ module "gravitee" {
+ 
+   service = var.service
+ 
+-  count = var.gravitee.enabled == true ? 1 : 0
++  count = var.enable_gravitee ? 1 : 0
+   depends_on = [module.dependencies]
+ }
+ 
+ module "traefik" {
+   source          = "./traefik"
+   label           = var.labels.traefik
+-  resources-label = var.labels.traefik-resources
++  resources-label = var.labels["traefik-resources"]
+ 
+   gateway_version = var.traefik.version
+ 
+@@ -164,6 +173,6 @@ module "traefik" {
+ 
+   service = var.service
+ 
+-  count = var.traefik.enabled == true ? 1 : 0
++  count = var.enable_traefik ? 1 : 0
+   depends_on = [module.dependencies]
+ }
+diff --git a/modules/deployments/tyk/api-definitions.tf b/modules/deployments/tyk/api-definitions.tf
+new file mode 100644
+index 0000000..014a248
+--- /dev/null
++++ b/modules/deployments/tyk/api-definitions.tf
+@@ -0,0 +1,109 @@
++locals {
++  # Generate API definitions as JSON for direct mounting
++  api_definitions = {
++    for i in range(var.service.route_count) : 
++    "api-${i}.json" => jsonencode({
++      name = "api-${i}"
++      slug = "api-${i}"
++      api_id = "api-${i}"
++      org_id = "1"
++      use_keyless = !(var.auth.enabled || var.rate_limit.enabled || var.quota.enabled)
++      use_standard_auth = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) && var.auth.type == "authToken"
++      use_oauth2 = false
++      use_openid = false
++      use_basic_auth = false
++      enable_jwt = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) && contains(["JWT-RSA", "JWT-HMAC"], var.auth.type)
++      auth_configs = {
++        authToken = {
++          auth_header_name = "Authorization"
++        }
++      }
++      strip_auth_data = true
++      jwt_signing_method = var.auth.type == "JWT-HMAC" ? "hmac" : "rsa"
++      jwt_source = var.auth.type == "JWT-HMAC" ? "dG9wc2VjcmV0cGFzc3dvcmQ=" : "http://keycloak-service.dependencies.svc:8080/realms/jwt/protocol/openid-connect/certs"
++      jwt_identity_base_field = "sub"
++      jwt_policy_field_name = "pol"
++      jwt_default_policies = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? ["${var.namespace}/api-policy-${i % var.service.app_count}"] : []
++      jwt_issued_at_validation_skew = 0
++      jwt_expires_at_validation_skew = 0
++      jwt_not_before_validation_skew = 0
++      definition = {
++        location = "header"
++        key = "x-api-version"
++      }
++      version_data = {
++        not_versioned = true
++        default_version = "Default"
++        versions = {
++          Default = {
++            name = "Default"
++            use_extended_paths = true
++            global_headers = var.header_injection.req.enabled ? { "X-API-REQ" = "Foo" } : {}
++            global_response_headers = var.header_injection.res.enabled ? { "X-API-RES" = "Bar" } : {}
++          }
++        }
++      }
++      proxy = {
++        listen_path = "/api-${i}"
++        target_url = "http://fortio-${i % var.service.host_count}.tyk-upstream.svc:8080"
++        strip_listen_path = true
++      }
++      active = true
++      disable_rate_limit = !var.rate_limit.enabled
++      disable_quota = !var.quota.enabled
++    })
++  }
++
++  # Generate policy definitions as JSON (with policy ID as the key)
++  policy_definitions = var.auth.enabled || var.rate_limit.enabled || var.quota.enabled ? {
++    for i in range(var.service.app_count) :
++    "api-policy-${i}.json" => jsonencode({
++      "${var.namespace}/api-policy-${i}" = {
++        name = "api-policy-${i}"
++        org_id = "1"
++        rate = var.rate_limit.enabled ? var.rate_limit.rate : -1
++        per = var.rate_limit.enabled ? var.rate_limit.per : -1
++        quota_max = var.quota.enabled ? var.quota.rate : -1
++        quota_renewal_rate = var.quota.enabled ? var.quota.per : -1
++        throttle_interval = -1
++        throttle_retry_limit = -1
++        active = true
++        access_rights = {
++          "api-${i % var.service.route_count}" = {
++            api_name = "api-${i % var.service.route_count}"
++            api_id = "api-${i % var.service.route_count}"
++            versions = ["Default"]
++          }
++        }
++      }
++    })
++  } : {}
++}
++
++# Create ConfigMap with API definitions
++resource "kubernetes_config_map" "api-definitions" {
++  count = var.use_config_maps_for_apis ? 1 : 0
++  
++  metadata {
++    name      = "tyk-api-definitions"
++    namespace = var.namespace
++  }
++
++  data = local.api_definitions
++
++  depends_on = [kubernetes_namespace.tyk]
++}
++
++# Create ConfigMap with policy definitions
++resource "kubernetes_config_map" "policy-definitions" {
++  count = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? 1 : 0
++  
++  metadata {
++    name      = "tyk-policy-definitions"
++    namespace = var.namespace
++  }
++
++  data = local.policy_definitions
++
++  depends_on = [kubernetes_namespace.tyk]
++}
+\ No newline at end of file
+diff --git a/modules/deployments/tyk/main.tf b/modules/deployments/tyk/main.tf
+index 95ae5ef..71ffb4a 100644
+--- a/modules/deployments/tyk/main.tf
++++ b/modules/deployments/tyk/main.tf
+@@ -22,6 +22,10 @@ resource "kubernetes_namespace" "tyk" {
+   }
+ }
+ 
++# Note: Shared storage resources removed - using ConfigMaps instead
++# ConfigMaps provide a simpler, more reliable solution for mounting
++# API definitions to all pods without requiring special storage classes
++
+ resource "helm_release" "tyk" {
+   name       = "tyk"
+   repository = "https://helm.tyk.io/public/helm/charts"
+@@ -29,6 +33,9 @@ resource "helm_release" "tyk" {
+ 
+   namespace = var.namespace
+   atomic    = true
++  wait          = true
++  wait_for_jobs = true
++  timeout       = 1800
+ 
+   set {
+     name  = "global.adminUser.email"
+@@ -92,7 +99,7 @@ resource "helm_release" "tyk" {
+ 
+   set {
+     name  = "global.redis.enableCluster"
+-    value = true
++    value = "true"
+   }
+ 
+   set {
+@@ -140,6 +147,163 @@ resource "helm_release" "tyk" {
+     value = var.resources.limits.memory
+   }
+ 
++  # Health check configuration for better autoscaling
++  set {
++    name  = "tyk-gateway.gateway.livenessProbe.httpGet.path"
++    value = "/hello"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.livenessProbe.httpGet.port"
++    value = "8080"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.livenessProbe.initialDelaySeconds"
++    value = "30"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.livenessProbe.periodSeconds"
++    value = "10"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.livenessProbe.timeoutSeconds"
++    value = "5"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.readinessProbe.httpGet.path"
++    value = "/hello"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.readinessProbe.httpGet.port"
++    value = "8080"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.readinessProbe.initialDelaySeconds"
++    value = "60"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.readinessProbe.periodSeconds"
++    value = "5"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.readinessProbe.successThreshold"
++    value = "1"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.readinessProbe.failureThreshold"
++    value = "3"
++  }
++
++  # Mount API definitions ConfigMap - try a simpler approach with indexed notation
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumes[0].name"
++      value = "api-definitions"
++    }
++  }
++
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumes[0].configMap.name"
++      value = "tyk-api-definitions"
++    }
++  }
++
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumeMounts[0].name"
++      value = "api-definitions"
++    }
++  }
++
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumeMounts[0].mountPath"
++      value = "/opt/tyk-gateway/apps"
++    }
++  }
++
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumeMounts[0].readOnly"
++      value = "true"
++    }
++  }
++
++  # Add defaultMode to ConfigMap volume for proper permissions
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumes[0].configMap.defaultMode"
++      value = 420
++    }
++  }
++
++  # Mount policy definitions ConfigMap if policies are enabled
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumes[1].name"
++      value = "policy-definitions"
++    }
++  }
++
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumes[1].configMap.name"
++      value = "tyk-policy-definitions"  # Use literal name instead of reference
++    }
++  }
++
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumeMounts[1].name"
++      value = "policy-definitions"
++    }
++  }
++
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumeMounts[1].mountPath"
++      value = "/opt/tyk-gateway/policies"
++    }
++  }
++
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumeMounts[1].readOnly"
++      value = "true"
++    }
++  }
++
++  # Add defaultMode to policy definitions ConfigMap volume for proper permissions
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraVolumes[1].configMap.defaultMode"
++      value = 420
++    }
++  }
++
++  # Configure gateway to use the shared apps folder
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[0].name"
+     value = "GOGC"
+@@ -148,7 +312,7 @@ resource "helm_release" "tyk" {
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[0].value"
+     type  = "string"
+-    value = var.go_gc
++    value = tostring(var.go_gc)
+   }
+ 
+   set {
+@@ -159,7 +323,7 @@ resource "helm_release" "tyk" {
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[1].value"
+     type  = "string"
+-    value = var.go_max_procs
++    value = tostring(var.go_max_procs)
+   }
+ 
+   set {
+@@ -180,123 +344,393 @@ resource "helm_release" "tyk" {
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[3].value"
+     type  = "string"
+-    value = "1000"
++    value = "10000"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[4].name"
+-    value = "TYK_GW_MAXIDLECONNSPERHOST"
++    value = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[4].value"
+     type  = "string"
+-    value = "10000"
++    value = "true"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[5].name"
+-    value = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS"
++    value = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[5].value"
+-    type  = "string"
+-    value = "true"
++    value = "protobuf"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[6].name"
+-    value = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE"
++    value = "TYK_GW_STORAGE_MAXACTIVE"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[6].value"
+-    value = "protobuf"
++    type  = "string"
++    value = "10000"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[7].name"
+-    value = "TYK_GW_STORAGE_MAXACTIVE"
++    value = "TYK_GW_OPENTELEMETRY_ENABLED"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[7].value"
+     type  = "string"
+-    value = "10000"
++    value = tostring(var.open_telemetry.enabled)
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[8].name"
+-    value = "TYK_GW_OPENTELEMETRY_ENABLED"
++    value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[8].value"
+-    type  = "string"
+-    value = var.open_telemetry.enabled
++    value = "TraceIDRatioBased"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[9].name"
+-    value = "TYK_GW_OPENTELEMETRY_SAMPLING_TYPE"
++    value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[9].value"
+-    value = "TraceIDRatioBased"
++    type  = "string"
++    value = tostring(var.open_telemetry.sampling_ratio)
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[10].name"
+-    value = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO"
++    value = "TYK_GW_OPENTELEMETRY_EXPORTER"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[10].value"
+-    type  = "string"
+-    value = var.open_telemetry.sampling_ratio
++    value = "grpc"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[11].name"
+-    value = "TYK_GW_OPENTELEMETRY_EXPORTER"
++    value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[11].value"
+-    value = "grpc"
++    value = "opentelemetry-collector.dependencies.svc:4317"
+   }
+ 
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[12].name"
+-    value = "TYK_GW_OPENTELEMETRY_ENDPOINT"
++    value = "TYK_GW_HTTPPROFILE"
+   }
+ 
+   set {
++    type  = "string"
+     name  = "tyk-gateway.gateway.extraEnvs[12].value"
+-    value = "opentelemetry-collector.dependencies.svc:4317"
++    value = tostring(var.profiler.enabled)
+   }
+ 
++  # Configure gateway to use file-based API definitions
++  # Always set these environment variables for consistent behavior
+   set {
+     name  = "tyk-gateway.gateway.extraEnvs[13].name"
+-    value = "TYK_GW_HTTPPROFILE"
++    value = "TYK_GW_APPPATH"
+   }
+ 
+   set {
+-    type  = "string"
+     name  = "tyk-gateway.gateway.extraEnvs[13].value"
+-    value = var.profiler.enabled
++    value = "/opt/tyk-gateway/apps"
+   }
+ 
++  # Configure gateway to use file-based policies
+   set {
+-    name  = "tyk-gateway.gateway.nodeSelector.node"
+-    value = var.label
++    name  = "tyk-gateway.gateway.extraEnvs[14].name"
++    value = "TYK_GW_POLICIES_POLICYPATH"
+   }
+ 
+   set {
+-    name  = "tyk-dashboard.dashboard.nodeSelector.node"
+-    value = var.resources-label
++    name  = "tyk-gateway.gateway.extraEnvs[14].value"
++    value = "/opt/tyk-gateway/policies"
++  }
++
++  # Configure policy source to use files instead of dashboard service
++  set {
++    name  = "tyk-gateway.gateway.extraEnvs[16].name"
++    value = "TYK_GW_POLICIES_POLICYSOURCE"
++  }
++
++  set {
++    name  = "tyk-gateway.gateway.extraEnvs[16].value"
++    value = "file"
++  }
++
++  # Force Tyk to use file-based configs instead of database when using ConfigMaps
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraEnvs[17].name"
++      value = "TYK_GW_USEDBAPPCONFIGS"
++    }
++  }
++
++  dynamic "set" {
++    for_each = var.use_config_maps_for_apis ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.extraEnvs[17].value"
++      type  = "string"
++      value = "false"
++    }
++  }
++
++  # --- Node placement: choose the correct label key per provider ---
++  # GKE: cloud.google.com/gke-nodepool (only when strategy is 'strict')
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.nodeSelector.cloud\\.google\\.com/gke-nodepool"
++      value = var.label
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.nodeSelector.cloud\\.google\\.com/gke-nodepool"
++      value = var.resources_label
++    }
++  }
++
++  # Optional fallback: prefer the target GKE nodepool, but allow scheduling elsewhere
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
++      value = "100"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
++      value = "cloud.google.com/gke-nodepool"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
++      value = "In"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
++      value = var.label
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
++      value = "100"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
++      value = "cloud.google.com/gke-nodepool"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
++      value = "In"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
++      value = var.resources_label
++    }
++  }
++
++  # AKS prefer mode - try agentpool first, fallback to any node
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
++      value = "100"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
++      value = "agentpool"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
++      value = "In"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
++      value = var.label
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
++      value = "100"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
++      value = "agentpool"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
++      value = "In"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
++      value = var.resources_label
++    }
++  }
++
++  # AKS: agentpool (stable) / kubernetes.azure.com/nodepool (also exists)
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.nodeSelector.agentpool"
++      value = var.label
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.nodeSelector.agentpool"
++      value = var.resources_label
++    }
++  }
++
++  # EKS prefer mode - try nodegroup first, fallback to any node
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
++      value = "100"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
++      value = "eks.amazonaws.com/nodegroup"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
++      value = "In"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
++      value = var.label
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
++      value = "100"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
++      value = "eks.amazonaws.com/nodegroup"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
++      value = "In"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
++      value = var.resources_label
++    }
++  }
++
++  # EKS: eks.amazonaws.com/nodegroup
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
++      value = var.label
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
++      value = var.resources_label
++    }
++  }
++
++  # Fallback: custom clusters where nodes are labeled as "node=<value>"
++  dynamic "set" {
++    for_each = contains(["gke","aks","eks"], var.cluster_type) == false && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.nodeSelector.node"
++      value = var.label
++    }
++  }
++  dynamic "set" {
++    for_each = contains(["gke","aks","eks"], var.cluster_type) == false && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.nodeSelector.node"
++      value = var.resources_label
++    }
+   }
+ 
+   set {
+@@ -314,10 +748,215 @@ resource "helm_release" "tyk" {
+     value = var.analytics.prometheus.enabled ? "prometheus" : ""
+   }
+ 
+-  set {
+-    name  = "tyk-pump.pump.nodeSelector.node"
+-    value = var.resources-label
++  # Pump node placement (match dashboard placement for shared resources) - only when strategy is 'strict'
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.nodeSelector.cloud\\.google\\.com/gke-nodepool"
++      value = var.resources_label
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.nodeSelector.agentpool"
++      value = var.resources_label
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.nodeSelector.eks\\.amazonaws\\.com/nodegroup"
++      value = var.resources_label
++    }
++  }
++  dynamic "set" {
++    for_each = contains(["gke","aks","eks"], var.cluster_type) == false && var.node_selector_strategy == "strict" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.nodeSelector.node"
++      value = var.resources_label
++    }
++  }
++
++  # Prefer pump on the same GKE nodepool in 'prefer' mode  
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
++      value = "100"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
++      value = "cloud.google.com/gke-nodepool"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
++      value = "In"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
++      value = var.resources_label
++    }
++  }
++
++  # AKS prefer mode for pump - try agentpool first, fallback to any node
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
++      value = "100"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
++      value = "agentpool"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
++      value = "In"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
++      value = var.resources_label
++    }
++  }
++
++  # EKS prefer mode for pump - try nodegroup first, fallback to any node
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight"
++      value = "100"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key"
++      value = "eks.amazonaws.com/nodegroup"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator"
++      value = "In"
++    }
++  }
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" && var.node_selector_strategy == "prefer" ? [1] : []
++    content {
++      name  = "tyk-pump.pump.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0]"
++      value = var.resources_label
++    }
++  }
++
++  # Optional tolerations to match tainted nodes (enable with var.enable_tolerations)
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.tolerations[0].key"
++      value = var.node_taint_key
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.tolerations[0].operator"
++      value = var.node_taint_operator
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.tolerations[0].value"
++      value = var.node_taint_value
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-gateway.gateway.tolerations[0].effect"
++      value = var.node_taint_effect
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.tolerations[0].key"
++      value = var.node_taint_key
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.tolerations[0].operator"
++      value = var.node_taint_operator
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.tolerations[0].value"
++      value = var.node_taint_value
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-dashboard.dashboard.tolerations[0].effect"
++      value = var.node_taint_effect
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-pump.pump.tolerations[0].key"
++      value = var.node_taint_key
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-pump.pump.tolerations[0].operator"
++      value = var.node_taint_operator
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-pump.pump.tolerations[0].value"
++      value = var.node_taint_value
++    }
++  }
++  dynamic "set" {
++    for_each = var.enable_tolerations ? [1] : []
++    content {
++      name  = "tyk-pump.pump.tolerations[0].effect"
++      value = var.node_taint_effect
++    }
+   }
+ 
+-  depends_on = [kubernetes_namespace.tyk, helm_release.tyk-redis, helm_release.tyk-pgsql]
++  depends_on = [
++    kubernetes_namespace.tyk, 
++    helm_release.tyk-redis, 
++    helm_release.tyk-pgsql
++  ]
+ }
+diff --git a/modules/deployments/tyk/operator-api.tf b/modules/deployments/tyk/operator-api.tf
+index 202691b..0757bb7 100644
+--- a/modules/deployments/tyk/operator-api.tf
++++ b/modules/deployments/tyk/operator-api.tf
+@@ -47,7 +47,7 @@ spec:
+         global_response_headers: ${jsonencode(var.header_injection.req.enabled ? { "X-API-RES": "Bar" } : {})}
+ YAML
+ 
+-  count      = var.service.route_count
++  count      = var.use_config_maps_for_apis ? 0 : var.service.route_count
+   depends_on = [kubernetes_namespace.tyk, helm_release.tyk, helm_release.tyk-operator]
+ }
+ 
+@@ -83,6 +83,6 @@ spec:
+     - Default
+ YAML
+ 
+-  count      = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? var.service.app_count : 0
++  count      = var.use_config_maps_for_apis ? 0 : ((var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? var.service.app_count : 0)
+   depends_on = [kubernetes_namespace.tyk, kubectl_manifest.api]
+ }
+diff --git a/modules/deployments/tyk/operator.tf b/modules/deployments/tyk/operator.tf
+index a101ac6..2a6ff21 100644
+--- a/modules/deployments/tyk/operator.tf
++++ b/modules/deployments/tyk/operator.tf
+@@ -1,4 +1,6 @@
+ resource "helm_release" "tyk-operator" {
++  count = var.use_config_maps_for_apis ? 0 : 1
++  
+   name       = "tyk-operator"
+   repository = "https://helm.tyk.io/public/helm/charts/"
+   chart      = "tyk-operator"
+@@ -6,9 +8,40 @@ resource "helm_release" "tyk-operator" {
+   namespace = var.namespace
+   atomic    = true
+ 
+-  set {
+-    name  = "nodeSelector.node"
+-    value = var.resources-label
++  # GKE: cloud.google.com/gke-nodepool
++  dynamic "set" {
++    for_each = var.cluster_type == "gke" ? [1] : []
++    content {
++      name  = "nodeSelector.cloud\\.google\\.com/gke-nodepool"
++      value = var.resources_label
++    }
++  }
++
++  # AKS: agentpool
++  dynamic "set" {
++    for_each = var.cluster_type == "aks" ? [1] : []
++    content {
++      name  = "nodeSelector.agentpool"
++      value = var.resources_label
++    }
++  }
++
++  # EKS: eks.amazonaws.com/nodegroup
++  dynamic "set" {
++    for_each = var.cluster_type == "eks" ? [1] : []
++    content {
++      name  = "nodeSelector.eks\\.amazonaws\\.com/nodegroup"
++      value = var.resources_label
++    }
++  }
++
++  # Fallback: custom clusters
++  dynamic "set" {
++    for_each = contains(["gke","aks","eks"], var.cluster_type) == false ? [1] : []
++    content {
++      name  = "nodeSelector.node"
++      value = var.resources_label
++    }
+   }
+ 
+   depends_on = [kubernetes_namespace.tyk, helm_release.tyk]
+diff --git a/modules/deployments/tyk/pgsql.tf b/modules/deployments/tyk/pgsql.tf
+index 7252f45..3bcfdcc 100644
+--- a/modules/deployments/tyk/pgsql.tf
++++ b/modules/deployments/tyk/pgsql.tf
+@@ -49,12 +49,12 @@ resource "helm_release" "tyk-pgsql" {
+ 
+   set {
+     name  = "primary.nodeSelector.node"
+-    value = var.resources-label
++    value = var.resources_label
+   }
+ 
+   set {
+     name  = "readReplicas.nodeSelector.node"
+-    value = var.resources-label
++    value = var.resources_label
+   }
+ 
+   depends_on = [kubernetes_namespace.tyk, kubernetes_namespace.tyk]
+diff --git a/modules/deployments/tyk/redis.tf b/modules/deployments/tyk/redis.tf
+index a3a1647..528366a 100644
+--- a/modules/deployments/tyk/redis.tf
++++ b/modules/deployments/tyk/redis.tf
+@@ -27,7 +27,7 @@ resource "helm_release" "tyk-redis" {
+ 
+   set {
+     name  = "redis.nodeSelector.node"
+-    value = var.resources-label
++    value = var.resources_label
+   }
+ 
+   set {
+diff --git a/modules/deployments/tyk/vars-scheduling.tf b/modules/deployments/tyk/vars-scheduling.tf
+new file mode 100644
+index 0000000..429a357
+--- /dev/null
++++ b/modules/deployments/tyk/vars-scheduling.tf
+@@ -0,0 +1,39 @@
++variable "node_selector_strategy" {
++  description = "How to place pods on nodepools: 'strict' uses hard nodeSelector, 'prefer' uses soft nodeAffinity, 'none' disables node selection"
++  type        = string
++  default     = "prefer"
++  validation {
++    condition     = contains(["strict", "prefer", "none"], var.node_selector_strategy)
++    error_message = "node_selector_strategy must be 'strict', 'prefer', or 'none'."
++  }
++}
++
++variable "enable_tolerations" {
++  description = "Enable tolerations for nodes that are tainted (e.g., dedicated workloads)."
++  type        = bool
++  default     = false
++}
++
++variable "node_taint_key" {
++  description = "Taint key to tolerate if enable_tolerations is true (e.g., 'dedicated' or 'node.kubernetes.io/dedicated')."
++  type        = string
++  default     = "dedicated"
++}
++
++variable "node_taint_value" {
++  description = "Taint value to tolerate (e.g., 'tyk' or 'tyk-resources')."
++  type        = string
++  default     = "tyk"
++}
++
++variable "node_taint_operator" {
++  description = "Toleration operator (Equal or Exists)."
++  type        = string
++  default     = "Equal"
++}
++
++variable "node_taint_effect" {
++  description = "Toleration effect (NoSchedule, PreferNoSchedule, or NoExecute)."
++  type        = string
++  default     = "NoSchedule"
++}
+\ No newline at end of file
+diff --git a/modules/deployments/tyk/vars.tf b/modules/deployments/tyk/vars.tf
+index 9dfdbbf..1828436 100644
+--- a/modules/deployments/tyk/vars.tf
++++ b/modules/deployments/tyk/vars.tf
+@@ -11,10 +11,24 @@ variable "label" {
+   type = string
+ }
+ 
+-variable "resources-label" {
++variable "resources_label" {
+   type = string
+ }
+ 
+ variable "gateway_version" {
+   type = string
+ }
++
++// Removed enable_shared_storage and cluster_type variables
++// No longer needed since we're using ConfigMaps instead of shared storage
++
++variable "use_config_maps_for_apis" {
++  type    = bool
++  default = true
++  description = "Use ConfigMaps to mount API definitions directly (instead of Tyk Operator)"
++}
++
++variable "cluster_type" {
++  type        = string
++  description = "Kubernetes provider (aks|eks|gke|other) used to choose the correct nodeSelector key."
++}
+diff --git a/modules/deployments/vars.dependencies.tf b/modules/deployments/vars.dependencies.tf
+index 5eff35b..a783e4b 100644
+--- a/modules/deployments/vars.dependencies.tf
++++ b/modules/deployments/vars.dependencies.tf
+@@ -5,6 +5,12 @@ variable "dependencies" {
+         type = string
+       })
+     })
++    scaling_webhook = object({
++      enabled      = bool
++      cluster_type = string
++      aws_region   = string
++      gcp_region   = string
++    })
+   })
+ }
+ 
+diff --git a/modules/deployments/vars.deployments.tf b/modules/deployments/vars.deployments.tf
+index e22bdb5..eb1bcc7 100644
+--- a/modules/deployments/vars.deployments.tf
++++ b/modules/deployments/vars.deployments.tf
+@@ -41,6 +41,42 @@ variable "traefik" {
+   })
+ }
+ 
++# NEW: plain booleans solely for count meta-arguments (decoupled from the objects above)
++variable "enable_tyk" {
++  type        = bool
++  description = "Enable Tyk gateway and its related upstream resources."
++  default     = false
++  nullable    = false
++}
++
++variable "enable_kong" {
++  type        = bool
++  description = "Enable Kong gateway and its related upstream resources."
++  default     = false
++  nullable    = false
++}
++
++variable "enable_gravitee" {
++  type        = bool
++  description = "Enable Gravitee gateway and its related upstream resources."
++  default     = false
++  nullable    = false
++}
++
++variable "enable_traefik" {
++  type        = bool
++  description = "Enable Traefik gateway and its related upstream resources."
++  default     = false
++  nullable    = false
++}
++
++variable "enable_upstream" {
++  type        = bool
++  description = "Enable shared upstream (Fortio) baseline services."
++  default     = false
++  nullable    = false
++}
++
+ variable "hpa" {
+   type = object({
+     enabled                 = bool
+@@ -69,3 +105,10 @@ variable "resources" {
+     })
+   })
+ }
++
++variable "use_config_maps_for_apis" {
++  type        = bool
++  description = "If true, provide API definitions to the gateway via ConfigMaps instead of the default mechanism."
++  default     = false
++  nullable    = false
++}
+diff --git a/modules/deployments/vars.tf b/modules/deployments/vars.tf
+index 58b08f4..7610dda 100644
+--- a/modules/deployments/vars.tf
++++ b/modules/deployments/vars.tf
+@@ -21,3 +21,33 @@ variable "labels" {
+     upstream-tests     = string
+   })
+ }
++
++variable "cluster_type" {
++  type        = string
++  default     = ""
++  description = "Type of Kubernetes cluster (eks, aks, gke) - must be explicitly set"
++
++  validation {
++    condition     = contains(["eks", "aks", "gke"], var.cluster_type)
++    error_message = "cluster_type must be one of: eks, aks, gke. Provide it via -var or TF_VAR_cluster_type."
++  }
++}
++
++variable "cluster_name" {
++  type        = string
++  default     = ""
++  description = "Name of the Kubernetes cluster"
++
++  validation {
++    condition     = length(trimspace(var.cluster_name)) > 0
++    error_message = "cluster_name must be a non-empty string (e.g., 'performance-testing')."
++  }
++}
++
++
++
++variable "aws_region" {
++  type        = string
++  default     = "us-east-1"
++  description = "AWS region for EKS cluster autoscaler"
++}
+diff --git a/modules/helpers/output.tf b/modules/helpers/output.tf
+index 31ab8e1..5dba5e2 100644
+--- a/modules/helpers/output.tf
++++ b/modules/helpers/output.tf
+@@ -1,4 +1,7 @@
+ locals {
++  # Single source of truth for "service" pools that need >=2 nodes.
++  service_pools = ["tyk", "kong", "gravitee", "traefik"]
++
+   nodes = {
+     dependencies       = var.dependencies_nodes_count
+     tyk                = var.tyk_enabled      ? var.services_nodes_count : 0
+@@ -44,6 +47,14 @@ locals {
+   }
+ }
+ 
++output "min_nodes" {
++  value = tomap({
++    for key, value in local.nodes :
++    key => (contains(local.service_pools, key) ? 2 : 1)
++    if tonumber(value) != 0
++  })
++}
++
+ output "nodes" {
+   value = tomap({
+     for key, value in local.nodes: key => tonumber(value) if tonumber(value) != 0
+@@ -52,7 +63,7 @@ output "nodes" {
+ 
+ output "labels" {
+   value = tomap({
+-    for key, _ in local.nodes: key => key
++    for key, value in local.nodes: key => key if tonumber(value) != 0
+   })
+ }
+ 
+diff --git a/modules/helpers/vars.nodes.tf b/modules/helpers/vars.nodes.tf
+index 3df85af..b854af7 100644
+--- a/modules/helpers/vars.nodes.tf
++++ b/modules/helpers/vars.nodes.tf
+@@ -1,6 +1,6 @@
+ variable "services_nodes_count" {
+   type    = number
+-  default = 1
++  default = 2
+ 
+   validation {
+     condition = var.services_nodes_count > 0
+@@ -44,7 +44,7 @@ variable "dependencies_nodes_count" {
+ 
+   validation {
+     condition = var.dependencies_nodes_count > 0
+-    error_message = "Variable resource_nodes_count should be 1 or higher"
++    error_message = "Variable dependencies_nodes_count should be 1 or higher"
+   }
+ }
+ 
+diff --git a/modules/tests/snapshot/main.tf b/modules/tests/snapshot/main.tf
+index 36e93ba..d882076 100644
+--- a/modules/tests/snapshot/main.tf
++++ b/modules/tests/snapshot/main.tf
+@@ -8,7 +8,7 @@ terraform {
+ }
+ 
+ locals {
+-  buffer    = var.duration <= 20 ? 4 : 10
++  buffer    = var.duration <= 20 ? 15 : 25  # Even more buffer time for reliable data ingestion
+   delay     = (var.duration + local.buffer) * 60
+   timeout   = (var.duration + local.buffer) * 2
+   timestamp = formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())
+@@ -32,7 +32,7 @@ resource "kubernetes_job" "snapshot_job" {
+         container {
+           name    = "snapshot-container"
+           image   = "python:3.9"
+-          command = ["bash", "-c", "pip install selenium && sleep ${local.delay} && python /scripts/snapshot.py"]
++          command = ["bash", "-c", "pip install selenium && sleep ${local.delay} && timeout 600 python /scripts/snapshot.py || echo 'Snapshot timeout - continuing'"]
+ 
+           volume_mount {
+             name       = "script-volume"
+diff --git a/modules/tests/test.tf b/modules/tests/test.tf
+index 8825da4..318a4a7 100644
+--- a/modules/tests/test.tf
++++ b/modules/tests/test.tf
+@@ -1,10 +1,12 @@
+ module "tyk-test" {
+   source = "./test"
+ 
+-  name         = "tyk"
+-  service_name = "gateway-svc-tyk-tyk-gateway"
+-  service_port = 8080
+-  config       = var.tests
++  name            = "tyk"
++  service_name    = "gateway-svc-tyk-tyk-gateway"
++  service_port    = 8080
++  config          = var.tests
++  scaling_enabled = var.scaling_enabled
++  cluster_type    = var.cluster_type
+ 
+   count = var.tyk.enabled == true ? 1 : 0
+ }
+@@ -12,10 +14,12 @@ module "tyk-test" {
+ module "kong-test" {
+   source = "./test"
+ 
+-  name         = "kong"
+-  service_name = "kong-gateway-proxy"
+-  service_port = 80
+-  config       = var.tests
++  name            = "kong"
++  service_name    = "kong-gateway-proxy"
++  service_port    = 80
++  config          = var.tests
++  scaling_enabled = var.scaling_enabled
++  cluster_type    = var.cluster_type
+ 
+   count = var.kong.enabled == true ? 1 : 0
+ }
+@@ -23,10 +27,12 @@ module "kong-test" {
+ module "gravitee-test" {
+   source = "./test"
+ 
+-  name         = "gravitee"
+-  service_name = "gravitee-apim-gateway"
+-  service_port = 82
+-  config       = var.tests
++  name            = "gravitee"
++  service_name    = "gravitee-apim-gateway"
++  service_port    = 82
++  config          = var.tests
++  scaling_enabled = var.scaling_enabled
++  cluster_type    = var.cluster_type
+ 
+   count = var.gravitee.enabled == true ? 1 : 0
+ }
+@@ -34,10 +40,12 @@ module "gravitee-test" {
+ module "traefik-test" {
+   source = "./test"
+ 
+-  name         = "traefik"
+-  service_name = "traefik"
+-  service_port = 80
+-  config       = var.tests
++  name            = "traefik"
++  service_name    = "traefik"
++  service_port    = 80
++  config          = var.tests
++  scaling_enabled = var.scaling_enabled
++  cluster_type    = var.cluster_type
+ 
+   count = var.traefik.enabled == true ? 1 : 0
+ }
+@@ -45,10 +53,12 @@ module "traefik-test" {
+ module "upstream-test" {
+   source = "./test"
+ 
+-  name         = "upstream"
+-  service_name = "fortio"
+-  service_port = 8080
+-  config       = var.tests
++  name            = "upstream"
++  service_name    = "fortio"
++  service_port    = 8080
++  config          = var.tests
++  scaling_enabled = var.scaling_enabled
++  cluster_type    = var.cluster_type
+ 
+   count = var.upstream.enabled == true ? 1 : 0
+ }
+diff --git a/modules/tests/test/main.tf b/modules/tests/test/main.tf
+index c3a3ff2..91dd11c 100644
+--- a/modules/tests/test/main.tf
++++ b/modules/tests/test/main.tf
+@@ -16,18 +16,90 @@ resource "kubernetes_config_map" "test-configmap" {
+   data = {
+     "script.js" = <<EOF
+ import http from 'k6/http';
++import { check, sleep } from 'k6';
+ import { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics } from "/helpers/tests.js";
+ import { getScenarios } from "/helpers/scenarios.js";
+ import { generateKeys } from "/helpers/auth.js";
+ 
+-const { SCENARIO } = __ENV;
++const { SCENARIO, SCALING_ENABLED } = __ENV;
++
+ export const options = {
+   discardResponseBodies: true,
+   insecureSkipTLSVerify: true,
+   setupTimeout: '300s',
+-  scenarios: { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
++  scenarios: SCALING_ENABLED === "true" ? getScalingScenarios() : { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
++  thresholds: {
++    'http_req_duration': ['p(95)<2000'],
++    'http_req_failed': ['rate<0.05'],
++  },
+ };
+ 
++function getScalingScenarios() {
++  const baseDuration = ${var.config.duration};
++  const baseRate = ${var.config.rate};
++  const baseVUs = ${var.config.virtual_users};
++  
++  // Autoscaling test: very gradual increase through multiple stages
++  // Phase 1: 5min baseline (20k req/s)
++  // Phase 2: 15min gradual scale-up through multiple stages to 2x (40k req/s)
++  // Phase 3: 10min gradual scale-down to baseline
++  
++  return {
++    baseline_phase: {
++      executor: 'ramping-arrival-rate',
++      startRate: Math.floor(baseRate * 0.5),
++      timeUnit: '1s',
++      preAllocatedVUs: baseVUs,
++      maxVUs: baseVUs * 4,
++      stages: [
++        { target: baseRate, duration: '1m' },           // Ramp up to baseline (20k)
++        { target: baseRate, duration: '4m' },           // Hold baseline for 4 minutes
++      ],
++      exec: 'loadTest',
++      startTime: '0s',
++      tags: { phase: 'baseline' },
++    },
++    scale_up_phase: {
++      executor: 'ramping-arrival-rate',
++      startRate: baseRate,
++      timeUnit: '1s',
++      preAllocatedVUs: baseVUs * 2,
++      maxVUs: baseVUs * 5,
++      stages: [
++        { target: baseRate * 1.25, duration: '2m' },    // Step 1: 20k -> 25k
++        { target: baseRate * 1.25, duration: '2m' },    // Hold at 25k
++        { target: baseRate * 1.5, duration: '2m' },     // Step 2: 25k -> 30k
++        { target: baseRate * 1.5, duration: '2m' },     // Hold at 30k
++        { target: baseRate * 1.75, duration: '2m' },    // Step 3: 30k -> 35k
++        { target: baseRate * 1.75, duration: '1m' },    // Hold at 35k
++        { target: baseRate * 2, duration: '2m' },       // Step 4: 35k -> 40k
++        { target: baseRate * 2, duration: '2m' },       // Hold at 40k
++      ],
++      exec: 'loadTest',
++      startTime: '5m',
++      tags: { phase: 'scale_up' },
++    },
++    scale_down_phase: {
++      executor: 'ramping-arrival-rate',
++      startRate: baseRate * 2,
++      timeUnit: '1s',
++      preAllocatedVUs: baseVUs * 2,
++      maxVUs: baseVUs * 4,
++      stages: [
++        { target: baseRate * 1.75, duration: '1m' },    // Step down: 40k -> 35k
++        { target: baseRate * 1.5, duration: '2m' },     // Step down: 35k -> 30k
++        { target: baseRate * 1.5, duration: '1m' },     // Hold at 30k
++        { target: baseRate * 1.25, duration: '2m' },    // Step down: 30k -> 25k
++        { target: baseRate, duration: '2m' },           // Step down: 25k -> 20k
++        { target: baseRate, duration: '2m' },           // Hold at baseline
++      ],
++      exec: 'loadTest',
++      startTime: '20m',
++      tags: { phase: 'scale_down' },
++    }
++  };
++}
++
+ export function setup() {
+   addTestInfoMetrics(${jsonencode(var.config)}, ${var.config.auth.key_count});
+   if (getAuth()) {
+@@ -42,6 +114,10 @@ export function setup() {
+ }
+ 
+ export default function (keys) {
++  loadTest(keys);
++}
++
++export function loadTest(keys) {
+   const routeCount = getRouteCount();
+   let i = Math.floor(Math.random() * routeCount);
+ 
+@@ -56,8 +132,18 @@ export default function (keys) {
+     url = "http://${var.service_name}-" + i + ".${var.name}.svc:${var.service_port}/?${var.config.fortio_options}"
+   }
+ 
+-  http.get(url, { headers });
++  const response = http.get(url, { headers });
++  check(response, {
++    'status is 200': (r) => r.status === 200,
++  });
+ }
++
++// Autoscaling is now handled by Kubernetes Cluster Autoscaler
++// Traffic gradually increases to 2x (40k req/s) over 6 minutes, giving time for:
++// 1. HPA to detect CPU increase and add pod replicas
++// 2. Cluster autoscaler to detect pending pods and add nodes (2-5 min)
++// 3. System to stabilize at the new capacity level
++// Traffic then gradually decreases, allowing graceful scale-down.
+ EOF
+   }
+ }
+@@ -74,7 +160,7 @@ spec:
+   separate: false
+   quiet: "false"
+   cleanup: "post"
+-  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor}
++  arguments: --out experimental-prometheus-rw --tag testid=${var.name} --env SCENARIO=${var.config.executor} --env SCALING_ENABLED=${var.scaling_enabled} --env CLUSTER_TYPE=${var.cluster_type}
+   initializer:
+     metadata:
+       labels:
+diff --git a/modules/tests/test/vars.tf b/modules/tests/test/vars.tf
+index a1c9e4e..02d18d1 100644
+--- a/modules/tests/test/vars.tf
++++ b/modules/tests/test/vars.tf
+@@ -25,3 +25,15 @@ variable "config" {
+     })
+   })
+ }
++
++variable "scaling_enabled" {
++  type        = bool
++  default     = false
++  description = "Enable dynamic node scaling during the test"
++}
++
++variable "cluster_type" {
++  type        = string
++  default     = "eks"
++  description = "Type of Kubernetes cluster (eks, aks, gke)"
++}
+diff --git a/modules/tests/vars.tests.tf b/modules/tests/vars.tests.tf
+index e527b84..0f6d4d8 100644
+--- a/modules/tests/vars.tests.tf
++++ b/modules/tests/vars.tests.tf
+@@ -13,3 +13,15 @@ variable "tests" {
+     })
+   })
+ }
++
++variable "scaling_enabled" {
++  type        = bool
++  default     = true
++  description = "Enable dynamic node scaling during tests"
++}
++
++variable "cluster_type" {
++  type        = string
++  default     = ""
++  description = "Type of Kubernetes cluster (eks, aks, gke)"
++}
+diff --git a/scripts/diagnose-scheduling.sh b/scripts/diagnose-scheduling.sh
+new file mode 100644
+index 0000000..11d7f02
+--- /dev/null
++++ b/scripts/diagnose-scheduling.sh
+@@ -0,0 +1,60 @@
++#!/usr/bin/env bash
++set -euo pipefail
++
++NS="${NAMESPACE:-tyk}"
++LABEL_KEY="${LABEL_KEY:-cloud.google.com/gke-nodepool}"
++
++echo "=== Context ==="
++kubectl cluster-info
++echo
++
++echo "=== Nodes (nodepool, instance type, zone) ==="
++kubectl get nodes -L "${LABEL_KEY}",node.kubernetes.io/instance-type,topology.kubernetes.io/zone -o wide
++echo
++
++echo "=== Nodes -> nodepool label values ==="
++kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.metadata.labels.cloud\.google\.com/gke-nodepool}{"\n"}{end}' || true
++echo
++
++echo "=== Nodes -> taints (if any) ==="
++kubectl get nodes -o json | jq -r '.items[] | [.metadata.name, ( .spec.taints // [] | map("\(.key)=\(.value):\(.effect)") | join(","))] | @tsv'
++echo
++
++echo "=== Pending pods (namespace: ${NS}) ==="
++kubectl get pods -n "${NS}" --field-selector=status.phase=Pending -o wide || true
++echo
++
++echo "=== Describe gateway & dashboard pods (scheduling events) ==="
++for app in tyk-gateway tyk-dashboard; do
++  pods=$(kubectl get pods -n "${NS}" -l "app.kubernetes.io/name=${app},app.kubernetes.io/instance=tyk" -o name || true)
++  if [[ -z "${pods}" ]]; then
++    echo "No pods found with labels for ${app}."
++    continue
++  fi
++  for p in ${pods}; do
++    echo "--- ${p} ---"
++    kubectl describe "${p}" -n "${NS}" | sed -n '/Events:/,$p'
++  done
++done
++echo
++
++echo "=== Recent scheduling-related warnings (namespace: ${NS}) ==="
++kubectl get events -n "${NS}" --sort-by=.metadata.creationTimestamp | grep -E 'FailedScheduling|NotTriggerScaleUp|Preempt|Insufficient|didn.t match node selector|taint' || true
++echo
++
++echo "=== Resource requests vs node allocatable (summary) ==="
++echo "-> Gateway requests:"
++kubectl get deploy tyk-tyk-gateway -n "${NS}" -o json | jq '.spec.template.spec.containers[] | {name, requests: .resources.requests, limits: .resources.limits}' || true
++echo
++echo "-> Dashboard requests:"
++kubectl get deploy tyk-tyk-dashboard -n "${NS}" -o json | jq '.spec.template.spec.containers[] | {name, requests: .resources.requests, limits: .resources.limits}' || true
++echo
++echo "-> Node allocatable:"
++kubectl get nodes -o json | jq '.items[] | {name: .metadata.name, allocatable: .status.allocatable}' || true
++echo
++
++echo "=== PVCs (if any) in ${NS} ==="
++kubectl get pvc -n "${NS}" || true
++echo
++
++echo "Done."
+\ No newline at end of file
+diff --git a/tests/main.tf b/tests/main.tf
+index 0381437..352ef8c 100644
+--- a/tests/main.tf
++++ b/tests/main.tf
+@@ -34,4 +34,7 @@ module "tests" {
+       key_count = var.tests_auth_key_count
+     }
+   }
++
++  scaling_enabled = var.tests_scaling_enabled
++  cluster_type    = var.tests_cluster_type
+ }
+diff --git a/tests/main.tfvars.example b/tests/main.tfvars.example
+index bb80e4e..5fdaab3 100644
+--- a/tests/main.tfvars.example
++++ b/tests/main.tfvars.example
+@@ -10,7 +10,11 @@ tests_fortio_options = "size=20"
+ tests_executor       = "constant-arrival-rate"
+ tests_auth_key_count = 100
+ tests_ramping_steps  = 10
+-tests_duration       = 15
++tests_duration       = 30
+ tests_rate           = 20000
+ tests_virtual_users  = 50
+ tests_parallelism    = 1
++
++# Scaling Configuration
++tests_scaling_enabled = true
++tests_cluster_type    = "eks"
+diff --git a/tests/vars.tests.tf b/tests/vars.tests.tf
+index 6a6343c..8fdf53c 100644
+--- a/tests/vars.tests.tf
++++ b/tests/vars.tests.tf
+@@ -24,7 +24,7 @@ variable "tests_ramping_steps" {
+ 
+ variable "tests_duration" {
+   type        = number
+-  default     = 15
++  default     = 30
+   description = "Test duration in minutes."
+ }
+ 
+@@ -45,3 +45,15 @@ variable "tests_parallelism" {
+   default     = 1
+   description = "Number of workers for the tests."
+ }
++
++variable "tests_scaling_enabled" {
++  type        = bool
++  default     = true
++  description = "Enable dynamic node scaling during tests."
++}
++
++variable "tests_cluster_type" {
++  type        = string
++  default     = ""
++  description = "Type of Kubernetes cluster (eks, aks, gke)."
++}
