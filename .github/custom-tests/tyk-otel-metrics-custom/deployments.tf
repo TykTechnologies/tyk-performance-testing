@@ -6,9 +6,9 @@ auth_enabled                  = false
 quota_enabled                 = false
 rate_limit_enabled            = false
 
-open_telemetry_enabled                 = false
+open_telemetry_enabled                 = true
 open_telemetry_sampling_ratio          = "0"
-open_telemetry_metrics_enabled         = false
+open_telemetry_metrics_enabled         = true
 open_telemetry_metrics_runtime_metrics = false
 
 hpa_enabled             = false
@@ -29,3 +29,5 @@ gravitee_enabled = false
 traefik_enabled  = false
 
 grafana_service_type = "ClusterIP"
+
+service_route_count = 50

@@ -45,6 +45,7 @@ jobs:
           - tyk-analytics-database
           - tyk-analytics-prometheus
           - tyk-otel-metrics-vs-analytics
+          - tyk-otel-metrics-custom
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -119,17 +120,13 @@ jobs:
           cp "${{ env.CUSTOM_TESTS_DIR }}/${{ matrix.config }}/deployments.tf" deployments/main.tfvars
           cp "${{ env.CUSTOM_TESTS_DIR }}/${{ matrix.config }}/tests.tf" tests/main.tfvars
 
-      - name: "[${{ matrix.config }}] Override Tyk version"
-        if: ${{ inputs.tyk_version != 'v5.8.0' }}
-        run: |
-          sed -i 's/tyk_version.*=.*/tyk_version         = "${{ inputs.tyk_version }}"/' deployments/main.tfvars
-
       - name: "[${{ matrix.config }}] Deploy"
         run: |
           cd deployments
           terraform init
           terraform apply \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="tyk_version=${{ inputs.tyk_version }}" \
             --var-file=main.tfvars \
             --var="kubernetes_config_context=performance-testing" \
             --auto-approve
@@ -165,6 +162,7 @@ jobs:
           terraform destroy \
             --var="kubernetes_config_context=performance-testing" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
+            --var="tyk_version=${{ inputs.tyk_version }}" \
             --var-file=main.tfvars \
             --auto-approve
 

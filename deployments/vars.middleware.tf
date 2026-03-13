@@ -73,13 +73,13 @@ variable "open_telemetry_sampling_ratio" {
 variable "open_telemetry_metrics_enabled" {
   type        = bool
   default     = false
-  description = "Enable OpenTelemetry metrics collection on gateway services."
+  description = "Enable OpenTelemetry metrics export on gateway services."
 }
 
 variable "open_telemetry_metrics_runtime_metrics" {
   type        = bool
   default     = false
-  description = "Enable Go runtime metrics (goroutines, heap, GC) via OpenTelemetry."
+  description = "Enable OpenTelemetry Go runtime metrics (GC, goroutines, memory) on gateway services."
 }
 
 variable "header_injection_req_enabled" {
