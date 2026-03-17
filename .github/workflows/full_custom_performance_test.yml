@@ -1,8 +1,5 @@
 name: Full Custom Performance Test
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/full_custom_performance_test.yml'
   workflow_dispatch:
     inputs:
       custom_deployments_descriptor:
