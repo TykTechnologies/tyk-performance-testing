@@ -33,6 +33,9 @@ locals {
     { name = "TYK_GW_OPENTELEMETRY_SAMPLING_RATIO", value = tostring(var.open_telemetry.sampling_ratio) },
     { name = "TYK_GW_OPENTELEMETRY_EXPORTER", value = "grpc" },
     { name = "TYK_GW_OPENTELEMETRY_ENDPOINT", value = "opentelemetry-collector.dependencies.svc:4317" },
+    { name = "TYK_GW_OPENTELEMETRY_METRICS_ENABLED", value = tostring(var.open_telemetry.metrics_enabled) },
+    { name = "TYK_GW_OPENTELEMETRY_METRICS_RUNTIMEMETRICS", value = tostring(var.open_telemetry.runtime_metrics) },
+    { name = "TYK_GW_OPENTELEMETRY_METRICS_APIMETRICS", value = var.open_telemetry.api_metrics },
     { name = "TYK_GW_HTTPPROFILE", value = tostring(var.profiler.enabled) },
     # Aggressive timeouts for fast failure during node outages
     { name = "TYK_GW_HTTPSERVEROPTIONS_READTIMEOUT", value = "5" },
