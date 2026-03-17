@@ -11,7 +11,7 @@ on:
         description: 'Choose Cloud Provider'
         required: true
         type: choice
-        default: Azure
+        default: GCP
         options:
           - Azure
           - AWS
@@ -55,7 +55,7 @@ on:
         description: 'Test duration in minutes (30-360)'
         required: false
         type: number
-        default: 300
+        default: 30
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
