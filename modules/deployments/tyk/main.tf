@@ -35,7 +35,6 @@ locals {
     { name = "TYK_GW_OPENTELEMETRY_ENDPOINT", value = "opentelemetry-collector.dependencies.svc:4317" },
     { name = "TYK_GW_OPENTELEMETRY_METRICS_ENABLED", value = tostring(var.open_telemetry.metrics_enabled) },
     { name = "TYK_GW_OPENTELEMETRY_METRICS_RUNTIMEMETRICS", value = tostring(var.open_telemetry.runtime_metrics) },
-    { name = "TYK_GW_OPENTELEMETRY_METRICS_APIMETRICS", value = var.open_telemetry.api_metrics },
     { name = "TYK_GW_HTTPPROFILE", value = tostring(var.profiler.enabled) },
     # Aggressive timeouts for fast failure during node outages
     { name = "TYK_GW_HTTPSERVEROPTIONS_READTIMEOUT", value = "5" },
@@ -46,6 +45,10 @@ locals {
     { name = "TYK_GW_PROXYCLOSECONNECTIONS", value = "false" },  # Keep connection reuse enabled
   ]
 
+  tyk_gateway_extra_envs_api_metrics = var.open_telemetry.api_metrics != "" ? [
+    { name = "TYK_GW_OPENTELEMETRY_METRICS_APIMETRICS", value = var.open_telemetry.api_metrics },
+  ] : []
+
   tyk_gateway_extra_envs_cfgmap = var.use_config_maps_for_apis ? [
     { name = "TYK_GW_APPPATH", value = "/opt/tyk-gateway/apps" },
     { name = "TYK_GW_POLICIES_POLICYPATH", value = "/opt/tyk-gateway/policies" },
@@ -53,7 +56,7 @@ locals {
     { name = "TYK_GW_USEDBAPPCONFIGS", value = "false" },
   ] : []
 
-  tyk_gateway_extra_envs = concat(local.tyk_gateway_extra_envs_base, local.tyk_gateway_extra_envs_cfgmap)
+  tyk_gateway_extra_envs = concat(local.tyk_gateway_extra_envs_base, local.tyk_gateway_extra_envs_api_metrics, local.tyk_gateway_extra_envs_cfgmap)
 }
 
 resource "kubernetes_namespace" "tyk" {
