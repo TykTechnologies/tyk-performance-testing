@@ -25,6 +25,7 @@ locals {
     { name = "GOMEMLIMIT", value = var.resources.limits.memory != "0" ? "${var.resources.limits.memory}B" : "" },
     { name = "TYK_GW_MAXIDLECONNSPERHOST", value = "1000" },
     { name = "TYK_GW_MAXCONNSPERHOST", value = "10000" },
+    { name = "TYK_GW_ENABLEANALYTICS", value = tostring(var.analytics.database.enabled) },
     { name = "TYK_GW_ANALYTICSCONFIG_ENABLEMULTIPLEANALYTICSKEYS", value = "true" },
     { name = "TYK_GW_ANALYTICSCONFIG_SERIALIZERTYPE", value = "protobuf" },
     { name = "TYK_GW_STORAGE_MAXACTIVE", value = "10000" },
