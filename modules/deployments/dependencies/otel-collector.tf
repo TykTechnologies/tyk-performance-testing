@@ -97,6 +97,6 @@ resource "helm_release" "opentelemetry-collector" {
     value = "logging"
   }
 
-  count      = var.open_telemetry.enabled ? 1 : 0
+  count      = (var.open_telemetry.enabled || var.open_telemetry.metrics_enabled) ? 1 : 0
   depends_on = [kubernetes_namespace.dependencies]
 }

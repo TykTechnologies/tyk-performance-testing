@@ -23,7 +23,8 @@ variable "grafana" {
 
 variable "open_telemetry" {
   type = object({
-    enabled = bool
+    enabled         = bool
+    metrics_enabled = bool
   })
 }
 
