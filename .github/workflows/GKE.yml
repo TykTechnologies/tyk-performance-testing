@@ -1,33 +1,46 @@
 name: GKE Test
 on:
   pull_request:
-    types: [ closed ]
+    types: [ opened, synchronize, closed ]
 
 concurrency:
   group: "GCP"
 
+permissions:
+  contents: read
+
 jobs:
+  dependency-review:
+    name: "Dependency Review"
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Dependency Review
+        uses: actions/dependency-review-action@42304edda365365e0a887cf018d8edc34b960b82
+
   gcp:
     name: "GKE Test"
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Authenticate into gcloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Install gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2.1.0
+        uses: google-github-actions/setup-gcloud@98ddc00a17442e89a24bbf282954a3b65ce6d200 # v2.1.0
 
       - name: Install gcloud k8s auth component
         run: gcloud components install gke-gcloud-auth-plugin
 
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3.1.1
+        uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.1
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           terraform_version: "1.8.2"
