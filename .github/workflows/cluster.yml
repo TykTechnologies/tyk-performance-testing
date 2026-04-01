@@ -31,23 +31,26 @@ env:
 concurrency:
   group: ${{ inputs.cloud }}
 
+permissions:
+  contents: read
+
 jobs:
   cluster:
     name: "${{ inputs.action }} ${{ inputs.cloud }} cluster"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Configure AKS credentials
         if: ${{ inputs.cloud == 'Azure' }}
-        uses: azure/login@v2
+        uses: azure/login@1384c340ab2dda50fed2bee3041d1d87018aa5e8 # v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Configure AWS credentials
         if: ${{ inputs.cloud == 'AWS' }}
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c # v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -55,20 +58,20 @@ jobs:
 
       - name: Authenticate into gcloud
         if: ${{ inputs.cloud == 'GCP' }}
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Install gcloud CLI
         if: ${{ inputs.cloud == 'GCP' }}
-        uses: google-github-actions/setup-gcloud@v2.1.0
+        uses: google-github-actions/setup-gcloud@98ddc00a17442e89a24bbf282954a3b65ce6d200 # v2.1.0
 
       - name: Install gcloud k8s auth component
         if: ${{ inputs.cloud == 'GCP' }}
         run: gcloud components install gke-gcloud-auth-plugin
 
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3.1.1
+        uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.1
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           terraform_version: "1.8.2"

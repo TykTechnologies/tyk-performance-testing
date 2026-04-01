@@ -14,6 +14,9 @@ on:
           - all
         default: all
 
+permissions:
+  contents: read
+
 jobs:
   unlock_all:
     name: Force Unlock All Related Workspaces
@@ -21,7 +24,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Unlock All Workspaces
         env:
