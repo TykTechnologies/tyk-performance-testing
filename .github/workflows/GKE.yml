@@ -10,16 +10,6 @@ permissions:
   contents: read
 
 jobs:
-  dependency-review:
-    name: "Dependency Review"
-    if: github.event.action != 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - name: Dependency Review
-        uses: actions/dependency-review-action@42304edda365365e0a887cf018d8edc34b960b82
-
   gcp:
     name: "GKE Test"
     if: github.event.pull_request.merged == true
