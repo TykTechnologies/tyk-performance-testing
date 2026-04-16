@@ -46,8 +46,13 @@ const addTestInfoMetrics = ({ duration, rate, virtual_users, fortio_options }, k
     state: ${var.rate_limit.enabled} ? "${var.rate_limit.rate} / ${var.rate_limit.per}" : "Off",
   });
 
+  const otelFeatures = [
+    ${var.open_telemetry.enabled} ? "Tracing(${var.open_telemetry.sampling_ratio})" : "",
+    ${var.open_telemetry.metrics_enabled} ? "Metrics" : "",
+    ${var.open_telemetry.runtime_metrics} ? "Runtime" : "",
+  ].filter(item => item !== "");
   openTelemetryGauge.add(1, {
-    state: ${var.open_telemetry.enabled} ? "${var.open_telemetry.sampling_ratio}" : "Off",
+    state: otelFeatures.length > 0 ? otelFeatures.join(", ") : "Off",
   });
 
   const header_injection = [ ${var.header_injection.req.enabled} ? "Req" : "", ${var.header_injection.res.enabled} ? "Res" : "",  ].filter(item => item !== "")

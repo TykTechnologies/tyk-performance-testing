@@ -77,6 +77,26 @@ resource "helm_release" "opentelemetry-collector" {
     value = "jaeger"
   }
 
-  count      = var.open_telemetry.enabled ? 1 : 0
+  set {
+    name  = "config.exporters.logging.verbosity"
+    value = "basic"
+  }
+
+  set {
+    name  = "config.service.pipelines.metrics.receivers[0]"
+    value = "otlp"
+  }
+
+  set {
+    name  = "config.service.pipelines.metrics.processors[0]"
+    value = "batch"
+  }
+
+  set {
+    name  = "config.service.pipelines.metrics.exporters[0]"
+    value = "logging"
+  }
+
+  count      = (var.open_telemetry.enabled || var.open_telemetry.metrics_enabled) ? 1 : 0
   depends_on = [kubernetes_namespace.dependencies]
 }
