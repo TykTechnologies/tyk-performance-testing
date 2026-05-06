@@ -11,7 +11,8 @@ variable "tests" {
     total_segments = optional(number, 1)
 
     auth = object({
-      key_count = number
+      key_count        = number
+      random_selection = optional(bool, false)
     })
   })
 }

@@ -12,8 +12,14 @@ variable "tests_executor" {
 
 variable "tests_auth_key_count" {
   type        = number
-  default     = 100
+  default     = 10000
   description = "Number of Authentication Tokens used for the test per test worker (tests_parallelism)."
+}
+
+variable "tests_auth_key_random_selection" {
+  type        = bool
+  default     = false
+  description = "When true, each request picks a token uniformly at random from the full key pool, decoupling token choice from the route index. Use this to drive high-cardinality DRL bucket usage (e.g. to repro Tyk PR 8180). When false (default) the script falls back to keys[i % keys.length] where i is the route index."
 }
 
 variable "tests_ramping_steps" {

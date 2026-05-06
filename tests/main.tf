@@ -33,7 +33,8 @@ module "tests" {
     total_segments = var.total_segments
 
     auth = {
-      key_count = var.tests_auth_key_count
+      key_count        = var.tests_auth_key_count
+      random_selection = var.tests_auth_key_random_selection
     }
   }
 }

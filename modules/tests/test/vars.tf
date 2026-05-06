@@ -23,7 +23,8 @@ variable "config" {
     total_segments = number
 
     auth = object({
-      key_count = number
+      key_count        = number
+      random_selection = optional(bool, false)
     })
   })
 }

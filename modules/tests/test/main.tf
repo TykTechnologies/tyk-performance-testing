@@ -56,7 +56,10 @@ export default function (keys) {
 
   let headers = {};
   if (getAuth()) {
-    headers = { "Authorization": keys[i % keys.length] }
+    const k = ${var.config.auth.random_selection}
+      ? Math.floor(Math.random() * keys.length)
+      : i % keys.length;
+    headers = { "Authorization": keys[k] }
   }
 
   let url = "http://${var.service_name}.${var.name}.svc:${var.service_port}/api-" + i + "/?${var.config.fortio_options}";

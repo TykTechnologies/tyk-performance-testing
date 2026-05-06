@@ -8,7 +8,8 @@ upstream_enabled = false
 
 tests_fortio_options = "size=20"
 tests_executor       = "autoscaling-gradual"
-tests_auth_key_count = 100
+tests_auth_key_count            = 10000
+tests_auth_key_random_selection = false
 tests_ramping_steps  = 10
 tests_duration       = 30
 tests_rate           = 20000
