@@ -82,6 +82,21 @@ resource "helm_release" "opentelemetry-collector" {
     value = "basic"
   }
 
+  # Forward OTel metrics (Tyk runtime/Go GC stats and request counters) into the
+  # same Prometheus that k6 already writes to, so test traffic and gateway
+  # health metrics share one Grafana datasource. Memory-leak regressions like
+  # PR 8180 - which look like flat throughput plus rising RSS / heap_objects /
+  # goroutines - become a single dashboard panel away.
+  set {
+    name  = "config.exporters.prometheusremotewrite.endpoint"
+    value = "http://prometheus-server.dependencies.svc:80/api/v1/write"
+  }
+
+  set {
+    name  = "config.exporters.prometheusremotewrite.tls.insecure"
+    value = "true"
+  }
+
   set {
     name  = "config.service.pipelines.metrics.receivers[0]"
     value = "otlp"
@@ -94,7 +109,7 @@ resource "helm_release" "opentelemetry-collector" {
 
   set {
     name  = "config.service.pipelines.metrics.exporters[0]"
-    value = "logging"
+    value = "prometheusremotewrite"
   }
 
   count      = (var.open_telemetry.enabled || var.open_telemetry.metrics_enabled) ? 1 : 0

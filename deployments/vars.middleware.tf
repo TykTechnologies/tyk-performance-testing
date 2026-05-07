@@ -72,14 +72,14 @@ variable "open_telemetry_sampling_ratio" {
 
 variable "open_telemetry_metrics_enabled" {
   type        = bool
-  default     = false
-  description = "Enable OpenTelemetry metrics export on gateway services."
+  default     = true
+  description = "Enable OpenTelemetry metrics export on gateway services. Defaults to true so the OTel collector forwards Tyk gateway metrics to Prometheus, making memory-leak / GC-pressure regressions (e.g. Tyk PR 8180) visible in the same Grafana that hosts k6 traffic metrics."
 }
 
 variable "open_telemetry_runtime_metrics" {
   type        = bool
-  default     = false
-  description = "Enable OpenTelemetry runtime metrics (Go runtime stats) on gateway services."
+  default     = true
+  description = "Enable OpenTelemetry runtime metrics (Go runtime stats: heap_inuse, heap_objects, goroutines, gc_duration, ...) on gateway services. Defaults to true; without these we cannot tell a memory leak from increased load."
 }
 
 variable "open_telemetry_metrics_api_metrics" {
