@@ -126,8 +126,12 @@ const generateJWTHMACKeys = (keyCount) => {
     for (let i = 0; i < keyCount; i++) {
         const now = Math.floor(Date.now() / 1000);
 
+        // sub must be unique per key for high-cardinality scenarios (e.g. driving
+        // distinct DRL buckets in Tyk to repro PR 8180). Tyk's JWT middleware uses
+        // jwt_identity_base_field=sub as the session identity, so a unique sub
+        // creates a unique session and therefore a unique rate-limit bucket.
         keys.push(encode({
-            sub: 'user' + i % 100 + '@test.com',
+            sub: 'user' + i + '@test.com',
             iat: now,
             exp: now + 86400, // 24 hours from now
             iss: "k6",
