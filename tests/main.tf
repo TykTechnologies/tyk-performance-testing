@@ -35,6 +35,7 @@ module "tests" {
     auth = {
       key_count        = var.tests_auth_key_count
       random_selection = var.tests_auth_key_random_selection
+      rolling          = var.tests_auth_key_rolling
     }
   }
 }

@@ -13,6 +13,7 @@ variable "tests" {
     auth = object({
       key_count        = number
       random_selection = optional(bool, false)
+      rolling          = optional(bool, false)
     })
   })
 }

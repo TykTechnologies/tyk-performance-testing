@@ -17,7 +17,7 @@ resource "kubernetes_config_map" "test-configmap" {
     "script.js" = <<EOF
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics } from "/helpers/tests.js";
+import { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, signRollingJWT, addTestInfoMetrics } from "/helpers/tests.js";
 import { getScenarios } from "/helpers/scenarios.js";
 import { generateKeys } from "/helpers/auth.js";
 
@@ -64,10 +64,19 @@ export default function (keys) {
 
   let headers = {};
   if (getAuth()) {
-    const k = ${var.config.auth.random_selection}
-      ? Math.floor(Math.random() * keys.length)
-      : i % keys.length;
-    headers = { "Authorization": keys[k] }
+    let token;
+    if (${var.config.auth.rolling}) {
+      // Sign a fresh JWT inline so each request has a unique sub/session.
+      // Drives unbounded DRL bucket cardinality; combined with rate-limit
+      // middleware, exposes leaks like Tyk PR 8180 as a forever-rising
+      // memory curve. Only meaningful with auth_type=JWT-HMAC.
+      token = signRollingJWT();
+    } else if (${var.config.auth.random_selection}) {
+      token = keys[Math.floor(Math.random() * keys.length)];
+    } else {
+      token = keys[i % keys.length];
+    }
+    headers = { "Authorization": token }
   }
 
   let url = "http://${var.service_name}.${var.name}.svc:${var.service_port}/api-" + i + "/?${var.config.fortio_options}";

@@ -119,9 +119,10 @@ const encode = (payload, secret) => {
   return [header, payload, sig].join(".");
 }
 
+const JWT_HMAC_SECRET = "topsecretpassword";
+
 const generateJWTHMACKeys = (keyCount) => {
     const keys = [];
-    const secret = "topsecretpassword";
 
     for (let i = 0; i < keyCount; i++) {
         const now = Math.floor(Date.now() / 1000);
@@ -136,12 +137,32 @@ const generateJWTHMACKeys = (keyCount) => {
             exp: now + 86400, // 24 hours from now
             iss: "k6",
             jti: 'jwt-' + i + '-' + now // Unique JWT ID
-        }, secret));
+        }, JWT_HMAC_SECRET));
     }
     return keys;
 };
 
-export { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, addTestInfoMetrics };
+// Sign a brand-new HMAC JWT with a unique sub per call. Designed to be invoked
+// from the per-request hot path when tests_auth_key_rolling is true, so the
+// gateway sees an unbounded stream of distinct session identities. Combined
+// with rate-limit middleware enabled, this is the cleanest signal for memory
+// leaks in the DRL bucket store: with the bug, gateway memory grows linearly
+// forever; without it, expired buckets get evicted and memory plateaus.
+// HMAC-SHA256 in goja is on the order of tens of microseconds per call; not
+// negligible at 15k rps but well below the gateway's per-request budget.
+const signRollingJWT = () => {
+  const now = Math.floor(Date.now() / 1000);
+  const sub = "roll-" + __VU + "-" + __ITER + "-" + Math.floor(Math.random() * 1e9);
+  return encode({
+    sub: sub,
+    iat: now,
+    exp: now + 86400,
+    iss: "k6",
+    jti: sub,
+  }, JWT_HMAC_SECRET);
+};
+
+export { getAuth, getAuthType, getRouteCount, getHostCount, generateJWTRSAKeys, generateJWTHMACKeys, signRollingJWT, addTestInfoMetrics };
 
 EOF
   }

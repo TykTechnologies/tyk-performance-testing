@@ -22,6 +22,12 @@ variable "tests_auth_key_random_selection" {
   description = "When true, each request picks a token uniformly at random from the full key pool, decoupling token choice from the route index. Use this to drive high-cardinality DRL bucket usage (e.g. to repro Tyk PR 8180). When false the script falls back to keys[i % keys.length] where i is the route index."
 }
 
+variable "tests_auth_key_rolling" {
+  type        = bool
+  default     = false
+  description = "When true (and auth_type=JWT-HMAC), the k6 default function signs a fresh JWT with a brand-new sub on every request instead of picking from the pre-built keys pool. This produces unbounded session/DRL-bucket cardinality, which is the cleanest signal for memory-leak regressions like Tyk PR 8180: with the leak, gateway memory climbs linearly forever; without it, cleanup evicts expired buckets and memory plateaus. Default false; setup() still pre-builds the 10k pool either way to warm the buckets."
+}
+
 variable "tests_ramping_steps" {
   type        = number
   default     = 10
