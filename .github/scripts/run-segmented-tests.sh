@@ -335,10 +335,12 @@ wait_for_k6_segment() {
   local timeout_min="$2"
   local started_at=$(date +%s)
   local deadline=$(( started_at + timeout_min*60 ))
-  # Minimum elapsed seconds before we trust a "started -> gone" transition as a real
-  # completion. Anything faster than this is the test crashing and the operator
-  # tearing it down (typical for cleanup: post). 70% of the segment budget is a
-  # generous floor that still catches obvious self-destructs (sub-minute on a 60m run).
+  # Minimum elapsed seconds before we trust a "CR was here, now gone" transition
+  # as a real completion. With cleanup omitted on the K6 CR (the current default)
+  # the operator should never delete the CR while we're watching, so this branch
+  # mostly exists to catch externally-deleted CRs and to guard against a future
+  # re-introduction of cleanup: post. 70% of the segment budget is the floor:
+  # anything faster is almost certainly a crash, not a graceful end.
   local min_real_runtime=$(( timeout_min * 60 * 7 / 10 ))
   local ns="" stage="" prev_stage=""
   local init_seen_at=0
@@ -423,13 +425,14 @@ wait_for_k6_segment() {
 
     if [[ "${stage}" == "finished" ]]; then
       echo "CR '${name}' finished in namespace '${ns}'."
-      # We deliberately do NOT wait for CR deletion here. With cleanup: pre,
-      # the operator keeps the finished CR (and runner/initializer pods)
-      # around until the next test starts, which is what we want for log
-      # capture. With cleanup: post, the CR will be gone before this branch
-      # is reached anyway - it falls through to the disappearance handler
-      # above, which now requires sufficient elapsed time before treating
-      # it as a clean finish.
+      # We deliberately do NOT wait for CR deletion. With cleanup omitted
+      # (the current default in modules/tests/test/main.tf) the operator
+      # never deletes the CR or its pods, so log capture works after the
+      # fact. If someone re-introduces cleanup: post in the future, the
+      # CR will already be gone by the time we get here - the
+      # disappearance handler above will be the path that fires, and it
+      # now requires real elapsed time before treating disappearance as
+      # success.
       return 0
     fi
     if [[ "${stage}" == "error" ]]; then
