@@ -333,17 +333,23 @@ start_node_failure_simulation() {
 wait_for_k6_segment() {
   local name="$1"
   local timeout_min="$2"
-  local deadline=$(( $(date +%s) + timeout_min*60 ))
+  local started_at=$(date +%s)
+  local deadline=$(( started_at + timeout_min*60 ))
+  # Minimum elapsed seconds before we trust a "started -> gone" transition as a real
+  # completion. Anything faster than this is the test crashing and the operator
+  # tearing it down (typical for cleanup: post). 70% of the segment budget is a
+  # generous floor that still catches obvious self-destructs (sub-minute on a 60m run).
+  local min_real_runtime=$(( timeout_min * 60 * 7 / 10 ))
   local ns="" stage="" prev_stage=""
   local init_seen_at=0
 
-  echo "Waiting for k6 segment CR '${name}' (timeout: ${timeout_min}m)..."
+  echo "Waiting for k6 segment CR '${name}' (timeout: ${timeout_min}m, min real runtime before disappearance counts as success: $((min_real_runtime/60))m)..."
   while (( $(date +%s) < deadline )); do
     local now_ts
     now_ts=$(date +%s)
     # Remember previous state
     local prev_ns="${ns}" prev_stage_saved="${stage}"
-    
+
     # Determine namespace and stage (try K6 first, then TestRun)
     # Note: field-selector doesn't work reliably with CRDs, using grep instead
     ns="$(kubectl get k6 -A -o json 2>/dev/null | jq -r --arg name "${name}" '.items[] | select(.metadata.name == $name) | .metadata.namespace' | head -1 || true)"
@@ -353,11 +359,34 @@ wait_for_k6_segment() {
       ns="$(kubectl get testrun -A -o json 2>/dev/null | jq -r --arg name "${name}" '.items[] | select(.metadata.name == $name) | .metadata.namespace' | head -1 || true)"
       [[ -n "${ns}" ]] && stage="$(kubectl get testrun ${name} -n ${ns} -o jsonpath='{.status.stage}' 2>/dev/null || true)"
     fi
-    
-    # If CR disappeared but was previously found with 'started' stage, it likely finished
-    if [[ -z "${ns}" && -n "${prev_ns}" && "${prev_stage_saved}" == "started" ]]; then
-      echo "CR '${name}' disappeared after being in 'started' stage - likely finished and cleaned up by k6-operator"
-      return 0
+
+    # If the CR disappeared while we were watching, decide whether it was a real
+    # finish or a crash-and-cleanup. The previous heuristic ("was in 'started',
+    # now gone -> success") would silently green-light tests that died in <1
+    # minute (run 25455997972 was the canonical example). The fix: require that
+    # enough wall-clock has actually elapsed. If it hasn't, dump diagnostics
+    # and fail loudly.
+    if [[ -z "${ns}" && -n "${prev_ns}" ]]; then
+      local elapsed=$(( now_ts - started_at ))
+      if (( elapsed >= min_real_runtime )) && [[ "${prev_stage_saved}" == "started" || "${prev_stage_saved}" == "finished" ]]; then
+        echo "CR '${name}' disappeared after ${elapsed}s in stage '${prev_stage_saved}' - treating as finished + cleaned up by operator"
+        return 0
+      fi
+      echo "CR '${name}' disappeared after only ${elapsed}s (stage was '${prev_stage_saved}', need >=${min_real_runtime}s to count as success)."
+      echo "This is almost certainly the test crashing and being cleaned up by the operator. Dumping any leftover diagnostics:"
+      echo "--- runner pods (any namespace) ---"
+      kubectl get pods -A -l "k6_cr,runner=true" -o wide 2>/dev/null || true
+      echo "--- initializer pods (any namespace) ---"
+      kubectl get pods -A -l "k6_cr,initializer=k6" -o wide 2>/dev/null || true
+      echo "--- recent runner logs (best effort) ---"
+      kubectl logs -A -l "k6_cr,runner=true" --tail=200 --all-containers --prefix 2>/dev/null || echo "(no runner logs available - cleanup likely already removed them)"
+      echo "--- recent initializer logs (best effort) ---"
+      kubectl logs -A -l "k6_cr,initializer=k6" --tail=200 --all-containers --prefix 2>/dev/null || echo "(no initializer logs available - cleanup likely already removed them)"
+      echo "--- k6-operator logs (last 200 lines) ---"
+      kubectl logs -n k6-operator-system -l control-plane=controller-manager --tail=200 2>/dev/null || \
+        kubectl logs -A -l app.kubernetes.io/name=k6-operator --tail=200 2>/dev/null || \
+        echo "(no operator logs found)"
+      return 1
     fi
 
     if [[ "${stage}" == "finished" ]]; then

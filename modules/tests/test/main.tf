@@ -95,7 +95,7 @@ spec:
   parallelism: ${var.config.parallelism}
   separate: false
   quiet: "false"
-  cleanup: "post"
+  cleanup: "pre"
   # Add activeDeadlineSeconds to ensure job can run for full duration
   activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
   # IMPORTANT: pass duration to BOTH initializer (inspect) and runner (run)
