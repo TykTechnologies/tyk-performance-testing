@@ -12562,7 +12562,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "sum by (go_memory_type) (go_memory_used_bytes)",
+          "expr": "sum by (go_memory_type) ({__name__=~\"go_memory_used(_bytes)?\"})",
           "legendFormat": "{{go_memory_type}}",
           "refId": "A"
         }
@@ -12590,7 +12590,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "go_memory_gc_goal_bytes",
+          "expr": "{__name__=~\"go_memory_gc_goal(_bytes)?\"}",
           "legendFormat": "{{service_instance_id}}",
           "refId": "A"
         }
@@ -12646,7 +12646,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "rate(go_memory_allocated_bytes_total[5m])",
+          "expr": "rate({__name__=~\"go_memory_allocated(_bytes)?_total\"}[5m])",
           "legendFormat": "{{service_instance_id}}",
           "refId": "A"
         }
