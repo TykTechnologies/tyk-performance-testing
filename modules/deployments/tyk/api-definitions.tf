@@ -9,10 +9,14 @@ locals {
   use_std_auth = var.auth.enabled && var.auth.type == "authToken"
   jwt_source   = var.auth.type == "JWT-HMAC" ? "dG9wc2VjcmV0cGFzc3dvcmQ=" : "http://keycloak-service.dependencies.svc:8080/realms/jwt/protocol/openid-connect/certs"
 
-  # Generate API definitions as JSON for direct mounting
+  # Generate API definitions as JSON for direct mounting.
+  # JWT fields are always present so the object schema stays static;
+  # enable_jwt=false makes Tyk ignore the rest. We can't use a conditional
+  # merge() because Terraform's strict typechecker rejects ?: arms whose
+  # object attribute sets differ ("Inconsistent conditional result types").
   api_definitions = {
     for i in range(var.service.route_count) :
-    "api-${i}.json" => jsonencode(merge({
+    "api-${i}.json" => jsonencode({
       name              = "api-${i}"
       api_id            = "api-${i}"
       org_id            = "1"
@@ -61,14 +65,13 @@ locals {
       global_headers_remove          = []
       global_response_headers        = var.header_injection.res.enabled ? { "X-API-RES" : "Bar" } : {}
       global_response_headers_remove = []
-      }, local.enable_jwt ? {
-      enable_jwt              = true
-      jwt_signing_method      = var.auth.type == "JWT-HMAC" ? "hmac" : "rsa"
-      jwt_source              = local.jwt_source
-      jwt_identity_base_field = "sub"
-      jwt_policy_field_name   = "pol"
-      jwt_default_policies    = ["policy-${i % var.service.app_count}"]
-    } : {}))
+      enable_jwt                     = local.enable_jwt
+      jwt_signing_method             = local.enable_jwt ? (var.auth.type == "JWT-HMAC" ? "hmac" : "rsa") : ""
+      jwt_source                     = local.enable_jwt ? local.jwt_source : ""
+      jwt_identity_base_field        = local.enable_jwt ? "sub" : ""
+      jwt_policy_field_name          = local.enable_jwt ? "pol" : ""
+      jwt_default_policies           = local.enable_jwt ? ["policy-${i % var.service.app_count}"] : []
+    })
   }
 
   # Generate policy definitions when auth/rate limiting/quota is enabled
