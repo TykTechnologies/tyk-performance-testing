@@ -30,6 +30,14 @@ export const options = {
   discardResponseBodies: true,
   insecureSkipTLSVerify: true,
   setupTimeout: setupTimeoutSeconds + 's',
+  // k6 defaults to batch:20 / batchPerHost:6 which would cap our
+  // setup() http.batch parallelism at 6 in flight against the gateway
+  // admin API (the auth.js generators send 50-wide batches). Lift the
+  // ceilings so the parallelism we ask for is the parallelism we get.
+  // Irrelevant for the JWT-HMAC default path (no HTTP in setup()), but
+  // matters for anyone using auth_type=authToken with a large key_count.
+  batch: 50,
+  batchPerHost: 50,
   scenarios: { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
   thresholds: {
     'http_req_duration': ['p(95)<2000'],
@@ -95,7 +103,14 @@ spec:
   parallelism: ${var.config.parallelism}
   separate: false
   quiet: "false"
-  cleanup: "pre"
+  # cleanup is intentionally unset. The k6-operator CRD only accepts
+  # cleanup: "post" (per +kubebuilder:validation:Enum=post in
+  # api/v1alpha1/testrun_types.go) - "pre" is rejected by API server
+  # validation. Omitting the field disables operator-driven cleanup,
+  # so the K6 CR + initializer + runner pods all persist after the
+  # run. That's exactly what we want for post-mortem log capture
+  # when setup() crashes; "terraform destroy" tears them down before
+  # the next dispatch.
   # Add activeDeadlineSeconds to ensure job can run for full duration
   activeDeadlineSeconds: ${(var.config.duration * 60) + 1800}  # duration in seconds + 30 min buffer
   # IMPORTANT: pass duration to BOTH initializer (inspect) and runner (run)
