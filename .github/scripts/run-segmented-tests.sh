@@ -378,22 +378,58 @@ wait_for_k6_segment() {
       kubectl get pods -A -l "k6_cr,runner=true" -o wide 2>/dev/null || true
       echo "--- initializer pods (any namespace) ---"
       kubectl get pods -A -l "k6_cr,initializer=k6" -o wide 2>/dev/null || true
+      # kubectl logs has no --all-namespaces flag; iterate ns/pod pairs explicitly.
       echo "--- recent runner logs (best effort) ---"
-      kubectl logs -A -l "k6_cr,runner=true" --tail=200 --all-containers --prefix 2>/dev/null || echo "(no runner logs available - cleanup likely already removed them)"
+      local runner_pairs
+      runner_pairs="$(kubectl get pods -A -l "k6_cr,runner=true" -o jsonpath='{range .items[*]}{.metadata.namespace}{"/"}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)"
+      if [[ -n "${runner_pairs}" ]]; then
+        while IFS=/ read -r rn rp; do
+          [[ -z "${rn}" || -z "${rp}" ]] && continue
+          echo "[runner ${rn}/${rp}]"
+          kubectl logs -n "${rn}" "${rp}" --tail=200 --all-containers --prefix 2>/dev/null || echo "(no logs for ${rn}/${rp})"
+        done <<< "${runner_pairs}"
+      else
+        echo "(no runner pods - cleanup likely already removed them)"
+      fi
       echo "--- recent initializer logs (best effort) ---"
-      kubectl logs -A -l "k6_cr,initializer=k6" --tail=200 --all-containers --prefix 2>/dev/null || echo "(no initializer logs available - cleanup likely already removed them)"
+      local init_pairs
+      init_pairs="$(kubectl get pods -A -l "k6_cr,initializer=k6" -o jsonpath='{range .items[*]}{.metadata.namespace}{"/"}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)"
+      if [[ -n "${init_pairs}" ]]; then
+        while IFS=/ read -r in_ns in_pod; do
+          [[ -z "${in_ns}" || -z "${in_pod}" ]] && continue
+          echo "[initializer ${in_ns}/${in_pod}]"
+          kubectl logs -n "${in_ns}" "${in_pod}" --tail=200 --all-containers --prefix 2>/dev/null || echo "(no logs for ${in_ns}/${in_pod})"
+        done <<< "${init_pairs}"
+      else
+        echo "(no initializer pods - cleanup likely already removed them)"
+      fi
       echo "--- k6-operator logs (last 200 lines) ---"
-      kubectl logs -n k6-operator-system -l control-plane=controller-manager --tail=200 2>/dev/null || \
-        kubectl logs -A -l app.kubernetes.io/name=k6-operator --tail=200 2>/dev/null || \
-        echo "(no operator logs found)"
+      local op_pairs
+      op_pairs="$(kubectl get pods -A -l app.kubernetes.io/name=k6-operator -o jsonpath='{range .items[*]}{.metadata.namespace}{"/"}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)"
+      if [[ -z "${op_pairs}" ]]; then
+        op_pairs="$(kubectl get pods -A -l control-plane=controller-manager -o jsonpath='{range .items[*]}{.metadata.namespace}{"/"}{.metadata.name}{"\n"}{end}' 2>/dev/null || true)"
+      fi
+      if [[ -n "${op_pairs}" ]]; then
+        while IFS=/ read -r op_ns op_pod; do
+          [[ -z "${op_ns}" || -z "${op_pod}" ]] && continue
+          echo "[operator ${op_ns}/${op_pod}]"
+          kubectl logs -n "${op_ns}" "${op_pod}" --tail=200 2>/dev/null || echo "(no logs for ${op_ns}/${op_pod})"
+        done <<< "${op_pairs}"
+      else
+        echo "(no operator pods found)"
+      fi
       return 1
     fi
 
     if [[ "${stage}" == "finished" ]]; then
-      echo "CR '${name}' finished in namespace '${ns}'. Waiting for cleanup (if enabled)..."
-      # If cleanup: post is enabled, the operator deletes the CR; tolerate either behavior
-      kubectl wait --for=delete k6/${name} -n "${ns}" --timeout=10m 2>/dev/null || \
-      kubectl wait --for=delete testrun/${name} -n "${ns}" --timeout=10m 2>/dev/null || true
+      echo "CR '${name}' finished in namespace '${ns}'."
+      # We deliberately do NOT wait for CR deletion here. With cleanup: pre,
+      # the operator keeps the finished CR (and runner/initializer pods)
+      # around until the next test starts, which is what we want for log
+      # capture. With cleanup: post, the CR will be gone before this branch
+      # is reached anyway - it falls through to the disappearance handler
+      # above, which now requires sufficient elapsed time before treating
+      # it as a clean finish.
       return 0
     fi
     if [[ "${stage}" == "error" ]]; then

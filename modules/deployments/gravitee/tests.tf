@@ -28,7 +28,12 @@ resource "kubernetes_config_map" "auth-configmap" {
   data = {
     "auth.js" = <<EOF
 import http from 'k6/http';
-import { check, fail } from 'k6';
+import { check, fail, sleep } from 'k6';
+
+const BATCH_SIZE = 50;
+const MAX_RETRIES = 3;
+const TOLERANCE_PCT = 1;
+const PROGRESS_EVERY = 1000;
 
 const getAPIIds = (baseURL, apiCount) => {
   const res = http.get(baseURL + '/apis/?page=1&size=' + apiCount, { responseType: 'text' });
@@ -80,45 +85,92 @@ const params = {
   },
 };
 
-const createApplications = (baseURL, keyCount) => {
-  const applicationIds = [];
-  for (let i = 0; i < keyCount; i++) {
-    const name = 'app-' + i;
-    const payload = JSON.stringify({
-      name: name,
-      description: name,
-      settings: { app: {} }
-    });
+// Run an http.batch with per-request retries and a soft failure tolerance.
+// requestBuilder(i) -> [method, url, body, params]
+// successCheck(response) -> boolean
+// successExtractor(response) -> the value to store at index i
+// label is just for log lines.
+const batchedCreate = (label, count, requestBuilder, successCheck, successExtractor) => {
+  const out = new Array(count);
+  let failedCount = 0;
+  const startMs = Date.now();
+  let nextProgressAt = PROGRESS_EVERY;
 
-    const res = http.post(baseURL + '/applications', payload, params);
-    check(res, {
-      ['application "' + name + '" creation status is 201']: (r) => r.status === 201,
-    }) || fail('Failed to create application "' + name + '"');
+  for (let batchStart = 0; batchStart < count; batchStart += BATCH_SIZE) {
+    const batchEnd = Math.min(batchStart + BATCH_SIZE, count);
+    let requests = [];
+    let indices = [];
+    for (let i = batchStart; i < batchEnd; i++) {
+      requests.push(requestBuilder(i));
+      indices.push(i);
+    }
 
-    applicationIds.push(res.json().id);
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      const responses = http.batch(requests);
+      const retryRequests = [];
+      const retryIndices = [];
+      for (let r = 0; r < responses.length; r++) {
+        if (successCheck(responses[r])) {
+          out[indices[r]] = successExtractor(responses[r]);
+        } else if (attempt < MAX_RETRIES) {
+          retryRequests.push(requests[r]);
+          retryIndices.push(indices[r]);
+        } else {
+          failedCount++;
+          console.warn(label + ": #" + indices[r] + " failed after " + MAX_RETRIES + " retries (status=" + responses[r].status + ", body=" + (responses[r].body || "").slice(0, 200) + ")");
+        }
+      }
+      if (retryRequests.length === 0) break;
+      sleep(0.1 * Math.pow(2, attempt));
+      requests = retryRequests;
+      indices = retryIndices;
+    }
+
+    if (batchEnd >= nextProgressAt || batchEnd === count) {
+      const elapsedSec = ((Date.now() - startMs) / 1000).toFixed(1);
+      console.log(label + ": " + batchEnd + "/" + count + " processed (" + failedCount + " failed), elapsed " + elapsedSec + "s");
+      while (nextProgressAt <= batchEnd) nextProgressAt += PROGRESS_EVERY;
+    }
   }
 
-  return applicationIds;
+  const failurePct = (failedCount / count) * 100;
+  if (failurePct > TOLERANCE_PCT) {
+    fail(label + ": " + failedCount + "/" + count + " (" + failurePct.toFixed(2) + "%) failed after " + MAX_RETRIES + " retries; exceeds tolerance " + TOLERANCE_PCT + "%");
+  }
+  if (failedCount > 0) {
+    console.warn(label + ": " + failedCount + "/" + count + " (" + failurePct.toFixed(2) + "%) failed but within tolerance " + TOLERANCE_PCT + "%");
+  }
+  return out;
+};
+
+const createApplications = (baseURL, keyCount) => {
+  const ids = batchedCreate(
+    "createApplications",
+    keyCount,
+    (i) => {
+      const name = 'app-' + i;
+      const payload = JSON.stringify({ name: name, description: name, settings: { app: {} } });
+      return ['POST', baseURL + '/applications', payload, params];
+    },
+    (r) => r.status === 201,
+    (r) => r.json().id
+  );
+  return ids.filter((id) => id !== undefined);
 };
 
 const createSubscriptions = (baseURL, planIds, applicationIds) => {
-  const keys = [];
   const planCount = planIds.length;
-  for (let i = 0; i < applicationIds.length; i++) {
-    const payload = JSON.stringify({
-      application: applicationIds[i],
-      plan: planIds[i % planCount]
-    });
-
-    const res = http.post(baseURL + '/subscriptions', payload, params);
-    check(res, {
-      ['subscription for application "' + applicationIds[i] + '" creation status is 200']: (r) => r.status === 200,
-    }) || fail('Failed to create subscription for application "' + applicationIds[i] + '"');
-
-    keys.push(res.json().keys[0].key);
-  }
-
-  return keys;
+  const keys = batchedCreate(
+    "createSubscriptions",
+    applicationIds.length,
+    (i) => {
+      const payload = JSON.stringify({ application: applicationIds[i], plan: planIds[i % planCount] });
+      return ['POST', baseURL + '/subscriptions', payload, params];
+    },
+    (r) => r.status === 200,
+    (r) => r.json().keys[0].key
+  );
+  return keys.filter((k) => k !== undefined);
 };
 
 const generateKeys = (keyCount) => {

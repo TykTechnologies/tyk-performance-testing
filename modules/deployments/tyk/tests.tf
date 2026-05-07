@@ -38,7 +38,7 @@ resource "kubernetes_config_map" "auth-configmap" {
   data = {
     "auth.js" = <<EOF
 import http from 'k6/http';
-import { check, fail } from 'k6';
+import { fail, sleep } from 'k6';
 import { b64encode } from 'k6/encoding';
 
 const base64UrlEncode = (str) => {
@@ -53,33 +53,79 @@ const params = {
   },
 };
 
-const createKey = (baseURL, policyId) => {
+const APP_COUNT = ${var.service.app_count};
+const NAMESPACE = "${var.namespace}";
+const BATCH_SIZE = 50;
+const MAX_RETRIES = 3;
+const TOLERANCE_PCT = 1;
+const PROGRESS_EVERY = 1000;
+
+const buildCreateRequest = (baseURL, i) => {
+  const policyId = base64UrlEncode(NAMESPACE + "/api-policy-" + (i % APP_COUNT));
   const payload = JSON.stringify({
     "allowance": -1,
     "rate": -1,
     "per": -1,
     "throttle_interval": -1,
     "quota_max": -1,
-    "apply_policies": [ policyId ]
+    "apply_policies": [ policyId ],
   });
-
-  const res = http.post(baseURL + '/api/keys', payload, params);
-  check(res, {
-    ['key creation call status is 200']: (r) => r.status === 200,
-  }) || fail('Failed to create key');
-
-  return res.json().key_id;
+  return ['POST', baseURL + '/api/keys', payload, params];
 };
 
 const generateKeys = (keyCount) => {
-  const keys = [];
   const baseURL = "http://dashboard-svc-tyk-tyk-dashboard:3000";
+  const keys = new Array(keyCount);
+  let failedCount = 0;
+  const startMs = Date.now();
+  let nextProgressAt = PROGRESS_EVERY;
 
-  for (let i = 0; i < keyCount; i++) {
-    keys.push(createKey(baseURL, base64UrlEncode(`${var.namespace}/api-policy-$${i % ${var.service.app_count}}`)));
+  for (let batchStart = 0; batchStart < keyCount; batchStart += BATCH_SIZE) {
+    const batchEnd = Math.min(batchStart + BATCH_SIZE, keyCount);
+    let requests = [];
+    let indices = [];
+    for (let i = batchStart; i < batchEnd; i++) {
+      requests.push(buildCreateRequest(baseURL, i));
+      indices.push(i);
+    }
+
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      const responses = http.batch(requests);
+      const retryRequests = [];
+      const retryIndices = [];
+      for (let r = 0; r < responses.length; r++) {
+        if (responses[r].status === 200) {
+          keys[indices[r]] = responses[r].json().key_id;
+        } else if (attempt < MAX_RETRIES) {
+          retryRequests.push(requests[r]);
+          retryIndices.push(indices[r]);
+        } else {
+          failedCount++;
+          console.warn("generateKeys: key #" + indices[r] + " failed after " + MAX_RETRIES + " retries (status=" + responses[r].status + ", body=" + (responses[r].body || "").slice(0, 200) + ")");
+        }
+      }
+      if (retryRequests.length === 0) break;
+      sleep(0.1 * Math.pow(2, attempt));
+      requests = retryRequests;
+      indices = retryIndices;
+    }
+
+    if (batchEnd >= nextProgressAt || batchEnd === keyCount) {
+      const elapsedSec = ((Date.now() - startMs) / 1000).toFixed(1);
+      console.log("generateKeys: " + batchEnd + "/" + keyCount + " processed (" + failedCount + " failed), elapsed " + elapsedSec + "s");
+      while (nextProgressAt <= batchEnd) nextProgressAt += PROGRESS_EVERY;
+    }
   }
 
-  return keys;
+  const successfulKeys = keys.filter((k) => k !== undefined);
+  const failurePct = (failedCount / keyCount) * 100;
+  if (failurePct > TOLERANCE_PCT) {
+    fail("generateKeys: " + failedCount + "/" + keyCount + " (" + failurePct.toFixed(2) + "%) keys failed after " + MAX_RETRIES + " retries; exceeds tolerance " + TOLERANCE_PCT + "%");
+  }
+  if (failedCount > 0) {
+    console.warn("generateKeys: " + failedCount + "/" + keyCount + " (" + failurePct.toFixed(2) + "%) keys failed but within tolerance " + TOLERANCE_PCT + "%; proceeding with " + successfulKeys.length + " keys");
+  }
+  return successfulKeys;
 };
 
 export { generateKeys };
