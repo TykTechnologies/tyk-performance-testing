@@ -10,7 +10,7 @@ tests_fortio_options = "size=20"
 tests_executor       = "autoscaling-gradual"
 tests_auth_key_count            = 10000
 tests_auth_key_random_selection = true
-tests_auth_key_rolling          = false
+tests_auth_key_rolling          = true
 tests_ramping_steps  = 10
 tests_duration       = 30
 tests_rate           = 20000
