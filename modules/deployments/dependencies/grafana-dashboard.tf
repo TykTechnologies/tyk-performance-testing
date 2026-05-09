@@ -12646,7 +12646,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "rate({__name__=~\"go_memory_allocated(_bytes)?_total\"}[5m])",
+          "expr": "rate({__name__=~\"go_memory_allocated(_bytes)?(_total)?\"}[5m])",
           "legendFormat": "{{service_instance_id}}",
           "refId": "A"
         }
