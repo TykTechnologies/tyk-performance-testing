@@ -109,14 +109,18 @@ const sign = (data, secret) => {
   return hasher.digest("base64rawurl");
 }
 
+// JWT header is constant - precompute once at module init so the per-request
+// signRollingJWT() call doesn't repeat the same JSON.stringify + b64encode work
+// at 25k rps. Saves a few microseconds per request, which adds up.
+const JWT_HEADER_B64 = encoding.b64encode(
+  JSON.stringify({ typ: "JWT", alg: "HS256" }),
+  "rawurl"
+);
+
 const encode = (payload, secret) => {
-  const header = encoding.b64encode(
-    JSON.stringify({ typ: "JWT", alg: "HS256" }),
-    "rawurl"
-  );
-  payload = encoding.b64encode(JSON.stringify(payload), "rawurl");
-  const sig = sign(header + "." + payload, secret);
-  return [header, payload, sig].join(".");
+  const payloadB64 = encoding.b64encode(JSON.stringify(payload), "rawurl");
+  const sig = sign(JWT_HEADER_B64 + "." + payloadB64, secret);
+  return JWT_HEADER_B64 + "." + payloadB64 + "." + sig;
 }
 
 const JWT_HMAC_SECRET = "topsecretpassword";

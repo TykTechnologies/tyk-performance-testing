@@ -12709,6 +12709,62 @@ resource "kubernetes_config_map" "grafana-dashboard" {
       ],
       "title": "Pod restarts (OOM-kill detector)",
       "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "description": "Heap bytes per RPS - sum(go_memory_used) / sum(rate(tyk_api_requests_total)). The leak detector that ignores ramping load. Without a leak this is approximately flat: each request allocates and GC reclaims, steady-state is constant. With PR 8180-style leaks it rises linearly because old session/bucket entries never get evicted, so the gateway carries more retained bytes per unit of in-flight work. The single most important panel in this row for distinguishing 'load is rising' from 'we are leaking memory'.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "line", "lineInterpolation": "linear", "fillOpacity": 10 },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 217 },
+      "id": 407,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+          "expr": "sum({__name__=~\"go_memory_used(_bytes)?\"}) / sum(rate(tyk_api_requests_total[5m]))",
+          "legendFormat": "bytes per RPS",
+          "refId": "A"
+        }
+      ],
+      "title": "Heap bytes per RPS (leak detector under ramping load)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "description": "Heap bytes per allocation - sum(go_memory_used) / sum(rate(go_memory_allocations[5m])). Same idea as the bytes-per-RPS panel but normalized by allocator pressure rather than user-visible request rate, useful when load is so spiky that RPS itself is noisy. Flat = no leak; rising = the heap is keeping retained bytes that the allocator no longer accounts for as in-flight.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "line", "lineInterpolation": "linear", "fillOpacity": 10 },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 217 },
+      "id": 408,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+          "expr": "sum({__name__=~\"go_memory_used(_bytes)?\"}) / sum(rate({__name__=~\"go_memory_allocations(_total)?\"}[5m]))",
+          "legendFormat": "bytes per allocation",
+          "refId": "A"
+        }
+      ],
+      "title": "Heap bytes per allocation (alternate leak detector)",
+      "type": "timeseries"
     }
   ],
   "refresh": "5s",
