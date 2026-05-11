@@ -522,12 +522,17 @@ run_segmented_tests() {
     echo "Time remaining: ${REMAINING_DURATION} minutes"
     K6_NAME="test-s${SEGMENT}"   # must match metadata.name in the Terraform manifest
     
-    # Apply terraform with segment-specific variables
+    # Apply terraform with segment-specific variables. USE_JWT is set by the
+    # workflow when the "use_jwt" checkbox is on; it controls whether the k6
+    # default function signs a fresh JWT per request (rolling-sub) instead of
+    # picking from the pre-built token pool. Always pair with auth_type=JWT-HMAC
+    # at deploy time - that's enforced upstream in the workflow.
     terraform apply \
       --var="kubernetes_config_context=performance-testing" \
       --var="tests_duration=${CURRENT_DURATION}" \
       --var="test_segment=${SEGMENT}" \
       --var="total_segments=${NUM_SEGMENTS}" \
+      --var="tests_auth_key_rolling=${USE_JWT:-false}" \
       --auto-approve
     
     # Sleep for segment duration minus 5 minutes to create overlap

@@ -51,6 +51,11 @@ on:
         required: false
         type: number
         default: 300
+      use_jwt:
+        description: 'Use JWT-HMAC auth (locally-signed, rolling sub per request). When unchecked the test uses authToken (API keys minted via the Tyk dashboard) - same default the repo used historically.'
+        required: false
+        type: boolean
+        default: false
 
 env:
   provider: ${{ inputs.cloud == 'Azure' && 'aks' || (inputs.cloud == 'AWS' && 'eks' || 'gke') }}
@@ -346,6 +351,7 @@ jobs:
             --var="tyk_version=${{ inputs.tyk_version }}" \
             --var="tyk_license=${{ secrets.DASH_LICENSE }}" \
             --var="tyk_profiler_enabled=${{ inputs.tyk_profiler_enabled }}" \
+            --var="auth_type=${{ inputs.use_jwt && 'JWT-HMAC' || 'authToken' }}" \
             --auto-approve
 
       - name: Debug Redis Deployment Failure
@@ -436,6 +442,9 @@ jobs:
           export AZURE_CLUSTER_LOCATION="${{ vars.AZURE_CLUSTER_LOCATION }}"
           export AWS_CLUSTER_LOCATION="${{ vars.AWS_CLUSTER_LOCATION }}"
           export GCP_CLUSTER_LOCATION="${{ vars.GCP_CLUSTER_LOCATION }}"
+          # Rolling-JWT signing only makes sense when the gateway is in JWT-HMAC
+          # mode, so the k6 toggle is tied to the same workflow_dispatch checkbox.
+          export USE_JWT="${{ inputs.use_jwt }}"
           
           # Run segmented tests using external script
           .github/scripts/run-segmented-tests.sh \

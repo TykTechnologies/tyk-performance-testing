@@ -18,8 +18,8 @@ variable "auth_enabled" {
 
 variable "auth_type" {
   type        = string
-  default     = "JWT-HMAC"
-  description = "Authorization type on gateway APIs. authToken, JWT-RSA or JWT-HMAC. Defaults to JWT-HMAC because k6 setup() can sign JWTs locally - no flaky 10k-deep dashboard call sequence - and unique JWT subs drive unique Tyk sessions / DRL buckets, which is exactly what we want for the PR 8180 repro."
+  default     = "authToken"
+  description = "Authorization type on gateway APIs. authToken, JWT-RSA or JWT-HMAC. Defaults to authToken (the repo's historical default). The Full Performance Test workflow exposes a 'use_jwt' checkbox that flips this to JWT-HMAC when set, which also enables rolling JWT signing in k6 setup() for high-cardinality leak repros."
 }
 
 variable "quota_enabled" {
