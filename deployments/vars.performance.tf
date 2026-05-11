@@ -1,7 +1,7 @@
 variable "hpa_enabled" {
   type        = bool
-  default     = true
-  description = "Option to enable gateways Horizontal Pod Autoscaler."
+  default     = false
+  description = "Option to enable gateways Horizontal Pod Autoscaler. Defaults to false because HPA muddles memory-leak detection: when pods get full it spins up new ones with empty caches and routes traffic to them, and when load drops it terminates pods (freeing leaked memory). For clean leak observation prefer a fixed replica_count."
 }
 
 variable "hpa_max_replica_count" {
@@ -18,8 +18,8 @@ variable "hpa_avg_cpu_util_percentage" {
 
 variable "replica_count" {
   type        = number
-  default     = 2
-  description = "Gateway replica count."
+  default     = 6
+  description = "Gateway replica count. Defaults to 6 to give a constant-arrival-rate run at ~20k rps enough capacity without HPA in the loop (each pod can comfortably do ~3-4k rps on the default request_cpu=1, limit_cpu=2 resource shape). Lower this only if you also lower tests_rate."
 }
 
 variable "external_traffic_policy" {

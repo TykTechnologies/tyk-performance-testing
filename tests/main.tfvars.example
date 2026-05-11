@@ -7,7 +7,7 @@ traefik_enabled  = false
 upstream_enabled = false
 
 tests_fortio_options = "size=20"
-tests_executor       = "autoscaling-gradual"
+tests_executor       = "constant-arrival-rate"
 tests_auth_key_count            = 10000
 tests_auth_key_random_selection = true
 tests_auth_key_rolling          = false

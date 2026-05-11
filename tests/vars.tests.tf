@@ -6,8 +6,8 @@ variable "tests_fortio_options" {
 
 variable "tests_executor" {
   type        = string
-  default     = "autoscaling-gradual"
-  description = "Choose the executor for the test. Options are: 'constant-vus', 'ramping-vus', 'constant-arrival-rate', 'ramping-arrival-rate', 'externally-controlled', 'autoscaling-gradual'."
+  default     = "constant-arrival-rate"
+  description = "Choose the executor for the test. Options are: 'constant-vus', 'ramping-vus', 'constant-arrival-rate', 'ramping-arrival-rate', 'externally-controlled', 'autoscaling-gradual'. Defaults to constant-arrival-rate because the leak-detection panels (heap-bytes-per-RPS, heap-bytes-per-allocation) become much easier to read when load is flat - any slope on those panels is then unambiguously a leak, not a ramping artefact."
 }
 
 variable "tests_auth_key_count" {
