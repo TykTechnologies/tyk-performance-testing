@@ -18,8 +18,8 @@ variable "hpa_avg_cpu_util_percentage" {
 
 variable "replica_count" {
   type        = number
-  default     = 6
-  description = "Gateway replica count. Defaults to 6 to give a constant-arrival-rate run at ~20k rps enough capacity without HPA in the loop (each pod can comfortably do ~3-4k rps on the default request_cpu=1, limit_cpu=2 resource shape). Lower this only if you also lower tests_rate."
+  default     = 2
+  description = "Gateway replica count. The default of 2 is enough for low-rate functional runs. For sustained high-rate runs with hpa_enabled=false, bump this to match your tests_rate / per-pod-rps-capacity (rough rule: each pod handles ~3-4k rps on the default resource shape)."
 }
 
 variable "external_traffic_policy" {
