@@ -17,6 +17,13 @@ resource "helm_release" "prometheus" {
     value = "web.enable-remote-write-receiver"
   }
 
+  # Keep recently-finished k6 series queryable at the right edge of the
+  # dashboard so snapshots taken just after a test still graph RPS/latency.
+  set {
+    name  = "server.extraFlags[1]"
+    value = "query.lookback-delta=15m"
+  }
+
   set {
     name  = "server.extraArgs.enable-feature"
     value = "native-histograms"

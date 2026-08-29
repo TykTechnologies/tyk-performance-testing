@@ -69,13 +69,13 @@ resource "kubernetes_config_map" "grafana_queries" {
     # Combine metrics from all segments
     rps_query = <<EOF
 sum by(testid) (
-  rate(k6_http_reqs_total{testid=~"${var.name}-seg.*", group!="::setup"}[30s])
+  rate(k6_http_reqs_total{testid=~"${var.name}-seg.*"}[1m])
 )
 EOF
 
     latency_query = <<EOF
 avg by(testid) (
-  k6_http_req_duration_p75{testid=~"${var.name}-seg.*", group!="::setup"}
+  k6_http_req_duration_p75{testid=~"${var.name}-seg.*"}
 )
 EOF
   }
