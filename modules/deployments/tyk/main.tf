@@ -56,12 +56,28 @@ locals {
     { name = "TYK_GW_OPENTELEMETRY_METRICS_APIMETRICS", value = var.open_telemetry.api_metrics },
   ] : []
 
-  tyk_gateway_extra_envs_cfgmap = var.use_config_maps_for_apis ? [
-    { name = "TYK_GW_APPPATH", value = "/opt/tyk-gateway/apps" },
-    { name = "TYK_GW_POLICIES_POLICYPATH", value = "/opt/tyk-gateway/policies" },
-    { name = "TYK_GW_POLICIES_POLICYSOURCE", value = "file" },
-    { name = "TYK_GW_USEDBAPPCONFIGS", value = "false" },
-  ] : []
+  # POLICYPATH alone doesn't make the gateway read anything: per the official
+  # tyk-stack chart's own gw deployment template, the field that the file
+  # policy loader actually reads from is POLICYRECORDNAME (it doubles as a
+  # Mongo collection name for the "service"/"rpc" sources, and as the literal
+  # policies.json path for "file"). Confirmed by decompiling the vendored
+  # chart's own default env vars - it sets both POLICYPATH (a directory) and
+  # POLICYRECORDNAME (a single file inside it) side by side, and provisions
+  # that file's directory via `mkdir -p policies && touch policies/policies.json`
+  # in its init container. Without POLICYRECORDNAME the gateway loads zero
+  # policies regardless of what's mounted, which is why every generated key
+  # kept failing with "policy not found" even after the ID mismatch was fixed.
+  tyk_gateway_extra_envs_cfgmap = concat(
+    var.use_config_maps_for_apis ? [
+      { name = "TYK_GW_APPPATH", value = "/opt/tyk-gateway/apps" },
+      { name = "TYK_GW_POLICIES_POLICYPATH", value = "/opt/tyk-gateway/policies" },
+      { name = "TYK_GW_POLICIES_POLICYSOURCE", value = "file" },
+      { name = "TYK_GW_USEDBAPPCONFIGS", value = "false" },
+    ] : [],
+    var.use_config_maps_for_apis && (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? [
+      { name = "TYK_GW_POLICIES_POLICYRECORDNAME", value = "/opt/tyk-gateway/policies/policies.json" },
+    ] : []
+  )
 
   tyk_gateway_extra_envs = concat(local.tyk_gateway_extra_envs_base, local.tyk_gateway_extra_envs_api_metrics, local.tyk_gateway_extra_envs_cfgmap)
 }
