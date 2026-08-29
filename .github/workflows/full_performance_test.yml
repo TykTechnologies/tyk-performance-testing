@@ -648,6 +648,7 @@ jobs:
           # Initialize terraform (required for both local and cloud backends)
           if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
             echo "🔄 Using local state for tests destruction..."
+            terraform init
             # Ensure we have the state file
             if [[ ! -f terraform.tfstate ]]; then
               echo "⚠️  No terraform state found for tests - they may have already been destroyed"
@@ -676,6 +677,7 @@ jobs:
           # Initialize terraform (required for both local and cloud backends)
           if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
             echo "🔄 Using local state for deployments destruction..."
+            terraform init
             # Ensure we have the state file
             if [[ ! -f terraform.tfstate ]]; then
               echo "⚠️  No terraform state found for deployments - they may have already been destroyed"
@@ -705,6 +707,7 @@ jobs:
           # Initialize terraform (required for both local and cloud backends)
           if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
             echo "🔄 Using local state for AKS cluster destruction..."
+            terraform init
             # Ensure we have the state file
             if [[ ! -f terraform.tfstate ]]; then
               echo "⚠️  No terraform state found for AKS cluster - it may have already been destroyed"
@@ -736,6 +739,7 @@ jobs:
           # Initialize terraform (required for both local and cloud backends)
           if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
             echo "🔄 Using local state for EKS cluster destruction..."
+            terraform init
             # Ensure we have the state file
             if [[ ! -f terraform.tfstate ]]; then
               echo "⚠️  No terraform state found for EKS cluster - it may have already been destroyed"
@@ -767,6 +771,7 @@ jobs:
           # Initialize terraform (required for both local and cloud backends)
           if [[ "${{ inputs.use_terraform_cloud }}" == "false" ]]; then
             echo "🔄 Using local state for GKE cluster destruction..."
+            terraform init
             # Ensure we have the state file
             if [[ ! -f terraform.tfstate ]]; then
               echo "⚠️  No terraform state found for GKE cluster - it may have already been destroyed"

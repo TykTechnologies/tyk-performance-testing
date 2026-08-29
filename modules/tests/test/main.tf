@@ -38,6 +38,7 @@ export const options = {
   // matters for anyone using auth_type=authToken with a large key_count.
   batch: 50,
   batchPerHost: 50,
+  tags: { instance_id: __ENV.K6_INSTANCE_ID || 'unknown' },
   scenarios: { [SCENARIO]: getScenarios(${jsonencode(var.config)})[SCENARIO] },
   thresholds: {
     'http_req_duration': ['p(95)<2000'],
@@ -216,13 +217,17 @@ spec:
       value: "false"  # Use traditional histograms for better Grafana compatibility
     # Additional settings to prevent metric timeouts in long tests
     - name: K6_PROMETHEUS_RW_MAX_SAMPLES_PER_SEND
-      value: "1000"  # Reduce batch size to prevent timeouts
+      value: "10000"  # High-cardinality http_reqs (status/method/name/instance) need a large batch or series get dropped
     - name: K6_PROMETHEUS_RW_TIMEOUT
       value: "30s"  # Explicit timeout per remote write request
     - name: K6_LOG_LEVEL
       value: "info"  # Enable logging to debug metric issues
     - name: DURATION_MINUTES
       value: "${var.config.duration}"
+    - name: K6_INSTANCE_ID
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
   script:
     configMap:
       name: test-${var.name}-configmap

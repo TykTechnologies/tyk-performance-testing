@@ -74,7 +74,7 @@ resource "helm_release" "tyk" {
   chart      = "tyk-stack"
 
   namespace = var.namespace
-  atomic    = true
+  atomic    = false
 
   # Provide extraEnvs as a single list to Helm to avoid null/empty entries
   values = [
