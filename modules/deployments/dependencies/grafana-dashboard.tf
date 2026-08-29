@@ -1744,7 +1744,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "decimals": 2,
+          "decimals": 0,
           "fieldMinMax": false,
           "mappings": [],
           "thresholds": {
@@ -1756,7 +1756,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -3777,7 +3777,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(sum by(testid) (k6_http_reqs_total{status=~\"2..\"}) * 100 / sum by(testid) (k6_http_reqs_total))",
+          "expr": "100 * (1 - (sum by(testid) (k6_http_reqs_total{expected_response=\"false\"}) / clamp_min(sum by(testid) (k6_http_reqs_total), 1)))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4691,12 +4691,12 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(testid) (k6_vus)",
+          "expr": "(max(k6_vus) > 0) or max(k6_test_config_virtual_users)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "{{testid}} -",
+          "legendFormat": "VUs",
           "range": true,
           "refId": "A"
         }
@@ -4895,7 +4895,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum by(testid) (k6_vus)",
+          "expr": "(sum by(testid) (k6_vus) > 0) or label_replace(max(k6_test_config_virtual_users), \"testid\", \"configured\", \"\", \"\")",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -5110,10 +5110,10 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": true,
             "stacking": {
               "group": "A",
-              "mode": "normal"
+              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -5256,7 +5256,8 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum by(testid) (rate(k6_data_received_total[1m]))",
+          "expr": "sum by(testid) (rate(k6_data_received_total[5m]))",
+          "format": "time_series",
           "interval": "",
           "legendFormat": "Received - {{testid}}",
           "range": true,
@@ -5269,7 +5270,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum by(testid) (rate(k6_data_sent_total[1m]))",
+          "expr": "sum by(testid) (rate(k6_data_sent_total[5m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "Sent - {{testid}}",
@@ -6068,7 +6069,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -6082,7 +6083,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong\", namespace=\"kong\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "B"
         },
@@ -6095,7 +6096,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee\", namespace=\"gravitee\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "C"
         },
@@ -6108,7 +6109,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik\", namespace=\"traefik\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "D"
         }
@@ -6305,7 +6306,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -6319,7 +6320,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"kong\", namespace=\"kong\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "B"
         },
@@ -6332,7 +6333,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"gravitee\", namespace=\"gravitee\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "C"
         },
@@ -6345,7 +6346,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"traefik\", namespace=\"traefik\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "D"
         }
@@ -6508,7 +6509,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -6522,7 +6523,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong\",namespace=\"kong\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "B"
         },
@@ -6535,7 +6536,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee\",namespace=\"gravitee\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "C"
         },
@@ -6548,7 +6549,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik\",namespace=\"traefik\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "D"
         }
@@ -6710,7 +6711,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -6724,7 +6725,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"kong\", namespace=\"kong\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "B"
         },
@@ -6737,7 +6738,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"gravitee\", namespace=\"gravitee\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "C"
         },
@@ -6750,7 +6751,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"traefik\", namespace=\"traefik\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "D"
         }
@@ -6785,7 +6786,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Cores",
+            "axisLabel": "Pods",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -6860,7 +6861,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "disableTextWrap": false,
           "editorMode": "code",
           "exemplar": true,
-          "expr": "count(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway-[0-9]+.*\",phase=\"Running\"})",
+          "expr": "count(kube_pod_status_phase{namespace=\"tyk\",pod=~\"gateway-tyk-tyk-gateway-.*\",phase=\"Running\"})",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -6876,7 +6877,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_status_phase{namespace=\"kong\",pod=~\"kong-gateway-[0-9]+.*\",phase=\"Running\"})",
+          "expr": "count(kube_pod_status_phase{namespace=\"kong\",pod=~\"kong-gateway-.*\",phase=\"Running\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Kong",
@@ -6889,7 +6890,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_status_phase{namespace=\"gravitee\",pod=~\"gravitee-apim-gateway-[0-9]+.*\",phase=\"Running\"})",
+          "expr": "count(kube_pod_status_phase{namespace=\"gravitee\",pod=~\"gravitee-apim-gateway-.*\",phase=\"Running\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Gravitee",
@@ -6902,7 +6903,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_status_phase{namespace=\"traefik\",pod=~\"traefik-[0-9]+.*\",phase=\"Running\"})",
+          "expr": "count(kube_pod_status_phase{namespace=\"traefik\",pod=~\"traefik-.*\",phase=\"Running\"})",
           "hide": false,
           "instant": false,
           "legendFormat": "Traefik",
@@ -7610,7 +7611,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -7624,7 +7625,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-resources\",namespace=\"kong\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "B"
         },
@@ -7637,7 +7638,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-resources\",namespace=\"gravitee\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "C"
         },
@@ -7650,7 +7651,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-resources\",namespace=\"traefik\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "D"
         }
@@ -7847,7 +7848,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -7861,7 +7862,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"kong-resources\", namespace=\"kong\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "B"
         },
@@ -7874,7 +7875,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-resources\", namespace=\"gravitee\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "C"
         },
@@ -7887,7 +7888,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"traefik-resources\", namespace=\"traefik\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "D"
         }
@@ -8050,7 +8051,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -8064,7 +8065,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-resources\",namespace=\"kong\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "B"
         },
@@ -8077,7 +8078,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-resources\",namespace=\"gravitee\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "C"
         },
@@ -8090,7 +8091,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-resources\",namespace=\"traefik\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "D"
         }
@@ -8252,7 +8253,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -8266,7 +8267,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"kong-resources\", namespace=\"kong\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "B"
         },
@@ -8279,7 +8280,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-resources\", namespace=\"gravitee\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "C"
         },
@@ -8292,7 +8293,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"traefik-resources\", namespace=\"traefik\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "D"
         }
@@ -8503,7 +8504,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -8517,7 +8518,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-upstream\",namespace=\"kong-upstream\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "B"
         },
@@ -8530,7 +8531,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-upstream\",namespace=\"gravitee-upstream\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "C"
         },
@@ -8543,7 +8544,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-upstream\",namespace=\"traefik-upstream\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "D"
         },
@@ -8556,7 +8557,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream\",namespace=\"upstream\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "E"
         }
@@ -8753,7 +8754,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -8767,7 +8768,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"kong-upstream\", namespace=\"kong-upstream\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "B"
         },
@@ -8780,7 +8781,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-upstream\", namespace=\"gravitee-upstream\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "C"
         },
@@ -8793,7 +8794,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"traefik-upstream\", namespace=\"traefik-upstream\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "D"
         },
@@ -8806,7 +8807,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"upstream\", namespace=\"upstream\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "E"
         }
@@ -8909,7 +8910,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -8923,7 +8924,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-upstream\",namespace=\"kong-upstream\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "B"
         },
@@ -8936,7 +8937,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-upstream\",namespace=\"gravitee-upstream\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "C"
         },
@@ -8949,7 +8950,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-upstream\",namespace=\"traefik-upstream\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "D"
         },
@@ -8962,7 +8963,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream\",namespace=\"upstream\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "E"
         }
@@ -9063,7 +9064,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -9077,7 +9078,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"kong-upstream\", namespace=\"kong-upstream\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "B"
         },
@@ -9090,7 +9091,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-upstream\", namespace=\"gravitee-upstream\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "C"
         },
@@ -9103,7 +9104,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"traefik-upstream\", namespace=\"traefik-upstream\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "D"
         },
@@ -9116,7 +9117,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"upstream\", namespace=\"upstream\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "E"
         }
@@ -9327,7 +9328,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -9341,7 +9342,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-tests\",namespace=\"kong\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "B"
         },
@@ -9354,7 +9355,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-tests\",namespace=\"gravitee\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "C"
         },
@@ -9367,7 +9368,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-tests\",namespace=\"traefik\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "D"
         },
@@ -9380,7 +9381,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream-tests\",namespace=\"upstream\"}[5m])) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "E"
         }
@@ -9577,7 +9578,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -9591,7 +9592,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"kong-tests\", namespace=\"kong\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "B"
         },
@@ -9604,7 +9605,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-tests\", namespace=\"gravitee\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "C"
         },
@@ -9617,7 +9618,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"traefik-tests\", namespace=\"traefik\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "D"
         },
@@ -9630,7 +9631,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"upstream-tests\", namespace=\"upstream\"}) by (node)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{node}}",
           "range": true,
           "refId": "E"
         }
@@ -9732,7 +9733,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -9746,7 +9747,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"kong-tests\",namespace=\"kong\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "B"
         },
@@ -9759,7 +9760,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"gravitee-tests\",namespace=\"gravitee\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "C"
         },
@@ -9772,7 +9773,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"traefik-tests\",namespace=\"traefik\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "D"
         },
@@ -9785,7 +9786,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(rate(container_cpu_usage_seconds_total{node=\"upstream-tests\",namespace=\"upstream\"}[5m])) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "E"
         }
@@ -9886,7 +9887,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -9900,7 +9901,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"kong-tests\", namespace=\"kong\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "B"
         },
@@ -9913,7 +9914,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"gravitee-tests\", namespace=\"gravitee\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "C"
         },
@@ -9926,7 +9927,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"traefik-tests\", namespace=\"traefik\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "D"
         },
@@ -9939,7 +9940,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "sum(container_memory_working_set_bytes{node=\"upstream-tests\", namespace=\"upstream\"}) by (pod)",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "E"
         }
@@ -10054,7 +10055,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -10156,7 +10157,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{pod}}",
           "range": true,
           "refId": "A",
           "useBackend": false
@@ -10190,7 +10191,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "decimals": 2,
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -10201,7 +10202,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -10305,7 +10306,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "A"
         },
@@ -10318,7 +10319,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "B"
         },
@@ -10331,7 +10332,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "C"
         },
@@ -10344,7 +10345,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "D"
         }
@@ -10364,7 +10365,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "decimals": 2,
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -10375,7 +10376,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -10479,7 +10480,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "A"
         },
@@ -10492,7 +10493,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-resources\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "B"
         },
@@ -10505,7 +10506,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-resources\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "C"
         },
@@ -10518,7 +10519,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik-resources\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "D"
         }
@@ -10538,7 +10539,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "decimals": 2,
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -10549,7 +10550,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "short"
         },
         "overrides": []
       },
@@ -10592,7 +10593,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "A"
         }
@@ -10612,7 +10613,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "decimals": 2,
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -10623,7 +10624,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -10742,7 +10743,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "A"
         },
@@ -10755,7 +10756,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-upstream\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "B"
         },
@@ -10768,7 +10769,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-upstream\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "C"
         },
@@ -10781,7 +10782,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik-upstream\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "D"
         },
@@ -10794,7 +10795,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"upstream\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "E"
         }
@@ -10814,7 +10815,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
             "fixedColor": "#8438fa",
             "mode": "fixed"
           },
-          "decimals": 2,
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -10825,7 +10826,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "short"
         },
         "overrides": [
           {
@@ -10944,7 +10945,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "hide": false,
           "instant": false,
           "interval": "",
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "A"
         },
@@ -10957,7 +10958,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"kong-tests\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "B"
         },
@@ -10970,7 +10971,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"gravitee-tests\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "C"
         },
@@ -10983,7 +10984,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"traefik-tests\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "D"
         },
@@ -10996,7 +10997,7 @@ resource "kubernetes_config_map" "grafana-dashboard" {
           "expr": "count by (label_beta_kubernetes_io_instance_type) (kube_node_labels{label_node=\"upstream-tests\"})",
           "hide": false,
           "instant": false,
-          "legendFormat": "__auto",
+          "legendFormat": "{{label_beta_kubernetes_io_instance_type}}",
           "range": true,
           "refId": "E"
         }
