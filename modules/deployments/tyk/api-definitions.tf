@@ -81,36 +81,37 @@ locals {
   # namespace prefixing - tests.tf's generateKeys() references the same
   # plain "api-policy-N" id via the Gateway's own key-creation API.
   #
-  # Unlike api_definitions (one file per API, loaded via directory glob),
-  # Tyk's file-based policy loader (policy_source=file) reads a SINGLE file
-  # containing a JSON array of all policies - confirmed against the
-  # tyk-stack chart's own gateway template, which provisions an empty
-  # policies.json via its init container for exactly this purpose. One file
-  # per policy (the earlier shape here) is silently ignored: the gateway
-  # ends up with zero policies loaded no matter what ID they use.
+  # One file per policy, matching api_definitions: since TYK_GW_POLICIES_
+  # POLICYPATH (a directory) is set, gateway/server.go's policy loader takes
+  # the LoadPoliciesFromDir(PolicyPath) branch, which globs *.json in that
+  # dir and json-decodes each file straight into a single user.Policy struct.
+  # Deliberately no "_id" field: user.Policy.MID (json:"_id") is a Mongo
+  # ObjectID and a plain string like "api-policy-0" fails to decode into it
+  # ("invalid ObjectId in JSON"), aborting that file's load entirely. The
+  # policy store indexes by the *other* id field - user.Policy.ID (json:"id",
+  # a plain string, see internal/model/policies.go's `customKey(pol.ID)`) -
+  # so "id" is all that's needed to make apply_policies lookups work.
   policy_definitions = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? {
-    "policies.json" = jsonencode([
-      for i in range(var.service.app_count) : {
-        _id          = "api-policy-${i}"
-        id           = "api-policy-${i}"
-        name         = "api-policy-${i}"
-        org_id       = "1"
-        rate         = var.rate_limit.enabled ? var.rate_limit.rate : 0
-        per          = var.rate_limit.enabled ? var.rate_limit.per : 0
-        quota_max    = var.quota.enabled ? var.quota.rate : 0
-        quota_renews = var.quota.enabled ? var.quota.per : 0
-        access_rights = {
-          for j in range(var.service.route_count) :
-          "api-${j}" => {
-            api_name = "api-${j}"
-            api_id   = "api-${j}"
-            versions = ["Default"]
-          }
+    for i in range(var.service.app_count) :
+    "policy-${i}.json" => jsonencode({
+      id           = "api-policy-${i}"
+      name         = "api-policy-${i}"
+      org_id       = "1"
+      rate         = var.rate_limit.enabled ? var.rate_limit.rate : 0
+      per          = var.rate_limit.enabled ? var.rate_limit.per : 0
+      quota_max    = var.quota.enabled ? var.quota.rate : 0
+      quota_renews = var.quota.enabled ? var.quota.per : 0
+      access_rights = {
+        for j in range(var.service.route_count) :
+        "api-${j}" => {
+          api_name = "api-${j}"
+          api_id   = "api-${j}"
+          versions = ["Default"]
         }
-        active = true
-        tags   = ["Default"]
       }
-    ])
+      active = true
+      tags   = ["Default"]
+    })
   } : {}
 }
 
