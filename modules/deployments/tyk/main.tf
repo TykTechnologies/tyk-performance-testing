@@ -14,6 +14,10 @@ locals {
   pgsql-port = "5432"
   redis-pass = "topsecretpassword"
   redis-port = "6379"
+  # Pinned explicitly (chart default is the placeholder "CHANGEME") so
+  # tests.tf's generateKeys() can talk to the Gateway's own admin API
+  # directly when use_config_maps_for_apis=true bypasses the Dashboard.
+  gateway-secret = "topsecretpassword"
   
   # Ensure LoadBalancer type when using Local traffic policy
   actual_service_type = var.external_traffic_policy == "Local" ? "LoadBalancer" : var.service_type
@@ -95,6 +99,11 @@ resource "helm_release" "tyk" {
   set {
     name  = "global.adminUser.password"
     value = "topsecretpassword"
+  }
+
+  set {
+    name  = "global.secrets.APISecret"
+    value = local.gateway-secret
   }
 
   set {

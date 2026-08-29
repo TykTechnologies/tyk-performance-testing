@@ -45,10 +45,24 @@ const base64UrlEncode = (str) => {
   return b64encode(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-const params = {
+// use_config_maps_for_apis=true mounts APIs/policies straight onto the
+// Gateway's filesystem (TYK_GW_USEDBAPPCONFIGS=false, policy source=file).
+// The Dashboard never learns about those, so keys must be created directly
+// against the Gateway's own admin API instead of the Dashboard's.
+const USE_GATEWAY_KEY_API = ${var.use_config_maps_for_apis};
+
+const dashboardParams = {
   responseType: 'text',
   headers: {
     'Authorization': "${data.kubernetes_secret.tyk-operator-conf.data["TYK_AUTH"]}",
+    'Content-Type': 'application/json',
+  },
+};
+
+const gatewayParams = {
+  responseType: 'text',
+  headers: {
+    'x-tyk-authorization': "${local.gateway-secret}",
     'Content-Type': 'application/json',
   },
 };
@@ -61,6 +75,19 @@ const TOLERANCE_PCT = 1;
 const PROGRESS_EVERY = 1000;
 
 const buildCreateRequest = (baseURL, i) => {
+  if (USE_GATEWAY_KEY_API) {
+    const policyId = "api-policy-" + (i % APP_COUNT);
+    const payload = JSON.stringify({
+      "org_id": "1",
+      "allowance": -1,
+      "rate": -1,
+      "per": -1,
+      "throttle_interval": -1,
+      "quota_max": -1,
+      "apply_policies": [ policyId ],
+    });
+    return ['POST', baseURL + '/tyk/keys/create', payload, gatewayParams];
+  }
   const policyId = base64UrlEncode(NAMESPACE + "/api-policy-" + (i % APP_COUNT));
   const payload = JSON.stringify({
     "allowance": -1,
@@ -70,11 +97,13 @@ const buildCreateRequest = (baseURL, i) => {
     "quota_max": -1,
     "apply_policies": [ policyId ],
   });
-  return ['POST', baseURL + '/api/keys', payload, params];
+  return ['POST', baseURL + '/api/keys', payload, dashboardParams];
 };
 
 const generateKeys = (keyCount) => {
-  const baseURL = "http://dashboard-svc-tyk-tyk-dashboard:3000";
+  const baseURL = USE_GATEWAY_KEY_API
+    ? "http://gateway-svc-tyk-tyk-gateway:8080"
+    : "http://dashboard-svc-tyk-tyk-dashboard:3000";
   const keys = new Array(keyCount);
   let failedCount = 0;
   const startMs = Date.now();
@@ -95,7 +124,8 @@ const generateKeys = (keyCount) => {
       const retryIndices = [];
       for (let r = 0; r < responses.length; r++) {
         if (responses[r].status === 200) {
-          keys[indices[r]] = responses[r].json().key_id;
+          const body = responses[r].json();
+          keys[indices[r]] = USE_GATEWAY_KEY_API ? body.key : body.key_id;
         } else if (attempt < MAX_RETRIES) {
           retryRequests.push(requests[r]);
           retryIndices.push(indices[r]);
