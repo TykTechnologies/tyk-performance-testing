@@ -70,17 +70,21 @@ locals {
       jwt_source                     = local.enable_jwt ? local.jwt_source : ""
       jwt_identity_base_field        = local.enable_jwt ? "sub" : ""
       jwt_policy_field_name          = local.enable_jwt ? "pol" : ""
-      jwt_default_policies           = local.enable_jwt ? ["policy-${i % var.service.app_count}"] : []
+      jwt_default_policies           = local.enable_jwt ? ["${var.namespace}/api-policy-${i % var.service.app_count}"] : []
     })
   }
 
   # Generate policy definitions when auth/rate limiting/quota is enabled
+  # IDs are namespace-prefixed ("<namespace>/api-policy-N") to match the IDs
+  # the Tyk Operator path (operator-api.tf) produces and that tests.tf's
+  # generateKeys() requests via apply_policies - both provisioning paths must
+  # agree on policy IDs since the k6 auth script is shared between them.
   policy_definitions = (var.auth.enabled || var.rate_limit.enabled || var.quota.enabled) ? {
     for i in range(var.service.app_count) :
     "policy-${i}.json" => jsonencode({
-      _id          = "policy-${i}"
-      id           = "policy-${i}"
-      name         = "policy-${i}"
+      _id          = "${var.namespace}/api-policy-${i}"
+      id           = "${var.namespace}/api-policy-${i}"
+      name         = "api-policy-${i}"
       org_id       = "1"
       rate         = var.rate_limit.enabled ? var.rate_limit.rate : 0
       per          = var.rate_limit.enabled ? var.rate_limit.per : 0
