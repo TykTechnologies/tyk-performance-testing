@@ -561,6 +561,7 @@ jobs:
           kubectl get events -n dependencies --sort-by=.lastTimestamp | tail -100 || true
 
       - name: Test Grafana Snapshot
+        id: grafana_snapshot
         if: always()
         continue-on-error: true
         run: |
@@ -611,6 +612,11 @@ jobs:
           else
             echo "No timed snapshot job pod found"
           fi
+
+          # Prefer the immediate snapshot URL, fall back to the timed one, and
+          # publish whichever we found so later steps (and the run summary) can link to it
+          FINAL_SNAPSHOT_URL="${SNAPSHOT_URL:-$TIMED_URL}"
+          echo "snapshot_url=$FINAL_SNAPSHOT_URL" >> "$GITHUB_OUTPUT"
 
       - name: Download Profiles
         if: ${{ inputs.tyk_profiler_enabled == true }}
@@ -792,12 +798,14 @@ jobs:
       - name: Final Test Status Report
         if: always()
         run: |
+          SNAPSHOT_URL="${{ steps.grafana_snapshot.outputs.snapshot_url }}"
+
           echo "=== Final Performance Test Status Report ==="
           echo "Test execution outcome: ${{ steps.run_tests.outcome }}"
           echo "Test duration requested: ${{ inputs.test_duration_minutes }} minutes"
           echo "Cloud provider: ${{ inputs.cloud }}"
           echo "Tyk version: ${{ inputs.tyk_version }}"
-          
+
           if [[ "${{ steps.run_tests.outcome }}" == "success" ]]; then
             echo "✅ Performance test completed successfully"
             echo "All test data and snapshots should be available in Grafana"
@@ -808,9 +816,28 @@ jobs:
           else
             echo "⚠️  Test status unclear: ${{ steps.run_tests.outcome }}"
           fi
-          
+
           echo "=== Data Availability ==="
           echo "- Terraform state files: Backed up as artifacts"
           echo "- k6 metrics: Sent to Prometheus during test execution"
-          echo "- Grafana snapshots: Check snapshot job logs above"
+          if [[ -n "$SNAPSHOT_URL" ]]; then
+            echo "- Grafana snapshot: $SNAPSHOT_URL"
+          else
+            echo "- Grafana snapshots: No snapshot URL captured, check snapshot job logs above"
+          fi
           echo "- Tyk profiles: ${{ inputs.tyk_profiler_enabled == true && 'Enabled and uploaded' || 'Disabled' }}"
+
+          {
+            echo "## Performance Test Summary"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Outcome | ${{ steps.run_tests.outcome }} |"
+            echo "| Cloud provider | ${{ inputs.cloud }} |"
+            echo "| Tyk version | ${{ inputs.tyk_version }} |"
+            if [[ -n "$SNAPSHOT_URL" ]]; then
+              echo "| Grafana snapshot | [View dashboard]($SNAPSHOT_URL) |"
+            else
+              echo "| Grafana snapshot | Not captured, check the *Test Grafana Snapshot* step logs |"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
