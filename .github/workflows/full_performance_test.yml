@@ -103,7 +103,12 @@ jobs:
 
       - name: Install gcloud k8s auth component
         if: ${{ inputs.cloud == 'GCP' }}
-        run: gcloud components install gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
+          # gcloud >= 571 crashes in `config config-helper` with credentials_json auth
+          # ('Credentials' object has no attribute 'private_key_id'); have the plugin
+          # read GOOGLE_APPLICATION_CREDENTIALS directly instead of calling gcloud.
+          echo "CLOUDSDK_CONTAINER_USE_APPLICATION_DEFAULT_CREDENTIALS=true" >> "$GITHUB_ENV"
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3.1.1
